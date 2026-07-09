@@ -6,8 +6,11 @@ import { dirname } from 'node:path';
 // `module.builtinModules`. A static `import ... from 'node:sqlite'` makes the
 // test runner (Vite/vite-node) mis-resolve it to a bare `sqlite` package.
 // Loading it through createRequire keeps the import invisible to the bundler;
-// plain-Node production (no bundler) is unaffected either way. Requires Node
-// >= 23.4 to load without the --experimental-sqlite flag (host is on Node 24).
+// plain-Node production (no bundler) is unaffected either way. Loads without
+// the --experimental-sqlite flag since Node 22.13.0 (the LTS backport) / 23.4.0
+// — still "experimental" (may emit a non-fatal warning) but runs. The Hostinger
+// host runs Node 22.x (>= 22.13); do NOT select a 22.0–22.12 build, where the
+// flag is still required and this load would throw at boot.
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 
 export type OutboxStatus = 'pending' | 'sent' | 'dead';
