@@ -1,6 +1,14 @@
-import Database from 'better-sqlite3';
+import { createRequire } from 'node:module';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+
+// `node:sqlite` is an experimental builtin, absent from Node's
+// `module.builtinModules`. A static `import ... from 'node:sqlite'` makes the
+// test runner (Vite/vite-node) mis-resolve it to a bare `sqlite` package.
+// Loading it through createRequire keeps the import invisible to the bundler;
+// plain-Node production (no bundler) is unaffected either way. Requires Node
+// >= 23.4 to load without the --experimental-sqlite flag (host is on Node 24).
+const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 
 export type OutboxStatus = 'pending' | 'sent' | 'dead';
 export interface Submission {
@@ -21,8 +29,8 @@ export interface Outbox {
 
 export function createOutbox(dbPath: string): Outbox {
   if (dbPath !== ':memory:') mkdirSync(dirname(dbPath), { recursive: true });
-  const db = new Database(dbPath);
-  db.pragma('journal_mode = WAL');
+  const db = new DatabaseSync(dbPath);
+  db.exec('PRAGMA journal_mode = WAL');
   db.exec(`CREATE TABLE IF NOT EXISTS outbox (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     payload TEXT NOT NULL,

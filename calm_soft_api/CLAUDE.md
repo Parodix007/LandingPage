@@ -44,7 +44,7 @@ The anti-abuse gates are layered (cheapest first) and live under `src/security/`
 
 ## Commands
 
-> Node 20+ (developed on Node 24). `better-sqlite3` is pinned to `^12` for Node 24 prebuilt binaries (no compile toolchain); `nodemailer` is `^9` (the `6.x` line has unpatched SMTP/CRLF-injection advisories). Keep this section in sync:
+> **Node 24 required** (`engines: >=24`). The outbox uses Node's **built-in `node:sqlite`** (`DatabaseSync`), not a native module — this removes the former `better-sqlite3` dependency, which failed to install on Hostinger's toolchain-less build sandbox (no prebuilt binary reachable → `node-gyp` fell back to compiling → no Python). `node:sqlite` needs Node **≥ 23.4** to load without `--experimental-sqlite` (no flag and no boot warning on Node 24), so the deploy host's Node Selector must be set to 24. It is loaded via `createRequire` in `src/outbox/store.ts` so the Vitest bundler doesn't mis-resolve the builtin — do not convert it back to a static `import ... from 'node:sqlite'`. `nodemailer` is `^9` (the `6.x` line has unpatched SMTP/CRLF-injection advisories). Keep this section in sync:
 
 - Install: `npm ci`
 - Dev (watch): `npm run dev` (e.g. `tsx watch src/server.ts`)
