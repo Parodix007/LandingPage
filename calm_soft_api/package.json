@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && node scripts/copy-templates.mjs",
+    "build": "npm ci --include=dev && tsc && node scripts/copy-templates.mjs",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
