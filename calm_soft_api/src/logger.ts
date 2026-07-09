@@ -1,4 +1,4 @@
-import { pino, stdSerializers, type Logger } from 'pino';
+import { pino, stdSerializers, destination, type Logger } from 'pino';
 
 export const REDACT_PATHS = ['req.headers.authorization', 'req.headers.cookie'];
 
@@ -9,15 +9,18 @@ export function buildLogger(nodeEnv: string, level: string = 'info', pretty: boo
     redact: { paths: REDACT_PATHS, censor: '[redacted]' },
     serializers: { err: stdSerializers.err },
   };
-  // Structured NDJSON by default (machine-parseable for log shipping/alerting).
-  // pino-pretty (worker-thread transport) only when explicitly enabled — never on the
-  // silent/test path, whose transport would dangle a worker thread in Vitest.
-  if (resolved === 'silent' || !pretty) return pino(base);
+  // All real logging goes to stderr (fd 2): Hostinger's runtime log panel surfaces
+  // stderr, not stdout, so app logs are only visible there. Non-pretty emits structured
+  // NDJSON (machine-parseable for shipping/alerting); pino-pretty (worker-thread
+  // transport) only when explicitly enabled. The silent/test path stays a plain logger
+  // — no fd handle and no pino-pretty worker thread to dangle in Vitest.
+  if (resolved === 'silent') return pino(base);
+  if (!pretty) return pino(base, destination({ dest: 2, sync: false }));
   return pino({
     ...base,
     transport: {
       target: 'pino-pretty',
-      options: { colorize: true, translateTime: 'SYS:standard', ignore: 'pid,hostname' },
+      options: { colorize: true, translateTime: 'SYS:standard', ignore: 'pid,hostname', destination: 2 },
     },
   });
 }
