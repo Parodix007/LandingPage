@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #000; color: #f5f5f7; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent, #7ce38b); text-decoration: none; }
+a:hover { color: #f5f5f7; }
+@keyframes glowDrift { 0% { transform: translate(-10%, -5%) scale(1); } 50% { transform: translate(10%, 8%) scale(1.15); } 100% { transform: translate(-10%, -5%) scale(1); } }
+@keyframes glowDrift2 { 0% { transform: translate(8%, 6%) scale(1.1); } 50% { transform: translate(-12%, -8%) scale(0.95); } 100% { transform: translate(8%, 6%) scale(1.1); } }
+@keyframes gradShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes floatY { 0% { transform: translateY(0); } 50% { transform: translateY(-14px); } 100% { transform: translateY(0); } }
+input, textarea { font-family: inherit; }
+input::placeholder, textarea::placeholder { color: rgba(245,245,247,0.35); }
+</style>
+</helmet>
+
+<!-- ============ NAV ============ -->
+<div style="position: sticky; top: 0; z-index: 50; backdrop-filter: blur(20px) saturate(1.8); background: rgba(0,0,0,0.65); border-bottom: 1px solid rgba(255,255,255,0.08);">
+  <div style="max-width: 1024px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 24px;">
+    <span style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 26px; font-weight: 600; letter-spacing: -0.02em;">calm<span style="color: var(--accent, #7ce38b); animation: blink 1.2s steps(1) infinite;">_</span>soft</span>
+    <div style="display: flex; align-items: center; gap: 36px;">
+      <a href="#services" style="font-size: 15px; padding: 8px 2px; color: rgba(245,245,247,0.85);" style-hover="color: #fff;">Services</a>
+      <a href="#process" style="font-size: 15px; padding: 8px 2px; color: rgba(245,245,247,0.85);" style-hover="color: #fff;">Process</a>
+      <a href="#cases" style="font-size: 15px; padding: 8px 2px; color: rgba(245,245,247,0.85);" style-hover="color: #fff;">Case studies</a>
+      <a href="#contact" style="font-size: 15px; padding: 8px 20px; border-radius: 980px; background: var(--accent, #7ce38b); color: #000; font-weight: 600; transition: filter 0.25s ease;" style-hover="filter: brightness(1.15); color: #000;">Start a project</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HERO A: Aurora ============ -->
+<sc-if value="{{ isAurora }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Hero" style="position: relative; overflow: hidden; min-height: 88vh; display: flex; align-items: center; justify-content: center; text-align: center;">
+  <div style="position: absolute; width: 900px; height: 900px; border-radius: 50%; background: radial-gradient(circle, color-mix(in oklch, var(--accent, #7ce38b) 28%, transparent) 0%, transparent 65%); top: -30%; left: -10%; animation: glowDrift 18s ease-in-out infinite; pointer-events: none;"></div>
+  <div style="position: absolute; width: 800px; height: 800px; border-radius: 50%; background: radial-gradient(circle, color-mix(in oklch, var(--accent2, #b9f0c4) 20%, transparent) 0%, transparent 65%); bottom: -35%; right: -12%; animation: glowDrift2 22s ease-in-out infinite; pointer-events: none;"></div>
+  <div style="position: relative; max-width: 900px; padding: 120px 24px; display: flex; flex-direction: column; align-items: center; gap: 28px;">
+    <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">Web · Automation · Core systems · Refactoring</div>
+    <h1 style="margin: 0; font-size: clamp(56px, 8vw, 96px); line-height: 1.02; letter-spacing: -0.03em; font-weight: 700;">Software that<br>simply works.</h1>
+    <p style="margin: 0; max-width: 560px; font-size: 20px; line-height: 1.5; color: rgba(245,245,247,0.72); font-weight: 400;">Web platforms, automation, core integrations and legacy rescue — built end to end by a team that treats your product like its own.</p>
+    <div style="display: flex; gap: 16px; margin-top: 8px;">
+      <a href="#contact" style="font-size: 17px; padding: 12px 28px; border-radius: 980px; background: var(--accent, #7ce38b); color: #000; font-weight: 600; transition: filter 0.25s ease;" style-hover="filter: brightness(1.15); color: #000;">Start a project</a>
+      <a href="#services" style="font-size: 17px; font-weight: 500; padding: 12px 28px; border-radius: 980px; border: 1px solid rgba(255,255,255,0.25); color: #f5f5f7; transition: all 0.25s ease;" style-hover="border-color: #fff; color: #fff;">Explore services</a>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ HERO B: Code split ============ -->
+<sc-if value="{{ isCode }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Hero" style="position: relative; overflow: hidden; min-height: 88vh; display: flex; align-items: center;">
+  <div style="position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 75% 50%, color-mix(in oklch, var(--accent, #7ce38b) 14%, transparent) 0%, transparent 70%); pointer-events: none;"></div>
+  <div style="position: relative; max-width: 1200px; margin: 0 auto; padding: 100px 24px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; align-items: center;">
+    <div style="display: flex; flex-direction: column; gap: 26px;">
+      <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">Web · Automation · Core systems · Refactoring</div>
+      <h1 style="margin: 0; font-size: clamp(44px, 5.5vw, 72px); line-height: 1.05; letter-spacing: -0.03em; font-weight: 700;">Software your business can lean on.</h1>
+      <p style="margin: 0; font-size: 20px; line-height: 1.5; color: rgba(245,245,247,0.72);">Web platforms, business automation, core integrations and legacy rescue — one team, a transparent process, honest timelines and support that stays.</p>
+      <div style="display: flex; gap: 16px;">
+        <a href="#contact" style="font-size: 17px; padding: 12px 28px; border-radius: 980px; background: var(--accent, #7ce38b); color: #000; font-weight: 600; transition: filter 0.25s ease;" style-hover="filter: brightness(1.15); color: #000;">Start a project</a>
+        <a href="#process" style="font-size: 17px; font-weight: 500; padding: 12px 28px; border-radius: 980px; border: 1px solid transparent; color: var(--accent, #7ce38b); transition: all 0.25s ease;" style-hover="background: color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent); border-color: color-mix(in oklch, var(--accent, #7ce38b) 40%, transparent); color: #fff;">See how we work &rsaquo;</a>
+      </div>
+    </div>
+    <div style="animation: floatY 7s ease-in-out infinite;">
+      <div style="border-radius: 16px; background: rgba(28,28,30,0.9); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px color-mix(in oklch, var(--accent, #7ce38b) 12%, transparent); overflow: hidden;">
+        <div style="display: flex; align-items: center; gap: 7px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.07);">
+          <span style="width: 11px; height: 11px; border-radius: 50%; background: #ff5f57;"></span>
+          <span style="width: 11px; height: 11px; border-radius: 50%; background: #febc2e;"></span>
+          <span style="width: 11px; height: 11px; border-radius: 50%; background: #28c840;"></span>
+          <span style="flex: 1; text-align: center; margin-right: 47px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12.5px; font-weight: 600; color: #f5f5f7;">calm<span style="color: var(--accent, #7ce38b);">_</span>soft<span style="font-weight: 400; color: rgba(245,245,247,0.45);"> · automation.ts</span></span>
+        </div>
+        <div style="padding: 22px 24px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13.5px; line-height: 1.75; color: rgba(245,245,247,0.85);">
+          <div><span style="color: #ff7ab2;">const</span> pipeline = <span style="color: #6bdfff;">automate</span>({</div>
+          <div style="padding-left: 22px;">intake: <span style="color: #a8e28a;">'crm.leads'</span>,</div>
+          <div style="padding-left: 22px;">enrich: [<span style="color: #a8e28a;">'scoring'</span>, <span style="color: #a8e28a;">'routing'</span>],</div>
+          <div style="padding-left: 22px;">notify: <span style="color: #a8e28a;">'#sales'</span>,</div>
+          <div>});</div>
+          <div style="margin-top: 10px;"><span style="color: #ff7ab2;">await</span> pipeline.<span style="color: #6bdfff;">deploy</span>();</div>
+          <div style="color: #7ce38b;">✓ Live · 99.98% uptime · 4,120 tasks automated<span style="display: inline-block; width: 8px; height: 16px; background: var(--accent, #7ce38b); margin-left: 6px; vertical-align: middle; animation: blink 1.1s infinite;"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ HERO C: Pure type ============ -->
+<sc-if value="{{ isType }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Hero" style="min-height: 88vh; display: flex; align-items: center;">
+  <div style="max-width: 1100px; margin: 0 auto; padding: 100px 24px; display: flex; flex-direction: column; gap: 40px;">
+    <h1 style="margin: 0; font-size: clamp(60px, 9vw, 130px); line-height: 1.0; letter-spacing: -0.045em; font-weight: 700;">
+      <span style="display: block; color: rgba(245,245,247,0.35);">Complex problems.</span>
+      <span style="display: block; background: linear-gradient(90deg, var(--accent, #7ce38b), var(--accent2, #b9f0c4), var(--accent, #7ce38b)); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: gradShift 8s ease infinite;">Calm software.</span>
+    </h1>
+    <div style="display: flex; align-items: center; gap: 32px; flex-wrap: wrap;">
+      <p style="margin: 0; max-width: 480px; font-size: 20px; line-height: 1.5; color: rgba(245,245,247,0.72);">From web platforms and automation to integrations and legacy rescue — built end to end by people who keep their promises.</p>
+      <a href="#contact" style="font-size: 17px; padding: 12px 28px; border-radius: 980px; background: var(--accent, #7ce38b); color: #000; font-weight: 600; transition: filter 0.25s ease;" style-hover="filter: brightness(1.15); color: #000;">Start a project</a>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============ SERVICES ============ -->
+<div id="services" data-screen-label="Services" style="max-width: 1200px; margin: 0 auto; padding: 110px 24px;">
+  <h2 style="margin: 0 0 12px; font-size: clamp(36px, 4.5vw, 56px); letter-spacing: -0.025em; font-weight: 700;">Four disciplines.<br><span style="color: rgba(245,245,247,0.45);">One accountable partner.</span></h2>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px; margin-top: 48px;">
+    <div onClick="{{ openSvcWeb }}" style="border-radius: 28px; background: #101012; border: 1px solid rgba(255,255,255,0.08); padding: 36px 30px; display: flex; flex-direction: column; gap: 18px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.35s ease, border-color 0.35s ease;" style-hover="transform: translateY(-4px); border-color: color-mix(in oklch, var(--accent, #7ce38b) 50%, transparent);">
+      <div style="position: absolute; top: -120px; right: -120px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, color-mix(in oklch, var(--accent, #7ce38b) 18%, transparent), transparent 70%); pointer-events: none;"></div>
+      <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">Web solutions</div>
+      <div style="font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15;">Platforms, portals and products — built to scale.</div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(245,245,247,0.7);">Customer portals, e-commerce, SaaS products and internal tools — architecture, design, development and cloud operations under one roof, with one team answerable to you from day one.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent, #7ce38b) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent, #7ce38b) 32%, transparent); color: #f5f5f7;">Web apps</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent, #7ce38b) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent, #7ce38b) 32%, transparent); color: #f5f5f7;">E-commerce</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent, #7ce38b) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent, #7ce38b) 32%, transparent); color: #f5f5f7;">APIs &amp; integrations</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent, #7ce38b) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent, #7ce38b) 32%, transparent); color: #f5f5f7;">Cloud &amp; DevOps</span>
+      </div>
+      <div style="position: relative; margin-top: 4px; display: flex; align-items: center; gap: 0;">
+        <div onClick="{{ startWeb }}" style="font-size: 14.5px; font-weight: 500; color: var(--accent, #7ce38b); padding: 8px 16px; margin-left: -16px; border-radius: 980px; border: 1px solid transparent; transition: all 0.25s ease;" style-hover="background: color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent); border-color: color-mix(in oklch, var(--accent, #7ce38b) 40%, transparent); color: #fff;">Start with this service ›</div>
+        <div style="font-size: 14.5px; font-weight: 500; color: rgba(245,245,247,0.5); padding: 8px 16px; border-radius: 980px; border: 1px solid transparent; transition: all 0.25s ease;" style-hover="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.22); color: #fff;">Learn more ›</div>
+      </div>
+    </div>
+    <div onClick="{{ openSvcAutomation }}" style="border-radius: 28px; background: #101012; border: 1px solid rgba(255,255,255,0.08); padding: 36px 30px; display: flex; flex-direction: column; gap: 18px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.35s ease, border-color 0.35s ease;" style-hover="transform: translateY(-4px); border-color: color-mix(in oklch, var(--accent2, #b9f0c4) 50%, transparent);">
+      <div style="position: absolute; top: -120px; right: -120px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, color-mix(in oklch, var(--accent2, #b9f0c4) 18%, transparent), transparent 70%); pointer-events: none;"></div>
+      <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent2, #b9f0c4); font-weight: 600;">Automation</div>
+      <div style="font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15;">Repetitive work, off your team's plate.</div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(245,245,247,0.7);">Process automation, system integrations and AI-assisted workflows that quietly remove manual steps — carefully, transparently, and always with your people in the loop.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent2, #b9f0c4) 32%, transparent); color: #f5f5f7;">Process automation</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent2, #b9f0c4) 32%, transparent); color: #f5f5f7;">RPA</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent2, #b9f0c4) 32%, transparent); color: #f5f5f7;">AI workflows</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent2, #b9f0c4) 32%, transparent); color: #f5f5f7;">Data pipelines</span>
+      </div>
+      <div style="position: relative; margin-top: 4px; display: flex; align-items: center; gap: 0;">
+        <div onClick="{{ startAutomation }}" style="font-size: 14.5px; font-weight: 500; color: var(--accent, #7ce38b); padding: 8px 16px; margin-left: -16px; border-radius: 980px; border: 1px solid transparent; transition: all 0.25s ease;" style-hover="background: color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent); border-color: color-mix(in oklch, var(--accent, #7ce38b) 40%, transparent); color: #fff;">Start with this service ›</div>
+        <div style="font-size: 14.5px; font-weight: 500; color: rgba(245,245,247,0.5); padding: 8px 16px; border-radius: 980px; border: 1px solid transparent; transition: all 0.25s ease;" style-hover="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.22); color: #fff;">Learn more ›</div>
+      </div>
+    </div>
+    <div onClick="{{ openSvcCore }}" style="border-radius: 28px; background: #101012; border: 1px solid rgba(255,255,255,0.08); padding: 36px 30px; display: flex; flex-direction: column; gap: 18px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.35s ease, border-color 0.35s ease;" style-hover="transform: translateY(-4px); border-color: color-mix(in oklch, var(--accent2, #b9f0c4) 50%, transparent);">
+      <div style="position: absolute; top: -120px; right: -120px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, color-mix(in oklch, var(--accent2, #b9f0c4) 18%, transparent), transparent 70%); pointer-events: none;"></div>
+      <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent2, #b9f0c4); font-weight: 600;">Core systems &amp; integrations</div>
+      <div style="font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15;">Systems that talk to systems.</div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(245,245,247,0.7);">Not everything has a screen. We engineer the backbone — distributed architectures, event-driven services and backend-to-backend integrations that keep your ERP, partners and platforms perfectly in sync.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent2, #b9f0c4) 32%, transparent); color: #f5f5f7;">Distributed systems</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent2, #b9f0c4) 32%, transparent); color: #f5f5f7;">Event-driven architecture</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent2, #b9f0c4) 32%, transparent); color: #f5f5f7;">B2B integrations</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent2, #b9f0c4) 32%, transparent); color: #f5f5f7;">High-availability APIs</span>
+      </div>
+      <div style="position: relative; margin-top: 4px; display: flex; align-items: center; gap: 0;">
+        <div onClick="{{ startCore }}" style="font-size: 14.5px; font-weight: 500; color: var(--accent, #7ce38b); padding: 8px 16px; margin-left: -16px; border-radius: 980px; border: 1px solid transparent; transition: all 0.25s ease;" style-hover="background: color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent); border-color: color-mix(in oklch, var(--accent, #7ce38b) 40%, transparent); color: #fff;">Start with this service ›</div>
+        <div style="font-size: 14.5px; font-weight: 500; color: rgba(245,245,247,0.5); padding: 8px 16px; border-radius: 980px; border: 1px solid transparent; transition: all 0.25s ease;" style-hover="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.22); color: #fff;">Learn more ›</div>
+      </div>
+    </div>
+    <div onClick="{{ openSvcRefactor }}" style="border-radius: 28px; background: #101012; border: 1px solid rgba(255,255,255,0.08); padding: 36px 30px; display: flex; flex-direction: column; gap: 18px; overflow: hidden; position: relative; cursor: pointer; transition: transform 0.35s ease, border-color 0.35s ease;" style-hover="transform: translateY(-4px); border-color: color-mix(in oklch, var(--accent, #7ce38b) 50%, transparent);">
+      <div style="position: absolute; top: -120px; right: -120px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, color-mix(in oklch, var(--accent, #7ce38b) 18%, transparent), transparent 70%); pointer-events: none;"></div>
+      <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">Refactor &amp; rescue</div>
+      <div style="font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15;">Legacy systems, given a second life.</div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(245,245,247,0.7);">Inherited a platform that almost works? We step into codebases others walk away from — audit honestly, pay down the technical debt and modernise piece by piece, while your business keeps running.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent, #7ce38b) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent, #7ce38b) 32%, transparent); color: #f5f5f7;">Code audit</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent, #7ce38b) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent, #7ce38b) 32%, transparent); color: #f5f5f7;">Tech-debt paydown</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent, #7ce38b) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent, #7ce38b) 32%, transparent); color: #f5f5f7;">Migrations &amp; upgrades</span>
+        <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent, #7ce38b) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent, #7ce38b) 32%, transparent); color: #f5f5f7;">Performance &amp; security</span>
+      </div>
+      <div style="position: relative; margin-top: 4px; display: flex; align-items: center; gap: 0;">
+        <div onClick="{{ startRefactor }}" style="font-size: 14.5px; font-weight: 500; color: var(--accent, #7ce38b); padding: 8px 16px; margin-left: -16px; border-radius: 980px; border: 1px solid transparent; transition: all 0.25s ease;" style-hover="background: color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent); border-color: color-mix(in oklch, var(--accent, #7ce38b) 40%, transparent); color: #fff;">Start with this service ›</div>
+        <div style="font-size: 14.5px; font-weight: 500; color: rgba(245,245,247,0.5); padding: 8px 16px; border-radius: 980px; border: 1px solid transparent; transition: all 0.25s ease;" style-hover="background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.22); color: #fff;">Learn more ›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PROCESS ============ -->
+<div id="process" data-screen-label="Process" style="max-width: 1200px; margin: 0 auto; padding: 110px 24px;">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+    <h2 style="margin: 0; font-size: clamp(36px, 4.5vw, 56px); letter-spacing: -0.025em; font-weight: 700;">From idea to production.<br><span style="color: rgba(245,245,247,0.45);">Calmly, step by step.</span></h2>
+    <div style="display: flex; gap: 10px;">
+      <div onClick="{{ prevStep }}" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; padding-bottom: 4px; color: #f5f5f7; cursor: pointer; user-select: none; opacity: {{ prevOpacity }}; transition: border-color 0.3s ease, background 0.3s ease, opacity 0.3s ease;" style-hover="border-color: var(--accent, #7ce38b); background: rgba(255,255,255,0.05);">‹</div>
+      <div onClick="{{ nextStep }}" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; padding-bottom: 4px; color: #f5f5f7; cursor: pointer; user-select: none; opacity: {{ nextOpacity }}; transition: border-color 0.3s ease, background 0.3s ease, opacity 0.3s ease;" style-hover="border-color: var(--accent, #7ce38b); background: rgba(255,255,255,0.05);">›</div>
+    </div>
+  </div>
+  <div style="overflow: hidden; margin-top: 48px;">
+    <div style="display: flex; gap: 18px; transition: transform 0.65s cubic-bezier(0.32, 0.72, 0, 1); transform: {{ slideTransform }};">
+      <sc-for list="{{ steps }}" as="step" hint-placeholder-count="4">
+        <div style="flex: 0 0 100%; min-width: 100%; box-sizing: border-box; border-radius: 28px; background: #101012; border: 1px solid rgba(255,255,255,0.08); padding: 64px; min-height: 320px; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: center; overflow: hidden; position: relative;">
+          <div style="position: absolute; top: -160px; right: -160px; width: 460px; height: 460px; border-radius: 50%; background: radial-gradient(circle, color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent), transparent 70%); pointer-events: none;"></div>
+          <div style="position: absolute; top: 28px; right: 34px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; color: rgba(245,245,247,0.55);">calm<span style="color: var(--accent, #7ce38b);">_</span>soft</div>
+          <div style="display: flex; flex-direction: column; gap: 20px; position: relative;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 18px; color: var(--accent, #7ce38b);">{{ step.num }}</div>
+              <sc-if value="{{ step.badge }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size: 13.5px; font-weight: 500; padding: 8px 16px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 15%, transparent); border: 1px solid color-mix(in oklch, var(--accent2, #b9f0c4) 32%, transparent); color: #f5f5f7;">{{ step.badge }}</span>
+              </sc-if>
+            </div>
+            <div style="font-size: clamp(34px, 4vw, 48px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.05;">{{ step.title }}</div>
+          </div>
+          <p style="margin: 0; font-size: 18px; line-height: 1.6; color: rgba(245,245,247,0.7); position: relative; max-width: 560px;">{{ step.desc }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display: flex; gap: 10px; margin-top: 24px;">
+    <sc-for list="{{ dots }}" as="dot" hint-placeholder-count="4">
+      <div onClick="{{ dot.go }}" style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; padding: 9px 16px; border-radius: 980px; cursor: pointer; user-select: none; transition: all 0.3s ease; background: {{ dot.bg }}; border: 1px solid {{ dot.border }}; color: {{ dot.color }};">{{ dot.label }}</div>
+    </sc-for>
+  </div>
+</div>
+
+<!-- ============ CASE STUDIES ============ -->
+<div id="cases" data-screen-label="Case Studies" style="max-width: 1200px; margin: 0 auto; padding: 110px 24px;">
+  <h2 style="margin: 0 0 12px; font-size: clamp(36px, 4.5vw, 56px); letter-spacing: -0.025em; font-weight: 700;">Proof, not promises.<br><span style="color: rgba(245,245,247,0.45);">Selected work, with the numbers.</span></h2>
+  <div onClick="{{ featured.open }}" style="border-radius: 28px; background: #101012; border: 1px solid rgba(255,255,255,0.08); padding: 44px 48px; display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 48px; align-items: center; overflow: hidden; position: relative; margin-top: 48px; cursor: pointer; transition: transform 0.35s ease, border-color 0.35s ease;" style-hover="transform: translateY(-4px); border-color: color-mix(in oklch, var(--accent, #7ce38b) 50%, transparent);">
+    <div style="position: absolute; top: -160px; right: -160px; width: 460px; height: 460px; border-radius: 50%; background: radial-gradient(circle, color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent), transparent 70%); pointer-events: none;"></div>
+    <div style="position: absolute; top: 28px; right: 34px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; color: rgba(245,245,247,0.55);">calm<span style="color: var(--accent, #7ce38b);">_</span>soft</div>
+    <div style="display: flex; flex-direction: column; gap: 16px; position: relative;">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <span style="font-size: 12.5px; font-weight: 500; padding: 6px 13px; border-radius: 980px; background: {{ featured.pillBg }}; border: 1px solid {{ featured.pillBorder }}; color: #f5f5f7;">{{ featured.tag }}</span>
+        <span style="font-size: 13px; color: rgba(245,245,247,0.5);">{{ featured.client }}</span>
+      </div>
+      <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.12;">{{ featured.headline }}</div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(245,245,247,0.7);">{{ featured.teaser }}</p>
+      <div style="font-size: 14.5px; font-weight: 500; color: var(--accent, #7ce38b); padding: 8px 16px; margin-left: -16px; border-radius: 980px; border: 1px solid transparent; align-self: flex-start; transition: all 0.25s ease;" style-hover="background: color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent); border-color: color-mix(in oklch, var(--accent, #7ce38b) 40%, transparent); color: #fff;">Read the story ›</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 26px; position: relative;">
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div style="font-size: 52px; font-weight: 700; letter-spacing: -0.03em; color: var(--accent, #7ce38b); line-height: 1;">{{ featured.m1v }}</div>
+        <div style="font-size: 13.5px; color: rgba(245,245,247,0.55);">{{ featured.m1l }}</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div style="font-size: 52px; font-weight: 700; letter-spacing: -0.03em; line-height: 1;">{{ featured.m2v }}</div>
+        <div style="font-size: 13.5px; color: rgba(245,245,247,0.55);">{{ featured.m2l }}</div>
+      </div>
+    </div>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 16px; margin-top: 16px;">
+    <sc-for list="{{ gridCases }}" as="cs" hint-placeholder-count="5">
+      <div onClick="{{ cs.open }}" style="border-radius: 20px; background: #101012; border: 1px solid rgba(255,255,255,0.08); padding: 28px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; position: relative; overflow: hidden; transition: transform 0.35s ease, border-color 0.35s ease;" style-hover="transform: translateY(-4px); border-color: color-mix(in oklch, var(--accent, #7ce38b) 45%, transparent);">
+        <div style="position: absolute; top: 24px; right: 26px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; color: rgba(245,245,247,0.55);">calm<span style="color: var(--accent, #7ce38b);">_</span>soft</div>
+        <span style="font-size: 12.5px; font-weight: 500; padding: 6px 13px; border-radius: 980px; background: {{ cs.pillBg }}; border: 1px solid {{ cs.pillBorder }}; color: #f5f5f7; align-self: flex-start;">{{ cs.tag }}</span>
+        <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.03em; color: var(--accent, #7ce38b); line-height: 1;">{{ cs.m1v }}</div>
+        <div style="font-size: 16px; font-weight: 600; line-height: 1.3;">{{ cs.headline }}</div>
+        <div style="font-size: 13px; color: rgba(245,245,247,0.5);">{{ cs.client }}</div>
+        <div style="font-size: 14.5px; font-weight: 500; color: var(--accent, #7ce38b); margin-top: auto; padding: 8px 16px; margin-left: -16px; border-radius: 980px; border: 1px solid transparent; align-self: flex-start; transition: all 0.25s ease;" style-hover="background: color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent); border-color: color-mix(in oklch, var(--accent, #7ce38b) 40%, transparent); color: #fff;">Read the story ›</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin-top: 28px; font-size: 13.5px; color: rgba(245,245,247,0.45);">References and technical deep-dives available on request.</div>
+</div>
+
+<!-- ============ CTA + FOOTER ============ -->
+<div id="contact" data-screen-label="Contact" style="position: relative; overflow: hidden; border-top: 1px solid rgba(255,255,255,0.06);">
+  <div style="position: absolute; width: 1000px; height: 500px; left: 50%; bottom: -350px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse, color-mix(in oklch, var(--accent, #7ce38b) 22%, transparent), transparent 70%); pointer-events: none;"></div>
+  <div style="position: relative; max-width: 1200px; margin: 0 auto; padding: 120px 24px 100px; display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 64px; align-items: start;">
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <h2 style="margin: 0; font-size: clamp(36px, 4.5vw, 56px); letter-spacing: -0.025em; font-weight: 700; line-height: 1.05;">Let's build something that lasts.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.55; color: rgba(245,245,247,0.7);">Tell us about your project — you'll hear back from a senior engineer, not a sales script.</p>
+      <a href="mailto:hello@calmsoft.com" style="font-size: 17px; font-weight: 500; color: var(--accent, #7ce38b);" style-hover="color: #fff;">hello@calmsoft.com</a>
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="color: var(--accent, #7ce38b); font-size: 15px;">✓</span><span style="font-size: 14.5px; color: rgba(245,245,247,0.7);">NDA on request — your idea stays yours</span></div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="color: var(--accent, #7ce38b); font-size: 15px;">✓</span><span style="font-size: 14.5px; color: rgba(245,245,247,0.7);">Reply within 24 hours, always from an engineer</span></div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="color: var(--accent, #7ce38b); font-size: 15px;">✓</span><span style="font-size: 14.5px; color: rgba(245,245,247,0.7);">EU-based team — on-site across Poland or online</span></div>
+      </div>
+    </div>
+    <div style="border-radius: 28px; background: #101012; border: 1px solid rgba(255,255,255,0.08); padding: 40px; box-sizing: border-box;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px;">
+        <span style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 24px; font-weight: 600; letter-spacing: -0.02em;">calm<span style="color: var(--accent, #7ce38b);">_</span>soft</span>
+        <span style="font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,245,247,0.45); font-weight: 500;">Project inquiry</span>
+      </div>
+      <sc-if value="{{ formVisible }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 26px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="font-size: 13px; font-weight: 500; color: rgba(245,245,247,0.6);">Name</label>
+              <input ref="{{ nameRef }}" onInput="{{ clearErrors }}" type="text" placeholder="Anna Nowak" style="background: rgba(255,255,255,0.05); border: 1px solid {{ nameBorder }}; border-radius: 12px; padding: 13px 15px; font-size: 15px; color: #f5f5f7; width: 100%; box-sizing: border-box; transition: border-color 0.3s ease;" style-focus="border-color: var(--accent, #7ce38b); outline: none;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="font-size: 13px; font-weight: 500; color: rgba(245,245,247,0.6);">Email</label>
+              <input ref="{{ emailRef }}" onInput="{{ clearErrors }}" type="email" placeholder="anna@company.com" style="background: rgba(255,255,255,0.05); border: 1px solid {{ emailBorder }}; border-radius: 12px; padding: 13px 15px; font-size: 15px; color: #f5f5f7; width: 100%; box-sizing: border-box; transition: border-color 0.3s ease;" style-focus="border-color: var(--accent, #7ce38b); outline: none;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="font-size: 13px; font-weight: 500; color: rgba(245,245,247,0.6);">Company <span style="color: rgba(245,245,247,0.35);">(optional)</span></label>
+              <input type="text" placeholder="Your company" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 13px 15px; font-size: 15px; color: #f5f5f7; width: 100%; box-sizing: border-box; transition: border-color 0.3s ease;" style-focus="border-color: var(--accent, #7ce38b); outline: none;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="font-size: 13px; font-weight: 500; color: rgba(245,245,247,0.6);">Phone <span style="color: rgba(245,245,247,0.35);">(optional)</span></label>
+              <input type="tel" placeholder="+48 600 000 000" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 13px 15px; font-size: 15px; color: #f5f5f7; width: 100%; box-sizing: border-box; transition: border-color 0.3s ease;" style-focus="border-color: var(--accent, #7ce38b); outline: none;">
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,245,247,0.5); font-weight: 600;">Which service do you need?</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <sc-for list="{{ formServices }}" as="svc" hint-placeholder-count="4">
+                <div onClick="{{ svc.pick }}" style="display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border-radius: 14px; cursor: pointer; user-select: none; transition: all 0.3s ease; background: {{ svc.bg }}; border: 1px solid {{ svc.border }};">
+                  <div style="font-size: 15px; font-weight: 600; color: #f5f5f7;">{{ svc.label }}</div>
+                  <div style="font-size: 12.5px; color: rgba(245,245,247,0.55);">{{ svc.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="font-size: 13px; font-weight: 500; color: rgba(245,245,247,0.6);">Tell us about your project</label>
+            <textarea placeholder="What are you building, for whom, and what should it change?" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 13px 15px; font-size: 15px; color: #f5f5f7; width: 100%; box-sizing: border-box; min-height: 110px; resize: vertical; transition: border-color 0.3s ease;" style-focus="border-color: var(--accent, #7ce38b); outline: none;"></textarea>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,245,247,0.5); font-weight: 600;">Shape the engagement</div>
+            <div onClick="{{ toggleDiscover }}" style="display: flex; gap: 16px; align-items: flex-start; padding: 20px 22px; border-radius: 16px; cursor: pointer; user-select: none; transition: all 0.3s ease; background: {{ discoverBg }}; border: 1px solid {{ discoverBorder }};">
+              <div style="width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-top: 2px; color: #000; transition: all 0.3s ease; background: {{ discoverMarkBg }}; border: 1px solid {{ discoverMarkBorder }};">{{ discoverMark }}</div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                  <span style="font-size: 16px; font-weight: 600;">Start with a Discover workshop</span>
+                  <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 980px; background: color-mix(in oklch, var(--accent, #7ce38b) 20%, transparent); color: var(--accent, #7ce38b);">Recommended</span>
+                </div>
+                <p style="margin: 0; font-size: 13.5px; line-height: 1.5; color: rgba(245,245,247,0.6);">A DDD brainstorming session where we define together what your product should do — before you commit to building. Billed separately, and it pays for itself in avoided rework.</p>
+              </div>
+            </div>
+            <div onClick="{{ toggleHandover }}" style="display: flex; gap: 16px; align-items: flex-start; padding: 20px 22px; border-radius: 16px; cursor: pointer; user-select: none; transition: all 0.3s ease; background: {{ handoverBg }}; border: 1px solid {{ handoverBorder }};">
+              <div style="width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-top: 2px; color: #000; transition: all 0.3s ease; background: {{ handoverMarkBg }}; border: 1px solid {{ handoverMarkBorder }};">{{ handoverMark }}</div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                  <span style="font-size: 16px; font-weight: 600;">Handover with a maintenance plan</span>
+                  <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 980px; background: color-mix(in oklch, var(--accent2, #b9f0c4) 20%, transparent); color: var(--accent2, #b9f0c4);">Peace of mind</span>
+                </div>
+                <p style="margin: 0; font-size: 13.5px; line-height: 1.5; color: rgba(245,245,247,0.6);">Close the project with a fixed-term maintenance &amp; growth agreement — priority support, predictable costs, and a partner who already knows your system. No lock-in beyond the agreed term.</p>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,245,247,0.5); font-weight: 600;">First meeting</div>
+            <div style="display: flex; gap: 10px;">
+              <div onClick="{{ meetOnline }}" style="flex: 1; text-align: center; padding: 13px; border-radius: 14px; cursor: pointer; user-select: none; font-size: 14.5px; font-weight: 500; transition: all 0.3s ease; background: {{ onlineBg }}; border: 1px solid {{ onlineBorder }}; color: {{ onlineColor }};">Online</div>
+              <div onClick="{{ meetOnsite }}" style="flex: 1; text-align: center; padding: 13px; border-radius: 14px; cursor: pointer; user-select: none; font-size: 14.5px; font-weight: 500; transition: all 0.3s ease; background: {{ onsiteBg }}; border: 1px solid {{ onsiteBorder }}; color: {{ onsiteColor }};">On-site at your office</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div onClick="{{ submit }}" style="text-align: center; padding: 15px; border-radius: 980px; background: var(--accent, #7ce38b); color: #000; font-weight: 600; font-size: 16px; cursor: pointer; user-select: none; transition: filter 0.25s ease;" style-hover="filter: brightness(1.15);">Send request</div>
+            <sc-if value="{{ formError }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align: center; font-size: 13px; color: #ff8a80;">Please add your name and a valid email so we can get back to you.</div>
+            </sc-if>
+            <div style="text-align: center; font-size: 12.5px; color: rgba(245,245,247,0.45);">A senior engineer replies within 24 hours · NDA on request</div>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ sentVisible }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 70px 24px;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: color-mix(in oklch, var(--accent, #7ce38b) 22%, transparent); border: 1px solid var(--accent, #7ce38b); display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--accent, #7ce38b);">✓</div>
+          <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.02em;">Request sent.</div>
+          <p style="margin: 0; font-size: 16px; line-height: 1.55; color: rgba(245,245,247,0.7); max-width: 380px;">Thank you — a senior engineer will get back to you within 24 hours to schedule the first meeting.</p>
+          <div onClick="{{ resetForm }}" style="margin-top: 8px; font-size: 14.5px; font-weight: 500; color: var(--accent, #7ce38b); cursor: pointer; user-select: none; padding: 8px 16px; border-radius: 980px; border: 1px solid transparent; transition: all 0.25s ease;" style-hover="background: color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent); border-color: color-mix(in oklch, var(--accent, #7ce38b) 40%, transparent); color: #fff;">Send another request ›</div>
+          <div style="margin-top: 14px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 14px; font-weight: 600; letter-spacing: -0.02em; color: rgba(245,245,247,0.45);">calm<span style="color: var(--accent, #7ce38b);">_</span>soft</div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+<div style="border-top: 1px solid rgba(255,255,255,0.08);">
+  <div style="max-width: 1024px; margin: 0 auto; padding: 28px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 12px;"><span style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; color: #f5f5f7;">calm<span style="color: var(--accent, #7ce38b);">_</span>soft</span><span style="font-size: 12px; color: rgba(245,245,247,0.5);">© 2026 · All rights reserved.</span></div>
+    <div style="display: flex; gap: 24px;">
+      <a href="#services" style="font-size: 12px; color: rgba(245,245,247,0.5);" style-hover="color: #fff;">Services</a>
+      <a href="#process" style="font-size: 12px; color: rgba(245,245,247,0.5);" style-hover="color: #fff;">Process</a>
+      <a href="#cases" style="font-size: 12px; color: rgba(245,245,247,0.5);" style-hover="color: #fff;">Case studies</a>
+      <a href="#contact" style="font-size: 12px; color: rgba(245,245,247,0.5);" style-hover="color: #fff;">Contact</a>
+    </div>
+  </div>
+</div>
+
+<sc-if value="{{ modalVisible }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeCase }}" style="position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.72); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; padding: 32px;">
+    <div onClick="{{ stopProp }}" style="border-radius: 28px; background: #101012; border: 1px solid rgba(255,255,255,0.12); max-width: min(1080px, 94vw); width: 100%; max-height: 92vh; overflow-y: auto; padding: clamp(24px, 4.5vh, 40px) clamp(24px, 3.5vw, 46px); position: relative; box-sizing: border-box; display: flex; flex-direction: column; gap: clamp(14px, 2.4vh, 22px);">
+      <div onClick="{{ closeCase }}" style="position: absolute; top: 20px; right: 24px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; color: rgba(245,245,247,0.7); cursor: pointer; user-select: none; transition: border-color 0.3s ease, color 0.3s ease;" style-hover="border-color: var(--accent, #7ce38b); color: #fff;">×</div>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-right: 48px;">
+        <span style="font-size: 12.5px; font-weight: 500; padding: 6px 13px; border-radius: 980px; background: {{ activePillBg }}; border: 1px solid {{ activePillBorder }}; color: #f5f5f7;">{{ active.tag }}</span>
+        <span style="font-size: 13px; color: rgba(245,245,247,0.5);">{{ active.client }}</span>
+      </div>
+      <div style="font-size: clamp(22px, 3.4vh, 30px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; max-width: 860px;">{{ active.headline }}</div>
+      <div style="display: flex; gap: 44px; flex-wrap: wrap;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="font-size: clamp(30px, 5vh, 40px); font-weight: 700; letter-spacing: -0.03em; color: var(--accent, #7ce38b); line-height: 1;">{{ active.m1v }}</div>
+          <div style="font-size: 13.5px; color: rgba(245,245,247,0.55);">{{ active.m1l }}</div>
+        </div>
+        <sc-if value="{{ active.m2v }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-size: clamp(30px, 5vh, 40px); font-weight: 700; letter-spacing: -0.03em; line-height: 1;">{{ active.m2v }}</div>
+            <div style="font-size: 13.5px; color: rgba(245,245,247,0.55);">{{ active.m2l }}</div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(16px, 2.5vw, 30px); align-items: start;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">Challenge</div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(245,245,247,0.7);">{{ active.challenge }}</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">Approach</div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(245,245,247,0.7);">{{ active.approach }}</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">Results</div>
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(245,245,247,0.7);">{{ active.results }}</p>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <sc-for list="{{ activeTags }}" as="t" hint-placeholder-count="4">
+          <span style="font-size: 12.5px; padding: 6px 13px; border-radius: 980px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(245,245,247,0.7);">{{ t }}</span>
+        </sc-for>
+      </div>
+      <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 22px;">
+        <div onClick="{{ startSimilar }}" style="padding: 12px 28px; border-radius: 980px; background: var(--accent, #7ce38b); color: #000; font-weight: 600; font-size: 15px; cursor: pointer; user-select: none; transition: filter 0.25s ease;" style-hover="filter: brightness(1.15);">Start a similar project ›</div>
+        <span style="font-size: 12.5px; color: rgba(245,245,247,0.45);">References and technical deep-dives on request.</span>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+
+<sc-if value="{{ svcModalVisible }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeSvc }}" style="position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.72); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: center; padding: 32px;">
+    <div onClick="{{ stopProp }}" style="border-radius: 28px; background: #101012; border: 1px solid rgba(255,255,255,0.12); max-width: min(1080px, 94vw); width: 100%; max-height: 92vh; overflow-y: auto; padding: clamp(24px, 4.5vh, 40px) clamp(24px, 3.5vw, 46px); position: relative; box-sizing: border-box; display: flex; flex-direction: column; gap: clamp(14px, 2.4vh, 22px);">
+      <div onClick="{{ closeSvc }}" style="position: absolute; top: 20px; right: 24px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; color: rgba(245,245,247,0.7); cursor: pointer; user-select: none; transition: border-color 0.3s ease, color 0.3s ease;" style-hover="border-color: var(--accent, #7ce38b); color: #fff;">×</div>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-right: 48px;">
+        <span style="font-size: 12.5px; font-weight: 500; padding: 6px 13px; border-radius: 980px; background: {{ svcPillBg }}; border: 1px solid {{ svcPillBorder }}; color: #f5f5f7;">{{ activeSvc.tag }}</span>
+        <span style="font-size: 13px; color: rgba(245,245,247,0.5);">Service overview</span>
+      </div>
+      <div style="font-size: clamp(22px, 3.4vh, 30px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; max-width: 860px;">{{ activeSvc.headline }}</div>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(245,245,247,0.7); max-width: 860px;">{{ activeSvc.intro }}</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: clamp(18px, 2.5vw, 34px); align-items: start;">
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">When it's the right call</div>
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <sc-for list="{{ svcFit }}" as="f" hint-placeholder-count="4">
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <span style="color: var(--accent, #7ce38b); font-size: 14px; line-height: 1.5;">✓</span>
+              <span style="font-size: 14px; line-height: 1.5; color: rgba(245,245,247,0.7);">{{ f }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">What we deliver</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 12px 20px;">
+          <sc-for list="{{ svcDeliver }}" as="d" hint-placeholder-count="6">
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <div style="font-size: 14.5px; font-weight: 600; color: #f5f5f7;">{{ d.n }}</div>
+              <div style="font-size: 13px; line-height: 1.45; color: rgba(245,245,247,0.6);">{{ d.d }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: clamp(18px, 2.5vw, 34px); align-items: start;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">How we run it</div>
+        <p style="margin: 0; font-size: 14px; line-height: 1.55; color: rgba(245,245,247,0.7);">{{ activeSvc.approach }}</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent, #7ce38b); font-weight: 600;">Proof from our work</div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <sc-for list="{{ svcRelated }}" as="r" hint-placeholder-count="2">
+            <div onClick="{{ r.open }}" style="flex: 1 1 240px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; transition: border-color 0.3s ease, transform 0.3s ease;" style-hover="border-color: color-mix(in oklch, var(--accent, #7ce38b) 45%, transparent); transform: translateY(-2px);">
+              <div style="font-size: 26px; font-weight: 700; letter-spacing: -0.03em; color: var(--accent, #7ce38b); line-height: 1;">{{ r.m1v }}</div>
+              <div style="font-size: 14px; font-weight: 600; line-height: 1.35; color: #f5f5f7;">{{ r.headline }}</div>
+              <div style="font-size: 13px; font-weight: 500; color: var(--accent, #7ce38b); margin-top: 2px; padding: 6px 12px; margin-left: -12px; border-radius: 980px; border: 1px solid transparent; align-self: flex-start; transition: all 0.25s ease;" style-hover="background: color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent); border-color: color-mix(in oklch, var(--accent, #7ce38b) 40%, transparent); color: #fff;">Read the story ›</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 22px;">
+        <div onClick="{{ svcStart }}" style="padding: 12px 28px; border-radius: 980px; background: var(--accent, #7ce38b); color: #000; font-weight: 600; font-size: 15px; cursor: pointer; user-select: none; transition: filter 0.25s ease;" style-hover="filter: brightness(1.15);">Start with this service ›</div>
+        <span style="font-size: 12.5px; color: rgba(245,245,247,0.45);">A senior engineer replies within 24 hours · NDA on request.</span>
+      </div>
+    </div>
+  </div>
+</sc-if></x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;heroVariant&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;aurora&quot;, &quot;code&quot;, &quot;type&quot;], &quot;default&quot;: &quot;code&quot;, &quot;tsType&quot;: &quot;'aurora' | 'code' | 'type'&quot;, &quot;section&quot;: &quot;Hero&quot; },
+  &quot;palette&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;options&quot;: [[&quot;#7ce38b&quot;, &quot;#b9f0c4&quot;]], &quot;default&quot;: [&quot;#7ce38b&quot;, &quot;#b9f0c4&quot;], &quot;tsType&quot;: &quot;string[]&quot;, &quot;section&quot;: &quot;Theme&quot; }
+}">
+class Component extends DCLogic {
+  applyAccent() {
+    const p = this.props.palette ?? ['#7ce38b', '#b9f0c4'];
+    const [a, a2] = Array.isArray(p) ? p : [p, '#b9f0c4'];
+    document.body.style.setProperty('--accent', a);
+    document.body.style.setProperty('--accent2', a2 || a);
+  }
+  componentDidMount() { this.applyAccent(); }
+  componentDidUpdate() { this.applyAccent(); }
+  state = { step: 0, service: null, discover: true, handover: true, meeting: 'online', sent: false, missingName: false, missingEmail: false, caseIdx: null, svcIdx: null };
+  nameRef = React.createRef();
+  emailRef = React.createRef();
+  cases = [
+    { serviceId: 'refactor', tone: 'a', tag: 'Refactor & rescue', client: 'Enterprise · 30 years in production', headline: 'A 30-year-old Oracle Forms system, reborn as a modern web platform.', teaser: 'A business-critical system with three decades of history and up to 200,000 users — moved to a modern Node.js stack without stopping the business.', m1v: '<1 yr', m1l: 'full migration, end to end', m2v: '200k', m2l: 'users on the platform', challenge: 'The core system had been in production for over 30 years, built on Oracle Forms. It worked — but it locked the business into aging technology, made hiring and maintenance harder every year, and its dated interface was becoming an obstacle in winning new customers. With 100,000–200,000 users depending on it, a big-bang rewrite was not an option.', approach: 'We defined and owned the technical direction of the migration to a modern Node.js web stack — target architecture, security standards and performance benchmarks — and planned it so the business kept running on the existing system while the new platform took shape. No compromise on speed, safety or continuity.', results: 'Users got a modern UX the old technology simply could not deliver, and the refreshed product started winning new customers. Maintenance became easier and cheaper, the platform opened up to modern integrations — and the entire migration was delivered in under a year.', tags: ['Legacy modernization', 'Oracle Forms → Node.js', 'Architecture', '100–200k users'] },
+    { serviceId: 'core', tone: 'b', tag: 'Core systems', client: 'Public sector · EU', headline: 'Legally binding e-delivery, across EU borders.', teaser: '', m1v: '50k/h', m1l: 'users engineered for', m2v: '', m2l: '', challenge: 'Electronic delivery is communication with legal consequences: every message must be secure, verifiable and compliant with EU regulations. The platform — part of a major European Union initiative — needed an integration layer connecting national and cross-border systems, each with its own protocols and standards, without a single weak link.', approach: 'We designed and implemented the integration platform as reactive, asynchronous services (WebFlux) built for scale, with integrations to external SOAP-based systems and strict adherence to ETSI and eIDAS standards at every layer. Security and compliance shaped the architecture from day one — not as a checklist at the end.', results: 'The system was engineered and verified to handle 50,000 users per hour — nationwide-scale infrastructure ready to grow. Backend-to-backend engineering where correctness is non-negotiable: systems that do not have a screen, yet everything depends on them.', tags: ['Distributed systems', 'ETSI · eIDAS', 'WebFlux', 'B2B integrations'] },
+    { serviceId: 'core', tone: 'b', tag: 'Core systems', client: 'E-delivery platform · nationwide', headline: 'Millions of files moved. Zero lost.', teaser: '', m1v: '2.5M', m1l: 'files per migration session', m2v: '1', m2l: 'weekend cutover window', challenge: 'A live, legally regulated e-delivery platform had outgrown its NFS file storage. Hundreds of gigabytes across millions of files made storage increasingly hard to operate, scale and maintain — and because the service processes documents with legal weight, losing files was simply not in the vocabulary.', approach: 'We engineered the migration to S3-compatible object storage (MinIO) with data integrity verified at every step. The pipeline was tuned to a throughput of up to 2.5 million files per session, so the entire switch fit inside a single weekend maintenance window instead of dragging the risk out over weeks.', results: 'Zero data loss, one weekend of planned downtime, and a storage layer dramatically easier to operate — which translated directly into lower running costs. The platform now scales the way modern object storage should.', tags: ['Data migration', 'MinIO · S3', 'Zero-loss', 'Weekend cutover'] },
+    { serviceId: 'web', tone: 'a', tag: 'Web solutions', client: 'Public sector · Poland', headline: 'The platform behind Poland’s largest cities.', teaser: '', m1v: '10+', m1l: 'major cities deployed', m2v: '100k', m2l: 'users per deployment', challenge: 'Software for large city administrations lives under permanent pressure: citizens and officials depend on it daily, regulations change constantly, and every deployment brings demanding functional and technological requirements. Stability is not a feature — it is the baseline.', approach: 'We held technical leadership over the platform’s quality and development: high availability, strict security, and integrations across dozens of back-office modules. A key part of the work was hardening the application to meet the requirements large public-sector clients demand before they sign.', results: 'Application stability measurably improved, and meeting those demanding requirements directly contributed to winning new clients. Today the platform serves more than 10 of the largest cities in Poland, with deployments reaching up to 100,000 users.', tags: ['Public sector', 'Enterprise web platform', 'High availability'] },
+    { serviceId: 'automation', tone: 'b', tag: 'Automation', client: 'Software delivery org · ~50 people', headline: 'AI adoption that stuck — culture, not hype.', teaser: '', m1v: '50', m1l: 'person AI-assisted organization', m2v: '', m2l: '', challenge: 'AI tooling fails in delivery organizations for a predictable reason: tools get bought, guidelines get written, and six months later nobody uses them. The goal was to make AI genuinely useful across development, testing and business operations in an organization of around 50 people — without compromising quality or control.', approach: 'We built the rollout of Claude-based AI tooling around custom workflows designed for how the organization actually works — tool selection, safety guardrails, hands-on enablement, and embedding AI into the existing engineering culture: repetitive work off people’s plates, humans firmly in the loop for decisions and quality.', results: 'AI became part of the daily workflow across engineering, testing and business roles — adopted because it fit the culture, not because it was mandated. The organization now automates routine work in code, tests and business processes while keeping full control over what ships.', tags: ['AI workflows', 'Claude', 'Custom workflows', 'Human-in-the-loop'] },
+    { serviceId: 'automation', tone: 'b', tag: 'Automation', client: 'Premium online school · EdTech', headline: 'A premium school’s invisible machinery, automated.', teaser: '', m1v: '150', m1l: 'students, one calm back office', m2v: '', m2l: '', challenge: 'A private premium school serving up to 150 students was running its operations by hand: payments, management–student communication, homework reminders, pre- and post-lesson notes, onboarding of new students. At a premium price point every dropped ball is visible — and manual operations do not scale without hiring.', approach: 'We designed and delivered an online back-office system together with automations spanning the school’s core processes: payment handling, structured communication between management and students, automatic task reminders, lesson notes before and after each session, and a smooth onboarding path for new students.', results: 'Administrative processes that used to depend on someone remembering now run themselves. The school operates its premium service with less manual overhead, fewer misses, and an operational backbone that can grow with the student base.', tags: ['Process automation', 'Back-office system', 'Payments & communication', 'EdTech'] },
+  ];
+  services = [
+    { id: 'web', tone: 'a', tag: 'Web solutions', headline: 'Platforms, portals and products — built to scale.',
+      intro: 'The products your customers actually touch: portals, e-commerce, SaaS and the internal tools behind them. One team owns the whole thing — design, architecture, code and cloud — so nothing falls between vendors.',
+      fit: [
+        'You’re launching a product, portal or store and want it built end to end',
+        'An existing app is struggling — performance, UX, or how slowly it ships',
+        'Internal operations run on spreadsheets and goodwill',
+        'You have the idea and the designs, but no team to take them to production',
+      ],
+      deliver: [
+        { n: 'Product discovery & UX', d: 'From workshop to clickable prototype — agreed before expensive code is written.' },
+        { n: 'Frontend & backend', d: 'One codebase standard: typed, tested, reviewed, deployed continuously.' },
+        { n: 'E-commerce & payments', d: 'Storefront to checkout to the ERP behind it, working as one flow.' },
+        { n: 'APIs & integrations', d: 'Your platform talking cleanly to CRM, ERP and partner systems.' },
+        { n: 'Cloud & DevOps', d: 'CI/CD, monitoring and infrastructure that scales with real traffic.' },
+        { n: 'QA built in', d: 'Testing inside every iteration — not a phase at the end.' },
+      ],
+      approach: 'Web projects start with a Discover workshop and ship in visible iterations, each ending in a working demo. You watch the product grow — and can change course while change is still cheap.',
+      related: [3, 0] },
+    { id: 'automation', tone: 'b', tag: 'Automation', headline: 'Repetitive work, off your team’s plate.',
+      intro: 'Every company runs on invisible routines — data re-typed between systems, payments chased, the same email sent for the tenth time. We map those routines and hand them to software: carefully, transparently, with your people in the loop.',
+      fit: [
+        'Your team re-types the same data into two or three systems',
+        'Month-end means overtime, spreadsheets and avoidable mistakes',
+        'Operations can’t grow without hiring more hands for manual work',
+        'You want AI in the workflow — without giving up control of quality',
+      ],
+      deliver: [
+        { n: 'Process mapping & audit', d: 'We find where the hours actually leak before automating anything.' },
+        { n: 'System integrations', d: 'CRM, ERP, email and payments connected — instead of copy-pasted.' },
+        { n: 'RPA', d: 'Software robots for the repetitive clicks nobody should be doing.' },
+        { n: 'AI-assisted workflows', d: 'LLMs drafting the routine work; your people making the calls.' },
+        { n: 'Data pipelines & reporting', d: 'Reports that assemble themselves, on schedule, from live data.' },
+      ],
+      approach: 'We start small on purpose: map one process, automate it, measure the hours returned — then expand. No big-bang platform, no six-month rollout before the first visible result.',
+      related: [4, 5] },
+    { id: 'core', tone: 'b', tag: 'Core systems & integrations', headline: 'Systems that talk to systems.',
+      intro: 'The systems nobody sees and everything depends on. We engineer the backbone — services, queues and integrations that keep your ERP, partners and platforms in sync — for work where correctness is not negotiable.',
+      fit: [
+        'Your ERP, e-commerce and partner systems keep drifting out of sync',
+        'Batch jobs are failing under volumes they were never designed for',
+        'You exchange data where every message has legal or financial weight',
+        'Real-time is becoming a requirement, not a nice-to-have',
+      ],
+      deliver: [
+        { n: 'Architecture & design', d: 'Event-driven, domain-driven — sized for the load you’ll have, not the load you had.' },
+        { n: 'B2B integrations', d: 'REST, SOAP, queues or flat files: we speak whatever your partners run.' },
+        { n: 'High-availability APIs', d: 'Designed, load-tested and verified against real traffic targets.' },
+        { n: 'Zero-loss data migrations', d: 'Millions of records moved, integrity checked at every step.' },
+        { n: 'Compliance-grade security', d: 'ETSI, eIDAS and audit trails in the architecture — not bolted on.' },
+      ],
+      approach: 'Backbone work is planned like surgery: staging rehearsals, load tests, rollback paths and cutover windows measured in hours — so the business never notices the operation.',
+      related: [1, 2] },
+    { id: 'refactor', tone: 'a', tag: 'Refactor & rescue', headline: 'Legacy systems, given a second life.',
+      intro: 'Inherited a system that almost works? Most teams walk away from other people’s code. We step in: audit honestly, stabilise first, then modernise piece by piece — while your business keeps running on it.',
+      fit: [
+        'Releases are slow, risky and depend on the one person who knows the system',
+        'The original team is gone and the documentation never existed',
+        'Your framework, database or platform has reached end of life',
+        'You’ve been quoted a full rewrite — and it rightly terrifies you',
+      ],
+      deliver: [
+        { n: 'Code & architecture audit', d: 'A readable report of what’s really there: risks, costs, options. No scare tactics.' },
+        { n: 'Stabilise first', d: 'Tests, CI/CD and monitoring around the current system before anything is rewritten.' },
+        { n: 'Incremental modernisation', d: 'Strangler-pattern migrations: replaced piece by piece, in production.' },
+        { n: 'Migrations & upgrades', d: 'Frameworks, databases and platforms brought back to supported versions.' },
+        { n: 'Performance & security', d: 'The bottlenecks and leaks fixed while we’re in there.' },
+      ],
+      approach: 'Rewrites fail when they start from zero, so we start from what works: the system keeps earning while we replace it underneath. That’s how a 30-year-old Oracle Forms platform became a modern Node.js product in under a year — without stopping the business.',
+      related: [0] },
+  ];
+  activeService() { return this.services[this.state.svcIdx === null ? 0 : this.state.svcIdx]; }
+  tone(c) { return c.tone === 'b' ? 'var(--accent2, #b9f0c4)' : 'var(--accent, #7ce38b)'; }
+  buildCase(i) {
+    const c = this.cases[i];
+    const t = this.tone(c);
+    return Object.assign({}, c, {
+      pillBg: 'color-mix(in oklch, ' + t + ' 15%, transparent)',
+      pillBorder: 'color-mix(in oklch, ' + t + ' 32%, transparent)',
+      open: () => this.setState({ caseIdx: i }),
+    });
+  }
+  goTo(i) {
+    this.setState({ step: Math.max(0, Math.min(3, i)) });
+  }
+  pickService(id) {
+    this.setState({ service: id, sent: false });
+    const el = document.getElementById('contact');
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 32, behavior: 'smooth' });
+  }
+  renderVals() {
+    const variant = this.props.heroVariant ?? 'code';
+    const st = this.state.step;
+    const steps = [
+      { num: '00', title: 'Discover', badge: 'Billed separately', desc: 'One room, one goal. A brainstorming workshop built on Domain-Driven Design, where we map your domain, its events and its users together — and define what the product should actually do before anyone writes code.' },
+      { num: '01', title: 'Design', desc: 'The findings become a roadmap: an MVP-first plan of what ships now, what waits and why. Agile by design — sized in increments you can see, measure and re-prioritise.' },
+      { num: '02', title: 'Build', desc: 'We build exactly what we agreed in the workshops — iteration by iteration, with a working demo at the end of each. The roadmap turns into product, not into status reports.' },
+      { num: '03', title: 'Handover', desc: 'The project closes on your terms: take the product and full ownership, or continue with a maintenance and growth agreement. It ends with a handshake, never a lock-in.' },
+    ];
+    return {
+      isAurora: variant === 'aurora',
+      isCode: variant === 'code',
+      isType: variant === 'type',
+      steps,
+      dots: steps.map((s, i) => ({
+        label: s.num,
+        go: () => this.goTo(i),
+        bg: i === st ? 'color-mix(in oklch, var(--accent, #7ce38b) 22%, transparent)' : 'transparent',
+        border: i === st ? 'color-mix(in oklch, var(--accent, #7ce38b) 45%, transparent)' : 'rgba(255,255,255,0.16)',
+        color: i === st ? '#f5f5f7' : 'rgba(245,245,247,0.55)',
+      })),
+      slideTransform: 'translateX(calc(' + st + ' * (-100% - 18px)))',
+      prevStep: () => this.goTo(this.state.step - 1),
+      nextStep: () => this.goTo(this.state.step + 1),
+      prevOpacity: st === 0 ? '0.35' : '1',
+      nextOpacity: st === 3 ? '0.35' : '1',
+      openSvcWeb: () => this.setState({ svcIdx: 0 }),
+      openSvcAutomation: () => this.setState({ svcIdx: 1 }),
+      openSvcCore: () => this.setState({ svcIdx: 2 }),
+      openSvcRefactor: () => this.setState({ svcIdx: 3 }),
+      startWeb: (e) => { e.stopPropagation(); this.pickService('web'); },
+      startAutomation: (e) => { e.stopPropagation(); this.pickService('automation'); },
+      startCore: (e) => { e.stopPropagation(); this.pickService('core'); },
+      startRefactor: (e) => { e.stopPropagation(); this.pickService('refactor'); },
+      formServices: [
+        { id: 'web', label: 'Web solutions', sub: 'Platforms, portals, products' },
+        { id: 'automation', label: 'Automation', sub: 'Processes, RPA, AI workflows' },
+        { id: 'core', label: 'Core systems & integrations', sub: 'Distributed, B2B, event-driven' },
+        { id: 'refactor', label: 'Refactor & rescue', sub: 'Legacy, tech debt, migrations' },
+      ].map((s) => ({
+        ...s,
+        pick: () => this.setState({ service: s.id }),
+        bg: this.state.service === s.id ? 'color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent)' : 'rgba(255,255,255,0.04)',
+        border: this.state.service === s.id ? 'color-mix(in oklch, var(--accent, #7ce38b) 55%, transparent)' : 'rgba(255,255,255,0.1)',
+      })),
+      toggleDiscover: () => this.setState((s) => ({ discover: !s.discover })),
+      toggleHandover: () => this.setState((s) => ({ handover: !s.handover })),
+      discoverBg: this.state.discover ? 'color-mix(in oklch, var(--accent, #7ce38b) 10%, transparent)' : 'rgba(255,255,255,0.03)',
+      discoverBorder: this.state.discover ? 'color-mix(in oklch, var(--accent, #7ce38b) 45%, transparent)' : 'rgba(255,255,255,0.1)',
+      discoverMark: this.state.discover ? '✓' : '',
+      discoverMarkBg: this.state.discover ? 'var(--accent, #7ce38b)' : 'transparent',
+      discoverMarkBorder: this.state.discover ? 'var(--accent, #7ce38b)' : 'rgba(255,255,255,0.25)',
+      handoverBg: this.state.handover ? 'color-mix(in oklch, var(--accent2, #b9f0c4) 10%, transparent)' : 'rgba(255,255,255,0.03)',
+      handoverBorder: this.state.handover ? 'color-mix(in oklch, var(--accent2, #b9f0c4) 45%, transparent)' : 'rgba(255,255,255,0.1)',
+      handoverMark: this.state.handover ? '✓' : '',
+      handoverMarkBg: this.state.handover ? 'var(--accent2, #b9f0c4)' : 'transparent',
+      handoverMarkBorder: this.state.handover ? 'var(--accent2, #b9f0c4)' : 'rgba(255,255,255,0.25)',
+      meetOnline: () => this.setState({ meeting: 'online' }),
+      meetOnsite: () => this.setState({ meeting: 'onsite' }),
+      onlineBg: this.state.meeting === 'online' ? 'color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent)' : 'rgba(255,255,255,0.04)',
+      onlineBorder: this.state.meeting === 'online' ? 'color-mix(in oklch, var(--accent, #7ce38b) 55%, transparent)' : 'rgba(255,255,255,0.12)',
+      onlineColor: this.state.meeting === 'online' ? '#f5f5f7' : 'rgba(245,245,247,0.6)',
+      onsiteBg: this.state.meeting === 'onsite' ? 'color-mix(in oklch, var(--accent, #7ce38b) 16%, transparent)' : 'rgba(255,255,255,0.04)',
+      onsiteBorder: this.state.meeting === 'onsite' ? 'color-mix(in oklch, var(--accent, #7ce38b) 55%, transparent)' : 'rgba(255,255,255,0.12)',
+      onsiteColor: this.state.meeting === 'onsite' ? '#f5f5f7' : 'rgba(245,245,247,0.6)',
+      submit: () => {
+        const name = (this.nameRef.current ? this.nameRef.current.value : '').trim();
+        const email = (this.emailRef.current ? this.emailRef.current.value : '').trim();
+        const missingName = !name;
+        const missingEmail = !email || !/.+@.+\..+/.test(email);
+        if (missingName || missingEmail) { this.setState({ missingName, missingEmail }); return; }
+        this.setState({ sent: true, missingName: false, missingEmail: false });
+      },
+      clearErrors: () => {
+        if (this.state.missingName || this.state.missingEmail) this.setState({ missingName: false, missingEmail: false });
+      },
+      nameRef: this.nameRef,
+      emailRef: this.emailRef,
+      nameBorder: this.state.missingName ? 'rgba(255,138,128,0.8)' : 'rgba(255,255,255,0.12)',
+      emailBorder: this.state.missingEmail ? 'rgba(255,138,128,0.8)' : 'rgba(255,255,255,0.12)',
+      formError: this.state.missingName || this.state.missingEmail,
+      resetForm: () => this.setState({ sent: false }),
+      formVisible: !this.state.sent,
+      sentVisible: this.state.sent,
+      featured: this.buildCase(0),
+      gridCases: this.cases.slice(1).map((c, i) => this.buildCase(i + 1)),
+      modalVisible: this.state.caseIdx !== null,
+      active: this.state.caseIdx === null ? this.cases[0] : this.cases[this.state.caseIdx],
+      activeTags: this.state.caseIdx === null ? [] : this.cases[this.state.caseIdx].tags,
+      activePillBg: 'color-mix(in oklch, ' + this.tone(this.cases[this.state.caseIdx === null ? 0 : this.state.caseIdx]) + ' 15%, transparent)',
+      activePillBorder: 'color-mix(in oklch, ' + this.tone(this.cases[this.state.caseIdx === null ? 0 : this.state.caseIdx]) + ' 32%, transparent)',
+      closeCase: () => this.setState({ caseIdx: null }),
+      stopProp: (e) => e.stopPropagation(),
+      startSimilar: () => {
+        const c = this.cases[this.state.caseIdx];
+        this.setState({ caseIdx: null });
+        if (c) this.pickService(c.serviceId);
+      },
+      svcModalVisible: this.state.svcIdx !== null,
+      activeSvc: this.activeService(),
+      svcFit: this.state.svcIdx === null ? [] : this.activeService().fit,
+      svcDeliver: this.state.svcIdx === null ? [] : this.activeService().deliver,
+      svcRelated: (this.state.svcIdx === null ? [] : this.activeService().related).map((ci) => {
+        const c = this.cases[ci];
+        return { m1v: c.m1v, headline: c.headline, open: () => this.setState({ svcIdx: null, caseIdx: ci }) };
+      }),
+      svcPillBg: 'color-mix(in oklch, ' + this.tone(this.activeService()) + ' 15%, transparent)',
+      svcPillBorder: 'color-mix(in oklch, ' + this.tone(this.activeService()) + ' 32%, transparent)',
+      closeSvc: () => this.setState({ svcIdx: null }),
+      svcStart: () => {
+        const s = this.services[this.state.svcIdx];
+        this.setState({ svcIdx: null });
+        if (s) this.pickService(s.id);
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
