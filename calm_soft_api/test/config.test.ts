@@ -8,7 +8,6 @@ const base = {
   CORS_ORIGINS: 'https://calmsoft.pro, https://www.calmsoft.pro', SITE_DOMAIN: 'calmsoft.pro',
   FORM_TOKEN_SECRET: 'x'.repeat(32), FORM_TOKEN_TTL_MS: '600000', TURNSTILE_SECRET: 's',
   SMTP_SEND_CAP_HOURLY: '60', SMTP_SEND_CAP_DAILY: '300',
-  OUTBOX_DB_PATH: 'data/outbox.db', OUTBOX_MAX_ATTEMPTS: '5',
 };
 
 describe('loadConfig', () => {

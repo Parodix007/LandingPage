@@ -3,14 +3,14 @@ import { checkOrigin } from '../security/origin-guard.js';
 import type { FormTokenService } from '../security/form-token.js';
 import type { TurnstileVerifier } from '../security/turnstile.js';
 import type { SendBudget } from '../security/send-budget.js';
-import type { Submission } from '../outbox/store.js';
+import type { Submission } from '../mailer/mailer.js';
 
 export interface ContactDeps {
   allowedOrigins: string[];
   formToken: FormTokenService;
   turnstile: TurnstileVerifier;
   sendBudget: SendBudget;
-  enqueue: (s: Submission) => { id: number };
+  sendMail: (s: Submission) => Promise<void>;
 }
 
 const noCrlfLoose = '^[^\\r\\n]*$';  // free text (company/phone/honeypot): only bar CR/LF
@@ -24,7 +24,7 @@ const emailPattern = '^[^\\s@<>,]+@[^\\s@<>,]+\\.[^\\s@<>,]{2,}$';
 const phonePattern = '^(?:|(?=(?:\\D*\\d){7,15}\\D*$)\\+?[0-9 ()./-]+)$';
 
 // Strip C0/C1 control chars so terminal-escape sequences can't reach the email or the
-// SQLite outbox verbatim. For the message body keep newlines; header-bound fields strip all.
+// logs verbatim. For the message body keep newlines; header-bound fields strip all.
 const stripControls = (v: string, keepNewlines = false) =>
   keepNewlines
     ? v.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '')
@@ -84,8 +84,8 @@ export async function contactRoutes(app: FastifyInstance, deps: ContactDeps) {
       // Honeypot: indistinguishable fake success, send nothing.
       if (typeof b.website === 'string' && b.website.length > 0) { req.log.warn({ ip: req.ip }, 'honeypot triggered'); return reply.code(200).send({ ok: true }); }
 
-      // check() is non-mutating; the token is consumed only after a successful enqueue below,
-      // so a fail-closed Turnstile timeout doesn't burn the user's token on their retry.
+      // check() is non-mutating; the token is consumed only after a successful send below,
+      // so a fail-closed Turnstile timeout or send failure doesn't burn the user's token on their retry.
       const ft = deps.formToken.check(String(b.formToken));
       // Identical 403 body for token AND turnstile failure — no gate oracle.
       if (!ft.ok) { req.log.warn({ ip: req.ip, reason: ft.reason }, 'form token rejected'); return reply.code(403).send({ error: 'Verification failed' }); }
@@ -108,12 +108,12 @@ export async function contactRoutes(app: FastifyInstance, deps: ContactDeps) {
         source: `${deps.allowedOrigins[0]}/#contact`,
       };
       try {
-        const { id } = deps.enqueue(submission);
+        await deps.sendMail(submission);
         deps.formToken.consume(ft.nonce);
-        req.log.info({ ip: req.ip, outboxId: id }, 'submission enqueued');
+        req.log.info({ ip: req.ip }, 'mail sent');
       } catch (err) {
         deps.sendBudget.release();
-        req.log.error({ err: err instanceof Error ? err : String(err), ip: req.ip }, 'enqueue failed');
+        req.log.error({ err: err instanceof Error ? err : String(err), ip: req.ip }, 'mail send failed');
         return reply.code(503).header('retry-after', '30').send({ error: 'Temporarily unavailable' });
       }
       return reply.code(200).send({ ok: true });

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { pino } from 'pino';
 import { buildLogger, REDACT_PATHS } from '../src/logger.js';
 
@@ -34,5 +34,24 @@ describe('logger redaction', () => {
     expect(out.req.headers.cookie).toBe('[redacted]');
     expect(out.req.body.email).toBe('a@b.pl');
     expect(out.req.body.message).toBe('hi');
+  });
+
+  it('routes info -> stdout, warn/error/fatal -> stderr (dedupe, no dup)', () => {
+    const out = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+    const err = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+    try {
+      const log = buildLogger('production', 'info', false);
+      log.info('i'); log.warn('w'); log.error('e');
+      const outStr = out.mock.calls.map((c) => String(c[0])).join('');
+      const errStr = err.mock.calls.map((c) => String(c[0])).join('');
+      expect(outStr).toContain('"msg":"i"');
+      expect(outStr).not.toMatch(/"msg":"[we]"/);
+      expect(errStr).toContain('"msg":"w"');
+      expect(errStr).toContain('"msg":"e"');
+      expect(errStr).not.toContain('"msg":"i"');
+    } finally {
+      out.mockRestore();
+      err.mockRestore();
+    }
   });
 });

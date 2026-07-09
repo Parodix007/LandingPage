@@ -10,21 +10,21 @@ const config = {
   MAIL_FROM: 'f@x', MAIL_TEAM_TO: 't@x',
   CORS_ORIGINS: ['https://calmsoft.pro'], SITE_DOMAIN: 'calmsoft.pro',
   FORM_TOKEN_SECRET: 'x'.repeat(32), FORM_TOKEN_TTL_MS: 600000, TURNSTILE_SECRET: 's',
-  SMTP_SEND_CAP_HOURLY: 1000, SMTP_SEND_CAP_DAILY: 1000, OUTBOX_DB_PATH: ':memory:', OUTBOX_MAX_ATTEMPTS: 5,
+  SMTP_SEND_CAP_HOURLY: 1000, SMTP_SEND_CAP_DAILY: 1000,
 } satisfies Config;
 
 const H = { origin: 'https://calmsoft.pro', 'content-type': 'application/json' };
 
-function makeDeps(over: Partial<AppDeps> = {}): { deps: AppDeps; enqueue: ReturnType<typeof vi.fn>; turnstileOk: { ok: boolean } } {
+function makeDeps(over: Partial<AppDeps> = {}): { deps: AppDeps; sendMail: ReturnType<typeof vi.fn>; turnstileOk: { ok: boolean } } {
   const formToken = createFormTokenService({ secret: config.FORM_TOKEN_SECRET, ttlMs: config.FORM_TOKEN_TTL_MS });
-  const enqueue = vi.fn(() => ({ id: 1 }));
+  const sendMail = vi.fn(async () => {});
   const turnstile = { verify: vi.fn(async () => ({ ok: true })) };
   const deps: AppDeps = {
     config, formToken, turnstile,
     sendBudget: createSendBudget({ hourlyCap: 1000, dailyCap: 1000 }),
-    enqueue, readiness: async () => ({ ok: true }), ...over,
+    sendMail, readiness: async () => ({ ok: true }), ...over,
   };
-  return { deps, enqueue, turnstileOk: { ok: true } };
+  return { deps, sendMail, turnstileOk: { ok: true } };
 }
 
 async function validBody(app: Awaited<ReturnType<typeof buildApp>>, deps: AppDeps) {
@@ -38,15 +38,38 @@ async function validBody(app: Awaited<ReturnType<typeof buildApp>>, deps: AppDep
 
 describe('security controls (CI gate)', () => {
   let app: Awaited<ReturnType<typeof buildApp>>;
-  let deps: AppDeps; let enqueue: ReturnType<typeof vi.fn>;
+  let deps: AppDeps; let sendMail: ReturnType<typeof vi.fn>;
 
-  beforeEach(async () => { ({ deps, enqueue } = makeDeps()); app = await buildApp(deps); });
+  beforeEach(async () => { ({ deps, sendMail } = makeDeps()); app = await buildApp(deps); });
 
-  it('accepts a valid submission and enqueues exactly once', async () => {
+  it('accepts a valid submission, sends exactly once, and awaits the send before replying', async () => {
+    let sendResolved = false;
+    const sendMailMock = vi.fn(async () => { await new Promise((r) => setTimeout(r, 5)); sendResolved = true; });
+    ({ deps } = makeDeps({ sendMail: sendMailMock }));
+    app = await buildApp(deps);
     const body = await validBody(app, deps);
     const r = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body });
     expect(r.statusCode).toBe(200);
-    expect(enqueue).toHaveBeenCalledTimes(1);
+    expect(sendMailMock).toHaveBeenCalledTimes(1);
+    expect(sendResolved).toBe(true);
+  });
+  it('sendMail failure returns 503, releases the budget, and does not burn the form token (retry with same token succeeds)', async () => {
+    const sendMailMock = vi.fn(async () => {});
+    sendMailMock.mockImplementationOnce(async () => { throw new Error('smtp down'); });
+    ({ deps } = makeDeps({ sendMail: sendMailMock, sendBudget: createSendBudget({ hourlyCap: 1, dailyCap: 1 }) }));
+    app = await buildApp(deps);
+    const body = await validBody(app, deps);
+
+    const r1 = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body });
+    expect(r1.statusCode).toBe(503);
+    expect(r1.headers['retry-after']).toBe('30');
+    expect(sendMailMock).toHaveBeenCalledTimes(1);
+
+    // Same formToken (never consumed on failure) + budget released by the 503 path: retry succeeds.
+    // hourlyCap:1 makes this prove the release actually happened, not just a generous cap.
+    const r2 = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body });
+    expect(r2.statusCode).toBe(200);
+    expect(sendMailMock).toHaveBeenCalledTimes(2);
   });
   it('rejects malformed email with 400', async () => {
     const body = { ...(await validBody(app, deps)), email: 'a@' };
@@ -72,25 +95,25 @@ describe('security controls (CI gate)', () => {
     const body = { ...(await validBody(app, deps)), email: 'x@y.co.uk' };
     const r = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body });
     expect(r.statusCode).toBe(200);
-    expect(enqueue).toHaveBeenCalledTimes(1);
+    expect(sendMail).toHaveBeenCalledTimes(1);
   });
   it('accepts an international phone (+48 123 456 789)', async () => {
     const body = { ...(await validBody(app, deps)), phone: '+48 123 456 789' };
     const r = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body });
     expect(r.statusCode).toBe(200);
-    expect(enqueue).toHaveBeenCalledTimes(1);
+    expect(sendMail).toHaveBeenCalledTimes(1);
   });
   it('accepts a bare national phone (123456789)', async () => {
     const body = { ...(await validBody(app, deps)), phone: '123456789' };
     const r = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body });
     expect(r.statusCode).toBe(200);
-    expect(enqueue).toHaveBeenCalledTimes(1);
+    expect(sendMail).toHaveBeenCalledTimes(1);
   });
   it('accepts an empty phone string (field is optional)', async () => {
     const body = { ...(await validBody(app, deps)), phone: '' };
     const r = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body });
     expect(r.statusCode).toBe(200);
-    expect(enqueue).toHaveBeenCalledTimes(1);
+    expect(sendMail).toHaveBeenCalledTimes(1);
   });
   it('rejects a non-numeric phone with 400', async () => {
     const body = { ...(await validBody(app, deps)), phone: 'not-a-phone' };
@@ -108,10 +131,10 @@ describe('security controls (CI gate)', () => {
     const body = { ...(await validBody(app, deps)), phone: '1234567890123456' };
     expect((await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body })).statusCode).toBe(400);
   });
-  it('honeypot: filled website returns fake 200 and enqueues 0', async () => {
+  it('honeypot: filled website returns fake 200 and sends 0', async () => {
     const body = { ...(await validBody(app, deps)), website: 'bot' };
     const r = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body });
-    expect(r.statusCode).toBe(200); expect(enqueue).not.toHaveBeenCalled();
+    expect(r.statusCode).toBe(200); expect(sendMail).not.toHaveBeenCalled();
   });
   it('rejects a disallowed Origin with 403', async () => {
     const body = await validBody(app, deps);
@@ -129,16 +152,16 @@ describe('security controls (CI gate)', () => {
     expect(r.statusCode).toBe(403);
   });
   it('rejects a failed Turnstile with 403 (fail-closed)', async () => {
-    ({ deps, enqueue } = makeDeps({ turnstile: { verify: vi.fn(async () => ({ ok: false, reason: 'x' })) } }));
+    ({ deps, sendMail } = makeDeps({ turnstile: { verify: vi.fn(async () => ({ ok: false, reason: 'x' })) } }));
     app = await buildApp(deps);
     const r = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: await validBody(app, deps) });
-    expect(r.statusCode).toBe(403); expect(enqueue).not.toHaveBeenCalled();
+    expect(r.statusCode).toBe(403); expect(sendMail).not.toHaveBeenCalled();
   });
-  it('over-budget returns 200 without enqueueing', async () => {
-    ({ deps, enqueue } = makeDeps({ sendBudget: createSendBudget({ hourlyCap: 0, dailyCap: 0 }) }));
+  it('over-budget returns 200 without sending', async () => {
+    ({ deps, sendMail } = makeDeps({ sendBudget: createSendBudget({ hourlyCap: 0, dailyCap: 0 }) }));
     app = await buildApp(deps);
     const r = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: await validBody(app, deps) });
-    expect(r.statusCode).toBe(200); expect(enqueue).not.toHaveBeenCalled();
+    expect(r.statusCode).toBe(200); expect(sendMail).not.toHaveBeenCalled();
   });
   it('rejects a body over 32 KB with 413', async () => {
     const body = { ...(await validBody(app, deps)), message: 'a'.repeat(33 * 1024) };
@@ -158,7 +181,7 @@ describe('security controls (CI gate)', () => {
     const body = { ...(await validBody(app, deps)), name: 'Doe, Jane' };
     const r = await app.inject({ method: 'POST', url: '/api/contact', headers: H, payload: body });
     expect(r.statusCode).toBe(200);
-    expect(enqueue).toHaveBeenCalledTimes(1);
+    expect(sendMail).toHaveBeenCalledTimes(1);
   });
   it('/health is not rate-limited (probes never self-429)', async () => {
     for (let i = 0; i < 12; i++) {

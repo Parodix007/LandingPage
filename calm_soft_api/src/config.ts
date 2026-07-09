@@ -9,7 +9,6 @@ export interface Config {
   FORM_TOKEN_SECRET: string; FORM_TOKEN_TTL_MS: number;
   TURNSTILE_SECRET: string;
   SMTP_SEND_CAP_HOURLY: number; SMTP_SEND_CAP_DAILY: number;
-  OUTBOX_DB_PATH: string; OUTBOX_MAX_ATTEMPTS: number;
 }
 
 type Env = Record<string, string | undefined>;
@@ -61,7 +60,5 @@ export function loadConfig(env: Env = process.env): Config {
     TURNSTILE_SECRET: str(env, 'TURNSTILE_SECRET'),
     SMTP_SEND_CAP_HOURLY: int(env, 'SMTP_SEND_CAP_HOURLY'),
     SMTP_SEND_CAP_DAILY: int(env, 'SMTP_SEND_CAP_DAILY'),
-    OUTBOX_DB_PATH: env.OUTBOX_DB_PATH?.trim() || 'data/outbox.db',
-    OUTBOX_MAX_ATTEMPTS: int(env, 'OUTBOX_MAX_ATTEMPTS'),
   };
 }

@@ -8,14 +8,14 @@ import type { Config } from './config.js';
 import type { FormTokenService } from './security/form-token.js';
 import type { TurnstileVerifier } from './security/turnstile.js';
 import type { SendBudget } from './security/send-budget.js';
-import type { Submission } from './outbox/store.js';
+import type { Submission } from './mailer/mailer.js';
 import { contactRoutes } from './routes/contact.js';
 import { healthRoutes } from './routes/health.js';
 
 export interface AppDeps {
   config: Config; logger?: Logger;
   formToken: FormTokenService; turnstile: TurnstileVerifier; sendBudget: SendBudget;
-  enqueue: (s: Submission) => { id: number };
+  sendMail: (s: Submission) => Promise<void>;
   readiness: () => Promise<{ ok: boolean }>;
 }
 
@@ -77,7 +77,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   await app.register(contactRoutes, {
     allowedOrigins: config.CORS_ORIGINS,
     formToken: deps.formToken, turnstile: deps.turnstile,
-    sendBudget: deps.sendBudget, enqueue: deps.enqueue,
+    sendBudget: deps.sendBudget, sendMail: deps.sendMail,
   });
   return app;
 }

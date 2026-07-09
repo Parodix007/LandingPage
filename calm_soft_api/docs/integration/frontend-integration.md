@@ -154,7 +154,7 @@ nie ma z czego zbudować logiki opartej na body.
 | 413 | body > 32 KB | nie ponawiaj; limit `message` 5000 znaków chroni przed tym w normalnym użyciu | `{"error":"Invalid request"}` |
 | 415 | brak/zły `Content-Type: application/json` | błąd konfiguracji frontu, nie ponawiaj | `{"error":"Content-Type must be application/json"}` |
 | 429 | limit per-IP (5/15 min submit; 30/15 min token) | „spróbuj później"; honoruj `Retry-After` jeśli obecny | `{"error":"Invalid request"}`, nagłówek `retry-after: 900` (sekundy) + `x-ratelimit-*` |
-| 503 | chwilowa niedostępność zapisu (outbox) | stan błędu; można ponowić po `Retry-After` | `{"error":"Temporarily unavailable"}`, nagłówek `retry-after: 30` |
+| 503 | wysyłka SMTP nie powiodła się (mail NIE wyszedł) | stan błędu; można ponowić po `Retry-After` — przed ponowieniem **odśwież token Turnstile** (jednorazowy — został zużyty przy pierwszej próbie); formToken pozostaje ważny (API nie konsumuje go przy błędzie wysyłki) | `{"error":"Temporarily unavailable"}`, nagłówek `retry-after: 30` |
 | sieć/timeout | — | stan błędu (front ma własny timeout 10 s, patrz przykład §3) | — |
 
 Uwaga do wiersza 403: treść body dla złego Origin (`"Origin not allowed"`) różni się od treści
@@ -176,10 +176,13 @@ Body formToken i Turnstile jest natomiast celowo **identyczne** dla obu przyczyn
 - Honeypot (`website`) — wypełnione pole daje nieodróżnialny fake-`200` bez wysyłki.
 - Limity per-IP na obu endpointach.
 - Globalny budżet wysyłki (godzinowy/dzienny cap) — po przekroczeniu również fake-`200`.
-- Outbox na dysku (SQLite) — odpowiedź `200` nie czeka na SMTP; wysyłka dzieje się osobno.
+- Wysyłka SMTP synchronicznie w requeście (od 2026-07-09; wcześniejszy outbox usunięty — hosting
+  lsnode ubija proces tuż po odpowiedzi, więc żadna praca nie może dziać się „osobno") — `200`
+  oznacza, że mail faktycznie wyszedł; błąd SMTP daje jawne `503`.
 - Ochrona przed SMTP/CRLF injection — adres nadawcy formularza trafia wyłącznie do
   strukturalnego `Reply-To`, nigdy nie jest interpolowany w nagłówkach.
-- Redakcja PII w logach API.
+- Logi API zawierają pełne body zgłoszenia (świadoma decyzja produktowa — logi są magazynem
+  danych osobowych w rozumieniu RODO); redakcja obejmuje wyłącznie nagłówki uwierzytelniające.
 - Identyczne body `403` dla formToken i Turnstile — brak wyroczni, która bramka odrzuciła.
 
 ### (b) Do wdrożenia po stronie frontu
@@ -240,7 +243,6 @@ curl -si -X POST https://api.calmsoft.pro/api/contact \
   -H "origin: https://calmsoft.pro" -H "content-type: text/plain" -d 'x' | head -1
 # sekrety niedostępne -> 404
 curl -s -o /dev/null -w "%{http_code}\n" https://api.calmsoft.pro/.env
-curl -s -o /dev/null -w "%{http_code}\n" https://api.calmsoft.pro/data/outbox.db
 ```
 
 - Pełny dwukrokowy submit z prawdziwej strony → `200` i e-mail widoczny w skrzynce zespołu.
@@ -249,5 +251,7 @@ curl -s -o /dev/null -w "%{http_code}\n" https://api.calmsoft.pro/data/outbox.db
 
 ---
 
-Data: 2026-07-08. Źródło prawdy kontraktu; architektura bezpieczeństwa API:
+Data: 2026-07-08; zaktualizowano 2026-07-09 (outbox usunięty — wysyłka synchroniczna, patrz
+addendum w `docs/superpowers/specs/2026-07-09-hostinger-source-build-deploy-design.md`).
+Źródło prawdy kontraktu; architektura bezpieczeństwa API:
 `docs/superpowers/specs/2026-07-08-calm-soft-api-design.md`.

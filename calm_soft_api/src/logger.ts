@@ -1,26 +1,34 @@
-import { pino, stdSerializers, destination, type Logger } from 'pino';
+import { pino, multistream, stdSerializers, type Logger } from 'pino';
+import pretty from 'pino-pretty';
 
 export const REDACT_PATHS = ['req.headers.authorization', 'req.headers.cookie'];
 
-export function buildLogger(nodeEnv: string, level: string = 'info', pretty: boolean = false): Logger {
+export function buildLogger(nodeEnv: string, level: string = 'info', usePretty: boolean = false): Logger {
   const resolved = nodeEnv === 'test' ? 'silent' : level;
   const base = {
     level: resolved,
     redact: { paths: REDACT_PATHS, censor: '[redacted]' },
     serializers: { err: stdSerializers.err },
   };
-  // All real logging goes to stderr (fd 2): Hostinger's runtime log panel surfaces
-  // stderr, not stdout, so app logs are only visible there. Non-pretty emits structured
-  // NDJSON (machine-parseable for shipping/alerting); pino-pretty (worker-thread
-  // transport) only when explicitly enabled. The silent/test path stays a plain logger
-  // — no fd handle and no pino-pretty worker thread to dangle in Vitest.
   if (resolved === 'silent') return pino(base);
-  if (!pretty) return pino(base, destination({ dest: 2, sync: false }));
-  return pino({
-    ...base,
-    transport: {
-      target: 'pino-pretty',
-      options: { colorize: true, translateTime: 'SYS:standard', ignore: 'pid,hostname', destination: 2 },
-    },
-  });
+
+  // Pretty (dev only): one chronological stream in the terminal.
+  if (usePretty) {
+    const stream = pretty({
+      colorize: true, translateTime: 'SYS:standard', ignore: 'pid,hostname',
+      destination: process.stdout, sync: true,
+    });
+    return pino(base, stream);
+  }
+
+  // Prod NDJSON: info/debug/trace -> stdout ("Runtime logs" / Info in Hostinger's panel),
+  // warn/error/fatal -> stderr ("stderr.log" / Error). Synchronous JS-level stream writes
+  // flush before Hostinger recycles the process on each deploy -- that sync flush (not the
+  // stream choice) is what makes lines appear; the old "only stderr is captured" note was a
+  // misdiagnosis (real cause: pino's async sonic-boom buffer dropped on recycle + reading the
+  // wrong sink). Hostinger captures BOTH stdout and stderr as separate severity buckets.
+  return pino(base, multistream([
+    { level: 'trace', stream: process.stdout },
+    { level: 'warn', stream: process.stderr },
+  ], { dedupe: true }));
 }

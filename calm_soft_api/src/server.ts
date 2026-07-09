@@ -6,11 +6,12 @@ import { buildApp } from './app.js';
 import { createFormTokenService } from './security/form-token.js';
 import { createTurnstileVerifier } from './security/turnstile.js';
 import { createSendBudget } from './security/send-budget.js';
-import { createOutbox } from './outbox/store.js';
 import { createMailer } from './mailer/mailer.js';
-import { createOutboxWorker } from './outbox/worker.js';
 
 async function main() {
+  // Boot heartbeat on the guaranteed-captured path (console.error → process.stderr.write).
+  // Proves the deployed bundle is live even before config/logger init. See src/logger.ts.
+  console.error(`[boot] calm_soft_api starting — node ${process.version} pid ${process.pid}`);
   const config = loadConfig(process.env);
   const logger = buildLogger(config.NODE_ENV, config.LOG_LEVEL, config.LOG_PRETTY);
   logger.info(
@@ -26,30 +27,33 @@ async function main() {
     host: config.SMTP_HOST, port: config.SMTP_PORT, secure: config.SMTP_PORT === 465,
     auth: { user: config.SMTP_USER, pass: config.SMTP_PASS },
     pool: true, maxConnections: 3,
-    connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 10000,
+    // dnsTimeout matters: nodemailer's default is 30s and the lookup runs BEFORE
+    // connectionTimeout is armed — on lsnode every request is a cold process (no DNS cache).
+    connectionTimeout: 5000, greetingTimeout: 5000, socketTimeout: 10000, dnsTimeout: 5000,
   });
 
-  const outbox = createOutbox(config.OUTBOX_DB_PATH);
   const mailer = createMailer({ transport, from: config.MAIL_FROM, teamTo: config.MAIL_TEAM_TO, logger });
-  const outboxIntervalMs = 5000;
-  const worker = createOutboxWorker({ outbox, mailer, maxAttempts: config.OUTBOX_MAX_ATTEMPTS, intervalMs: outboxIntervalMs, logger });
-
-  let smtpReady = false;
-  transport.verify()
-    .then(() => { smtpReady = true; logger.info({ smtpHost: config.SMTP_HOST }, 'smtp verify ok'); })
-    .catch((e) => logger.error({ err: e }, 'smtp verify failed'));
 
   const app = await buildApp({
     config, logger,
     formToken: createFormTokenService({ secret: config.FORM_TOKEN_SECRET, ttlMs: config.FORM_TOKEN_TTL_MS }),
     turnstile: createTurnstileVerifier({ secret: config.TURNSTILE_SECRET }),
     sendBudget: createSendBudget({ hourlyCap: config.SMTP_SEND_CAP_HOURLY, dailyCap: config.SMTP_SEND_CAP_DAILY }),
-    enqueue: (s) => outbox.enqueue(s),
-    readiness: async () => ({ ok: smtpReady }),
+    sendMail: (s) => mailer.sendInternal(s),
+    // On-demand SMTP check, not a boot-time flag: on lsnode every probe is a cold process,
+    // so a fire-and-forget verify() would ALWAYS lose the race and /ready would sit at 503.
+    // verify() is bounded by the transport timeouts above (~5s typical failure detection).
+    readiness: async () => {
+      try {
+        await transport.verify();
+        return { ok: true };
+      } catch (e) {
+        logger.warn({ err: e, smtpHost: config.SMTP_HOST }, 'smtp verify failed');
+        return { ok: false };
+      }
+    },
   });
 
-  worker.start();
-  logger.info({ intervalMs: outboxIntervalMs }, 'outbox worker started');
   await app.listen({ host: config.HOST, port: config.PORT });
   logger.info({ port: config.PORT }, 'calm_soft_api listening');
 
@@ -58,12 +62,8 @@ async function main() {
     try {
       await app.close();
       logger.info('http server closed');
-      await worker.stop();
-      logger.info('outbox worker stopped');
       transport.close();
       logger.info('smtp transport closed');
-      outbox.close();
-      logger.info('outbox closed');
     } finally {
       await new Promise<void>((resolve) => logger.flush(() => resolve()));
       process.exit(0);

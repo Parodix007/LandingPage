@@ -11,13 +11,23 @@ They are joined by CORS (`CORS_ORIGINS` on the API = the front's origins) and th
 `connect-src` (= `https://api.calmsoft.pro`). Both must stay in exact agreement.
 
 **Confirmed topology (subdomain):** frontend static on `calmsoft.pro`, API on the `api.calmsoft.pro`
-subdomain of the **same** account/IP. **No code change to either app** — the tech stack stays Next.js static +
-Fastify. The API already registers CORS for `calmsoft.pro` + `www`, and the frontend build already targets
-`https://api.calmsoft.pro`, so **the bundles below are correct as-is — nothing needs rebuilding.**
+subdomain of the **same** account/IP. The tech stack stays Next.js static + Fastify; CORS and the frontend's API
+base URL are already aligned. ~~The bundles below are correct as-is — nothing needs rebuilding.~~
+**[Superseded — 2026-07-09 sync-send migration: the API code HAS changed (outbox removed, synchronous send,
+`[DIAG]` env dump removed). Both API bundles in `_deploy/` predate this and must NOT be uploaded — they ship the
+outbox build that silently never sends on lsnode, and `calm_soft_api_src.zip` additionally still contains the
+`[DIAG]` dump that prints `SMTP_PASS` in cleartext on every boot. Required order: commit the migration → rebuild
+`calm_soft_api_src.zip` (§2-ALT `git archive` command — it archives `HEAD`, so it picks up the changes only after
+the commit) → deploy → **only then** rotate `SMTP_PASS` (rotating while the old DIAG build is still live would
+re-leak the new password on the next boot). The web bundle (`calm_soft_web_out.zip`) is unaffected.]**
 
-**Ready-to-upload bundles** (already built and verified — in `_deploy/`):
+**Ready-to-upload bundles** (in `_deploy/`):
 - `_deploy/calm_soft_web_out.zip` — the static site (42 entries incl. `.htaccess`).
-- `_deploy/calm_soft_api_deploy.zip` — `dist/` + `package.json` + `package-lock.json`.
+- `_deploy/calm_soft_api_src.zip` — **rebuilt 2026-07-09 22:04 from the working tree** (changes were still
+  uncommitted, so the §2-ALT `git archive HEAD` command would have packaged the stale outbox build; used the
+  documented fallback — bsdtar, forward-slash entries verified). Contains sync-send + the logger level split,
+  no `[DIAG]`, no outbox. **Commit the source before/at deploy so HEAD matches what's live.**
+- `_deploy/calm_soft_api_deploy.zip` — **STALE, do not upload** (prebuilt `dist/` from the outbox era).
 
 ---
 
@@ -59,16 +69,19 @@ Steps (hPanel — you confirmed your plan has **Subdomains** + **Node.js Web App
    (for a subdomain on the same account hPanel normally adds the record automatically).
 2. **Create the Node.js Web App** attached to **`api.calmsoft.pro`** (hPanel → **Websites → Add Website →
    Node.js Web App**; Fastify is officially supported):
-   - **Node.js version:** `22.x` (≥ 22.13 → `node:sqlite` flag-free; never 22.0–22.12).
+   - **Node.js version:** `22.x` (≥ 22.13 → `node:sqlite` flag-free; never 22.0–22.12). **[Superseded — 2026-07-09]**
+     `node:sqlite` is no longer used (see addendum); still use `22.x` for consistency with `package.json` `engines`.
    - **Deployment source:** upload **`calm_soft_api_deploy.zip`** (or point at a Git repo). Its contents
      (`dist/`, `package.json`, `package-lock.json`) become the app root — kept **outside** `public_html`, so
-     `.env`/`data/outbox.db` are never web-served.
+     `.env` is never web-served. ~~`/data/outbox.db`~~ **[Superseded — 2026-07-09]** no outbox file exists anymore.
    - **Framework:** `Other` / Node; **Entry / startup file:** `dist/server.js`.
 3. **Set environment variables** in the app's env UI (see §3) — including `NODE_ENV=production`.
 4. **Install deps:** the pipeline runs `npm install` (from `package-lock.json`; with `NODE_ENV=production`,
    devDeps are skipped). All runtime deps are pure-JS → no native build on the host.
 5. **Issue SSL** for `api.calmsoft.pro` (hPanel → SSL; free Let's Encrypt), then **Start / Restart** the app.
 6. The API creates `data/outbox.db` (WAL SQLite) on first boot under the app root; the worker drains it.
+   **[Superseded — 2026-07-09]** The outbox/worker subsystem has been removed — see the addendum near the end of
+   this file. The API now sends the internal notification email synchronously inside the request instead.
 
 **No code change anywhere:** the stack stays Next.js static + Fastify. The API sits at the subdomain root and
 its routes already begin with `/api`, so `POST /api/contact`, `GET /api/contact/token`, `/health`, `/ready` all
@@ -96,7 +109,7 @@ some Linux extractors flatten (`src\app.ts` → no `src/` → `tsc` fails):
 # from calm_soft_api/ (git repo root is the parent LandingPage; source must be committed)
 git archive --format=zip -o ../_deploy/calm_soft_api_src.zip HEAD -- \
   src scripts package.json package-lock.json tsconfig.json .nvmrc
-# verify: unzip -l shows src/app.ts (forward slash), 27 entries, no .env/data/dist/node_modules/test
+# verify: unzip -l shows src/app.ts (forward slash), 24 entries (was 27 pre-outbox-removal), no .env/data/dist/node_modules/test
 ```
 Contents: all of `src/` (incl. **both** `src/emails/*.hbs`), `scripts/copy-templates.mjs`, `package.json`,
 `package-lock.json`, `tsconfig.json`, `.nvmrc`. Fallback for uncommitted changes: 7-Zip or Git-Bash `zip -r`.
@@ -108,7 +121,8 @@ is **baked into the `build` script itself** ([package.json](calm_soft_api/packag
 `"build": "npm ci --include=dev && tsc && node scripts/copy-templates.mjs"`. Verified end-to-end by reproducing
 Hostinger's sequence locally — a prod-only `npm ci` (76 pkgs, no `tsc`) followed by `npm run build` self-installs
 the 127-package dev set, compiles, and emits `dist/server.js`.
-- **Node:** `22.x` (≥ 22.13 for flag-free `node:sqlite`).
+- **Node:** `22.x` (≥ 22.13 for flag-free `node:sqlite`). **[Superseded — 2026-07-09]** `node:sqlite` is no longer
+  used (see addendum); keep `22.x` anyway for consistency with `package.json` `engines`.
 - **Build:** `npm run build` — leave as the panel default; the `--include=dev` now lives inside the script, so
   no separate Install field is needed (the panel doesn't expose/honor one).
 - **Start:** `npm start` (`node dist/server.js`) if the panel exposes it; otherwise the preset auto-runs the
@@ -122,13 +136,18 @@ the 127-package dev set, compiles, and emits `dist/server.js`.
 
 **Env vars (§3):** set all required vars in the panel (it supports `.env` import). **Do NOT add `PORT`** — let the
 platform inject it; add it manually only if first boot logs `Missing required env var: PORT` (then match whatever
-port the proxy targets; if that 502s, remove it). Set **`OUTBOX_DB_PATH` to an absolute path outside the deploy
-tree** (e.g. `/home/<user>/calm_soft_data/outbox.db`) so a redeploy can't wipe still-`pending` leads.
+port the proxy targets; if that 502s, remove it). ~~Set **`OUTBOX_DB_PATH` to an absolute path outside the deploy
+tree** (e.g. `/home/<user>/calm_soft_data/outbox.db`) so a redeploy can't wipe still-`pending` leads.~~
+**[Superseded — 2026-07-09]** `OUTBOX_DB_PATH` is no longer read by the app — see the addendum near the end of
+this file; do not set it.
 
-**First-boot checks (Runtime logs / `stderr.log`):** (1) `process.version` ≥ 22.13 with no `node:sqlite` flag
-error; (2) app logs the bound port and `GET /health` → 200 with **no 502** (port alignment — the likeliest
-first-boot failure); (3) `GET /ready` → 200; (4) outbox DB created and surviving a redeploy. Then run the §4
-go-live checks.
+**First-boot checks (Runtime logs / `stderr.log`):** `info`/`debug`/`trace` lines land in **Runtime logs** (stdout);
+`warn`/`error`/`fatal` land in **`stderr.log`**. (1) `process.version` ≥ 22.13 with no `node:sqlite` flag
+error **[Superseded — 2026-07-09: `node:sqlite` is no longer used, so there is nothing to check here]**; (2) app
+logs the bound port and `GET /health` → 200 with **no 502** (port alignment — the likeliest first-boot failure);
+(3) `GET /ready` → 200; (4) ~~outbox DB created and surviving a redeploy~~ **[Superseded — 2026-07-09]** submit
+one live form and confirm the internal notification email arrives (see the addendum — this is now the only
+end-to-end proof that sending works). Then run the §4 go-live checks.
 
 ---
 
@@ -153,11 +172,16 @@ clear message. Secrets marked 🔒 — set them only in hPanel and rotate if eve
 | `FORM_TOKEN_TTL_MS` | e.g. `600000` |
 | `TURNSTILE_SECRET` 🔒 | Cloudflare secret **paired with** the baked site key `0x4AAAAAADyHDjAP-riXdsY9` |
 | `SMTP_SEND_CAP_HOURLY` / `SMTP_SEND_CAP_DAILY` | under Hostinger's SMTP limits |
-| `OUTBOX_MAX_ATTEMPTS` | e.g. `5` |
+| ~~`OUTBOX_MAX_ATTEMPTS`~~ | **[Superseded — 2026-07-09]** no longer read by the app; delete from hPanel if set |
 | `LOG_PRETTY` | `false` (structured NDJSON in prod) |
 
-Optional: `LOG_LEVEL` (default `info`), `HOST` (default `0.0.0.0`), `OUTBOX_DB_PATH`
-(default `data/outbox.db`; set an absolute path outside the docroot if you prefer belt-and-suspenders).
+Optional: `LOG_LEVEL` (default `info`), `HOST` (default `0.0.0.0`). ~~`OUTBOX_DB_PATH`
+(default `data/outbox.db`; set an absolute path outside the docroot if you prefer belt-and-suspenders).~~
+**[Superseded — 2026-07-09]** `OUTBOX_DB_PATH` is no longer read by the app; delete it from hPanel if set, and the
+`data/outbox.db` file (if present on the host) can be removed — **but inspect it first**: rows with
+`status='pending'` are real submissions that were 200-acked and never mailed during the broken period (payload is
+plain JSON). In this deployment the only pending row is the known 2026-07-09 test submission, so nothing real is
+lost. See the addendum near the end of this file.
 
 ---
 
@@ -168,12 +192,23 @@ Optional: `LOG_LEVEL` (default `info`), `HOST` (default `0.0.0.0`), `OUTBOX_DB_P
   frontend (`0x4AAAAAADyHDjAP-riXdsY9`) and the API's `TURNSTILE_SECRET` are the **matched pair** for that widget.
 - **trustProxy linchpin:** after deploy, send a request with a forged `X-Forwarded-For` and confirm `request.ip`
   does **not** change (i.e. `TRUST_PROXY_HOPS` is correct) — every IP-keyed control depends on this.
-- **Secrets not served** (from api.calmsoft.pro): `GET /.env` → 404, `GET /data/outbox.db` → 404.
+- **Secrets not served** (from api.calmsoft.pro): `GET /.env` → 404. ~~`GET /data/outbox.db` → 404.~~
+  **[Superseded — 2026-07-09]** the outbox no longer exists, so there is no `data/outbox.db` to check.
 - **Origin gate:** a `POST /api/contact` with no/disallowed `Origin` (or wrong `Content-Type`) → 403/415.
-- **Health vs ready:** point uptime monitoring at `GET /ready` (runs `transporter.verify()`), not `GET /health`.
-  Alert on `503`s and on approaching the send cap — via a channel **other than** Hostinger SMTP.
-- **End-to-end:** submit the live form once → confirm the internal notification email arrives and the row in the
-  outbox flips to `sent`.
+- **Health vs ready:** point uptime monitoring at `GET /ready` (runs a live `transporter.verify()` **per probe**,
+  bounded by the transport timeouts — a boot-time flag would always lose the race on lsnode's
+  cold-process-per-request lifecycle), not `GET /health`. Alert on `503`s from `POST /api/contact` and on
+  `mail send failed` log lines — via a channel **other than** Hostinger SMTP. (The in-memory send-cap counter
+  resets per boot on lsnode; a cap-approach alert cannot fire outside a sustained flood.)
+- **End-to-end (REQUIRED, not optional):** submit the live form once → confirm the internal notification email
+  actually arrives at `MAIL_TEAM_TO`. ~~and the row in the outbox flips to `sent`.~~ **[Superseded — 2026-07-09]**
+  there is no outbox row anymore — this live-submission test is now the *only* proof that mail delivery works, since
+  the send happens synchronously in the request with no durable trail. See the addendum below for why this became
+  mandatory.
+- **Rotate `SMTP_PASS`.** **[New — 2026-07-09]** It was printed in cleartext by a since-removed `[DIAG]` startup
+  log dump and must be treated as leaked into captured logs. **Order matters:** rotate only AFTER the DIAG-free
+  build is deployed and confirmed live — the currently-deployed build still dumps the env on every boot, so
+  rotating first would immediately re-leak the new password.
 
 Depth references: [calm_soft_api/CLAUDE.md](calm_soft_api/CLAUDE.md) (deploy checklist + constraints),
 [calm_soft_api/docs/integration/frontend-integration.md](calm_soft_api/docs/integration/frontend-integration.md)
@@ -185,5 +220,50 @@ Depth references: [calm_soft_api/CLAUDE.md](calm_soft_api/CLAUDE.md) (deploy che
 
 - **Git:** nothing here is committed for you — the changed source files and these artifacts are yours to commit.
   `_deploy/` and the built `dist/`/`out/` are gitignored build output.
-- **Node version:** the only reason the API needs Node 22 (not 24) is the built-in `node:sqlite`, unflagged in
-  the 22 LTS line at **v22.13.0**. Selecting Hostinger "Node 22.x" satisfies this with no code change.
+- **Node version:** ~~the only reason the API needs Node 22 (not 24) is the built-in `node:sqlite`, unflagged in
+  the 22 LTS line at **v22.13.0**.~~ **[Superseded — 2026-07-09]** `node:sqlite` (and the outbox that used it) has
+  been removed — see the addendum below. The `engines: >=22.13.0` pin in `package.json` stays regardless, so keep
+  selecting Hostinger "Node 22.x".
+
+---
+
+## Addendum — 2026-07-09: outbox removed, internal email now sent synchronously
+
+**Why:** in production, Hostinger's `lsnode` runtime was found to `SIGTERM` the API's Node process roughly **1
+second after every HTTP response** — the process is not long-running, it lives only for the duration of a request.
+The old design wrote each submission to a durable SQLite outbox (`data/outbox.db`), answered `200` immediately, and
+relied on a background worker ticking every 5 seconds to actually send the mail. That worker's first tick could
+never arrive before the process was killed, so submissions were accepted but the internal notification email was
+**silently never sent**. Full technical write-up:
+[calm_soft_api/docs/superpowers/specs/2026-07-09-hostinger-source-build-deploy-design.md](calm_soft_api/docs/superpowers/specs/2026-07-09-hostinger-source-build-deploy-design.md)
+(see its own "Addendum — production finding" section) and
+[calm_soft_api/CLAUDE.md](calm_soft_api/CLAUDE.md) ("Architecture" and "Non-obvious constraints").
+
+**What changed:**
+- The outbox/worker subsystem (and `node:sqlite`) has been **removed entirely**. `POST /api/contact` now `await`s
+  the SMTP send **synchronously**, inside the request, before responding.
+- **A submission either mails immediately or the visitor gets a `503`.** On successful send: form token consumed,
+  `200` returned. On SMTP failure: send budget released, form token left **unconsumed**, and the API responds
+  `503` + `Retry-After: 30`. The visitor's retry needs a **fresh Turnstile token** (single-use — the widget
+  re-issues one; the formToken stays valid), per `docs/integration/frontend-integration.md` §4. SMTP timeouts:
+  `connectionTimeout` 5s / `greetingTimeout` 5s / `socketTimeout` 10s / `dnsTimeout` 5s — typical failure detection
+  ≤5s, but not a hard bound (`socketTimeout` is per-inactivity; a degraded-but-alive session can exceed 10s, past
+  the frontend's 10s abort — the send may still complete server-side, so a manual retry can duplicate the internal
+  mail; accepted). There is no background retry and no durable queue anymore — the human hitting "retry" is the
+  only retry mechanism.
+- **No env vars needed for the outbox.** `OUTBOX_DB_PATH` and `OUTBOX_MAX_ATTEMPTS` are no longer read by the app.
+  Delete them from the hPanel environment-variables panel if still set, and remove any leftover `data/outbox.db`
+  file from the host — neither does anything anymore. **Before deleting the db file, check it for
+  `status='pending'` rows** (real leads 200-acked but never mailed during the broken period; payload column is
+  plain JSON). In this deployment the only pending row is the known 2026-07-09 test submission.
+- **The send-budget hourly/daily cap is in-memory and per-process.** Since `lsnode` boots a fresh process per
+  request, this cap effectively resets every boot rather than persisting across a real window — a known, accepted
+  limitation. Cloudflare Turnstile remains the primary anti-automation tier, not the send cap.
+- A `[DIAG] rawEnv` / `[DIAG] config` startup log dump that printed the full parsed env (including `SMTP_PASS` in
+  cleartext) to captured logs has been removed from `src/server.ts`. **`SMTP_PASS` must be rotated in hPanel** —
+  treat the old value as leaked.
+
+**Required post-deploy checklist addition:** submitting the live contact form end-to-end and confirming the
+internal notification email arrives at `MAIL_TEAM_TO` is now a **required** step, not optional — with no outbox
+left to inspect afterward, a live send is the only way to prove delivery actually works. See the updated §4
+go-live checklist above.

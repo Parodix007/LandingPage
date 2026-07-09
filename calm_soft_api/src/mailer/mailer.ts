@@ -3,15 +3,23 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import type { Logger } from 'pino';
-import type { Submission } from '../outbox/store.js';
 
-export interface Mailer { sendInternal(s: Submission, ctx?: { outboxId?: number }): Promise<void>; }
+export interface Submission {
+  name: string; email: string; company: string; phone: string;
+  service: string; meeting: 'online' | 'onsite';
+  discover: boolean; handover: boolean; message: string;
+  submittedAt: string; source: string;
+}
+
+export interface Mailer { sendInternal(s: Submission): Promise<void>; }
 
 const SERVICE_LABELS: Record<string, string> = {
   web: 'Web solutions', automation: 'Automation',
   core: 'Core systems & integrations', refactor: 'Refactor & rescue',
 };
-const stripCtrl = (v: string) => v.replace(/[\r\n\t -]/g, ' ').trim();
+// Header-injection defense only: CR/LF/TAB. Nothing else — a wider class silently corrupts
+// legitimate values (a literal '-' here once broke Reply-To for hyphenated domains).
+const stripCtrl = (v: string) => v.replace(/[\r\n\t]/g, ' ').trim();
 
 // Templates are static files compiled ONCE here — request data is only ever
 // passed as context to an already-compiled template, never as template source.
@@ -29,7 +37,7 @@ export function createMailer(opts: {
   const html = compile('inquiry-internal.hbs');
   const text = compile('inquiry-internal.txt.hbs');
   return {
-    async sendInternal(s, ctx) {
+    async sendInternal(s) {
       const serviceLabel = SERVICE_LABELS[s.service] ?? s.service;
       const data = {
         firstName: s.name.trim().split(/\s+/)[0], name: s.name, email: s.email,
@@ -49,7 +57,7 @@ export function createMailer(opts: {
       });
       opts.logger?.info(
         {
-          outboxId: ctx?.outboxId, messageId: info?.messageId, to: opts.teamTo,
+          messageId: info?.messageId, to: opts.teamTo,
           replyTo: s.email, subject, accepted: info?.accepted, rejected: info?.rejected,
         },
         'internal email sent',
