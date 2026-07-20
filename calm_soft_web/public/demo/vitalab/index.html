@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:linear-gradient(180deg,#F7FAFD,#EDF3F9) fixed;color:#13233A;font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0C5DA5}a:hover{color:#083E70}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+input::placeholder{color:rgba(19,35,58,.4)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.vl-burger{display:none;align-items:center;justify-content:center;width:44px;height:44px;border-radius:11px;border:1.5px solid rgba(19,35,58,.16);background:#fff;color:#0F2E52;flex-shrink:0}
+.vl-mnav{background:none;border:none;padding:14px 12px;border-radius:11px;font-size:16px;font-weight:700;color:#13233A;text-align:left;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;gap:10px}
+.vl-mnav:active{background:#EAF2FA}
+@media (max-width:900px){
+  .vl-links{display:none!important}
+  .vl-actions{display:none!important}
+  .vl-burger{display:inline-flex!important}
+}
+</style>
+</helmet>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;bottom:86px;left:50%;transform:translateX(-50%);z-index:99;background:#0F2E52;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;box-shadow:0 8px 24px rgba(15,46,82,.3);max-width:90vw">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ showPromo }}" hint-placeholder-val="{{ true }}">
+<div style="background:#0F2E52;color:#fff;text-align:center;padding:8px 16px;font-size:13.5px;font-weight:500">Zamów badania online z rabatem <strong>−15%</strong> — kod <strong>LAB15</strong>. Wyniki większości badań w 24 h.</div>
+</sc-if>
+
+<div style="position:sticky;top:0;z-index:50;background:rgba(244,248,251,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(19,35,58,.08);box-shadow:0 4px 20px rgba(19,35,58,.06)">
+<div class="vl-nav" style="max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+<button onClick="{{ goHome }}" style="display:flex;align-items:center;gap:10px;background:none;border:none;padding:0">
+<div style="width:36px;height:36px;border-radius:11px;background:#0C5DA5;color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px;font-family:'Sora',sans-serif">V</div>
+<div style="font-family:'Sora',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.02em">VitaLab</div>
+</button>
+<div class="vl-links" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+<button onClick="{{ goHome }}" style="{{ navHomeStyle }}" style-hover="color:#0C5DA5">Strona główna</button>
+<button onClick="{{ goCennik }}" style="{{ navCenStyle }}" style-hover="color:#0C5DA5">Badania</button>
+<button onClick="{{ goLekarze }}" style="{{ navDocStyle }}" style-hover="color:#0C5DA5">Lekarze</button>
+<button onClick="{{ goPunkty }}" style="background:none;border:none;padding:8px 9px;font-size:15px;font-weight:500;color:#13233A;border-radius:8px" style-hover="color:#0C5DA5">Punkty pobrań</button>
+<button onClick="{{ goKontakt }}" style="{{ navKontStyle }}" style-hover="color:#0C5DA5">Kontakt</button>
+</div>
+<div style="flex:1"></div>
+<div class="vl-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+<button onClick="{{ openResults }}" style="background:none;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:9px 15px;font-size:14px;font-weight:700;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5">Wyniki online</button>
+<button onClick="{{ goAccount }}" style="{{ accBtnStyle }}" style-hover="border-color:#0C5DA5;color:#0C5DA5">{{ accBtnLabel }}</button>
+<button onClick="{{ goLab }}" style="position:relative;background:none;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:9px 15px;font-size:14px;font-weight:700;color:#13233A;display:flex;align-items:center;gap:8px" style-hover="border-color:#0C5DA5;color:#0C5DA5">Koszyk badań
+<sc-if value="{{ hasCart }}" hint-placeholder-val="{{ false }}"><span style="background:#F2A33C;color:#0F2E52;font-size:12px;font-weight:800;border-radius:999px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px">{{ cartCount }}</span></sc-if>
+</button>
+<button onClick="{{ startVisit }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:10px 17px;font-size:14.5px;font-weight:600" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Umów wizytę</button>
+</div>
+<button class="vl-burger" onClick="{{ toggleMenu }}" aria-label="Menu" style="margin-left:auto">
+<sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></sc-if>
+<sc-if value="{{ menuClosed }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></sc-if>
+</button>
+</div>
+<sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+<div style="max-width:1180px;margin:0 auto;border-top:1px solid rgba(19,35,58,.08);padding:8px 18px 18px;display:flex;flex-direction:column;gap:2px;animation:fadeUp .2s ease">
+<button class="vl-mnav" onClick="{{ goHome }}">Strona główna</button>
+<button class="vl-mnav" onClick="{{ goCennik }}">Badania</button>
+<button class="vl-mnav" onClick="{{ goLekarze }}">Lekarze</button>
+<button class="vl-mnav" onClick="{{ goPunkty }}">Punkty pobrań</button>
+<button class="vl-mnav" onClick="{{ goKontakt }}">Kontakt</button>
+<div style="height:1px;background:rgba(19,35,58,.1);margin:7px 2px"></div>
+<button class="vl-mnav" onClick="{{ mResults }}">Wyniki online</button>
+<button class="vl-mnav" onClick="{{ goAccount }}">{{ accBtnLabel }}</button>
+<button class="vl-mnav" onClick="{{ goLab }}" style="justify-content:space-between">Koszyk badań<sc-if value="{{ hasCart }}" hint-placeholder-val="{{ false }}"><span style="background:#F2A33C;color:#0F2E52;font-size:12px;font-weight:800;border-radius:999px;min-width:22px;height:22px;display:grid;place-items:center;padding:0 6px">{{ cartCount }}</span></sc-if></button>
+<button onClick="{{ startVisit }}" style="margin-top:8px;background:#0C5DA5;color:#fff;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 6px 16px rgba(12,93,165,.24)">Umów wizytę</button>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{ showCartBar }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:60;background:#0F2E52;color:#fff;border-radius:16px;padding:12px 14px 12px 22px;display:flex;align-items:center;gap:18px;box-shadow:0 14px 40px rgba(15,46,82,.35);max-width:92vw;animation:fadeUp .25s ease">
+<div><div style="font-size:13px;opacity:.75">Koszyk badań</div><div style="font-size:15.5px;font-weight:700">{{ cartLabel }} · {{ cartTotalTxt }}</div></div>
+<button onClick="{{ goLab }}" style="background:#F2A33C;color:#0F2E52;border:none;border-radius:11px;box-shadow:0 2px 6px rgba(242,163,60,.32),0 6px 16px rgba(242,163,60,.22);transition:transform .15s ease,box-shadow .15s ease;padding:12px 20px;font-size:14.5px;font-weight:800;white-space:nowrap" style-hover="background:#FFB84D;transform:translateY(-2px);box-shadow:0 5px 12px rgba(242,163,60,.44),0 12px 24px rgba(242,163,60,.3)">Zamów badania →</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ pointModalOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ mClose }}" style="position:fixed;inset:0;z-index:90;background:rgba(15,46,82,.45);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px;overflow:auto">
+<div onClick="{{ mStop }}" style="background:#fff;border-radius:20px;max-width:520px;width:100%;box-shadow:0 24px 60px rgba(15,46,82,.35),inset 0 1px 0 rgba(255,255,255,.9);overflow:hidden;animation:fadeUp .2s ease">
+<div style="height:220px;background:#E3EEF7">
+<iframe src="{{ mMapSrc }}" style="width:100%;height:220px;border:none;display:block" loading="lazy" title="Mapa punktu pobrań"></iframe>
+</div>
+<div style="padding:22px 24px 24px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px">
+<div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:700;letter-spacing:-.02em">{{ mName }}</div>
+<button onClick="{{ mClose }}" style="background:rgba(19,35,58,.06);border:none;border-radius:50%;width:32px;height:32px;font-size:16px;color:#13233A;flex:none" style-hover="background:rgba(19,35,58,.12)">✕</button>
+</div>
+<div style="font-size:14.5px;color:rgba(19,35,58,.75);margin-bottom:4px">{{ mFull }}</div>
+<div style="font-size:13px;color:rgba(19,35,58,.55);margin-bottom:16px">{{ mExtra }}</div>
+<div style="font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:8px">Godziny otwarcia</div>
+<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:20px">
+<sc-for list="{{ mHours }}" as="h" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;gap:12px;font-size:14px"><span style="color:rgba(19,35,58,.65)">{{ h.d }}</span><span style="font-weight:700">{{ h.h }}</span></div>
+</sc-for>
+</div>
+<button onClick="{{ mSelect }}" style="width:100%;background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 24px;font-size:15px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Wybierz ten punkt →</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ tmOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ tmClose }}" style="position:fixed;inset:0;z-index:90;background:rgba(15,46,82,.45);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px;overflow:auto">
+<div onClick="{{ mStop }}" style="background:#fff;border-radius:20px;max-width:560px;width:100%;box-shadow:0 24px 60px rgba(15,46,82,.35),inset 0 1px 0 rgba(255,255,255,.9);overflow:hidden;animation:fadeUp .2s ease">
+<div style="padding:22px 24px 24px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px">
+<span style="{{ tmBadgeStyle }}">{{ tmBadge }}</span>
+<button onClick="{{ tmClose }}" style="background:rgba(19,35,58,.06);border:none;border-radius:50%;width:32px;height:32px;font-size:16px;color:#13233A;flex:none" style-hover="background:rgba(19,35,58,.12)">✕</button>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:10px">
+<div style="font-family:'Sora',sans-serif;font-size:23px;font-weight:700;letter-spacing:-.02em;min-width:0">{{ tmName }}</div>
+<div style="font-family:'Sora',sans-serif;font-size:23px;font-weight:700;color:#0C5DA5;white-space:nowrap">{{ tmPriceTxt }}</div>
+</div>
+<div style="font-size:14.5px;line-height:1.6;color:rgba(19,35,58,.75);margin-bottom:16px;text-wrap:pretty">{{ tmLong }}</div>
+<sc-if value="{{ tmIsPack }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:8px">W pakiecie</div>
+<div style="border:1px solid rgba(19,35,58,.09);border-radius:12px;overflow:hidden;margin-bottom:8px">
+<sc-for list="{{ tmInc }}" as="i" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 14px;border-bottom:1px solid rgba(19,35,58,.06);font-size:14px"><span style="font-weight:600">{{ i.n }}</span><span style="color:rgba(19,35,58,.55);white-space:nowrap">osobno {{ i.priceTxt }}</span></div>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13.5px;margin-bottom:16px"><span style="color:rgba(19,35,58,.6)">Osobno zapłacisz {{ tmSumTxt }}</span><span style="font-weight:800;color:#1B7A4B">Oszczędzasz {{ tmSaveTxt }}</span></div>
+</sc-if>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;background:#F7FAFD;border:1px solid rgba(19,35,58,.07);border-radius:12px;padding:14px 16px;margin-bottom:18px">
+<div><div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:3px">Materiał</div><div style="font-size:13.5px;font-weight:600">{{ tmMat }}</div></div>
+<div><div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:3px">Wynik</div><div style="font-size:13.5px;font-weight:600">{{ tmTat }}</div></div>
+<div style="grid-column:1/-1"><div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:3px">Przygotowanie</div><div style="font-size:13.5px;line-height:1.5">{{ tmPrep }}</div></div>
+</div>
+<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+<button onClick="{{ tmAdd }}" style="{{ tmBtnStyle }}">{{ tmBtnLabel }}</button>
+<span style="font-size:12.5px;color:rgba(19,35,58,.55)">Cena końcowa · bez skierowania</span>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ dmOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ dmClose }}" style="position:fixed;inset:0;z-index:90;background:rgba(15,46,82,.45);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px;overflow:auto">
+<div onClick="{{ mStop }}" style="background:#fff;border-radius:20px;max-width:520px;width:100%;box-shadow:0 24px 60px rgba(15,46,82,.35),inset 0 1px 0 rgba(255,255,255,.9);overflow:hidden;animation:fadeUp .2s ease">
+<div style="padding:22px 24px 24px">
+<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px">
+<div style="width:64px;height:64px;border-radius:50%;background:#E3EEF7;color:#0C5DA5;display:grid;place-items:center;font-weight:700;font-size:21px;flex:none">{{ dmInitials }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-family:'Sora',sans-serif;font-size:21px;font-weight:700;letter-spacing:-.02em">{{ dmName }}</div>
+<div style="font-size:14px;color:rgba(19,35,58,.6)">{{ dmSpec }}</div>
+<div style="font-size:13.5px;color:rgba(19,35,58,.75);margin-top:3px"><span style="color:#E8A23C">★</span> {{ dmRating }} · {{ dmReviews }} opinii</div>
+</div>
+<button onClick="{{ dmClose }}" style="background:rgba(19,35,58,.06);border:none;border-radius:50%;width:32px;height:32px;font-size:16px;color:#13233A;flex:none" style-hover="background:rgba(19,35,58,.12)">✕</button>
+</div>
+<div style="font-size:14.5px;line-height:1.6;color:rgba(19,35,58,.75);margin-bottom:16px;text-wrap:pretty">{{ dmBio }}</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;background:#F7FAFD;border:1px solid rgba(19,35,58,.07);border-radius:12px;padding:14px 16px;margin-bottom:18px">
+<div><div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:3px">Doświadczenie</div><div style="font-size:13.5px;font-weight:600">{{ dmExp }}</div></div>
+<div><div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:3px">Cena wizyty</div><div style="font-size:13.5px;font-weight:600">{{ dmPriceTxt }}</div></div>
+<div><div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:3px">Języki</div><div style="font-size:13.5px;font-weight:600">{{ dmLangs }}</div></div>
+<div><div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:3px">Najbliższy termin</div><div style="font-size:13.5px;font-weight:600">{{ dmNext }}</div></div>
+</div>
+<button onClick="{{ dmBook }}" style="width:100%;background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 24px;font-size:15px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Umów wizytę →</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Strona główna">
+<div style="background:linear-gradient(165deg,#E3EEF7 0%,#F4F8FB 70%)">
+<div style="max-width:1180px;margin:0 auto;padding:56px 24px 48px;display:flex;gap:48px;align-items:center;flex-wrap:wrap">
+<div style="flex:1 1 480px;min-width:300px">
+<div style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0C5DA5;margin-bottom:14px">Przychodnia i laboratorium · Warszawa</div>
+<h1 style="font-family:'Sora',sans-serif;font-size:clamp(30px,4.3vw,48px);line-height:1.12;letter-spacing:-.025em;margin:0 0 14px;font-weight:700">Badania i wizyty lekarskie w jednym miejscu.</h1>
+<p style="font-size:17px;line-height:1.55;color:rgba(19,35,58,.7);margin:0 0 26px;max-width:520px;text-wrap:pretty">Sprawdź cenę, zamów online i przyjdź bez kolejki. Wyniki większości badań tego samego dnia na Twoim koncie.</p>
+<div style="position:relative;max-width:560px">
+<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid rgba(19,35,58,.12);border-radius:16px;padding:6px 8px 6px 18px;box-shadow:0 10px 30px rgba(19,35,58,.08)">
+<span style="font-size:18px;color:rgba(19,35,58,.45)">⌕</span>
+<input value="{{ q }}" onChange="{{ onQ }}" placeholder="np. morfologia, TSH, kardiolog…" style="flex:1;border:none;outline:none;background:none;font-size:16px;padding:12px 0;color:#13233A;min-width:0">
+<button onClick="{{ goCennik }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:11px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:12px 18px;font-size:14.5px;font-weight:600;white-space:nowrap" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Cennik</button>
+</div>
+<sc-if value="{{ hasResults }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:calc(100% + 8px);left:0;right:0;background:#fff;border:1px solid rgba(19,35,58,.1);border-radius:14px;box-shadow:0 16px 40px rgba(19,35,58,.14);overflow:hidden;z-index:20;animation:fadeUp .18s ease">
+<sc-for list="{{ results }}" as="r" hint-placeholder-count="3">
+<button onClick="{{ r.act }}" style="display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;border-bottom:1px solid rgba(19,35,58,.06);padding:13px 16px;text-align:left" style-hover="background:#EDF4FA">
+<span style="{{ r.badgeStyle }}">{{ r.badge }}</span>
+<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:600;color:#13233A">{{ r.n }}</div></div>
+<div style="font-size:15px;font-weight:700;color:#0C5DA5;white-space:nowrap">{{ r.priceTxt }}</div>
+<div style="font-size:13px;color:#0C5DA5;font-weight:600;white-space:nowrap">{{ r.actLabel }}</div>
+</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+<button onClick="{{ goLabCennik }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:12px 22px;font-size:14.5px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">🧪 Zamów badania</button>
+<button onClick="{{ startVisit }}" style="background:#fff;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:12px 22px;font-size:14.5px;font-weight:700;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5">🩺 Umów wizytę lekarską</button>
+</div>
+<div style="display:flex;gap:26px;margin-top:30px;flex-wrap:wrap">
+<div><div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700">300+</div><div style="font-size:13px;color:rgba(19,35,58,.6)">badań w ofercie</div></div>
+<div><div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700">4</div><div style="font-size:13px;color:rgba(19,35,58,.6)">punkty pobrań</div></div>
+<div><div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700">24 h</div><div style="font-size:13px;color:rgba(19,35,58,.6)">wyniki online</div></div>
+<div><div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700">bez kolejki</div><div style="font-size:13px;color:rgba(19,35,58,.6)">zamówienie online</div></div>
+</div>
+</div>
+<div style="flex:1 1 340px;min-width:280px;max-width:480px">
+<x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-lab" shape="rounded" radius="24" placeholder="Zdjęcie: punkt pobrań / laboratorium" style="width:100%;height:380px" hint-size="100%,380px"></x-import>
+</div>
+</div>
+</div>
+
+<div style="max-width:1180px;margin:0 auto;padding:54px 24px 10px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px">
+<h2 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0">Najczęściej zamawiane badania</h2>
+<button onClick="{{ goLabCennik }}" style="background:none;border:none;padding:0;font-size:15px;font-weight:600;color:#0C5DA5" style-hover="color:#083E70">Wszystkie badania →</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px">
+<sc-for list="{{ popularTests }}" as="t" hint-placeholder-count="6">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.08);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.08),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease" style-hover="transform:translateY(-4px);box-shadow:0 16px 34px rgba(19,35,58,.14)">
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><button onClick="{{ t.info }}" style="background:none;border:none;padding:0;text-align:left;font-size:15.5px;font-weight:700;color:#13233A;min-width:0" style-hover="color:#0C5DA5;text-decoration:underline">{{ t.n }}</button><div style="font-size:15px;font-weight:800;color:#0C5DA5;white-space:nowrap">{{ t.priceTxt }}</div></div>
+<div style="font-size:13px;color:rgba(19,35,58,.6);line-height:1.4">{{ t.d }}</div>
+<button onClick="{{ t.info }}" style="background:none;border:none;padding:0;text-align:left;font-size:13px;font-weight:600;color:#0C5DA5" style-hover="color:#083E70">Szczegóły badania →</button>
+<button onClick="{{ t.act }}" style="{{ t.btnStyle }}">{{ t.btnLabel }}</button>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="max-width:1180px;margin:0 auto;padding:54px 24px 10px">
+<h2 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 6px">Pakiety badań</h2>
+<p style="font-size:15.5px;color:rgba(19,35,58,.65);margin:0 0 22px">Zestawy badań w cenie niższej niż pojedynczo — jedna wizyta w punkcie pobrań.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+<sc-for list="{{ packages }}" as="p" hint-placeholder-count="3">
+<div style="{{ p.cardStyle }}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div style="font-size:16px;font-weight:800">{{ p.n }}</div><sc-if value="{{ p.hit }}" hint-placeholder-val="{{ false }}"><div style="background:#F2A33C;color:#0F2E52;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;letter-spacing:.04em;white-space:nowrap">HIT</div></sc-if></div>
+<div style="font-family:'Sora',sans-serif;font-size:30px;font-weight:700">{{ p.priceTxt }}</div>
+<div style="font-size:13.5px;line-height:1.6;opacity:.85">{{ p.d }}</div>
+<button onClick="{{ p.info }}" style="{{ p.infoStyle }}">Co zawiera pakiet? →</button>
+<button onClick="{{ p.act }}" style="{{ p.btnStyle }}">{{ p.btnLabel }}</button>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="max-width:1180px;margin:0 auto;padding:54px 24px 10px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px">
+<h2 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0">Wizyty lekarskie</h2>
+<button onClick="{{ startVisit }}" style="background:none;border:none;padding:0;font-size:15px;font-weight:600;color:#0C5DA5" style-hover="color:#083E70">Umów wizytę →</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">
+<sc-for list="{{ specs }}" as="s" hint-placeholder-count="6">
+<button onClick="{{ s.go }}" style="text-align:left;background:#fff;border:1px solid rgba(19,35,58,.08);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 8px 20px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.8);transition:transform .2s ease,box-shadow .2s ease" style-hover="border-color:#0C5DA5;box-shadow:0 8px 20px rgba(12,93,165,.12);transform:translateY(-2px)">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:16.5px;font-weight:700">{{ s.n }}</div><div style="font-size:14px;font-weight:800;color:#0C5DA5;white-space:nowrap">od {{ s.p }} zł</div></div>
+<div style="font-size:13px;color:rgba(19,35,58,.6)">{{ s.d }}</div>
+<div style="font-size:14px;font-weight:600;color:#0C5DA5;margin-top:4px">Umów wizytę →</div>
+</button>
+</sc-for>
+</div>
+</div>
+
+<div id="punkty" style="max-width:1180px;margin:0 auto;padding:54px 24px 10px">
+<h2 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 6px">Punkty pobrań</h2>
+<p style="font-size:15.5px;color:rgba(19,35,58,.65);margin:0 0 22px">Przyjdź z zamówieniem online — obsługa poza kolejnością.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+<sc-for list="{{ points }}" as="p" hint-placeholder-count="4">
+<button onClick="{{ p.open }}" style="background:#fff;border:1px solid rgba(19,35,58,.08);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 8px 20px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.8);transition:transform .2s ease,box-shadow .2s ease;text-align:left;cursor:pointer" style-hover="border-color:#0C5DA5;box-shadow:0 14px 30px rgba(12,93,165,.18);transform:translateY(-4px)">
+<div style="font-size:15.5px;font-weight:700">{{ p.n }}</div>
+<div style="font-size:13.5px;color:rgba(19,35,58,.65)">{{ p.addr }}</div>
+<div style="font-size:13px;color:rgba(19,35,58,.55)">{{ p.hours }}</div>
+<div style="font-size:13.5px;font-weight:600;color:#0C5DA5;margin-top:4px">Szczegóły i mapa →</div>
+</button>
+</sc-for>
+</div>
+</div>
+
+<div style="max-width:1180px;margin:0 auto;padding:54px 24px 64px">
+<div style="background:linear-gradient(120deg,#0C5DA5,#0F2E52);border-radius:20px;padding:34px 36px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;color:#fff">
+<div style="flex:1 1 380px">
+<div style="font-family:'Sora',sans-serif;font-size:23px;font-weight:700;margin-bottom:6px">Wyniki badań online</div>
+<div style="font-size:15px;opacity:.85;line-height:1.5">Wyniki większości badań w 24 h na Twoim koncie. Zaloguj się numerem zlecenia i PESEL.</div>
+</div>
+<button onClick="{{ openResults }}" style="background:#fff;color:#0F2E52;border:none;border-radius:999px;padding:13px 24px;font-size:15px;font-weight:700;white-space:nowrap" style-hover="background:#E3EEF7">Sprawdź wyniki</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLekarze }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Lekarze" style="max-width:1180px;margin:0 auto;padding:44px 24px 96px">
+<h1 style="font-family:'Sora',sans-serif;font-size:clamp(28px,4vw,38px);font-weight:700;letter-spacing:-.02em;margin:0 0 6px">Nasi lekarze</h1>
+<p style="font-size:15.5px;color:rgba(19,35,58,.65);margin:0 0 24px">Poznaj zespół VitaLab i umów wizytę bezpośrednio z profilu lekarza.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px">
+<div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid rgba(19,35,58,.12);border-radius:12px;padding:2px 14px;flex:1 1 260px;max-width:380px">
+<span style="color:rgba(19,35,58,.45)">⌕</span>
+<input value="{{ docQ }}" onChange="{{ onDocQ }}" placeholder="Szukaj lekarza lub specjalizacji…" style="flex:1;border:none;outline:none;background:none;font-size:15px;padding:10px 0;min-width:0">
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<sc-for list="{{ docChips }}" as="c" hint-placeholder-count="4">
+<button onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.n }}</button>
+</sc-for>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px">
+<sc-for list="{{ docCards }}" as="d" hint-placeholder-count="6">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.08);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.08),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease" style-hover="transform:translateY(-4px);box-shadow:0 16px 34px rgba(19,35,58,.14)">
+<div style="display:flex;gap:14px;align-items:center">
+<div style="width:56px;height:56px;border-radius:50%;background:#E3EEF7;color:#0C5DA5;display:grid;place-items:center;font-weight:700;font-size:18px;flex:none">{{ d.initials }}</div>
+<div style="min-width:0">
+<div style="font-size:16.5px;font-weight:700">{{ d.name }}</div>
+<div style="font-size:13.5px;color:rgba(19,35,58,.6)">{{ d.spec }} · {{ d.exp }}</div>
+<div style="font-size:13px;color:rgba(19,35,58,.7);margin-top:2px"><span style="color:#E8A23C">★</span> {{ d.rating }} · {{ d.reviews }} opinii</div>
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;gap:10px;font-size:13.5px;flex-wrap:wrap;align-items:baseline">
+<span style="color:rgba(19,35,58,.6)">najbliżej: <strong style="color:#13233A">{{ d.next }}</strong></span>
+<span style="font-weight:800;color:#0C5DA5;white-space:nowrap">{{ d.priceTxt }}</span>
+</div>
+<div style="display:flex;gap:8px;margin-top:auto">
+<button onClick="{{ d.openProfile }}" style="flex:1;background:#fff;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:10px 14px;font-size:13.5px;font-weight:700;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5">Profil</button>
+<button onClick="{{ d.book }}" style="flex:1.4;background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:10px 14px;font-size:13.5px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Umów wizytę</button>
+</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ docsEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px dashed rgba(19,35,58,.2);border-radius:14px;padding:26px;text-align:center;color:rgba(19,35,58,.6);font-size:15px">Nie znaleźliśmy lekarza. Zmień kryteria lub zadzwoń: <a href="tel:225556677" style="font-weight:600">22 555 66 77</a></div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCennik }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Cennik" style="max-width:1180px;margin:0 auto;padding:44px 24px 96px">
+<h1 style="font-family:'Sora',sans-serif;font-size:clamp(28px,4vw,38px);font-weight:700;letter-spacing:-.02em;margin:0 0 6px">Cennik badań i wizyt</h1>
+<p style="font-size:15.5px;color:rgba(19,35,58,.65);margin:0 0 24px">Ceny końcowe. Badania dodasz do koszyka, wizytę umówisz od razu.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px">
+<div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid rgba(19,35,58,.12);border-radius:12px;padding:2px 14px;flex:1 1 260px;max-width:380px">
+<span style="color:rgba(19,35,58,.45)">⌕</span>
+<input value="{{ cenQ }}" onChange="{{ onCenQ }}" placeholder="Szukaj badania lub wizyty…" style="flex:1;border:none;outline:none;background:none;font-size:15px;padding:10px 0;min-width:0">
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<sc-for list="{{ cats }}" as="c" hint-placeholder-count="5">
+<button onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.n }}</button>
+</sc-for>
+</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(19,35,58,.08);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.08),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease">
+<sc-for list="{{ cenRows }}" as="r" hint-placeholder-count="8">
+<div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(19,35,58,.06);flex-wrap:wrap" style-hover="background:#F7FAFD">
+<sc-if value="{{ r.lab }}" hint-placeholder-val="{{ true }}"><button onClick="{{ r.open }}" style="flex:1 1 240px;min-width:0;background:none;border:none;padding:0;text-align:left;cursor:pointer;color:#13233A" style-hover="color:#0C5DA5"><div style="font-size:15.5px;font-weight:600">{{ r.n }} <span style="font-size:12px;font-weight:700;color:#0C5DA5">opis ›</span></div><div style="font-size:12.5px;color:rgba(19,35,58,.55)">{{ r.sub }}</div></button></sc-if>
+<sc-if value="{{ r.vis }}" hint-placeholder-val="{{ false }}"><div style="flex:1 1 240px;min-width:0"><div style="font-size:15.5px;font-weight:600">{{ r.n }}</div><div style="font-size:12.5px;color:rgba(19,35,58,.55)">{{ r.sub }}</div></div></sc-if>
+<div style="font-size:16px;font-weight:800;color:#0C5DA5;white-space:nowrap">{{ r.priceTxt }}</div>
+<button onClick="{{ r.act }}" style="{{ r.btnStyle }}">{{ r.btnLabel }}</button>
+</div>
+</sc-for>
+<sc-if value="{{ cenEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="padding:28px;text-align:center;color:rgba(19,35,58,.55);font-size:15px">Nie znaleźliśmy takiej pozycji. Zadzwoń: <a href="tel:225556677" style="font-weight:600">22 555 66 77</a></div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLab }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Zamówienie badań" style="max-width:880px;margin:0 auto;padding:36px 24px 72px">
+<div style="display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin-bottom:30px">
+<sc-for list="{{ labSteps }}" as="s" hint-placeholder-count="5">
+<button onClick="{{ s.click }}" style="{{ s.btnStyle }}"><span style="{{ s.circStyle }}">{{ s.mark }}</span><span style="{{ s.lblStyle }}">{{ s.label }}</span></button>
+</sc-for>
+</div>
+
+<sc-if value="{{ isLab1 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 18px">Twoje badania</h1>
+<sc-if value="{{ hasCart }}" hint-placeholder-val="{{ true }}">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;overflow:hidden;margin-bottom:18px">
+<sc-for list="{{ cartRows }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(19,35,58,.06);flex-wrap:wrap">
+<div style="flex:1 1 200px;min-width:0"><div style="font-size:15px;font-weight:600">{{ r.n }}</div><div style="font-size:12.5px;color:rgba(19,35,58,.55)">{{ r.sub }}</div></div>
+<div style="font-size:15px;font-weight:800;color:#0C5DA5;white-space:nowrap">{{ r.priceTxt }}</div>
+<button onClick="{{ r.remove }}" style="background:none;border:none;padding:4px;font-size:13.5px;font-weight:600;color:rgba(19,35,58,.5)" style-hover="color:#B4432A">Usuń</button>
+</div>
+</sc-for>
+<div style="background:#F7FAFD;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font-size:14.5px;font-weight:700">Razem</span><span style="font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:#0C5DA5">{{ cartTotalTxt }}</span></div>
+</div>
+</sc-if>
+<sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px dashed rgba(19,35,58,.2);border-radius:14px;padding:26px;text-align:center;color:rgba(19,35,58,.6);font-size:15px;margin-bottom:18px">Koszyk jest pusty — dodaj badania poniżej lub z <button onClick="{{ goLabCennik }}" style="background:none;border:none;padding:0;font-size:15px;font-weight:600;color:#0C5DA5;text-decoration:underline">cennika</button>.</div>
+</sc-if>
+<div style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:10px">Często dodawane</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px">
+<sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="4">
+<button onClick="{{ s.add }}" style="background:#fff;border:1.5px solid rgba(19,35,58,.14);border-radius:999px;padding:8px 16px;font-size:13.5px;font-weight:600;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5">+ {{ s.n }} · {{ s.priceTxt }}</button>
+</sc-for>
+</div>
+<button onClick="{{ lab1Next }}" style="{{ lab1BtnStyle }}">Dalej — wybierz punkt pobrań →</button>
+</sc-if>
+
+<sc-if value="{{ isLab2 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 18px">Wybierz punkt pobrań</h1>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
+<sc-for list="{{ pointCards }}" as="p" hint-placeholder-count="4">
+<button onClick="{{ p.pick }}" style="{{ p.style }}">
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><span style="font-size:15.5px;font-weight:700">{{ p.n }}</span><span style="{{ p.dotStyle }}"></span></div>
+<div style="font-size:13.5px;opacity:.75;text-align:left">{{ p.addr }}</div>
+<div style="font-size:13px;opacity:.6;text-align:left">{{ p.hours }}</div>
+</button>
+</sc-for>
+</div>
+<div style="margin-top:22px"><button onClick="{{ lab2Next }}" style="{{ lab2BtnStyle }}">Dalej — wybierz termin →</button></div>
+</sc-if>
+
+<sc-if value="{{ isLab3 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0">Wybierz termin pobrania</h1>
+<button onClick="{{ goLab2 }}" style="background:none;border:none;padding:0;font-size:14px;font-weight:600;color:#0C5DA5" style-hover="color:#083E70">‹ zmień punkt</button>
+</div>
+<p style="font-size:15px;color:rgba(19,35,58,.65);margin:0 0 20px">{{ pointName }} · {{ cartLabel }} · <strong style="color:#0C5DA5">{{ cartTotalTxt }}</strong></p>
+<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:16px 18px;flex:0 1 380px;min-width:290px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+<button onClick="{{ labCalPrev }}" style="{{ labPrevStyle }}">‹</button>
+<div style="font-size:15px;font-weight:800;text-transform:capitalize">{{ labCalTitle }}</div>
+<button onClick="{{ labCalNext }}" style="{{ labNextStyle }}">›</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">pn</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">wt</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">śr</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">cz</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">pt</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">sb</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">nd</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+<sc-for list="{{ labCalCells }}" as="c" hint-placeholder-count="35">
+<button onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.num }}</button>
+</sc-for>
+</div>
+<div style="display:flex;gap:14px;margin-top:12px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(19,35,58,.55)"><span style="width:10px;height:10px;border-radius:3px;background:#fff;border:1.5px solid #0C5DA5"></span>punkt otwarty</div>
+<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(19,35,58,.55)"><span style="width:10px;height:10px;border-radius:3px;background:rgba(19,35,58,.08)"></span>nieczynne</div>
+</div>
+</div>
+<div style="flex:1 1 300px;min-width:260px">
+<div style="font-size:14px;font-weight:800;margin-bottom:10px">Przedział godzin przyjścia — {{ labDateLabel }}</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ windows }}" as="w" hint-placeholder-count="3">
+<button onClick="{{ w.pick }}" style="{{ w.style }}"><span style="display:block;font-size:15px;font-weight:700">{{ w.t }}</span><span style="display:block;font-size:12px;opacity:.75">{{ w.d }}</span></button>
+</sc-for>
+</div>
+</div>
+</div>
+<sc-if value="{{ showPrepInfo }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:20px;background:#FDF4E3;border:1px solid rgba(242,163,60,.4);border-radius:12px;padding:14px 18px;font-size:13.5px;line-height:1.6;color:#6B4A12"><strong>Jak przygotować się do badania krwi?</strong> Przyjdź na czczo (8–12 h bez posiłku), rano wypij szklankę wody. Leki przyjmij zgodnie z zaleceniem lekarza.</div>
+</sc-if>
+<div style="margin-top:22px"><button onClick="{{ lab3Next }}" style="{{ lab3BtnStyle }}">Dalej — Twoje dane →</button></div>
+</sc-if>
+
+<sc-if value="{{ isLab4 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 6px">Twoje dane</h1>
+<p style="font-size:15px;color:rgba(19,35,58,.65);margin:0 0 20px">{{ pointName }} · {{ whenLabTxt }}</p>
+<sc-if value="{{ isLoggedIn }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;background:#E8F1FA;border:1px solid rgba(12,93,165,.2);border-radius:12px;padding:12px 16px;font-size:14px;color:#0C5DA5;font-weight:600">✓ Dane uzupełnione z Twojego konta ({{ userName }}). Aby je zmienić, edytuj profil w panelu konta.</div>
+</sc-if>
+<sc-if value="{{ notLoggedIn }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
+<button onClick="{{ setGuest }}" style="{{ guestBtnStyle }}">Zamawiam jako gość</button>
+<button onClick="{{ setLogin }}" style="{{ loginBtnStyle }}">Mam konto pacjenta</button>
+</div>
+</sc-if>
+<sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:24px">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">Imię *<input name="fname" value="{{ form.fname }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="np. Jan" style="{{ fnameStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">Nazwisko *<input name="lname" value="{{ form.lname }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="np. Nowak" style="{{ lnameStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">PESEL *<input name="pesel" value="{{ form.pesel }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="11 cyfr — potrzebny do wyników" style="{{ peselStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">Telefon *<input name="phone" value="{{ form.phone }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="+48 600 000 000" style="{{ phoneStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">E-mail *<input name="email" value="{{ form.email }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="jan@przyklad.pl" style="{{ emailStyle }}"></label>
+</div>
+<sc-if value="{{ formErr }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:14px;background:#FDECEC;color:#B4432A;border-radius:10px;padding:11px 14px;font-size:13.5px;font-weight:600">{{ formErr }}</div>
+</sc-if>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap">
+<div style="font-size:12.5px;color:rgba(19,35,58,.5);max-width:420px">PESEL jest potrzebny do wydania wyników online. Potwierdzenie wyślemy SMS-em i e-mailem.</div>
+<button onClick="{{ lab4Next }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 26px;font-size:15px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Dalej — podsumowanie →</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:24px;max-width:440px">
+<div style="display:flex;flex-direction:column;gap:14px">
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">E-mail<input name="email" value="{{ lg.email }}" onChange="{{ onLg }}" placeholder="jan@przyklad.pl" style="border:1.5px solid rgba(19,35,58,.14);border-radius:10px;padding:11px 13px;font-size:15px;outline-color:#0C5DA5"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">Hasło<input type="password" name="pass" value="{{ lg.pass }}" onChange="{{ onLg }}" placeholder="••••••••" style="border:1.5px solid rgba(19,35,58,.14);border-radius:10px;padding:11px 13px;font-size:15px;outline-color:#0C5DA5"></label>
+<sc-if value="{{ loginErr }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FDECEC;color:#B4432A;border-radius:10px;padding:11px 14px;font-size:13.5px;font-weight:600">{{ loginErr }}</div>
+</sc-if>
+<button onClick="{{ doLogin }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 26px;font-size:15px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Zaloguj i kontynuuj →</button>
+<div style="font-size:12.5px;color:rgba(19,35,58,.5)">To makieta — zadziała dowolny e-mail i hasło. Dane profilu uzupełnią się automatycznie.</div>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isLab5 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 20px">Podsumowanie zamówienia</h1>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 20px 12px">
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(19,35,58,.5)">Zamówione badania</div>
+<button onClick="{{ goLab1 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#0C5DA5" style-hover="color:#083E70">zmień</button>
+</div>
+<div style="padding:0 20px 8px">
+<sc-for list="{{ cartRows }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed rgba(19,35,58,.08)"><span style="font-size:14.5px;font-weight:600">{{ r.n }}</span><span style="font-size:14.5px;font-weight:700;color:#0C5DA5;white-space:nowrap">{{ r.priceTxt }}</span></div>
+</sc-for>
+</div>
+<div style="background:#F7FAFD;border-top:1px solid rgba(19,35,58,.08);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+<span style="font-size:14px;font-weight:700">{{ payDueLab }}</span>
+<span style="font-family:'Sora',sans-serif;font-size:24px;font-weight:700;color:#0C5DA5">{{ cartTotalTxt }}</span>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:16px 20px 18px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px">
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(19,35,58,.5)">Realizacja zamówienia</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Punkt pobrań</div><div style="font-size:14.5px;font-weight:700">{{ pointName }}</div><div style="font-size:13px;color:rgba(19,35,58,.6)">{{ pointAddr }}, Warszawa</div></div><button onClick="{{ goLab2 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#0C5DA5;flex:none" style-hover="color:#083E70">zmień</button></div>
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Termin</div><div style="font-size:14.5px;font-weight:700">{{ whenLabTxt }}</div></div><button onClick="{{ goLab3 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#0C5DA5;flex:none" style-hover="color:#083E70">zmień</button></div>
+<div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Wyniki</div><div style="font-size:14.5px;font-weight:700">online w 24 h + powiadomienie SMS</div></div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:16px 20px 18px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px">
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(19,35,58,.5)">Pacjent</div>
+<button onClick="{{ goLab4 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#0C5DA5" style-hover="color:#083E70">zmień</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Imię i nazwisko</div><div style="font-size:14.5px;font-weight:700">{{ patName }}</div></div>
+<div style="display:flex;gap:24px;flex-wrap:wrap">
+<div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Telefon</div><div style="font-size:14.5px;font-weight:700">{{ patPhone }}</div></div>
+<div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">PESEL</div><div style="font-size:14.5px;font-weight:700">{{ patPesel }}</div></div>
+</div>
+<div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">E-mail</div><div style="font-size:14.5px;font-weight:700">{{ patEmail }}</div></div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:16px 20px 18px">
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:12px">Płatność</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<button onClick="{{ setPayOnsite }}" style="{{ payOnsiteStyle }}"><span style="{{ payOnsiteDot }}"></span><span style="text-align:left"><span style="display:block;font-size:14px;font-weight:700">Na miejscu</span><span style="display:block;font-size:12.5px;opacity:.65">gotówka lub karta w punkcie</span></span></button>
+<button onClick="{{ setPayOnline }}" style="{{ payOnlineStyle }}"><span style="{{ payOnlineDot }}"></span><span style="text-align:left;flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700">Online — BLIK, karta, Apple Pay</span><span style="display:block;font-size:12.5px;opacity:.65">zapłać teraz i pomiń kasę</span></span><span style="background:#F2A33C;color:#0F2E52;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:999px;letter-spacing:.04em;flex:none">NOWOŚĆ</span></button>
+</div>
+<sc-if value="{{ payOnline }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:10px;font-size:12.5px;line-height:1.5;color:rgba(19,35,58,.55)">Po potwierdzeniu przekierujemy Cię do operatora płatności — w makiecie ten krok jest pominięty.</div>
+</sc-if>
+</div>
+</div>
+</div>
+<label style="display:flex;gap:10px;align-items:flex-start;margin:18px 2px;font-size:13.5px;line-height:1.5;color:rgba(19,35,58,.75);cursor:pointer">
+<input type="checkbox" checked="{{ agree }}" onChange="{{ onAgree }}" style="margin-top:2px;accent-color:#0C5DA5;width:16px;height:16px">
+<span>Akceptuję regulamin i wyrażam zgodę na przetwarzanie danych w celu realizacji badań. *</span>
+</label>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<button onClick="{{ confirmLab }}" style="{{ confirmBtnStyle }}">Zamawiam badania</button>
+<span style="font-size:13px;color:rgba(19,35,58,.55)">{{ payNoteLab }}</span>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isVisit }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Rezerwacja wizyty" style="max-width:880px;margin:0 auto;padding:36px 24px 72px">
+<div style="display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin-bottom:30px">
+<sc-for list="{{ vSteps }}" as="s" hint-placeholder-count="5">
+<button onClick="{{ s.click }}" style="{{ s.btnStyle }}"><span style="{{ s.circStyle }}">{{ s.mark }}</span><span style="{{ s.lblStyle }}">{{ s.label }}</span></button>
+</sc-for>
+</div>
+
+<sc-if value="{{ isV1 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 18px">Wybierz specjalistę</h1>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">
+<sc-for list="{{ vSpecs }}" as="s" hint-placeholder-count="6">
+<button onClick="{{ s.go }}" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid rgba(19,35,58,.1);border-radius:12px;padding:14px 16px;text-align:left" style-hover="border-color:#0C5DA5;box-shadow:0 4px 12px rgba(12,93,165,.1)">
+<span style="font-size:14.5px;font-weight:700;min-width:0">{{ s.n }}</span>
+<span style="font-size:14px;font-weight:800;color:#0C5DA5;white-space:nowrap">{{ s.p }} zł</span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isV2 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0">Wybierz lekarza</h1>
+<button onClick="{{ goV1 }}" style="background:none;border:none;padding:0;font-size:14px;font-weight:600;color:#0C5DA5" style-hover="color:#083E70">‹ zmień specjalizację</button>
+</div>
+<p style="font-size:15px;color:rgba(19,35,58,.65);margin:0 0 20px">{{ vSvcName }} · <strong style="color:#0C5DA5">{{ vPriceTxt }}</strong></p>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ vDoctors }}" as="d" hint-placeholder-count="2">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+<div style="width:52px;height:52px;border-radius:50%;background:#E3EEF7;color:#0C5DA5;display:grid;place-items:center;font-weight:700;font-size:17px;flex:none">{{ d.initials }}</div>
+<div style="flex:1 1 200px;min-width:0">
+<div style="font-size:16.5px;font-weight:700">{{ d.name }}</div>
+<div style="font-size:13.5px;color:rgba(19,35,58,.6)">{{ d.sub }}</div>
+<div style="font-size:13px;color:rgba(19,35,58,.7);margin-top:3px"><span style="color:#E8A23C">★</span> {{ d.rating }} · {{ d.reviews }} opinii</div>
+</div>
+<div style="text-align:right;flex:none">
+<div style="font-size:16px;font-weight:800;color:#0C5DA5">{{ vPriceTxt }}</div>
+<div style="font-size:12.5px;color:rgba(19,35,58,.55);margin-top:2px">najbliżej: {{ d.next }}</div>
+</div>
+<button onClick="{{ d.pick }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:11px 20px;font-size:14px;font-weight:600;flex:none" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Zobacz terminy</button>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isV3 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0">Wybierz termin</h1>
+<button onClick="{{ goV2 }}" style="background:none;border:none;padding:0;font-size:14px;font-weight:600;color:#0C5DA5" style-hover="color:#083E70">‹ zmień lekarza</button>
+</div>
+<p style="font-size:15px;color:rgba(19,35,58,.65);margin:0 0 20px">{{ vSvcName }} · {{ vDocName }} · <strong style="color:#0C5DA5">{{ vPriceTxt }}</strong></p>
+<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-bottom:18px">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:16px 18px;flex:0 1 380px;min-width:290px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+<button onClick="{{ vCalPrev }}" style="{{ vPrevStyle }}">‹</button>
+<div style="font-size:15px;font-weight:800;text-transform:capitalize">{{ vCalTitle }}</div>
+<button onClick="{{ vCalNext }}" style="{{ vNextStyle }}">›</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">pn</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">wt</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">śr</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">cz</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">pt</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">sb</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(19,35,58,.45)">nd</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+<sc-for list="{{ vCalCells }}" as="c" hint-placeholder-count="35">
+<button onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.num }}</button>
+</sc-for>
+</div>
+<div style="display:flex;gap:14px;margin-top:12px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(19,35,58,.55)"><span style="width:10px;height:10px;border-radius:3px;background:#fff;border:1.5px solid #0C5DA5"></span>wolne terminy</div>
+<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(19,35,58,.55)"><span style="width:10px;height:10px;border-radius:3px;background:rgba(19,35,58,.08)"></span>brak terminów</div>
+</div>
+</div>
+<div style="flex:1 1 300px;min-width:260px">
+<div style="font-size:14px;font-weight:800;margin-bottom:10px">Wolne godziny — {{ vDateLabel }}</div>
+<sc-if value="{{ vHasTimes }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px">
+<sc-for list="{{ vTimes }}" as="t" hint-placeholder-count="8">
+<button onClick="{{ t.pick }}" style="background:#fff;border:1.5px solid rgba(19,35,58,.14);border-radius:10px;padding:11px 6px;font-size:15px;font-weight:600;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5;background:#EDF4FA">{{ t.t }}</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ vNoTimes }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px dashed rgba(19,35,58,.2);border-radius:12px;padding:22px;text-align:center;color:rgba(19,35,58,.6);font-size:14px">Wybierz dzień z wolnymi terminami w kalendarzu.</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isV4 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 6px">Twoje dane</h1>
+<p style="font-size:15px;color:rgba(19,35,58,.65);margin:0 0 20px">{{ vSvcName }} · {{ vDocName }} · {{ vWhenTxt }}</p>
+<sc-if value="{{ isLoggedIn }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;background:#E8F1FA;border:1px solid rgba(12,93,165,.2);border-radius:12px;padding:12px 16px;font-size:14px;color:#0C5DA5;font-weight:600">✓ Dane uzupełnione z Twojego konta ({{ userName }}). Aby je zmienić, edytuj profil w panelu konta.</div>
+</sc-if>
+<sc-if value="{{ notLoggedIn }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
+<button onClick="{{ setGuest }}" style="{{ guestBtnStyle }}">Rezerwuję jako gość</button>
+<button onClick="{{ setLogin }}" style="{{ loginBtnStyle }}">Mam konto pacjenta</button>
+</div>
+</sc-if>
+<sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:24px">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">Imię *<input name="fname" value="{{ form.fname }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="np. Jan" style="{{ fnameStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">Nazwisko *<input name="lname" value="{{ form.lname }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="np. Nowak" style="{{ lnameStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">Telefon *<input name="phone" value="{{ form.phone }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="+48 600 000 000" style="{{ phoneStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">E-mail *<input name="email" value="{{ form.email }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="jan@przyklad.pl" style="{{ emailStyle }}"></label>
+</div>
+<sc-if value="{{ formErr }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:14px;background:#FDECEC;color:#B4432A;border-radius:10px;padding:11px 14px;font-size:13.5px;font-weight:600">{{ formErr }}</div>
+</sc-if>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap">
+<div style="font-size:12.5px;color:rgba(19,35,58,.5);max-width:420px">Dane posłużą wyłącznie do obsługi rezerwacji. Potwierdzenie wyślemy SMS-em i e-mailem.</div>
+<button onClick="{{ v4Next }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 26px;font-size:15px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Dalej — podsumowanie →</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:24px;max-width:440px">
+<div style="display:flex;flex-direction:column;gap:14px">
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">E-mail<input name="email" value="{{ lg.email }}" onChange="{{ onLg }}" placeholder="jan@przyklad.pl" style="border:1.5px solid rgba(19,35,58,.14);border-radius:10px;padding:11px 13px;font-size:15px;outline-color:#0C5DA5"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">Hasło<input type="password" name="pass" value="{{ lg.pass }}" onChange="{{ onLg }}" placeholder="••••••••" style="border:1.5px solid rgba(19,35,58,.14);border-radius:10px;padding:11px 13px;font-size:15px;outline-color:#0C5DA5"></label>
+<sc-if value="{{ loginErr }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FDECEC;color:#B4432A;border-radius:10px;padding:11px 14px;font-size:13.5px;font-weight:600">{{ loginErr }}</div>
+</sc-if>
+<button onClick="{{ doLoginV }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 26px;font-size:15px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Zaloguj i kontynuuj →</button>
+<div style="font-size:12.5px;color:rgba(19,35,58,.5)">To makieta — zadziała dowolny e-mail i hasło.</div>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isV5 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 20px">Podsumowanie rezerwacji</h1>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 20px 12px">
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(19,35,58,.5)">Zamówiona usługa</div>
+<button onClick="{{ goV1 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#0C5DA5" style-hover="color:#083E70">zmień</button>
+</div>
+<div style="padding:0 20px 8px">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed rgba(19,35,58,.08)"><span style="font-size:14.5px;font-weight:600">{{ vSvcName }}</span><span style="font-size:14.5px;font-weight:700;color:#0C5DA5;white-space:nowrap">{{ vPriceTxt }}</span></div>
+</div>
+<div style="background:#F7FAFD;border-top:1px solid rgba(19,35,58,.08);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+<span style="font-size:14px;font-weight:700">{{ payDueVisit }}</span>
+<span style="font-family:'Sora',sans-serif;font-size:24px;font-weight:700;color:#0C5DA5">{{ vPriceTxt }}</span>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:16px 20px 18px">
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:12px">Realizacja wizyty</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Lekarz</div><div style="font-size:14.5px;font-weight:700">{{ vDocName }}</div></div><button onClick="{{ goV2 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#0C5DA5;flex:none" style-hover="color:#083E70">zmień</button></div>
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Termin</div><div style="font-size:14.5px;font-weight:700">{{ vWhenTxt }}</div></div><button onClick="{{ goV3 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#0C5DA5;flex:none" style-hover="color:#083E70">zmień</button></div>
+<div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Miejsce</div><div style="font-size:14.5px;font-weight:700">VitaLab Centrum</div><div style="font-size:13px;color:rgba(19,35,58,.6)">ul. Marszałkowska 10, Warszawa</div></div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:16px 20px 18px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px">
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(19,35,58,.5)">Pacjent</div>
+<button onClick="{{ goV4 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#0C5DA5" style-hover="color:#083E70">zmień</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Imię i nazwisko</div><div style="font-size:14.5px;font-weight:700">{{ patName }}</div></div>
+<div style="display:flex;gap:24px;flex-wrap:wrap">
+<div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">Telefon</div><div style="font-size:14.5px;font-weight:700">{{ patPhone }}</div></div>
+<div><div style="font-size:12.5px;color:rgba(19,35,58,.5);margin-bottom:2px">E-mail</div><div style="font-size:14.5px;font-weight:700">{{ patEmail }}</div></div>
+</div>
+</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:16px 20px 18px">
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:12px">Płatność</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<button onClick="{{ setPayOnsite }}" style="{{ payOnsiteStyle }}"><span style="{{ payOnsiteDot }}"></span><span style="text-align:left"><span style="display:block;font-size:14px;font-weight:700">Na miejscu</span><span style="display:block;font-size:12.5px;opacity:.65">gotówka lub karta w recepcji</span></span></button>
+<button onClick="{{ setPayOnline }}" style="{{ payOnlineStyle }}"><span style="{{ payOnlineDot }}"></span><span style="text-align:left;flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700">Online — BLIK, karta, Apple Pay</span><span style="display:block;font-size:12.5px;opacity:.65">zapłać teraz i pomiń recepcję</span></span><span style="background:#F2A33C;color:#0F2E52;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:999px;letter-spacing:.04em;flex:none">NOWOŚĆ</span></button>
+</div>
+<sc-if value="{{ payOnline }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:10px;font-size:12.5px;line-height:1.5;color:rgba(19,35,58,.55)">Po potwierdzeniu przekierujemy Cię do operatora płatności — w makiecie ten krok jest pominięty.</div>
+</sc-if>
+</div>
+</div>
+</div>
+<label style="display:flex;gap:10px;align-items:flex-start;margin:18px 2px;font-size:13.5px;line-height:1.5;color:rgba(19,35,58,.75);cursor:pointer">
+<input type="checkbox" checked="{{ agree }}" onChange="{{ onAgree }}" style="margin-top:2px;accent-color:#0C5DA5;width:16px;height:16px">
+<span>Akceptuję regulamin i wyrażam zgodę na przetwarzanie danych w celu realizacji wizyty. *</span>
+</label>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<button onClick="{{ confirmVisit }}" style="{{ confirmBtnStyle }}">Potwierdź rezerwację</button>
+<span style="font-size:13px;color:rgba(19,35,58,.55)">{{ payNoteVisit }}</span>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Potwierdzenie" style="max-width:640px;margin:0 auto;padding:64px 24px 80px;text-align:center">
+<div style="width:76px;height:76px;border-radius:50%;background:#0C5DA5;color:#fff;display:grid;place-items:center;font-size:36px;margin:0 auto 20px;animation:fadeUp .3s ease">✓</div>
+<h1 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px">{{ confirmTitle }}</h1>
+<p style="font-size:15.5px;color:rgba(19,35,58,.65);margin:0 0 26px">Numer: <strong style="color:#13233A">{{ bookedNo }}</strong>. Potwierdzenie wysłaliśmy SMS-em i e-mailem.</p>
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:22px 24px;text-align:left;display:flex;flex-direction:column;gap:12px;margin-bottom:26px">
+<sc-for list="{{ confirmRows }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span style="font-size:13.5px;color:rgba(19,35,58,.55)">{{ r.k }}</span><span style="font-size:14.5px;font-weight:600;text-align:right">{{ r.v }}</span></div>
+</sc-for>
+</div>
+<sc-if value="{{ confirmPrep }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FDF4E3;border:1px solid rgba(242,163,60,.4);border-radius:12px;padding:14px 18px;font-size:13.5px;line-height:1.6;color:#6B4A12;text-align:left;margin-bottom:26px"><strong>Pamiętaj:</strong> na pobranie krwi przyjdź na czczo (8–12 h bez posiłku). Zabierz dokument tożsamości i numer zamówienia.</div>
+</sc-if>
+<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+<button onClick="{{ goHome }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 24px;font-size:15px;font-weight:600" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Wróć na stronę główną</button>
+<button onClick="{{ goCennik }}" style="background:none;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:13px 24px;font-size:15px;font-weight:600;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5">Zobacz cennik</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isKonto }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Logowanie" style="max-width:440px;margin:0 auto;padding:56px 24px 96px">
+<h1 style="font-family:'Sora',sans-serif;font-size:30px;font-weight:700;letter-spacing:-.02em;margin:0 0 6px">Portal pacjenta</h1>
+<p style="font-size:15px;color:rgba(19,35,58,.65);margin:0 0 24px;text-wrap:pretty">Zaloguj się, aby zobaczyć wyniki badań, historię zamówień i swoją kartę lekarską.</p>
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:24px;display:flex;flex-direction:column;gap:14px">
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">E-mail<input name="email" type="email" value="{{ acc.email }}" onChange="{{ onAcc }}" placeholder="jan@example.com" style="border:1.5px solid rgba(19,35,58,.16);border-radius:11px;padding:12px 14px;font-size:15px;font-weight:500;color:#13233A"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(19,35,58,.75)">Hasło<input name="pass" type="password" value="{{ acc.pass }}" onChange="{{ onAcc }}" placeholder="••••••••" style="border:1.5px solid rgba(19,35,58,.16);border-radius:11px;padding:12px 14px;font-size:15px;font-weight:500;color:#13233A"></label>
+<sc-if value="{{ accErr }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FDECEC;color:#B4432A;border-radius:10px;padding:11px 14px;font-size:13.5px;font-weight:600">{{ accErr }}</div>
+</sc-if>
+<button onClick="{{ doLoginAcc }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 24px;font-size:15px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Zaloguj się</button>
+<div style="display:flex;align-items:center;gap:10px;margin:2px 0">
+<div style="flex:1;height:1px;background:rgba(19,35,58,.12)"></div>
+<span style="font-size:12.5px;color:rgba(19,35,58,.5)">lub</span>
+<div style="flex:1;height:1px;background:rgba(19,35,58,.12)"></div>
+</div>
+<button onClick="{{ loginGoogle }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:12px 20px;font-size:14.5px;font-weight:700;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5"><svg width="19" height="19" viewBox="0 0 48 48" style="flex:none"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"></path><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"></path><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24s.85 6.91 2.34 9.88l7.35-5.7z"></path><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"></path></svg>Zaloguj przez Google</button>
+<button onClick="{{ loginApple }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#13233A;border:1.5px solid #13233A;border-radius:999px;padding:12px 20px;font-size:14.5px;font-weight:700;color:#fff" style-hover="background:#000"><svg width="16" height="19" viewBox="0 0 384 512" fill="#fff" style="flex:none"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zM262.1 104.5c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"></path></svg>Zaloguj przez Apple</button>
+<div style="font-size:12.5px;color:rgba(19,35,58,.5);text-align:center;text-wrap:pretty">To makieta — logowanie zadziała z dowolnymi danymi.</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPanel }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Panel pacjenta" style="max-width:1000px;margin:0 auto;padding:40px 24px 96px">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+<div>
+<div style="font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#0C5DA5;margin-bottom:5px">Portal pacjenta</div>
+<h1 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:700;letter-spacing:-.02em;margin:0">Witaj, {{ userName }}</h1>
+</div>
+<button onClick="{{ logout }}" style="background:none;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:10px 20px;font-size:14px;font-weight:700;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5">Wyloguj się</button>
+</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px">
+<button onClick="{{ goTabProfil }}" style="{{ tabProfilStyle }}" style-hover="{{ tabProfilHover }}">Profil</button>
+<button onClick="{{ goTabHist }}" style="{{ tabHistStyle }}" style-hover="{{ tabHistHover }}">Historia zamówień</button>
+<button onClick="{{ goTabKarta }}" style="{{ tabKartaStyle }}" style-hover="{{ tabKartaHover }}">Karta lekarska</button>
+</div>
+
+<sc-if value="{{ isTabProfil }}" hint-placeholder-val="{{ true }}">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:26px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px">
+<h2 style="font-family:'Sora',sans-serif;font-size:20px;font-weight:700;margin:0">Dane podstawowe</h2>
+<sc-if value="{{ pView }}" hint-placeholder-val="{{ true }}">
+<button onClick="{{ editProfile }}" style="background:none;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:8px 18px;font-size:13.5px;font-weight:700;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5">Edytuj</button>
+</sc-if>
+<sc-if value="{{ pEdit }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:8px">
+<button onClick="{{ cancelProfile }}" style="background:none;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:8px 16px;font-size:13.5px;font-weight:700;color:#13233A">Anuluj</button>
+<button onClick="{{ saveProfile }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:8px 18px;font-size:13.5px;font-weight:700" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Zapisz</button>
+</div>
+</sc-if>
+</div>
+<sc-if value="{{ pView }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+<sc-for list="{{ profileRows }}" as="r" hint-placeholder-count="6">
+<div><div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(19,35,58,.5);margin-bottom:3px">{{ r.k }}</div><div style="font-size:15px;font-weight:600">{{ r.v }}</div></div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ pEdit }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+<sc-for list="{{ profileFields }}" as="f" hint-placeholder-count="6">
+<label style="display:flex;flex-direction:column;gap:5px;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(19,35,58,.5)">{{ f.label }}<input name="{{ f.name }}" value="{{ f.value }}" onChange="{{ onProfileField }}" style="border:1.5px solid rgba(19,35,58,.16);border-radius:11px;padding:11px 13px;font-size:14.5px;font-weight:500;color:#13233A;text-transform:none;letter-spacing:normal"></label>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isTabHist }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ ordersView }}" as="o" hint-placeholder-count="3">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:20px 22px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+<div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:700;min-width:0;text-wrap:pretty">{{ o.title }}</div>
+<span style="{{ o.badgeStyle }}">{{ o.status }}</span>
+</div>
+<div style="font-size:13.5px;color:rgba(19,35,58,.6);margin-bottom:16px">{{ o.typeLabel }} · Nr {{ o.id }} · {{ o.date }}</div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+<div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:#0C5DA5">{{ o.total }}</div>
+<button onClick="{{ o.act }}" style="background:none;border:1.5px solid rgba(19,35,58,.16);border-radius:999px;padding:9px 18px;font-size:13.5px;font-weight:700;color:#13233A" style-hover="border-color:#0C5DA5;color:#0C5DA5">{{ o.actLabel }}</button>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isTabKarta }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:14px">
+<sc-for list="{{ medSections }}" as="s" hint-placeholder-count="3">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:22px 24px">
+<h2 style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;margin:0">{{ s.title }}</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:14px 0">
+<sc-for list="{{ s.items }}" as="it" hint-placeholder-count="2">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#F7FAFD;border:1px solid rgba(19,35,58,.07);border-radius:11px;padding:10px 14px">
+<span style="font-size:14.5px;font-weight:600">{{ it.txt }}</span>
+<button onClick="{{ it.remove }}" style="background:none;border:none;color:rgba(19,35,58,.4);font-size:17px;padding:0;width:24px;height:24px;line-height:1;flex:none" style-hover="color:#B4432A">✕</button>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:8px">
+<input value="{{ s.draft }}" onChange="{{ s.onDraft }}" placeholder="{{ s.ph }}" style="flex:1;min-width:0;border:1.5px solid rgba(19,35,58,.16);border-radius:11px;padding:10px 13px;font-size:14px;color:#13233A">
+<button onClick="{{ s.add }}" style="background:#0C5DA5;color:#fff;border:none;border-radius:11px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:10px 18px;font-size:14px;font-weight:700;white-space:nowrap" style-hover="background:#094A84;transform:translateY(-2px);box-shadow:0 5px 12px rgba(12,93,165,.32),0 12px 24px rgba(12,93,165,.24)">Dodaj</button>
+</div>
+</div>
+</sc-for>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:22px 24px">
+<h2 style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;margin:0 0 12px">Grupa krwi</h2>
+<input value="{{ medBlood }}" onChange="{{ onMedBlood }}" placeholder="np. A Rh+" style="width:100%;border:1.5px solid rgba(19,35,58,.16);border-radius:11px;padding:11px 13px;font-size:15px;font-weight:600;color:#13233A">
+</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:22px 24px">
+<h2 style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;margin:0 0 12px">Notatki medyczne</h2>
+<textarea value="{{ medNotes }}" onChange="{{ onMedNotes }}" rows="3" style="width:100%;box-sizing:border-box;border:1.5px solid rgba(19,35,58,.16);border-radius:11px;padding:11px 13px;font-size:14.5px;line-height:1.5;color:#13233A;resize:vertical;font-family:inherit"></textarea>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isKontakt }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Kontakt" style="max-width:1180px;margin:0 auto;padding:44px 24px 96px">
+<h1 style="font-family:'Sora',sans-serif;font-size:clamp(28px,4vw,38px);font-weight:700;letter-spacing:-.02em;margin:0 0 6px">Kontakt</h1>
+<p style="font-size:15.5px;color:rgba(19,35,58,.65);margin:0 0 28px;text-wrap:pretty">Zadzwoń, napisz lub odwiedź jeden z naszych punktów pobrań.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:40px">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:24px">
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#0C5DA5;margin-bottom:8px">Rejestracja telefoniczna</div>
+<a href="tel:225556677" style="font-family:'Sora',sans-serif;font-size:26px;font-weight:700;color:#13233A;text-decoration:none">22 555 66 77</a>
+<div style="font-size:13.5px;color:rgba(19,35,58,.6);margin-top:6px">pn–pt 7:00–20:00 · sb 8:00–14:00</div>
+</div>
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:24px">
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#0C5DA5;margin-bottom:8px">E-mail</div>
+<a href="mailto:kontakt@vitalab.pl" style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:#13233A;text-decoration:none">kontakt@vitalab.pl</a>
+<div style="font-size:13.5px;color:rgba(19,35,58,.6);margin-top:6px">Odpowiadamy w ciągu 1 dnia roboczego</div>
+</div>
+</div>
+<h2 style="font-family:'Sora',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.02em;margin:0 0 4px">Punkty pobrań</h2>
+<p style="font-size:14.5px;color:rgba(19,35,58,.6);margin:0 0 20px">Każdy punkt ma własną rejestrację — zadzwoń bezpośrednio do wybranej lokalizacji.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+<sc-for list="{{ contactPoints }}" as="p" hint-placeholder-count="4">
+<div style="background:#fff;border:1px solid rgba(19,35,58,.09);border-radius:16px;box-shadow:0 1px 2px rgba(19,35,58,.05),0 10px 26px rgba(19,35,58,.07),inset 0 1px 0 rgba(255,255,255,.85);transition:transform .2s ease,box-shadow .2s ease;padding:22px 24px">
+<div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px">{{ p.n }}</div>
+<div style="font-size:14px;color:rgba(19,35,58,.7);margin-bottom:2px">{{ p.full }}</div>
+<div style="font-size:13px;color:rgba(19,35,58,.55);margin-bottom:14px">{{ p.hours }}</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<a href="{{ p.tel }}" style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:#0C5DA5;text-decoration:none"><span style="color:rgba(19,35,58,.4);font-size:13px">tel.</span>{{ p.phone }}</a>
+<a href="{{ p.mailto }}" style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#13233A;text-decoration:none"><span style="color:rgba(19,35,58,.4);font-size:13px">e-mail</span>{{ p.email }}</a>
+</div>
+<iframe src="{{ p.map }}" style="width:100%;height:170px;border:none;border-radius:12px;margin-top:16px;display:block" loading="lazy" title="Mapa {{ p.n }}"></iframe>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<div style="background:#0F2E52;color:#fff;margin-top:20px">
+<div style="max-width:1180px;margin:0 auto;padding:40px 24px;display:flex;gap:40px;flex-wrap:wrap">
+<div style="flex:2 1 260px">
+<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">
+<div style="width:30px;height:30px;border-radius:9px;background:#fff;color:#0F2E52;display:grid;place-items:center;font-weight:800;font-size:16px;font-family:'Sora',sans-serif">V</div>
+<div style="font-family:'Sora',sans-serif;font-weight:700;font-size:18px">VitaLab</div>
+</div>
+<div style="font-size:13.5px;line-height:1.6;opacity:.75">Przychodnia i laboratorium diagnostyczne<br>ul. Marszałkowska 10, 00-026 Warszawa<br>pn–pt 7:00–20:00, sb 8:00–14:00</div>
+</div>
+<div style="flex:1 1 160px">
+<div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:10px">Kontakt</div>
+<div style="font-size:14px;line-height:2"><a href="tel:225556677" style="color:#fff;text-decoration:none">22 555 66 77</a><br><a href="mailto:kontakt@vitalab.pl" style="color:#fff;text-decoration:none">kontakt@vitalab.pl</a></div>
+</div>
+<div style="flex:1 1 160px">
+<div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:10px">Na skróty</div>
+<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+<button onClick="{{ goCennik }}" style="background:none;border:none;padding:0;color:#fff;font-size:14px;opacity:.9">Cennik</button>
+<button onClick="{{ goLekarze }}" style="background:none;border:none;padding:0;color:#fff;font-size:14px;opacity:.9">Lekarze</button>
+<button onClick="{{ goLab }}" style="background:none;border:none;padding:0;color:#fff;font-size:14px;opacity:.9">Zamów badania</button>
+<button onClick="{{ startVisit }}" style="background:none;border:none;padding:0;color:#fff;font-size:14px;opacity:.9">Umów wizytę</button>
+<button onClick="{{ openResults }}" style="background:none;border:none;padding:0;color:#fff;font-size:14px;opacity:.9">Wyniki online</button>
+</div>
+</div>
+</div>
+<div style="border-top:1px solid rgba(255,255,255,.12);padding:14px 24px;text-align:center;font-size:12.5px;opacity:.55">© 2026 VitaLab — makieta poglądowa</div>
+</div>
+
+<div style="background:#F4F8FB;border-top:1px solid rgba(19,35,58,.08);padding:12px 24px;text-align:center;font-size:13px;color:rgba(19,35,58,.6)">Makieta 2 z 2 — usługi lekarskie + laboratoryjne · <a href="Przychodnia lekarska.dc.html" style="font-weight:600">Zobacz makietę 1: przychodnia lekarska →</a></div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showPromo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Strona&quot;},&quot;showPrepInfo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Zamówienie badań&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.TESTS=[
+      ['morfo','Morfologia krwi','Badania krwi',15,'Podstawowy obraz krwi — 25 parametrów'],
+      ['glukoza','Glukoza na czczo','Badania krwi',12,'Poziom cukru — profilaktyka cukrzycy'],
+      ['lipid','Lipidogram','Badania krwi',35,'Cholesterol całkowity, HDL, LDL, trójglicerydy'],
+      ['tsh','TSH','Badania krwi',30,'Podstawowe badanie tarczycy'],
+      ['ft4','FT4','Badania krwi',28,'Wolna tyroksyna — diagnostyka tarczycy'],
+      ['witd','Witamina D (25-OH)','Badania krwi',55,'Poziom witaminy D w organizmie'],
+      ['ferry','Ferrytyna','Badania krwi',32,'Zapasy żelaza — diagnostyka anemii'],
+      ['krea','Kreatynina','Badania krwi',12,'Funkcja nerek + eGFR'],
+      ['alt','ALT','Badania krwi',12,'Enzym wątrobowy'],
+      ['crp','CRP ilościowe','Badania krwi',20,'Wskaźnik stanu zapalnego'],
+      ['hba1c','Hemoglobina glikowana HbA1c','Badania krwi',38,'Średni poziom cukru z 3 miesięcy'],
+      ['elektro','Elektrolity (Na, K)','Badania krwi',18,'Sód i potas'],
+      ['mocz','Badanie ogólne moczu','Badania moczu i inne',15,'Analiza fizykochemiczna + osad'],
+      ['posiew','Posiew moczu','Badania moczu i inne',45,'Diagnostyka zakażeń układu moczowego'],
+      ['albumina','Albumina w moczu','Badania moczu i inne',25,'Wczesne wykrywanie chorób nerek'],
+      ['kal','Kał — badanie ogólne','Badania moczu i inne',30,'Podstawowa diagnostyka przewodu pokarmowego'],
+      ['wymaz','Wymaz z gardła','Badania moczu i inne',40,'Posiew w kierunku bakterii'],
+      ['pak-podst','Pakiet podstawowy','Pakiety badań',39,'Morfologia + glukoza + CRP + badanie moczu'],
+      ['pak-tarczyca','Pakiet tarczycowy','Pakiety badań',75,'TSH + FT3 + FT4'],
+      ['pak-watroba','Pakiet wątrobowy','Pakiety badań',49,'ALT + AST + bilirubina + GGTP'],
+      ['pak-serce','Pakiet sercowy','Pakiety badań',65,'Lipidogram + glukoza + CRP + HbA1c'],
+      ['pak-wit','Pakiet witaminowy','Pakiety badań',89,'Witamina D + witamina B12 + kwas foliowy']
+    ].map(t=>({id:t[0],n:t[1],c:t[2],p:t[3],d:t[4]}));
+    const DX={
+      morfo:{long:'Najczęściej wykonywane badanie krwi — ocenia krwinki czerwone, białe i płytki (25 parametrów). Pozwala wcześnie wykryć anemię, infekcje i zaburzenia krzepnięcia.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Na czczo (8–12 h). Rano wypij szklankę wody.'},
+      glukoza:{long:'Pomiar stężenia cukru we krwi — podstawa diagnostyki cukrzycy i insulinooporności. Zalecane profilaktycznie raz w roku, szczególnie po 45. roku życia.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Bezwzględnie na czczo (min. 8 h bez posiłku).'},
+      lipid:{long:'Pełny profil lipidowy: cholesterol całkowity, HDL, LDL i trójglicerydy. Kluczowe badanie w ocenie ryzyka miażdżycy, zawału serca i udaru.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Na czczo (12 h). Dzień wcześniej unikaj tłustych potraw i alkoholu.'},
+      tsh:{long:'Hormon tyreotropowy — najczulszy wskaźnik pracy tarczycy i punkt wyjścia w diagnostyce jej niedoczynności oraz nadczynności.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Pobranie rano, na czczo. Unikaj dużego wysiłku dzień wcześniej.'},
+      ft4:{long:'Wolna tyroksyna — hormon produkowany przez tarczycę. Interpretowana łącznie z TSH pozwala rozróżnić rodzaj zaburzeń tarczycy.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Pobranie rano, na czczo.'},
+      witd:{long:'Metabolit 25-OH — najlepszy wskaźnik zaopatrzenia organizmu w witaminę D. Niedobór dotyczy większości osób w okresie jesienno-zimowym.',mat:'krew żylna',tat:'2 dni robocze',prep:'Nie wymaga bycia na czczo.'},
+      ferry:{long:'Białko magazynujące żelazo — najczulszy marker jego niedoboru. Spada, zanim zmiany będą widoczne w morfologii.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Zalecane pobranie rano, na czczo.'},
+      krea:{long:'Podstawowy parametr pracy nerek, raportowany z przelicznikiem eGFR. Zalecany osobom z nadciśnieniem i cukrzycą.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Na czczo. Unikaj intensywnego wysiłku 24 h przed pobraniem.'},
+      alt:{long:'Enzym wątrobowy — jego wzrost wskazuje na uszkodzenie komórek wątroby (leki, alkohol, stłuszczenie, infekcje wirusowe).',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Zalecane pobranie na czczo.'},
+      crp:{long:'Białko ostrej fazy — ilościowy wskaźnik stanu zapalnego. Pomaga odróżnić infekcje bakteryjne od wirusowych i monitorować leczenie.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Nie wymaga przygotowania.'},
+      hba1c:{long:'Odsetek hemoglobiny związanej z glukozą — pokazuje średni poziom cukru z ostatnich ~3 miesięcy. Standard monitorowania cukrzycy.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Nie wymaga bycia na czczo.'},
+      elektro:{long:'Stężenie sodu i potasu we krwi. Ważne przy odwodnieniu, nadciśnieniu oraz stosowaniu leków moczopędnych.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Zalecane pobranie na czczo.'},
+      mocz:{long:'Analiza fizykochemiczna moczu z oceną osadu pod mikroskopem. Wykrywa zakażenia dróg moczowych, choroby nerek i cukrzycę.',mat:'mocz — poranna próbka',tat:'1 dzień roboczy',prep:'Poranny mocz ze środkowego strumienia, jałowy pojemnik z apteki.'},
+      posiew:{long:'Hodowla bakterii z moczu wraz z antybiogramem — wskazuje skuteczny antybiotyk przy nawracających zakażeniach układu moczowego.',mat:'mocz — poranna próbka',tat:'3–5 dni roboczych',prep:'Próbka pobrana przed rozpoczęciem antybiotyku, jałowy pojemnik.'},
+      albumina:{long:'Wykrywa śladowe ilości białka w moczu — najwcześniejszy sygnał uszkodzenia nerek u osób z cukrzycą i nadciśnieniem.',mat:'mocz — poranna próbka',tat:'2 dni robocze',prep:'Poranny mocz, jałowy pojemnik.'},
+      kal:{long:'Ocena trawienia i wchłaniania oraz obecności pasożytów i krwi utajonej. Podstawowa diagnostyka przewodu pokarmowego.',mat:'kał',tat:'2–3 dni robocze',prep:'Próbka w jałowym pojemniku, dostarczona w dniu pobrania.'},
+      wymaz:{long:'Posiew w kierunku bakterii (m.in. paciorkowców) z antybiogramem. Zalecany przy nawracających anginach i bólu gardła.',mat:'wymaz z gardła',tat:'3–5 dni roboczych',prep:'Min. 2 h przed badaniem nie jedz, nie pij i nie myj zębów.'},
+      'pak-podst':{long:'Coroczny przegląd zdrowia podczas jednej wizyty: obraz krwi, gospodarka cukrowa, stan zapalny i praca nerek. Zalecany każdemu raz w roku.',mat:'krew żylna + mocz',tat:'1 dzień roboczy',prep:'Na czczo (8–12 h). Zabierz poranną próbkę moczu.',inc:[['Morfologia krwi',15],['Glukoza na czczo',12],['CRP ilościowe',20],['Badanie ogólne moczu',15]]},
+      'pak-tarczyca':{long:'Komplet hormonów tarczycowych — wykrywa niedoczynność i nadczynność oraz pozwala monitorować leczenie. Wyniki warto skonsultować z endokrynologiem.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Pobranie rano, na czczo.',inc:[['TSH',30],['FT3',28],['FT4',28]]},
+      'pak-watroba':{long:'Ocena kondycji wątroby i dróg żółciowych. Zalecany przy długotrwałym przyjmowaniu leków, po antybiotykoterapii i przy zwiększonym spożyciu alkoholu.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Na czczo (8–12 h).',inc:[['ALT',12],['AST',14],['Bilirubina całkowita',15],['GGTP',18]]},
+      'pak-serce':{long:'Profilaktyka chorób układu krążenia: profil lipidowy, cukier, stan zapalny i HbA1c. Zalecany po 40. roku życia i przy nadciśnieniu.',mat:'krew żylna',tat:'1 dzień roboczy',prep:'Na czczo (12 h). Dzień wcześniej unikaj tłustych potraw.',inc:[['Lipidogram',35],['Glukoza na czczo',12],['CRP ilościowe',20],['Hemoglobina glikowana HbA1c',38]]},
+      'pak-wit':{long:'Trzy kluczowe witaminy wpływające na odporność, energię i układ nerwowy. Zalecany przy przewlekłym zmęczeniu, wypadaniu włosów i diecie eliminacyjnej.',mat:'krew żylna',tat:'2 dni robocze',prep:'Nie wymaga bycia na czczo.',inc:[['Witamina D (25-OH)',55],['Witamina B12',40],['Kwas foliowy',40]]}
+    };
+    this.TESTS.forEach(t=>Object.assign(t,DX[t.id]||{}));
+    this.SPECS=[['internista','Internista',160,'Choroby wewnętrzne, recepty, skierowania'],['pediatra','Pediatra',180,'Opieka nad dziećmi od 1. dnia życia'],['kardiolog','Kardiolog',250,'Serce i układ krążenia, EKG'],['dermatolog','Dermatolog',200,'Skóra, włosy i paznokcie'],['ginekolog','Ginekolog',210,'Profilaktyka, USG, cytologia'],['endokrynolog','Endokrynolog',240,'Tarczyca — interpretacja wyników badań']].map((s,i)=>({id:s[0],n:s[1],p:s[2],d:s[3],i}));
+    const F=[['Anna','Kowalska'],['Magdalena','Zielińska'],['Katarzyna','Wiśniewska'],['Joanna','Dąbrowska'],['Ewa','Kamińska'],['Barbara','Mazur']];
+    const M=[['Piotr','Nowak'],['Tomasz','Wójcik'],['Marek','Lewandowski'],['Paweł','Szymański'],['Michał','Woźniak'],['Adam','Krawczyk']];
+    const BIO={internista:'Diagnostyka i leczenie chorób wewnętrznych — nadciśnienie, cukrzyca, infekcje. Podczas wizyty wystawia recepty, skierowania i zwolnienia.',pediatra:'Opieka nad dziećmi od 1. dnia życia: bilanse zdrowia, infekcje, konsultacje szczepień. Przyjazne podejście do małego pacjenta.',kardiolog:'Diagnostyka chorób serca i układu krążenia. Wykonuje i interpretuje EKG, prowadzi terapię nadciśnienia i zaburzeń rytmu.',dermatolog:'Choroby skóry, włosów i paznokci. Dermatoskopia znamion, profilaktyka czerniaka, leczenie trądziku i AZS.',ginekolog:'Profilaktyka i diagnostyka ginekologiczna: USG, cytologia, antykoncepcja i prowadzenie leczenia hormonalnego.',endokrynolog:'Choroby tarczycy i zaburzenia hormonalne. Interpretuje wyniki badań laboratoryjnych i prowadzi długofalowe leczenie.'};
+    const LANGS=['polski, angielski','polski, angielski, niemiecki','polski, angielski, ukraiński'];
+    this.DOCS={};
+    this.SPECS.forEach((s,i)=>{this.DOCS[s.id]=[0,1].map(j=>{const nm=j===0?F[i%6]:M[(i*2+1)%6];const idx=i*2+j;return {id:s.id+'-'+j,fn:nm[0],ln:nm[1],title:idx%3===0?'dr n. med.':'lek. med.',exp:6+(idx*5)%20,rating:(4.6+((idx*7)%4)/10).toFixed(1).replace('.',','),reviews:40+(idx*13)%160,langs:LANGS[idx%3],bio:BIO[s.id]};});});
+    this.POINTS=[
+      {id:'centrum',n:'VitaLab Centrum',addr:'ul. Marszałkowska 10',hours:'pn–pt 7:00–18:00, sb 8:00–13:00',full:'ul. Marszałkowska 10, 00-026 Warszawa (Śródmieście)',hoursList:[{d:'poniedziałek–piątek',h:'7:00–18:00'},{d:'sobota',h:'8:00–13:00'},{d:'niedziela',h:'nieczynne'}],extra:'Parking podziemny · winda · pobrania dziecięce',phone:'22 555 66 70',email:'centrum@vitalab.pl'},
+      {id:'mokotow',n:'VitaLab Mokotów',addr:'ul. Puławska 145',hours:'pn–pt 7:00–15:00',full:'ul. Puławska 145, 02-715 Warszawa (Mokotów)',hoursList:[{d:'poniedziałek–piątek',h:'7:00–15:00'},{d:'sobota–niedziela',h:'nieczynne'}],extra:'Parking przed budynkiem · parter',phone:'22 555 66 71',email:'mokotow@vitalab.pl'},
+      {id:'praga',n:'VitaLab Praga',addr:'ul. Targowa 33',hours:'pn–pt 7:00–16:00, sb 8:00–12:00',full:'ul. Targowa 33, 03-728 Warszawa (Praga-Północ)',hoursList:[{d:'poniedziałek–piątek',h:'7:00–16:00'},{d:'sobota',h:'8:00–12:00'},{d:'niedziela',h:'nieczynne'}],extra:'2 min od metra Dworzec Wileński',phone:'22 555 66 72',email:'praga@vitalab.pl'},
+      {id:'wola',n:'VitaLab Wola',addr:'ul. Górczewska 89',hours:'pn–pt 7:00–17:00',full:'ul. Górczewska 89, 01-401 Warszawa (Wola)',hoursList:[{d:'poniedziałek–piątek',h:'7:00–17:00'},{d:'sobota–niedziela',h:'nieczynne'}],extra:'Przy centrum handlowym · parking 2 h gratis',phone:'22 555 66 73',email:'wola@vitalab.pl'}
+    ];
+    this.WINDOWS=[{t:'07:00–09:00',d:'na czczo — zalecane'},{t:'09:00–12:00',d:'mniejszy ruch'},{t:'12:00–15:00',d:'popołudnie'}];
+    const dows=['nd','pn','wt','śr','cz','pt','sb'],mons=['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+    const raw=[];for(let k=0;k<9;k++){const d=new Date();d.setDate(d.getDate()+1+k);if(d.getDay()!==0)raw.push({dowN:dows[d.getDay()],num:d.getDate(),mon:mons[d.getMonth()]});}
+    this.DAYS=raw.slice(0,7).map((d,k)=>({...d,k,label:d.dowN+' '+d.num+' '+d.mon}));
+    this.dows=dows;this.mons=mons;
+    this.monsFull=['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
+  }
+  dateSlots(docId,d){if(!d||d.getDay()===0)return [];const all=['08:00','08:45','09:30','10:15','11:00','11:45','12:30','14:00','14:45','15:30','16:15','17:00','17:45'];const seed=this.hash(docId)+(d.getDate()+(d.getMonth()+1)*37+d.getDay())*5;return all.filter((t,i)=>(i+seed)%3!==0&&(i*2+seed)%5!==1);}
+  firstAvail(docId){for(let k=1;k<43;k++){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+k);if(this.dateSlots(docId,d).length)return d;}return null;}
+  fmtDate(d){return this.dows[d.getDay()]+' '+d.getDate()+' '+this.mons[d.getMonth()];}
+  calendar(calM,selTs,availFn,onPick,onNav){
+    const now=new Date();
+    const base=new Date(now.getFullYear(),now.getMonth()+calM,1);
+    const tomorrow=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+    const maxD=new Date(now.getFullYear(),now.getMonth(),now.getDate()+42);
+    const startDow=(base.getDay()+6)%7;
+    const dim=new Date(base.getFullYear(),base.getMonth()+1,0).getDate();
+    const cellBase='height:38px;border-radius:10px;font-size:14px;display:grid;place-items:center;padding:0;';
+    const sel=selTs?new Date(selTs):null;
+    const cells=[];
+    for(let i=0;i<startDow;i++)cells.push({num:'',style:cellBase+'background:none;border:none;cursor:default',pick:null});
+    for(let day=1;day<=dim;day++){const d=new Date(base.getFullYear(),base.getMonth(),day,12);const avail=d>=tomorrow&&d<=maxD&&availFn(d);const s=sel&&sel.getDate()===day&&sel.getMonth()===base.getMonth()&&sel.getFullYear()===base.getFullYear();cells.push({num:String(day),pick:avail?()=>onPick(d.getTime()):null,style:cellBase+(s?'background:#0C5DA5;color:#fff;border:1.5px solid #0C5DA5;font-weight:800;cursor:pointer':avail?'background:#fff;color:#13233A;border:1.5px solid rgba(12,93,165,.45);font-weight:600;cursor:pointer':'background:rgba(19,35,58,.05);color:rgba(19,35,58,.3);border:1px solid transparent;cursor:default')});}
+    const nav=en=>'width:30px;height:30px;border-radius:9px;font-size:16px;display:grid;place-items:center;padding:0;'+(en?'background:#fff;border:1.5px solid rgba(19,35,58,.16);color:#13233A;cursor:pointer':'background:none;border:1.5px solid rgba(19,35,58,.07);color:rgba(19,35,58,.25);cursor:default');
+    return {title:this.monsFull[base.getMonth()]+' '+base.getFullYear(),cells,prev:calM>0?()=>onNav(calM-1):null,next:calM<2?()=>onNav(calM+1):null,prevStyle:nav(calM>0),nextStyle:nav(calM<2)};
+  }
+  pointOpen(p,d){return d.getDay()!==0&&(d.getDay()!==6||p.id==='centrum'||p.id==='praga');}
+  firstOpen(p){for(let k=1;k<43;k++){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+k);if(this.pointOpen(p,d))return d;}return null;}
+  state={screen:'home',menu:false,q:'',cenQ:'',cenCat:'Wszystkie',cart:[],labStep:1,pointI:-1,labDate:null,labCalM:0,winI:-1,vStep:1,vSvc:null,vDoc:null,vDate:null,vCalM:0,vTime:null,mode:'guest',form:{fname:'',lname:'',pesel:'',phone:'',email:''},lg:{email:'',pass:''},tried:false,triedLg:false,agree:false,no:null,confirmType:null,snap:null,modalI:-1,pay:'onsite',toast:'',docQ:'',docSpec:'Wszyscy',docModal:null,testModal:null,user:null,acc:{email:'',pass:''},accTried:false,panelTab:'profil',pEdit:false,pForm:null,orders:[{id:'VL-48213',type:'lab',title:'Pakiet sercowy + morfologia',date:'12 lipca 2026',status:'Wyniki gotowe',sc:'green',total:'80 zł',detail:'Punkt Centrum, ul. Marszałkowska 10'},{id:'WZ-39187',type:'visit',title:'Konsultacja kardiologiczna — dr Marek Zawadzki',date:'28 czerwca 2026',status:'Zrealizowana',sc:'gray',total:'220 zł',detail:''},{id:'WZ-51902',type:'visit',title:'Konsultacja dermatologiczna — dr Ewa Nowak',date:'24 lipca 2026, 10:15',status:'Nadchodząca',sc:'blue',total:'180 zł',detail:''}],med:{chronic:['Nadciśnienie tętnicze','Niedoczynność tarczycy'],meds:['Euthyrox 50 µg — rano','Ramipril 5 mg — wieczorem'],allergies:['Penicylina','Pyłki traw'],blood:'A Rh+',notes:'Ostatnia kontrola tarczycy: kwiecień 2026. Zalecana kontrola lipidogramu co 6 miesięcy.'},draft:{chronic:'',meds:'',allergies:''}};
+  hash(s){let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%997;return h;}
+  slots(docId,dayK){const all=['08:00','08:45','09:30','10:15','11:00','11:45','12:30','14:00','14:45','15:30','16:15','17:00','17:45'];const seed=this.hash(docId)+dayK*5;return all.filter((t,i)=>(i+seed)%3!==0&&(i*2+seed)%5!==1);}
+  nextSlot(docId){for(const d of this.DAYS){const ts=this.slots(docId,d.k);if(ts.length)return d.label+', '+ts[0];}return 'brak terminów';}
+  go(screen,extra){window.scrollTo({top:0});this.setState(Object.assign({screen,toast:'',menu:false},extra||{}));}
+  flash(m){clearTimeout(this._tt);this.setState({toast:m});this._tt=setTimeout(()=>this.setState({toast:''}),3000);}
+  mkUser(email){return {fname:'Anna',lname:'Kowalska',pesel:'89050512345',phone:'+48 600 200 300',email:email||'anna.kowalska@example.com',address:'ul. Marszałkowska 10/5, 00-026 Warszawa'};}
+  addToCart(id){const st=this.state;if(st.cart.includes(id)){this.setState({cart:st.cart.filter(x=>x!==id)});return;}const t=this.TESTS.find(x=>x.id===id);this.setState({cart:[...st.cart,id]});this.flash('Dodano do koszyka: '+t.n);}
+  labStepGo(n,extra){extra=extra||{};if(n===4)extra=Object.assign(this.prefillFromUser(),extra);window.scrollTo({top:0});this.setState(Object.assign({labStep:n},extra));}
+  vStepGo(n,extra){extra=extra||{};if(n===4)extra=Object.assign(this.prefillFromUser(),extra);window.scrollTo({top:0});this.setState(Object.assign({vStep:n},extra));}
+  prefillFromUser(){const st=this.state;const u=st.user;if(!u)return {};return {mode:'guest',form:{fname:u.fname,lname:u.lname,pesel:u.pesel,phone:u.phone,email:u.email}};}
+  bookVisit(spec){this.go('visit',{vStep:spec?2:1,vSvc:spec||null,vDoc:null,vTime:null,vDate:null,vCalM:0,agree:false,tried:false,q:''});}
+  bookDoc(s,d){const fd=this.firstAvail(d.id);const nw=new Date();this.go('visit',{vStep:3,vSvc:s,vDoc:d,vTime:null,vDate:fd?fd.getTime():null,vCalM:fd?(fd.getFullYear()-nw.getFullYear())*12+(fd.getMonth()-nw.getMonth()):0,agree:false,tried:false,docModal:null,testModal:null});}
+  renderVals(){
+    const st=this.state;
+    const price=v=>v+' zł';
+    const chip=on=>'border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:700;'+(on?'background:#0C5DA5;color:#fff;border:1.5px solid #0C5DA5':'background:#fff;color:#13233A;border:1.5px solid rgba(19,35,58,.14)');
+    const navSt=on=>'background:none;border:none;padding:8px 9px;font-size:15px;border-radius:8px;'+(on?'font-weight:700;color:#0C5DA5':'font-weight:500;color:#13233A');
+    const primBtn='background:#0C5DA5;color:#fff;border:none;border-radius:999px;box-shadow:0 2px 6px rgba(12,93,165,.22),0 6px 16px rgba(12,93,165,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 26px;font-size:15px;font-weight:700;cursor:pointer';
+    const disBtn='background:rgba(19,35,58,.12);color:rgba(19,35,58,.4);border:none;border-radius:999px;padding:13px 26px;font-size:15px;font-weight:700;cursor:not-allowed';
+    const inCart=id=>st.cart.includes(id);
+    const cartItems=st.cart.map(id=>this.TESTS.find(t=>t.id===id)).filter(Boolean);
+    const cartTotal=cartItems.reduce((a,t)=>a+t.p,0);
+    const cartLabel=cartItems.length===1?'1 badanie':cartItems.length<5?cartItems.length+' badania':cartItems.length+' badań';
+    const q=st.q.trim().toLowerCase();
+    const results=q.length>=2?[
+      ...this.TESTS.filter(t=>(t.n+' '+t.d).toLowerCase().includes(q)).map(t=>({n:t.n,priceTxt:price(t.p),badge:t.c==='Pakiety badań'?'Pakiet':'Badanie',badgeStyle:'flex:none;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;letter-spacing:.03em;'+(t.c==='Pakiety badań'?'background:#FDF4E3;color:#9A6A14':'background:#E3EEF7;color:#0C5DA5'),actLabel:inCart(t.id)?'✓ W koszyku':'+ Dodaj',act:()=>this.addToCart(t.id)})),
+      ...this.SPECS.filter(s=>(s.n+' '+s.d).toLowerCase().includes(q)).map(s=>({n:'Wizyta: '+s.n,priceTxt:price(s.p),badge:'Wizyta',badgeStyle:'flex:none;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;letter-spacing:.03em;background:#E8F3EC;color:#1B7A4B',actLabel:'Umów →',act:()=>this.bookVisit(s)}))
+    ].slice(0,7):[];
+    const testBtn=id=>inCart(id)?'background:#E3EEF7;color:#0C5DA5;border:1.5px solid #0C5DA5;border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer':'background:#0C5DA5;color:#fff;border:1.5px solid #0C5DA5;border-radius:999px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer';
+    const popularIds=['morfo','glukoza','tsh','witd','lipid','mocz'];
+    const popularTests=popularIds.map(id=>{const t=this.TESTS.find(x=>x.id===id);return {n:t.n,d:t.d,priceTxt:price(t.p),btnLabel:inCart(id)?'✓ W koszyku':'Dodaj do koszyka',btnStyle:testBtn(id)+';margin-top:auto',act:()=>this.addToCart(id),info:()=>this.setState({testModal:id})};});
+    const packages=this.TESTS.filter(t=>t.c==='Pakiety badań').slice(0,3).map((t,i)=>{const hit=i===0;return {n:t.n,d:t.d,priceTxt:price(t.p),hit,cardStyle:hit?'background:#0F2E52;color:#fff;border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:10px':'background:#fff;border:1px solid rgba(19,35,58,.08);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:10px;color:#13233A',btnLabel:inCart(t.id)?'✓ W koszyku':'Dodaj do koszyka',btnStyle:(hit?'background:#F2A33C;color:#0F2E52;border:none':inCart(t.id)?'background:#E3EEF7;color:#0C5DA5;border:1.5px solid #0C5DA5':'background:#0C5DA5;color:#fff;border:none')+';border-radius:999px;padding:11px 18px;font-size:14px;font-weight:800;margin-top:auto;cursor:pointer',act:()=>this.addToCart(t.id),info:()=>this.setState({testModal:t.id}),infoStyle:'background:none;border:none;padding:0;text-align:left;font-size:13.5px;font-weight:700;text-decoration:underline;cursor:pointer;'+(hit?'color:#BFD9F0':'color:#0C5DA5')};});
+    const cq=st.cenQ.trim().toLowerCase();
+    const cenAll=[...this.TESTS.map(t=>({key:'t-'+t.id,n:t.n,sub:t.c+' · '+t.d,c:t.c,p:t.p,lab:true,id:t.id})),...this.SPECS.map(s=>({key:'v-'+s.id,n:'Konsultacja: '+s.n,sub:'Badania lekarskie · '+s.d,c:'Badania lekarskie',p:s.p,lab:false,spec:s}))];
+    const cenRows=cenAll.filter(r=>(st.cenCat==='Wszystkie'||r.c===st.cenCat)&&(!cq||(r.n+' '+r.sub).toLowerCase().includes(cq))).map(r=>({n:r.n,sub:r.sub,lab:r.lab,vis:!r.lab,open:r.lab?()=>this.setState({testModal:r.id}):null,priceTxt:price(r.p),btnLabel:r.lab?(inCart(r.id)?'✓ W koszyku':'+ Do koszyka'):'Umów',btnStyle:r.lab?testBtn(r.id):'background:#0C5DA5;color:#fff;border:1.5px solid #0C5DA5;border-radius:999px;padding:9px 18px;font-size:13.5px;font-weight:700;cursor:pointer',act:r.lab?()=>this.addToCart(r.id):()=>this.bookVisit(r.spec)}));
+    const stepView=(labels,cur,goFn)=>labels.map((label,i)=>{const n=i+1,done=cur>n,act=cur===n;return {label,mark:done?'✓':String(n),click:done?()=>goFn(n):null,btnStyle:'display:flex;align-items:center;gap:7px;background:none;border:none;padding:6px 10px 6px 0;'+(done?'cursor:pointer':'cursor:default'),circStyle:'width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:700;flex:none;'+(act?'background:#0C5DA5;color:#fff':done?'background:#DCE9F5;color:#0C5DA5':'background:rgba(19,35,58,.08);color:rgba(19,35,58,.45)'),lblStyle:'font-size:13.5px;white-space:nowrap;'+(act?'font-weight:800;color:#13233A':done?'font-weight:700;color:#0C5DA5':'font-weight:500;color:rgba(19,35,58,.45)')};});
+    const point=st.pointI>=0?this.POINTS[st.pointI]:null;
+    const pointCards=this.POINTS.map((p,i)=>{const sel=i===st.pointI;return {...p,style:'display:flex;flex-direction:column;gap:6px;border-radius:14px;padding:18px;text-align:left;'+(sel?'background:#EDF4FA;border:2px solid #0C5DA5':'background:#fff;border:1px solid rgba(19,35,58,.12);cursor:pointer'),dotStyle:'width:18px;height:18px;border-radius:50%;flex:none;'+(sel?'background:#0C5DA5;box-shadow:inset 0 0 0 4px #EDF4FA;border:1px solid #0C5DA5':'border:1.5px solid rgba(19,35,58,.25)'),pick:()=>this.setState({modalI:i})};});
+    const mp=st.modalI>=0?this.POINTS[st.modalI]:null;
+    const labD=st.labDate?new Date(st.labDate):null;
+    const labCal=point?this.calendar(st.labCalM,st.labDate,d=>this.pointOpen(point,d),ts=>this.setState({labDate:ts}),m=>this.setState({labCalM:m})):{title:'',cells:[],prev:null,next:null,prevStyle:'',nextStyle:''};
+    const windows=this.WINDOWS.map((w,i)=>{const sel=i===st.winI;return {...w,style:'border-radius:12px;padding:11px 18px;text-align:left;cursor:pointer;'+(sel?'background:#0C5DA5;color:#fff;border:1.5px solid #0C5DA5':'background:#fff;color:#13233A;border:1.5px solid rgba(19,35,58,.14)'),pick:()=>this.setState({winI:i})};});
+    const vSvc=st.vSvc,vDoc=st.vDoc;
+    const nowD=new Date();
+    const vDoctors=vSvc?this.DOCS[vSvc.id].map(d=>{const fd=this.firstAvail(d.id);return {initials:d.fn[0]+d.ln[0],name:d.title+' '+d.fn+' '+d.ln,sub:vSvc.n+' · '+d.exp+' lat doświadczenia',rating:d.rating,reviews:d.reviews,next:fd?this.fmtDate(fd)+', '+this.dateSlots(d.id,fd)[0]:'brak terminów',pick:()=>this.vStepGo(3,{vDoc:d,vDate:fd?fd.getTime():null,vCalM:fd?(fd.getFullYear()-nowD.getFullYear())*12+(fd.getMonth()-nowD.getMonth()):0,vTime:null})};}):[];
+    const vd=st.vDate?new Date(st.vDate):null;
+    const vCal=this.calendar(st.vCalM,st.vDate,d=>vDoc&&this.dateSlots(vDoc.id,d).length>0,ts=>this.setState({vDate:ts,vTime:null}),m=>this.setState({vCalM:m}));
+    const vTimes=(vDoc&&vd?this.dateSlots(vDoc.id,vd):[]).map(t=>({t,pick:()=>this.vStepGo(4,{vTime:t})}));
+    const f=st.form;
+    const vEmail=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim());
+    const vPhone=f.phone.replace(/[^\d]/g,'').length>=9;
+    const vPesel=/^\d{11}$/.test(f.pesel.trim());
+    const vName=n=>n.trim().length>=2;
+    const labFormOk=vName(f.fname)&&vName(f.lname)&&vPesel&&vPhone&&vEmail;
+    const vFormOk=vName(f.fname)&&vName(f.lname)&&vPhone&&vEmail;
+    const fldBase='border-radius:10px;padding:11px 13px;font-size:15px;';
+    const fs=bad=>fldBase+(bad?'border:1.5px solid #D94A3D;background:#FDECEC;outline-color:#D94A3D':'border:1.5px solid rgba(19,35,58,.14);background:#fff;outline-color:#0C5DA5');
+    const lockStyle=fldBase+'border:1.5px solid rgba(19,35,58,.1);background:#EEF3F9;color:rgba(19,35,58,.6);cursor:not-allowed';
+    const locked=!!st.user;const ffield=bad=>locked?lockStyle:fs(bad);
+    const T=st.tried;
+    const badFname=T&&!vName(f.fname),badLname=T&&!vName(f.lname),badPesel=T&&!vPesel,badPhone=T&&!vPhone,badEmail=T&&!vEmail;
+    const isEmail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((e||'').trim());
+    const lgOk=isEmail(st.lg.email)&&st.lg.pass.length>0;
+    const labDateLabel=labD?this.fmtDate(labD):'—';
+    const whenLabTxt=(labD?this.fmtDate(labD):'')+(st.winI>=0?', '+this.WINDOWS[st.winI].t:'');
+    const vDateLabel=vd?this.fmtDate(vd):'—';
+    const vWhenTxt=(vd?this.fmtDate(vd):'')+(st.vTime?', godz. '+st.vTime:'');
+    const isLabConfirm=st.confirmType==='lab';
+    const confirmRows=isLabConfirm?(st.snap||[]):[{k:'Usługa',v:vSvc?'Konsultacja: '+vSvc.n:''},{k:'Lekarz',v:vDoc?vDoc.title+' '+vDoc.fn+' '+vDoc.ln:''},{k:'Termin',v:vWhenTxt},{k:'Cena',v:vSvc?price(vSvc.p):''}];
+    const allDocs=[];this.SPECS.forEach(s=>this.DOCS[s.id].forEach(d=>allDocs.push({s,d})));
+    const dq2=st.docQ.trim().toLowerCase();
+    const docList=allDocs.filter(x=>(st.docSpec==='Wszyscy'||x.s.n===st.docSpec)&&(!dq2||(x.d.title+' '+x.d.fn+' '+x.d.ln+' '+x.s.n).toLowerCase().includes(dq2)));
+    const docCards=docList.map(x=>{const fd=this.firstAvail(x.d.id);return {initials:x.d.fn[0]+x.d.ln[0],name:x.d.title+' '+x.d.fn+' '+x.d.ln,spec:x.s.n,exp:x.d.exp+' lat dośw.',rating:x.d.rating,reviews:x.d.reviews,priceTxt:price(x.s.p),next:fd?this.fmtDate(fd)+', '+this.dateSlots(x.d.id,fd)[0]:'brak terminów',openProfile:()=>this.setState({docModal:{sId:x.s.id,dId:x.d.id}}),book:()=>this.bookDoc(x.s,x.d)};});
+    const docChips=['Wszyscy',...this.SPECS.map(s=>s.n)].map(n=>({n,style:chip(st.docSpec===n),pick:()=>this.setState({docSpec:n})}));
+    const dmX=st.docModal?{s:this.SPECS.find(z=>z.id===st.docModal.sId),d:this.DOCS[st.docModal.sId].find(z=>z.id===st.docModal.dId)}:null;
+    const dmFd=dmX?this.firstAvail(dmX.d.id):null;
+    const tm=st.testModal?this.TESTS.find(t=>t.id===st.testModal):null;
+    const tmSum=tm&&tm.inc?tm.inc.reduce((a,i)=>a+i[1],0):0;
+    const pf=st.pForm;
+    const maskPesel=p=>p?p.slice(0,2)+'•••••'+p.slice(-4):'—';
+    const ptab=on=>'border-radius:999px;padding:10px 20px;font-size:14.5px;font-weight:700;cursor:pointer;'+(on?'background:#0C5DA5;color:#fff;border:1.5px solid #0C5DA5':'background:#fff;color:#13233A;border:1.5px solid rgba(19,35,58,.14)');
+    const obadge=sc=>{const m={green:['#E4F5EC','#1B7A4B'],blue:['#E3EEF7','#0C5DA5'],gray:['rgba(19,35,58,.08)','rgba(19,35,58,.6)']};const c=m[sc]||m.gray;return 'background:'+c[0]+';color:'+c[1]+';border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:800;white-space:nowrap';};
+    const medSections=[['chronic','Choroby przewlekłe','np. Nadciśnienie tętnicze'],['meds','Przyjmowane leki','np. Euthyrox 50 µg — rano'],['allergies','Alergie','np. Penicylina']].map(g=>{const key=g[0];return {key,title:g[1],ph:g[2],draft:st.draft[key],items:st.med[key].map((txt,i)=>({txt,remove:()=>{const arr=st.med[key].slice();arr.splice(i,1);this.setState({med:{...st.med,[key]:arr}});}})),onDraft:e=>this.setState({draft:{...st.draft,[key]:e.target.value}}),add:()=>{const v=(st.draft[key]||'').trim();if(!v)return;this.setState({med:{...st.med,[key]:[...st.med[key],v]},draft:{...st.draft,[key]:''}});}};});
+    return {
+      showPromo:this.props.showPromo??true,
+      goLekarze:()=>this.go('lekarze'),isLekarze:st.screen==='lekarze',navDocStyle:navSt(st.screen==='lekarze'),
+      docQ:st.docQ,onDocQ:e=>this.setState({docQ:e.target.value}),
+      docChips,docCards,docsEmpty:docCards.length===0,
+      dmOpen:!!dmX,dmClose:()=>this.setState({docModal:null}),
+      dmInitials:dmX?dmX.d.fn[0]+dmX.d.ln[0]:'',dmName:dmX?dmX.d.title+' '+dmX.d.fn+' '+dmX.d.ln:'',dmSpec:dmX?'Konsultacja: '+dmX.s.n:'',dmRating:dmX?dmX.d.rating:'',dmReviews:dmX?dmX.d.reviews:'',dmBio:dmX?dmX.d.bio:'',dmLangs:dmX?dmX.d.langs:'',dmExp:dmX?dmX.d.exp+' lat':'',dmPriceTxt:dmX?price(dmX.s.p):'',
+      dmNext:dmFd&&dmX?this.fmtDate(dmFd)+', '+this.dateSlots(dmX.d.id,dmFd)[0]:'brak terminów',
+      dmBook:()=>{if(dmX)this.bookDoc(dmX.s,dmX.d);},
+      tmOpen:!!tm,tmClose:()=>this.setState({testModal:null}),
+      tmName:tm?tm.n:'',tmPriceTxt:tm?price(tm.p):'',tmLong:tm?tm.long:'',tmMat:tm?tm.mat:'',tmTat:tm?tm.tat:'',tmPrep:tm?tm.prep:'',
+      tmIsPack:!!(tm&&tm.inc),tmInc:tm&&tm.inc?tm.inc.map(i=>({n:i[0],priceTxt:price(i[1])})):[],
+      tmSumTxt:price(tmSum),tmSaveTxt:tm&&tm.inc?price(tmSum-tm.p):'',
+      tmBadge:tm?(tm.inc?'Pakiet badań':tm.c):'',
+      tmBadgeStyle:'font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:999px;letter-spacing:.04em;'+(tm&&tm.inc?'background:#FDF4E3;color:#9A6A14':'background:#E3EEF7;color:#0C5DA5'),
+      tmBtnLabel:tm?(inCart(tm.id)?'✓ W koszyku — usuń':'Dodaj do koszyka'):'',
+      tmBtnStyle:tm?testBtn(tm.id)+';padding:12px 22px;font-size:14.5px':'',
+      tmAdd:()=>{if(tm)this.addToCart(tm.id);},showPrepInfo:this.props.showPrepInfo??true,
+      toast:st.toast,
+      isHome:st.screen==='home',isCennik:st.screen==='cennik',isLab:st.screen==='lab',isVisit:st.screen==='visit',isConfirm:st.screen==='confirm',
+      isLab1:st.labStep===1,isLab2:st.labStep===2,isLab3:st.labStep===3,isLab4:st.labStep===4,isLab5:st.labStep===5,
+      isV1:st.vStep===1,isV2:st.vStep===2,isV3:st.vStep===3,isV4:st.vStep===4,isV5:st.vStep===5,
+      navHomeStyle:navSt(st.screen==='home'),navCenStyle:navSt(st.screen==='cennik'),
+      goHome:()=>this.go('home'),goCennik:()=>this.go('cennik'),
+      goLabCennik:()=>this.go('cennik',{cenCat:'Wszystkie',cenQ:''}),
+      goPakiety:()=>this.go('cennik',{cenCat:'Pakiety badań',cenQ:''}),
+      navPakStyle:navSt(st.screen==='cennik'&&st.cenCat==='Pakiety badań'),
+      goPunkty:()=>{this.go('home');setTimeout(()=>{const el=document.getElementById('punkty');if(el)window.scrollTo({top:el.offsetTop-70,behavior:'smooth'});},60);},
+      isKontakt:st.screen==='kontakt',goKontakt:()=>this.go('kontakt'),navKontStyle:navSt(st.screen==='kontakt'),
+      contactPoints:this.POINTS.map(p=>({n:p.n,full:p.full,hours:p.hours,phone:p.phone,email:p.email,tel:'tel:'+p.phone.replace(/\s/g,''),mailto:'mailto:'+p.email,map:'https://maps.google.com/maps?q='+encodeURIComponent(p.addr+', Warszawa')+'&z=15&output=embed'})),
+      goLab:()=>this.go('lab',{labStep:1,agree:false}),
+      startVisit:()=>this.bookVisit(null),
+       menuOpen:st.menu,menuClosed:!st.menu,toggleMenu:()=>this.setState(s=>({menu:!s.menu})),mResults:()=>{this.setState({menu:false});this.flash('Portal wyników pacjenta — poza zakresem tej makiety');},
+      openResults:()=>this.flash('Portal wyników pacjenta — poza zakresem tej makiety'),
+      q:st.q,onQ:e=>this.setState({q:e.target.value}),results,hasResults:results.length>0,
+      hasCart:st.cart.length>0,cartEmpty:st.cart.length===0,cartCount:st.cart.length,cartLabel,cartTotalTxt:price(cartTotal),
+      showCartBar:st.cart.length>0&&(st.screen==='home'||st.screen==='cennik'),
+      popularTests,packages,
+      specs:this.SPECS.map(s=>({...s,go:()=>this.bookVisit(s)})),
+      points:this.POINTS.map((p,i)=>({...p,open:()=>this.setState({modalI:i})})),
+      cenQ:st.cenQ,onCenQ:e=>this.setState({cenQ:e.target.value}),
+      cats:['Wszystkie','Badania krwi','Badania moczu i inne','Pakiety badań','Badania lekarskie'].map(n=>({n,style:chip(st.cenCat===n),pick:()=>this.setState({cenCat:n})})),
+      cenRows,cenEmpty:cenRows.length===0,
+      labSteps:stepView(['Badania','Punkt pobrań','Termin','Twoje dane','Podsumowanie'],st.labStep,n=>this.labStepGo(n)),
+      cartRows:cartItems.map(t=>({n:t.n,sub:t.c,priceTxt:price(t.p),remove:()=>this.setState({cart:st.cart.filter(x=>x!==t.id)})})),
+      suggestions:['morfo','glukoza','tsh','witd','crp','mocz'].filter(id=>!inCart(id)).slice(0,4).map(id=>{const t=this.TESTS.find(x=>x.id===id);return {n:t.n,priceTxt:price(t.p),add:()=>this.addToCart(id)};}),
+      lab1BtnStyle:st.cart.length>0?primBtn:disBtn,
+      lab1Next:()=>{if(st.cart.length>0)this.labStepGo(2);else this.flash('Dodaj przynajmniej jedno badanie.');},
+      pointCards,pointName:point?point.n:'',pointAddr:point?point.addr:'',
+      pointModalOpen:!!mp,mName:mp?mp.n:'',mFull:mp?mp.full:'',mExtra:mp?mp.extra:'',mHours:mp?mp.hoursList:[],
+      mMapSrc:mp?'https://maps.google.com/maps?q='+encodeURIComponent(mp.addr+', Warszawa')+'&z=15&output=embed':'',
+      mClose:()=>this.setState({modalI:-1}),mStop:e=>e.stopPropagation(),
+      mSelect:()=>this.setState({pointI:st.modalI,modalI:-1}),
+      lab2BtnStyle:st.pointI>=0?primBtn:disBtn,
+      lab2Next:()=>{if(st.pointI>=0){const p=this.POINTS[st.pointI];const fo=this.firstOpen(p);const nw=new Date();this.labStepGo(3,{labDate:st.labDate||(fo?fo.getTime():null),labCalM:fo&&!st.labDate?(fo.getFullYear()-nw.getFullYear())*12+(fo.getMonth()-nw.getMonth()):st.labCalM});}else this.flash('Wybierz punkt pobrań.');},
+      goLab1:()=>this.labStepGo(1),goLab2:()=>this.labStepGo(2),goLab3:()=>this.labStepGo(3),goLab4:()=>this.labStepGo(4),
+      windows,whenLabTxt,labDateLabel,
+      labCalTitle:labCal.title,labCalCells:labCal.cells,labCalPrev:labCal.prev,labCalNext:labCal.next,labPrevStyle:labCal.prevStyle,labNextStyle:labCal.nextStyle,
+      lab3BtnStyle:st.winI>=0&&labD?primBtn:disBtn,
+      lab3Next:()=>{if(st.winI>=0&&labD)this.labStepGo(4);else this.flash(labD?'Wybierz przedział godzin.':'Wybierz dzień w kalendarzu.');},
+      isGuest:st.user?true:st.mode==='guest',isLogin:st.user?false:st.mode==='login',isLoggedIn:!!st.user,notLoggedIn:!st.user,
+      setGuest:()=>this.setState({mode:'guest'}),setLogin:()=>this.setState({mode:'login'}),
+      guestBtnStyle:chip(st.mode==='guest'),loginBtnStyle:chip(st.mode==='login'),
+      form:f,onForm:e=>this.setState({form:{...f,[e.target.name]:e.target.value}}),
+      fnameStyle:ffield(badFname),lnameStyle:ffield(badLname),peselStyle:ffield(badPesel),phoneStyle:ffield(badPhone),emailStyle:ffield(badEmail),formReadOnly:locked,
+      formErr:st.tried?(st.screen==='lab'&&!labFormOk?'Popraw zaznaczone pola: '+[!vName(f.fname)&&'imię',!vName(f.lname)&&'nazwisko',!vPesel&&'PESEL (11 cyfr)',!vPhone&&'telefon (min. 9 cyfr)',!vEmail&&'poprawny e-mail'].filter(Boolean).join(', ')+'.':st.screen==='visit'&&!vFormOk?'Popraw zaznaczone pola: '+[!vName(f.fname)&&'imię',!vName(f.lname)&&'nazwisko',!vPhone&&'telefon (min. 9 cyfr)',!vEmail&&'poprawny e-mail'].filter(Boolean).join(', ')+'.':''):'',
+      lab4Next:()=>{if(labFormOk)this.labStepGo(5,{tried:false});else this.setState({tried:true});},
+      v4Next:()=>{if(vFormOk)this.vStepGo(5,{tried:false});else this.setState({tried:true});},
+      lg:st.lg,onLg:e=>this.setState({lg:{...st.lg,[e.target.name]:e.target.value}}),
+      loginErr:st.triedLg&&!lgOk?(isEmail(st.lg.email)?'Podaj hasło.':'Podaj poprawny adres e-mail i hasło.'):'',
+      doLogin:()=>{if(lgOk){const u=this.mkUser(st.lg.email);this.labStepGo(5,{triedLg:false,user:u,form:{fname:u.fname,lname:u.lname,pesel:u.pesel,phone:u.phone,email:u.email}});}else this.setState({triedLg:true});},
+      doLoginV:()=>{if(lgOk){const u=this.mkUser(st.lg.email);this.vStepGo(5,{triedLg:false,user:u,form:{fname:u.fname,lname:u.lname,pesel:u.pesel,phone:u.phone,email:u.email}});}else this.setState({triedLg:true});},
+      whoTxt:f.fname&&f.lname?f.fname+' '+f.lname+' · '+f.phone:'',
+      patName:f.fname&&f.lname?f.fname+' '+f.lname:'—',patPhone:f.phone||'—',patEmail:f.email||'—',
+      patPesel:f.pesel?f.pesel.slice(0,4)+'•••••••':'—',
+      payOnline:st.pay==='online',
+      setPayOnsite:()=>this.setState({pay:'onsite'}),setPayOnline:()=>this.setState({pay:'online'}),
+      payOnsiteStyle:(st.pay!=='online'?'background:#EDF4FA;border:2px solid #0C5DA5;':'background:#fff;border:1.5px solid rgba(19,35,58,.14);cursor:pointer;')+'display:flex;align-items:center;gap:10px;border-radius:12px;padding:11px 14px;width:100%',
+      payOnlineStyle:(st.pay==='online'?'background:#EDF4FA;border:2px solid #0C5DA5;':'background:#fff;border:1.5px solid rgba(19,35,58,.14);cursor:pointer;')+'display:flex;align-items:center;gap:10px;border-radius:12px;padding:11px 14px;width:100%',
+      payOnsiteDot:'width:16px;height:16px;border-radius:50%;flex:none;'+(st.pay!=='online'?'background:#0C5DA5;box-shadow:inset 0 0 0 3px #EDF4FA;border:1px solid #0C5DA5':'border:1.5px solid rgba(19,35,58,.25)'),
+      payOnlineDot:'width:16px;height:16px;border-radius:50%;flex:none;'+(st.pay==='online'?'background:#0C5DA5;box-shadow:inset 0 0 0 3px #EDF4FA;border:1px solid #0C5DA5':'border:1.5px solid rgba(19,35,58,.25)'),
+      payDueLab:st.pay==='online'?'Do zapłaty online':'Do zapłaty w punkcie',
+      payDueVisit:st.pay==='online'?'Do zapłaty online':'Do zapłaty na miejscu',
+      payNoteLab:st.pay==='online'?'Płatność online po potwierdzeniu — przekierujemy Cię do operatora. Zamówienie ważne 30 dni.':'Bez przedpłaty — zapłacisz w punkcie. Zamówienie ważne 30 dni.',
+      payNoteVisit:st.pay==='online'?'Płatność online po potwierdzeniu — przekierujemy Cię do operatora. Odwołanie do 24 h przed wizytą.':'Bez przedpłaty. Odwołanie do 24 h przed wizytą.',
+      agree:st.agree,onAgree:e=>this.setState({agree:e.target.checked}),
+      confirmBtnStyle:'border:none;border-radius:999px;padding:14px 28px;font-size:15.5px;font-weight:800;'+(st.agree?'background:#0C5DA5;color:#fff;cursor:pointer':'background:rgba(19,35,58,.12);color:rgba(19,35,58,.4);cursor:not-allowed'),
+      confirmLab:()=>{if(!st.agree){this.flash('Zaznacz zgodę, aby zamówić badania.');return;}const no='VL-'+(10000+Math.floor(Math.random()*89999));const ord={id:no,type:'lab',title:cartItems.map(t=>t.n).join(', '),date:whenLabTxt,status:'Przyjęte',sc:'blue',total:price(cartTotal),detail:point?point.n:''};this.go('confirm',{confirmType:'lab',no,cart:[],orders:[ord,...st.orders],snap:[{k:'Badania',v:cartItems.map(t=>t.n).join(', ')},{k:'Punkt pobrań',v:point?point.n+', '+point.addr:''},{k:'Termin',v:whenLabTxt},{k:'Płatność',v:st.pay==='online'?'opłacone online':'na miejscu w punkcie'},{k:'Do zapłaty',v:price(cartTotal)}]});},
+      confirmVisit:()=>{if(!st.agree){this.flash('Zaznacz zgodę, aby potwierdzić rezerwację.');return;}const no='WZ-'+(10000+Math.floor(Math.random()*89999));const ord={id:no,type:'visit',title:(vSvc?vSvc.n:'Konsultacja')+(vDoc?' — '+vDoc.title+' '+vDoc.fn+' '+vDoc.ln:''),date:vWhenTxt,status:'Nadchodząca',sc:'blue',total:vSvc?price(vSvc.p):'',detail:''};this.go('confirm',{confirmType:'visit',no,orders:[ord,...st.orders]});},
+      confirmTitle:isLabConfirm?'Zamówienie przyjęte':'Rezerwacja potwierdzona',
+      confirmRows,confirmPrep:isLabConfirm,
+      bookedNo:st.no||'',
+      vSteps:stepView(['Usługa','Lekarz','Termin','Dane','Podsumowanie'],st.vStep,n=>this.vStepGo(n)),
+      vSpecs:this.SPECS.map(s=>({...s,go:()=>this.vStepGo(2,{vSvc:s,vDoc:null,vTime:null})})),
+      goV1:()=>this.vStepGo(1),goV2:()=>this.vStepGo(2),goV3:()=>this.vStepGo(3),goV4:()=>this.vStepGo(4),
+      vSvcName:vSvc?'Konsultacja: '+vSvc.n:'',vPriceTxt:vSvc?price(vSvc.p):'',
+      vDoctors,vDocName:vDoc?vDoc.title+' '+vDoc.fn+' '+vDoc.ln:'',
+      vTimes,vHasTimes:vTimes.length>0,vNoTimes:vTimes.length===0,vWhenTxt,vDateLabel,
+      vCalTitle:vCal.title,vCalCells:vCal.cells,vCalPrev:vCal.prev,vCalNext:vCal.next,vPrevStyle:vCal.prevStyle,vNextStyle:vCal.nextStyle,
+      isKonto:st.screen==='konto',isPanel:st.screen==='panel',
+      goAccount:()=>this.go(st.user?'panel':'konto',{panelTab:'profil'}),
+      accBtnLabel:st.user?'Moje konto':'Zaloguj',
+      accBtnStyle:'border-radius:999px;padding:9px 15px;font-size:14px;font-weight:700;'+(st.user?'background:#EAF2FA;border:1.5px solid #0C5DA5;color:#0C5DA5':'background:none;border:1.5px solid rgba(19,35,58,.16);color:#13233A'),
+      acc:st.acc,onAcc:e=>this.setState({acc:{...st.acc,[e.target.name]:e.target.value}}),
+      accErr:st.accTried&&!(isEmail(st.acc.email)&&st.acc.pass)?(isEmail(st.acc.email)?'Podaj hasło.':'Podaj poprawny adres e-mail i hasło.'):'',
+      doLoginAcc:()=>{if(isEmail(st.acc.email)&&st.acc.pass)this.go('panel',{user:this.mkUser(st.acc.email),accTried:false,panelTab:'profil'});else this.setState({accTried:true});},
+      loginGoogle:()=>this.go('panel',{user:this.mkUser('anna.kowalska@gmail.com'),panelTab:'profil'}),
+      loginApple:()=>this.go('panel',{user:this.mkUser('anna.kowalska@icloud.com'),panelTab:'profil'}),
+      logout:()=>this.go('home',{user:null}),
+      userName:st.user?st.user.fname:'',
+      tabProfilStyle:ptab(st.panelTab==='profil'),tabHistStyle:ptab(st.panelTab==='historia'),tabKartaStyle:ptab(st.panelTab==='karta'),
+      tabProfilHover:st.panelTab==='profil'?'color:#fff':'color:#0C5DA5',tabHistHover:st.panelTab==='historia'?'color:#fff':'color:#0C5DA5',tabKartaHover:st.panelTab==='karta'?'color:#fff':'color:#0C5DA5',
+      goTabProfil:()=>this.setState({panelTab:'profil'}),goTabHist:()=>this.setState({panelTab:'historia'}),goTabKarta:()=>this.setState({panelTab:'karta'}),
+      isTabProfil:st.panelTab==='profil',isTabHist:st.panelTab==='historia',isTabKarta:st.panelTab==='karta',
+      pEdit:st.pEdit,pView:!st.pEdit,
+      profileRows:st.user?[{k:'Imię',v:st.user.fname},{k:'Nazwisko',v:st.user.lname},{k:'PESEL',v:maskPesel(st.user.pesel)},{k:'Telefon',v:st.user.phone},{k:'E-mail',v:st.user.email},{k:'Adres',v:st.user.address}]:[],
+      profileFields:pf?[{label:'Imię',name:'fname',value:pf.fname},{label:'Nazwisko',name:'lname',value:pf.lname},{label:'PESEL',name:'pesel',value:pf.pesel},{label:'Telefon',name:'phone',value:pf.phone},{label:'E-mail',name:'email',value:pf.email},{label:'Adres',name:'address',value:pf.address}]:[],
+      onProfileField:e=>this.setState({pForm:{...this.state.pForm,[e.target.name]:e.target.value}}),
+      editProfile:()=>this.setState({pEdit:true,pForm:{...st.user}}),
+      cancelProfile:()=>this.setState({pEdit:false}),
+      saveProfile:()=>this.setState({pEdit:false,user:{...st.pForm}}),
+      ordersView:st.orders.map(o=>({...o,badgeStyle:obadge(o.sc),typeLabel:o.type==='lab'?'Badania laboratoryjne':'Wizyta lekarska',act:()=>this.flash(o.status==='Wyniki gotowe'?'Pobieranie wyników PDF — poza zakresem makiety':'Szczegóły zamówienia — poza zakresem makiety'),actLabel:o.status==='Wyniki gotowe'?'Pobierz wyniki':'Szczegóły'})),
+      ordersEmpty:st.orders.length===0,
+      medSections,
+      medBlood:st.med.blood,onMedBlood:e=>this.setState({med:{...st.med,blood:e.target.value}}),
+      medNotes:st.med.notes,onMedNotes:e=>this.setState({med:{...st.med,notes:e.target.value}})
+    };
+  }
+}
+</script>
+</body>
+</html>

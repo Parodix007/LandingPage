@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;color:#15242F;background:#E7EBEF;-webkit-font-smoothing:antialiased}
+a{color:#0E7C66;text-decoration:none}
+a:hover{color:#0A5C4C}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#C4D0D9;border-radius:6px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-track{background:transparent}
+@keyframes hlpulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes hlfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (max-width:1200px){ .hl-grid{grid-template-columns:264px 1fr !important} .hl-detail{display:none !important} }
+@media (max-width:960px){ .hl-grid{grid-template-columns:1fr !important} .hl-story{display:none !important} .hl-two{grid-template-columns:1fr !important} .hl-preview{display:none !important} .hl-pcol{grid-template-columns:1fr !important} }
+.flt-card{transition:transform .16s ease,box-shadow .16s ease}
+.flt-card:hover{transform:translateY(-3px);box-shadow:0 1px 2px rgba(16,32,45,.06),0 22px 44px -18px rgba(16,32,45,.32)}
+.flt-btn{transition:transform .14s ease,box-shadow .14s ease}
+.flt-btn:hover{transform:translateY(-2px);box-shadow:0 13px 26px -11px rgba(16,32,45,.36)}
+.flt-row{transition:transform .13s ease,box-shadow .13s ease}
+.flt-row:hover{transform:translateY(-2px);box-shadow:0 13px 26px -14px rgba(16,32,45,.3);position:relative;z-index:2}
+</style>
+</helmet>
+<div style="height:100vh;display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(180deg,#EDF1F5 0%,#E4E9EF 100%)">
+
+  <!-- GLOBAL BAR -->
+  <div style="height:48px;flex-shrink:0;background:#122636;color:#fff;display:flex;align-items:center;gap:16px;padding:0 16px;box-shadow:0 2px 12px rgba(11,22,32,.28);z-index:20;position:relative">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="width:26px;height:26px;border-radius:6px;background:{{ accent }};display:grid;place-items:center;font-weight:700;font-size:14px">H</div>
+      <div style="font-weight:700;font-size:15px;letter-spacing:-.01em">HealthLab</div>
+      <div style="font-size:11px;color:#7E93A1;font-family:'IBM Plex Mono';letter-spacing:.04em;padding-left:8px;border-left:1px solid #2A3B48">KONSOLA KLINICZNA</div>
+    </div>
+    <div style="flex:1;display:flex;justify-content:center">
+      <div style="display:flex;align-items:center;gap:8px;background:#1B2C39;border:1px solid #2A3B48;border-radius:7px;padding:6px 12px;width:min(440px,42vw)">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#7E93A1" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg>
+        <input placeholder="Szukaj pacjenta, MRN, PESEL, badania…  (⌘K)" style="flex:1;border:none;background:none;color:#fff;font-size:13px;outline:none;font-family:'IBM Plex Sans'">
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="position:relative;cursor:pointer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#B7C6D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"></path></svg><span style="position:absolute;top:-5px;right:-6px;background:#D9552E;color:#fff;font-size:9.5px;font-weight:700;border-radius:99px;min-width:15px;height:15px;display:grid;place-items:center;padding:0 3px;font-family:'IBM Plex Mono'">5</span></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:28px;height:28px;border-radius:50%;background:{{ accent }};display:grid;place-items:center;font-weight:600;font-size:12px;font-family:'IBM Plex Mono'">AK</span>
+        <div style="line-height:1.15"><div style="font-size:12.5px;font-weight:600">dr Anna Kwiat</div><div style="font-size:10.5px;color:#7E93A1">Internista · Gab. 4</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV TABS -->
+  <div style="height:42px;flex-shrink:0;background:#fff;display:flex;align-items:stretch;padding:0 10px;gap:2px;box-shadow:0 1px 6px rgba(16,32,45,.08);z-index:15;position:relative">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+      <button onClick="{{ t.go }}" style="{{ t.style }}">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.icon }}"></path></svg>
+        <span>{{ t.label }}</span>
+        <sc-if value="{{ t.count }}" hint-placeholder-val="{{ false }}"><span style="{{ t.countStyle }}">{{ t.count }}</span></sc-if>
+      </button>
+    </sc-for>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px;padding-right:6px;font-family:'IBM Plex Mono';font-size:11.5px;color:#7C8B96">
+      <span style="width:7px;height:7px;border-radius:50%;background:#2E7D46;display:inline-block"></span>{{ clockLabel }} · {{ dateLabel }}
+    </div>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div style="flex:1;min-height:0;padding:14px;overflow:hidden">
+
+    <!-- ============ MENU (HUB) ============ -->
+    <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ true }}">
+      <div style="height:100%;overflow:hidden;display:flex;flex-direction:column;animation:hlfade .3s ease both">
+        <div style="flex:1;min-height:0;display:flex;flex-direction:column;padding:2px">
+          <div style="display:flex;align-items:flex-end;gap:14px;margin:4px 2px 18px">
+            <div>
+              <div style="font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#8A98A2">Menu</div>
+              <div style="font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:2px">Dzień dobry, dr Kwiat</div>
+              <div style="font-size:13px;color:#6B7A85;margin-top:2px">{{ dateLabel }} · gabinet 4 · dzień pracy w toku</div>
+            </div>
+            <div style="flex:1"></div>
+            <sc-for list="{{ menuStats }}" as="s" hint-placeholder-count="3">
+              <div class="flt-card" style="background:#fff;border-radius:13px;padding:11px 15px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 8px 22px -14px rgba(16,32,45,.2);min-width:118px">
+                <div style="font-family:'IBM Plex Mono';font-size:24px;font-weight:600;line-height:1;color:{{ s.ink }}">{{ s.v }}</div>
+                <div style="font-size:11px;color:#7C8B96;margin-top:5px;font-weight:500">{{ s.k }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="margin:0 2px 16px">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2;margin-bottom:8px">Szybkie akcje</div>
+            <div style="display:flex;gap:9px;flex-wrap:wrap">
+              <button onClick="{{ newVisit }}" class="flt-btn" style="display:inline-flex;align-items:center;gap:8px;background:{{ accent }};color:#fff;border:none;border-radius:12px;padding:11px 17px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 8px 18px -8px rgba(16,32,45,.4),0 2px 4px rgba(16,32,45,.14)" style-hover="filter:brightness(1.06)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"></path></svg>Nowa wizyta</button>
+              <sc-for list="{{ quickActions }}" as="q" hint-placeholder-count="4">
+                <button onClick="{{ q.go }}" class="flt-btn" style="display:inline-flex;align-items:center;gap:8px;background:#fff;color:#233240;border:1px solid #DCE3E9;border-radius:12px;padding:11px 16px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 1px 2px rgba(16,32,45,.06),0 6px 16px -10px rgba(16,32,45,.2)" style-hover="background:#F4F7FA;border-color:#C9D3DB"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ q.ink }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="{{ q.icon }}"></path></svg>{{ q.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <sc-for list="{{ menuCards }}" as="c" hint-placeholder-count="3">
+              <div onClick="{{ c.go }}" style="background:#fff;border-radius:18px;padding:16px 22px 10px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 12px 30px -14px rgba(16,32,45,.22);cursor:pointer;display:flex;flex-direction:column;overflow:hidden;min-height:0;transition:transform .14s,box-shadow .14s" style-hover="transform:translateY(-2px);box-shadow:0 1px 2px rgba(16,32,45,.05),0 20px 40px -16px rgba(16,32,45,.3)">
+                <div style="display:flex;align-items:center;gap:11px">
+                  <div style="width:44px;height:44px;border-radius:12px;background:{{ c.iconBg }};color:{{ c.iconInk }};display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="{{ c.icon }}"></path></svg></div>
+                  <div><div style="font-weight:700;font-size:16.5px;letter-spacing:-.01em">{{ c.title }}</div><div style="font-size:12px;color:#7C8B96;margin-top:1px">{{ c.sub }}</div></div>
+                </div>
+                <div style="height:1px;background:#EEF2F5;margin:13px 0 10px"></div>
+                <div style="background:#F6F9FB;border:1px solid #EBEFF3;border-radius:12px;padding:12px 13px;margin-bottom:11px">
+                  <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px">
+                    <div style="min-width:0;flex:1"><div style="font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#8A98A2">{{ c.preview.label }}</div><div style="font-size:13.5px;font-weight:700;color:#233240;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.preview.title }}</div></div>
+                    <span style="{{ c.preview.badgeStyle }}">{{ c.preview.badge }}</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 14px">
+                    <sc-for list="{{ c.preview.meta }}" as="m" hint-placeholder-count="4">
+                      <div style="min-width:0"><div style="font-size:9px;color:#9AA7B0;font-weight:700;letter-spacing:.04em;text-transform:uppercase">{{ m.k }}</div><div style="font-family:'IBM Plex Mono';font-size:11.5px;color:#3A4B57;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.v }}</div></div>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ c.preview.actions }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px">
+                      <sc-for list="{{ c.preview.actions }}" as="a" hint-placeholder-count="2"><button onClick="{{ a.go }}" class="flt-btn" style="{{ a.style }}">{{ a.label }}</button></sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+                <div style="flex:1;min-height:0;overflow:hidden;margin:0 -6px;padding:0 6px">
+                <sc-for list="{{ c.items }}" as="i" hint-placeholder-count="3">
+                  <div onClick="{{ i.sel }}" style="{{ i.rowStyle }}" style-hover="background:#F1F6F4">
+                    <sc-if value="{{ i.a }}" hint-placeholder-val="{{ false }}"><span style="font-family:'IBM Plex Mono';font-size:10.5px;color:#8A98A2;flex-shrink:0;min-width:40px">{{ i.a }}</span></sc-if>
+                    <span style="font-size:12.5px;font-weight:500;color:#233240;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ i.b }}</span>
+                    <span style="{{ i.pill }}">{{ i.c }}</span>
+                  </div>
+                </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;padding:12px 2px 10px;font-size:12.5px;font-weight:600;color:{{ accent }}">Otwórz<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ PACJENCI DZIŚ (schedule 3-pane) ============ -->
+    <sc-if value="{{ isToday }}" hint-placeholder-val="{{ false }}">
+      <div class="hl-grid" style="height:100%;display:grid;grid-template-columns:1fr;gap:14px;animation:hlfade .3s ease both">
+
+        <sc-if value="{{ false }}" hint-placeholder-val="{{ false }}">
+        <aside class="hl-story" style="display:none;background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);overflow-y:auto;display:flex;flex-direction:column">
+          <div style="padding:14px 14px 12px;border-bottom:1px solid #E4EAEF;display:flex;gap:11px;align-items:flex-start">
+            <span style="width:44px;height:44px;border-radius:9px;background:{{ curPat.avBg }};color:{{ curPat.avInk }};display:grid;place-items:center;font-weight:700;font-size:16px;flex-shrink:0;font-family:'IBM Plex Mono'">{{ curPat.ini }}</span>
+            <div style="min-width:0;flex:1">
+              <div style="font-weight:700;font-size:15px;line-height:1.15;letter-spacing:-.01em">{{ curPat.name }}</div>
+              <div style="font-size:11.5px;color:#4A5B67;margin-top:2px">{{ curPat.ageSexLine }}</div>
+              <div style="font-family:'IBM Plex Mono';font-size:11px;color:#7C8B96;margin-top:3px">MRN {{ curPat.mrn }} · PESEL {{ curPat.pesel }}</div>
+            </div>
+          </div>
+          <div style="{{ curPat.allergyStrip }}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path></svg>
+            <div><div style="font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase">Alergie</div><div style="font-size:12px;font-weight:600;margin-top:1px">{{ curPat.allergyText }}</div></div>
+          </div>
+          <div style="padding:6px 0">
+            <div style="padding:9px 14px 4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2">Problemy aktywne</div>
+            <sc-for list="{{ curPat.problems }}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;justify-content:space-between;gap:8px;padding:5px 14px;font-size:12.5px"><span style="color:#233240">{{ p.t }}</span><span style="font-family:'IBM Plex Mono';font-size:11px;color:#8A98A2;flex-shrink:0">{{ p.icd }}</span></div>
+            </sc-for>
+          </div>
+          <div style="padding:6px 0;border-top:1px solid #EEF2F5">
+            <div style="padding:9px 14px 4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2">Leki stałe</div>
+            <sc-for list="{{ curPat.meds }}" as="m" hint-placeholder-count="2">
+              <div style="display:flex;justify-content:space-between;gap:8px;padding:5px 14px;font-size:12.5px"><span style="color:#233240">{{ m.t }}</span><span style="font-family:'IBM Plex Mono';font-size:11px;color:#4A5B67;flex-shrink:0">{{ m.dose }}</span></div>
+            </sc-for>
+          </div>
+          <div style="padding:10px 14px;border-top:1px solid #EEF2F5">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2;margin-bottom:7px">Parametry · {{ curPat.vitalsWhen }}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+              <sc-for list="{{ curPat.vitals }}" as="v" hint-placeholder-count="4">
+                <div style="background:#F6F9FB;border-radius:10px;padding:7px 9px;box-shadow:inset 0 0 0 1px #EBEFF3"><div style="font-size:9.5px;color:#8A98A2;font-weight:600;letter-spacing:.03em">{{ v.k }}</div><div style="font-family:'IBM Plex Mono';font-weight:600;font-size:14px;line-height:1.1;color:{{ v.ink }}">{{ v.v }}<span style="font-size:10px;color:#9AA7B0;font-weight:400"> {{ v.u }}</span></div></div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:10px 14px;border-top:1px solid #EEF2F5;margin-top:auto">
+            <button onClick="{{ curPat.open }}" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;background:#F4F7FA;color:#233240;border:none;border-radius:11px;padding:10px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 1px 2px rgba(16,32,45,.09)" style-hover="background:#EAF0F5">Otwórz kartę pacjenta<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+          </div>
+        </aside>
+        </sc-if>
+
+        <main style="overflow-y:auto;min-width:0;background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18)">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid #C9D3DB;position:sticky;top:0;z-index:5">
+            <div><div style="font-weight:700;font-size:15px">Pacjenci dziś</div><div style="font-size:11.5px;color:#7C8B96">Harmonogram · {{ wlSummary }}</div></div>
+            <div style="flex:1"></div>
+            <button onClick="{{ remindAll }}" style="display:inline-flex;align-items:center;gap:6px;background:#F4F7FA;color:#233240;border:1px solid #DCE3E9;border-radius:6px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans'" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#0E7C66" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Przypomnij SMS</button>
+            <sc-for list="{{ wlFilters }}" as="f" hint-placeholder-count="4">
+              <button onClick="{{ f.go }}" style="{{ f.style }}">{{ f.label }}<span style="font-family:'IBM Plex Mono';opacity:.7"> {{ f.n }}</span></button>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:58px 1fr 116px 96px 176px;padding:0 18px;background:#F4F7F9;border-bottom:1px solid #DCE3E9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8A98A2;height:30px;align-items:center;position:sticky;top:57px;z-index:4">
+            <div>Godz.</div><div>Pacjent</div><div>Powód</div><div>Status</div><div style="text-align:right">Akcje</div>
+          </div>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="7">
+            <div onClick="{{ r.go }}" class="flt-row" style="{{ r.rowStyle }}" style-hover="background:#F2F7F6">
+              <div style="font-family:'IBM Plex Mono';font-size:13px;font-weight:600;color:{{ r.timeInk }};display:flex;align-items:center;gap:6px"><span style="{{ r.nowDot }}"></span>{{ r.time }}</div>
+              <div style="min-width:0;display:flex;align-items:center;gap:10px">
+                <span style="width:30px;height:30px;border-radius:7px;background:{{ r.avBg }};color:{{ r.avInk }};display:grid;place-items:center;font-weight:700;font-size:11.5px;flex-shrink:0;font-family:'IBM Plex Mono'">{{ r.ini }}</span>
+                <div style="min-width:0"><div style="font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div><div style="font-family:'IBM Plex Mono';font-size:10.5px;color:#9AA7B0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.meta }}</div></div>
+              </div>
+              <div><span style="{{ r.typeStyle }}">{{ r.type }}</span></div>
+              <div><span style="{{ r.statusStyle }}">{{ r.status }}</span></div>
+              <div style="display:flex;gap:6px;justify-content:flex-end"><sc-for list="{{ r.actions }}" as="a" hint-placeholder-count="2"><button onClick="{{ a.go }}" style="{{ a.style }}">{{ a.label }}</button></sc-for></div>
+            </div>
+          </sc-for>
+        </main>
+
+        <sc-if value="{{ false }}" hint-placeholder-val="{{ false }}">
+        <aside class="hl-detail" style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);overflow-y:auto;display:flex;flex-direction:column">
+          <div style="padding:13px 15px;border-bottom:1px solid #E4EAEF">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2">Bieżąca wizyta</div>
+            <div style="font-weight:700;font-size:14px;margin-top:3px">{{ curPat.reason }}</div>
+            <div style="font-family:'IBM Plex Mono';font-size:11.5px;color:#7C8B96;margin-top:2px">{{ curPat.visitMeta }}</div>
+          </div>
+          <div style="padding:12px 15px;display:flex;flex-direction:column;gap:7px">
+            <sc-for list="{{ curPat.visitActions }}" as="a" hint-placeholder-count="1"><button onClick="{{ a.go }}" class="flt-btn" style="{{ a.style }}">{{ a.label }}</button></sc-for>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+              <button class="flt-btn" style="display:flex;align-items:center;justify-content:center;gap:6px;background:#F4F7FA;color:#233240;border:none;border-radius:11px;padding:10px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 1px 2px rgba(16,32,45,.09)" style-hover="background:#EAF0F5">Recepta</button>
+              <button class="flt-btn" style="display:flex;align-items:center;justify-content:center;gap:6px;background:#F4F7FA;color:#233240;border:none;border-radius:11px;padding:10px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 1px 2px rgba(16,32,45,.09)" style-hover="background:#EAF0F5">Skierowanie</button>
+              <button class="flt-btn" style="display:flex;align-items:center;justify-content:center;gap:6px;background:#F4F7FA;color:#233240;border:none;border-radius:11px;padding:10px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 1px 2px rgba(16,32,45,.09)" style-hover="background:#EAF0F5">Zlecenie lab.</button>
+              <button class="flt-btn" style="display:flex;align-items:center;justify-content:center;gap:6px;background:#F4F7FA;color:#233240;border:none;border-radius:11px;padding:10px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 1px 2px rgba(16,32,45,.09)" style-hover="background:#EAF0F5">Teleporada</button>
+            </div>
+          </div>
+          <div style="padding:4px 15px 12px">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2;margin:8px 0 6px">Zlecenia otwarte</div>
+            <sc-for list="{{ curPat.orders }}" as="o" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #EEF2F5"><span style="width:8px;height:8px;border-radius:50%;background:{{ o.dot }};flex-shrink:0"></span><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#233240">{{ o.t }}</div><div style="font-family:'IBM Plex Mono';font-size:10.5px;color:#9AA7B0">{{ o.meta }}</div></div><span style="{{ o.st }}">{{ o.status }}</span></div>
+            </sc-for>
+          </div>
+          <div style="padding:4px 15px 16px;margin-top:auto">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2;margin:8px 0 6px">Ostatnia notatka</div>
+            <div style="background:#F6F8FA;border:1px solid #E4EAEF;border-radius:8px;padding:10px 11px;font-size:12px;line-height:1.5;color:#3A4B57">{{ curPat.lastNote }}</div>
+          </div>
+        </aside>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ============ KARTA PACJENTA ============ -->
+    <sc-if value="{{ isPatient }}" hint-placeholder-val="{{ false }}">
+      <div style="height:100%;overflow-y:auto;animation:hlfade .3s ease both">
+        <div style="max-width:1080px;margin:0 auto;padding:2px 4px 26px">
+          <button onClick="{{ backToday }}" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:#6B7A85;font-size:12.5px;font-weight:600;cursor:pointer;padding:4px 2px 10px;font-family:'IBM Plex Sans'" style-hover="color:#233240"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Pacjenci dziś</button>
+
+          <!-- header -->
+          <div style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);padding:18px 20px;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+            <span style="width:56px;height:56px;border-radius:12px;background:{{ pd.avBg }};color:{{ pd.avInk }};display:grid;place-items:center;font-weight:700;font-size:20px;flex-shrink:0;font-family:'IBM Plex Mono'">{{ pd.ini }}</span>
+            <div style="min-width:180px;flex:1">
+              <div style="font-weight:700;font-size:22px;letter-spacing:-.02em;line-height:1.1">{{ pd.name }}</div>
+              <div style="font-size:13px;color:#4A5B67;margin-top:3px">{{ pd.ageSexLine }}</div>
+              <div style="font-family:'IBM Plex Mono';font-size:11.5px;color:#7C8B96;margin-top:4px">MRN {{ pd.mrn }} · PESEL {{ pd.pesel }} · tel. {{ pd.phone }}</div>
+            </div>
+            <div style="{{ pd.allergyChip }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path></svg><span style="font-weight:600;font-size:12px">{{ pd.allergyText }}</span></div>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 14px">
+            <sc-for list="{{ pd.visitActions }}" as="a" hint-placeholder-count="1"><button onClick="{{ a.go }}" class="flt-btn" style="{{ a.style }}">{{ a.label }}</button></sc-for>
+            <button class="flt-btn" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#233240;border:1px solid #DCE3E9;border-radius:11px;padding:10px 15px;font-weight:600;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans'" style-hover="background:#F4F7FA">Nowa recepta</button>
+            <button class="flt-btn" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#233240;border:1px solid #DCE3E9;border-radius:11px;padding:10px 15px;font-weight:600;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans'" style-hover="background:#F4F7FA">Skierowanie</button>
+            <button class="flt-btn" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#233240;border:1px solid #DCE3E9;border-radius:11px;padding:10px 15px;font-weight:600;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans'" style-hover="background:#F4F7FA">Zlecenie lab.</button>
+            <button onClick="{{ pd.emailPatient }}" class="flt-btn" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#233240;border:1px solid #DCE3E9;border-radius:11px;padding:10px 15px;font-weight:600;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans'" style-hover="background:#F4F7FA"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#1F6FB2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg>E-mail do pacjenta</button>
+            <button onClick="{{ pd.smsPatient }}" class="flt-btn" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#233240;border:1px solid #DCE3E9;border-radius:11px;padding:10px 15px;font-weight:600;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans'" style-hover="background:#F4F7FA"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#0E7C66" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>SMS do pacjenta</button>
+          </div>
+
+          <div class="hl-pcol" style="display:grid;grid-template-columns:1fr 320px;gap:14px;align-items:start">
+            <!-- main column -->
+            <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+              <div style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);overflow:hidden">
+                <div style="padding:13px 17px;border-bottom:1px solid #EEF2F5;font-weight:700;font-size:14px">Poprzednie wizyty</div>
+                <sc-for list="{{ pd.history }}" as="h" hint-placeholder-count="3">
+                  <div style="padding:12px 17px;border-bottom:1px solid #F3F6F8;display:flex;gap:13px">
+                    <div style="flex-shrink:0;width:82px"><div style="font-family:'IBM Plex Mono';font-size:11.5px;font-weight:600;color:#233240">{{ h.d }}</div><span style="{{ h.typeStyle }}">{{ h.type }}</span></div>
+                    <div style="min-width:0"><div style="font-size:13px;font-weight:600;color:#233240">{{ h.dx }}</div><div style="font-size:12px;color:#6B7A85;line-height:1.5;margin-top:2px">{{ h.note }}</div></div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);overflow:hidden">
+                <div style="padding:13px 17px;border-bottom:1px solid #EEF2F5;font-weight:700;font-size:14px">Notatki</div>
+                <sc-for list="{{ pd.notes }}" as="n" hint-placeholder-count="2">
+                  <div style="padding:12px 17px;border-bottom:1px solid #F3F6F8">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-family:'IBM Plex Mono';font-size:11px;color:#8A98A2">{{ n.d }}</span><span style="font-size:11px;color:#8A98A2">· {{ n.author }}</span></div>
+                    <div style="font-size:12.5px;color:#3A4B57;line-height:1.55">{{ n.text }}</div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);overflow:hidden">
+                <div style="padding:13px 17px;border-bottom:1px solid #EEF2F5;font-weight:700;font-size:14px">Recepty</div>
+                <sc-for list="{{ pd.rx }}" as="r" hint-placeholder-count="2">
+                  <div style="padding:12px 17px;border-bottom:1px solid #F3F6F8;display:flex;gap:12px;align-items:flex-start">
+                    <div style="width:34px;height:34px;border-radius:9px;background:#EAF0F6;color:#2F5E86;display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h11a4 4 0 0 1 0 8H8l-4 4V7ZM8 11l6 6"></path></svg></div>
+                    <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#233240">{{ r.items }}</div><div style="font-family:'IBM Plex Mono';font-size:11px;color:#8A98A2;margin-top:2px">e-recepta {{ r.code }} · {{ r.d }}</div></div>
+                    <span style="{{ r.st }}">{{ r.status }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- side column -->
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);padding:6px 0">
+                <div style="padding:12px 16px 4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2">Problemy aktywne</div>
+                <sc-for list="{{ pd.problems }}" as="p" hint-placeholder-count="3">
+                  <div style="display:flex;justify-content:space-between;gap:8px;padding:6px 16px;font-size:12.5px"><span style="color:#233240">{{ p.t }}</span><span style="font-family:'IBM Plex Mono';font-size:11px;color:#8A98A2;flex-shrink:0">{{ p.icd }}</span></div>
+                </sc-for>
+                <div style="padding:10px 16px 4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2;border-top:1px solid #EEF2F5;margin-top:6px">Leki stałe</div>
+                <sc-for list="{{ pd.meds }}" as="m" hint-placeholder-count="2">
+                  <div style="display:flex;justify-content:space-between;gap:8px;padding:6px 16px;font-size:12.5px"><span style="color:#233240">{{ m.t }}</span><span style="font-family:'IBM Plex Mono';font-size:11px;color:#4A5B67;flex-shrink:0">{{ m.dose }}</span></div>
+                </sc-for>
+              </div>
+              <div style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);padding:13px 16px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2;margin-bottom:8px">Parametry · {{ pd.vitalsWhen }}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                  <sc-for list="{{ pd.vitals }}" as="v" hint-placeholder-count="4">
+                    <div style="background:#F6F9FB;border-radius:10px;padding:8px 10px;box-shadow:inset 0 0 0 1px #EBEFF3"><div style="font-size:9.5px;color:#8A98A2;font-weight:600">{{ v.k }}</div><div style="font-family:'IBM Plex Mono';font-weight:600;font-size:15px;color:{{ v.ink }}">{{ v.v }}<span style="font-size:10px;color:#9AA7B0;font-weight:400"> {{ v.u }}</span></div></div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ WYNIKI (list + PDF preview) ============ -->
+    <sc-if value="{{ isResults }}" hint-placeholder-val="{{ false }}">
+      <div class="hl-two" style="height:100%;display:grid;grid-template-columns:minmax(320px,360px) 1fr;gap:14px;animation:hlfade .3s ease both">
+        <main style="overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18)">
+          <div style="padding:12px 18px;border-bottom:1px solid #C9D3DB;position:sticky;top:0;background:#fff;z-index:5"><div style="font-weight:700;font-size:15px">Wyniki — dziś</div><div style="font-size:11.5px;color:#7C8B96">{{ resSummary }}</div></div>
+          <sc-for list="{{ results }}" as="x" hint-placeholder-count="6">
+            <div onClick="{{ x.go }}" class="flt-row" style="{{ x.rowStyle }}" style-hover="background:#F2F7F6">
+              <div style="width:4px;align-self:stretch;background:{{ x.bar }};border-radius:3px;flex-shrink:0"></div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:8px"><span style="font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ x.panel }}</span><span style="{{ x.flagStyle }}">{{ x.flag }}</span></div>
+                <div style="font-size:11.5px;color:#6B7A85;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ x.name }} · MRN {{ x.mrn }}</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0"><span style="{{ x.statusStyle }}">{{ x.status }}</span><div style="font-family:'IBM Plex Mono';font-size:10.5px;color:#9AA7B0;margin-top:4px">{{ x.when }}</div></div>
+            </div>
+          </sc-for>
+        </main>
+
+        <section class="hl-preview" style="overflow-y:auto;background:#DFE5EA;border-radius:16px;box-shadow:inset 0 0 0 1px #D2DAE1;padding:22px">
+          <div style="max-width:640px;margin:0 auto">
+            <sc-if value="{{ resSel.pending }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:6px;box-shadow:0 12px 34px -14px rgba(16,32,45,.4);padding:60px 40px;text-align:center">
+                <div style="width:48px;height:48px;border-radius:50%;background:#FBF0DA;color:#96650B;display:grid;place-items:center;margin:0 auto 14px"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+                <div style="font-weight:700;font-size:16px">Wynik w toku</div>
+                <div style="font-size:13px;color:#6B7A85;margin-top:6px">{{ resSel.panel }} · {{ resSel.name }}</div>
+                <div style="font-family:'IBM Plex Mono';font-size:12px;color:#96650B;margin-top:10px">{{ resSel.when }}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ resSel.ready }}" hint-placeholder-val="{{ true }}">
+              <div style="max-width:640px;margin:0 auto 14px;display:flex;gap:8px;flex-wrap:wrap">
+                <button onClick="{{ resSel.emailPatient }}" style="display:inline-flex;align-items:center;gap:7px;background:#0E7C66;color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 6px 14px -8px rgba(16,32,45,.4)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg>E-mail do pacjenta</button>
+                <button onClick="{{ resSel.smsPatient }}" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#233240;border:1px solid #D2DAE1;border-radius:10px;padding:9px 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#0E7C66" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>SMS: wynik gotowy</button>
+                <button onClick="{{ resSel.printRes }}" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#233240;border:1px solid #D2DAE1;border-radius:10px;padding:9px 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#6B7A85" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>Pobierz PDF</button>
+              </div>
+              <div style="background:#fff;border-radius:6px;box-shadow:0 12px 34px -14px rgba(16,32,45,.4);overflow:hidden">
+                <!-- letterhead -->
+                <div style="padding:26px 34px 18px;border-bottom:2px solid {{ accent }}">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:30px;height:30px;border-radius:7px;background:{{ accent }};color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px">H</div><div><div style="font-weight:700;font-size:16px;letter-spacing:-.01em">HealthLab Laboratorium</div><div style="font-size:10.5px;color:#8A98A2">Lab. akredytowane · ISO 15189 · {{ resSel.lab }}</div></div></div>
+                    <div style="text-align:right;font-family:'IBM Plex Mono';font-size:10.5px;color:#8A98A2;line-height:1.6">Nr zlecenia<br><span style="color:#233240;font-weight:600">{{ resSel.orderNo }}</span></div>
+                  </div>
+                </div>
+                <!-- meta -->
+                <div style="padding:16px 34px;display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;border-bottom:1px solid #EEF2F5">
+                  <sc-for list="{{ resSel.meta }}" as="m" hint-placeholder-count="6">
+                    <div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:2px 0"><span style="color:#8A98A2">{{ m.k }}</span><span style="font-weight:600;color:#233240;font-family:'IBM Plex Mono';font-size:11.5px">{{ m.v }}</span></div>
+                  </sc-for>
+                </div>
+                <!-- title -->
+                <div style="padding:16px 34px 6px"><div style="font-weight:700;font-size:15px">{{ resSel.panel }}</div></div>
+                <!-- table -->
+                <div style="padding:0 34px 8px">
+                  <div style="display:grid;grid-template-columns:1fr 96px 78px 118px;padding:7px 0;border-bottom:1.5px solid #D2DAE1;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8A98A2"><div>Parametr</div><div style="text-align:right">Wynik</div><div style="text-align:right">Jedn.</div><div style="text-align:right">Zakres ref.</div></div>
+                  <sc-for list="{{ resSel.params }}" as="p" hint-placeholder-count="5">
+                    <div style="display:grid;grid-template-columns:1fr 96px 78px 118px;padding:8px 0;border-bottom:1px solid #F0F3F5;font-size:12.5px;align-items:center">
+                      <div style="color:#233240;display:flex;align-items:center;gap:7px"><span style="width:6px;height:6px;border-radius:50%;background:{{ p.dot }};flex-shrink:0"></span>{{ p.k }}</div>
+                      <div style="text-align:right;font-family:'IBM Plex Mono';font-weight:600;color:{{ p.ink }}">{{ p.v }} {{ p.arrow }}</div>
+                      <div style="text-align:right;font-family:'IBM Plex Mono';font-size:11px;color:#8A98A2">{{ p.u }}</div>
+                      <div style="text-align:right;font-family:'IBM Plex Mono';font-size:11px;color:#8A98A2">{{ p.ref }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <!-- interpretation -->
+                <div style="padding:10px 34px 16px"><div style="background:#F6F8FA;border-left:3px solid {{ accent }};border-radius:4px;padding:11px 13px;font-size:12px;line-height:1.55;color:#3A4B57"><span style="font-weight:700">Interpretacja: </span>{{ resSel.interp }}</div></div>
+                <!-- footer -->
+                <div style="padding:14px 34px 26px;border-top:1px solid #EEF2F5;display:flex;justify-content:space-between;align-items:flex-end;gap:16px">
+                  <div style="font-size:10.5px;color:#8A98A2;line-height:1.6">Autoryzował<br><span style="color:#233240;font-weight:600;font-size:12px">{{ resSel.auth }}</span><br>diagnosta laboratoryjny</div>
+                  <div style="text-align:right"><div style="font-family:'IBM Plex Mono';font-size:24px;color:{{ accent }};transform:rotate(-4deg);opacity:.8">✔ zatwierdzono</div></div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ============ DOKUMENTY (list + preview) ============ -->
+    <sc-if value="{{ isDocuments }}" hint-placeholder-val="{{ false }}">
+      <div class="hl-two" style="height:100%;display:grid;grid-template-columns:minmax(320px,380px) 1fr;gap:14px;animation:hlfade .3s ease both">
+        <main style="overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18)">
+          <div style="padding:12px 18px;border-bottom:1px solid #C9D3DB;position:sticky;top:0;background:#fff;z-index:5"><div style="font-weight:700;font-size:15px">Dokumenty</div><div style="font-size:11.5px;color:#7C8B96">{{ docSummary }}</div></div>
+          <div style="display:flex;gap:6px;padding:10px 14px;border-bottom:1px solid #EEF2F5;flex-wrap:wrap">
+            <sc-for list="{{ docFilters }}" as="f" hint-placeholder-count="4">
+              <button onClick="{{ f.go }}" style="{{ f.style }}">{{ f.label }}</button>
+            </sc-for>
+          </div>
+          <sc-for list="{{ documents }}" as="d" hint-placeholder-count="6">
+            <div onClick="{{ d.go }}" class="flt-row" style="{{ d.rowStyle }}" style-hover="background:#F2F7F6">
+              <div style="width:36px;height:36px;border-radius:9px;background:{{ d.iconBg }};color:{{ d.iconInk }};display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ d.icon }}"></path></svg></div>
+              <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px"><span style="font-weight:600;font-size:13px">{{ d.kind }}</span><span style="{{ d.st }}">{{ d.statusLabel }}</span></div><div style="font-size:11.5px;color:#6B7A85;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.patient }} · {{ d.date }}</div></div>
+            </div>
+          </sc-for>
+        </main>
+
+        <section class="hl-preview" style="overflow-y:auto;background:#DFE5EA;border-radius:16px;box-shadow:inset 0 0 0 1px #D2DAE1;padding:22px">
+          <div style="max-width:600px;margin:0 auto 14px;display:flex;gap:8px;flex-wrap:wrap">
+            <button onClick="{{ docSel.emailPatient }}" style="display:inline-flex;align-items:center;gap:7px;background:#0E7C66;color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 6px 14px -8px rgba(16,32,45,.4)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg>E-mail do pacjenta</button>
+            <button onClick="{{ docSel.smsPatient }}" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#233240;border:1px solid #D2DAE1;border-radius:10px;padding:9px 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#0E7C66" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Wyślij SMS</button>
+            <button onClick="{{ docSel.printDoc }}" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#233240;border:1px solid #D2DAE1;border-radius:10px;padding:9px 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans'"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#6B7A85" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>Pobierz PDF</button>
+          </div>
+          <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:6px;box-shadow:0 12px 34px -14px rgba(16,32,45,.4);overflow:hidden">
+            <div style="padding:24px 32px 16px;border-bottom:2px solid {{ accent }};display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
+              <div style="display:flex;align-items:center;gap:10px"><div style="width:30px;height:30px;border-radius:7px;background:{{ accent }};color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px">H</div><div><div style="font-weight:700;font-size:15px">HealthLab · Przychodnia</div><div style="font-size:10.5px;color:#8A98A2">dr Anna Kwiat · nr PWZ 2841190</div></div></div>
+              <span style="{{ docSel.st }}">{{ docSel.statusLabel }}</span>
+            </div>
+            <div style="padding:20px 32px 8px"><div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A98A2">{{ docSel.kind }}</div><div style="font-family:'IBM Plex Mono';font-size:13px;color:#233240;font-weight:600;margin-top:4px">{{ docSel.code }}</div></div>
+            <div style="padding:8px 32px;display:grid;grid-template-columns:1fr;gap:4px">
+              <sc-for list="{{ docSel.meta }}" as="m" hint-placeholder-count="4">
+                <div style="display:flex;gap:10px;font-size:12.5px;padding:3px 0;border-bottom:1px solid #F3F6F8"><span style="color:#8A98A2;width:130px;flex-shrink:0">{{ m.k }}</span><span style="color:#233240;font-weight:500">{{ m.v }}</span></div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ docSel.hasMeds }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:12px 32px 4px"><div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8A98A2;margin-bottom:6px">Przepisane leki</div>
+                <sc-for list="{{ docSel.meds }}" as="d" hint-placeholder-count="2">
+                  <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #F3F6F8"><div><div style="font-size:12.5px;font-weight:600;color:#233240">{{ d.d }}</div><div style="font-size:11px;color:#8A98A2">{{ d.s }}</div></div><div style="font-family:'IBM Plex Mono';font-size:11.5px;color:#4A5B67;flex-shrink:0">{{ d.q }}</div></div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ docSel.hasBody }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:12px 32px 4px;font-size:12.5px;line-height:1.65;color:#3A4B57">{{ docSel.body }}</div>
+            </sc-if>
+            <div style="padding:26px 32px 30px;display:flex;justify-content:flex-end">
+              <div style="text-align:center"><div style="font-family:'IBM Plex Mono';font-size:20px;color:{{ accent }};transform:rotate(-3deg);opacity:.85">dr A. Kwiat</div><div style="border-top:1px solid #C9D3DB;margin-top:4px;padding-top:4px;font-size:10.5px;color:#8A98A2;width:160px">podpis elektroniczny</div></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ============ MOJE SPRAWY (hub) ============ -->
+    <sc-if value="{{ isAffairs }}" hint-placeholder-val="{{ false }}">
+      <div style="height:100%;display:flex;flex-direction:column;animation:hlfade .3s ease both">
+        <div style="display:flex;align-items:flex-end;gap:14px;margin:4px 2px 18px">
+          <div>
+            <div style="font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#8A98A2">Moje sprawy</div>
+            <div style="font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:2px">dr Anna Kwiat</div>
+            <div style="font-size:13px;color:#6B7A85;margin-top:2px">Sprawy pracownicze · dokumenty · rozliczenia</div>
+          </div>
+        </div>
+        <div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:minmax(0,1fr);gap:14px;padding:2px 2px 4px">
+          <sc-for list="{{ affairsCards }}" as="c" hint-placeholder-count="5">
+            <div style="grid-column:span {{ c.span }};min-height:0;overflow-y:auto;overflow-x:hidden;background:#fff;border-radius:16px;padding:16px 18px 14px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 12px 30px -16px rgba(16,32,45,.22);display:flex;flex-direction:column">
+              <div style="display:flex;align-items:center;gap:11px">
+                <div style="width:42px;height:42px;border-radius:12px;background:{{ c.iconBg }};color:{{ c.iconInk }};display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="{{ c.icon }}"></path></svg></div>
+                <div><div style="font-weight:700;font-size:15.5px;letter-spacing:-.01em">{{ c.title }}</div><div style="font-size:11.5px;color:#7C8B96;margin-top:1px">{{ c.sub }}</div></div>
+              </div>
+              <div style="height:1px;background:#EEF2F5;margin:13px 0 10px"></div>
+              <div style="background:#F6F9FB;border:1px solid #EBEFF3;border-radius:12px;padding:12px 13px;margin-bottom:11px">
+                <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px">
+                  <div style="min-width:0;flex:1"><div style="font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#8A98A2">{{ c.preview.label }}</div><div style="font-size:13.5px;font-weight:700;color:#233240;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.preview.title }}</div></div>
+                  <span style="{{ c.preview.badgeStyle }}">{{ c.preview.badge }}</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 14px">
+                  <sc-for list="{{ c.preview.meta }}" as="m" hint-placeholder-count="4">
+                    <div style="min-width:0"><div style="font-size:9px;color:#9AA7B0;font-weight:700;letter-spacing:.04em;text-transform:uppercase">{{ m.k }}</div><div style="font-family:'IBM Plex Mono';font-size:11.5px;color:#3A4B57;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.v }}</div></div>
+                  </sc-for>
+                </div>
+              </div>
+              <sc-for list="{{ c.items }}" as="i" hint-placeholder-count="3">
+                <div onClick="{{ i.sel }}" style="{{ i.rowStyle }}" style-hover="background:#F1F6F4">
+                  <sc-if value="{{ i.a }}" hint-placeholder-val="{{ false }}"><span style="font-family:'IBM Plex Mono';font-size:10.5px;color:#8A98A2;flex-shrink:0;min-width:40px">{{ i.a }}</span></sc-if>
+                  <span style="font-size:12.5px;font-weight:500;color:#233240;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ i.b }}</span>
+                  <span style="{{ i.pill }}">{{ i.c }}</span>
+                </div>
+              </sc-for>
+              <div style="flex:1"></div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:13px">
+                <button onClick="{{ c.open }}" class="flt-btn" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:#fff;color:#0E7C66;border:1px solid #CDE3DB;border-radius:11px;padding:10px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans'" style-hover="background:#F3FAF7">Otwórz sekcję<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+                <sc-if value="{{ c.createLabel }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ c.create }}" class="flt-btn" style="display:inline-flex;align-items:center;gap:6px;background:#0E7C66;color:#fff;border:none;border-radius:11px;padding:10px 15px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans';white-space:nowrap;box-shadow:0 6px 14px -8px rgba(16,32,45,.4)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>{{ c.createLabel }}</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===== MOJE SPRAWY · Moje dokumenty ===== -->
+    <sc-if value="{{ isAffDocs }}" hint-placeholder-val="{{ false }}">
+      <div style="height:100%;overflow-y:auto;animation:hlfade .3s ease both">
+        <button onClick="{{ backAff }}" style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:#6B7A85;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 2px 10px;font-family:'IBM Plex Sans'" style-hover="color:#233240"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Moje sprawy</button>
+        <div style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);overflow:hidden;max-width:1160px">
+          <div style="padding:14px 18px;border-bottom:1px solid #E4EAEF;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <div style="margin-right:auto"><div style="font-weight:700;font-size:16px">Moje dokumenty</div><div style="font-size:11.5px;color:#7C8B96">{{ myDocsSummary }}</div></div>
+            <div style="display:flex;align-items:center;gap:8px;background:#F1F5F7;border:1px solid #DCE3E9;border-radius:8px;padding:8px 11px;width:230px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#8A98A2" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg><input onChange="{{ setAffQuery }}" placeholder="Szukaj dokumentu…" style="border:none;background:none;font-size:13px;width:100%;outline:none"></div>
+          </div>
+          <div style="padding:9px 18px;border-bottom:1px solid #EEF2F5;display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ mdChips }}" as="f" hint-placeholder-count="4"><button onClick="{{ f.go }}" style="{{ f.style }}">{{ f.label }}</button></sc-for></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 150px 92px 166px 120px;padding:0 18px;background:#F4F7F9;border-bottom:1px solid #DCE3E9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8A98A2;height:32px;align-items:center"><div>Nazwa dokumentu</div><div>Przesłał(a)</div><div>Data</div><div>Odczytanie</div><div style="text-align:right">Akcje</div></div>
+          <sc-for list="{{ docsTable }}" as="d" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:minmax(0,1fr) 150px 92px 166px 120px;align-items:center;padding:10px 18px;border-bottom:1px solid #F1F4F7" style-hover="background:#F8FAFB"><div style="display:flex;align-items:center;gap:11px;min-width:0"><div style="width:34px;height:34px;border-radius:9px;background:#E8F1EE;color:#0E7C66;display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"></path></svg></div><div style="min-width:0"><div style="font-size:13px;font-weight:600;color:#233240;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</div><div style="font-family:'IBM Plex Mono';font-size:10.5px;color:#9AA7B0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.sub }}</div></div></div><div style="font-size:12.5px;color:#4A5B67;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.sender }}</div><div style="font-family:'IBM Plex Mono';font-size:11.5px;color:#4A5B67">{{ d.date }}</div><div><span style="{{ d.readStyle }}">{{ d.readLabel }}</span></div><div style="display:flex;justify-content:flex-end;gap:6px"><button onClick="{{ d.preview }}" title="Podgląd" style="width:30px;height:30px;border-radius:8px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button><button onClick="{{ d.email }}" title="Wyślij na e-mail" style="width:30px;height:30px;border-radius:8px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg></button><button onClick="{{ d.download }}" title="Pobierz PDF" style="width:30px;height:30px;border-radius:8px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg></button></div></div></sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+        <!-- ===== MOJE SPRAWY · Kalendarz pracy ===== -->
+    <sc-if value="{{ isAffGrafik }}" hint-placeholder-val="{{ false }}">
+      <div style="height:100%;overflow-y:auto;animation:hlfade .3s ease both">
+        <button onClick="{{ backAff }}" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:#6B7A85;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 2px 10px;font-family:'IBM Plex Sans'" style-hover="color:#233240"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Moje sprawy</button>
+        <div style="max-width:1200px;margin:0 auto">
+          <div style="font-weight:700;font-size:20px;letter-spacing:-.01em;margin:2px 2px 0">Kalendarz pracy — 2026</div>
+          <div style="font-size:12.5px;color:#7C8B96;margin:1px 2px 16px">Przyjęcia, teleporady, dyżury i nieobecności w skali całego roku</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+            <div style="flex:1;min-width:240px;background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -14px rgba(16,32,45,.2);display:flex;align-items:center;gap:14px">
+              <div style="width:46px;height:46px;border-radius:12px;background:{{ gsel.bg }};color:{{ gsel.ink }};display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"></path></svg></div>
+              <div style="min-width:0"><div style="font-size:10.5px;color:#8A98A2;text-transform:uppercase;letter-spacing:.06em;font-weight:700">{{ gsel.dow }} · {{ gsel.date }}</div><div style="font-weight:700;font-size:16px;margin-top:2px;color:{{ gsel.ink }}">{{ gsel.label }}</div><div style="font-family:'IBM Plex Mono';font-size:12.5px;color:#4A5B67;margin-top:1px">{{ gsel.hours }}</div></div>
+            </div>
+            <sc-for list="{{ gstats }}" as="s" hint-placeholder-count="4"><div style="background:#fff;border-radius:14px;padding:11px 16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -14px rgba(16,32,45,.2);min-width:92px"><div style="font-family:'IBM Plex Mono';font-weight:700;font-size:22px;color:#15242F">{{ s.v }}</div><div style="font-size:10.5px;color:#8A98A2;font-weight:600">{{ s.k }}</div></div></sc-for>
+          </div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin:0 2px 16px"><sc-for list="{{ glegend }}" as="l" hint-placeholder-count="6"><span style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:#4A5B67;font-weight:500"><span style="width:11px;height:11px;border-radius:4px;background:{{ l.dot }}"></span>{{ l.label }}</span></sc-for></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(214px,1fr));gap:12px;padding-bottom:8px">
+            <sc-for list="{{ gmonths }}" as="mo" hint-placeholder-count="12">
+              <div style="background:#fff;border-radius:14px;padding:12px 12px 13px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 8px 22px -14px rgba(16,32,45,.2)">
+                <div style="font-weight:700;font-size:13px;margin-bottom:8px">{{ mo.name }}</div>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px"><sc-for list="{{ gdow }}" as="w" hint-placeholder-count="7"><div style="text-align:center;font-size:9px;font-weight:700;color:#B4C1CA">{{ w }}</div></sc-for></div>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">
+                  <sc-for list="{{ mo.cells }}" as="c" hint-placeholder-count="35">
+                    <sc-if value="{{ c.blank }}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+                    <sc-if value="{{ c.day }}" hint-placeholder-val="{{ true }}"><div onClick="{{ c.go }}" style="{{ c.style }}">{{ c.day }}</div></sc-if>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===== MOJE SPRAWY · Notatki ===== -->
+    <sc-if value="{{ isAffNotes }}" hint-placeholder-val="{{ false }}">
+      <div style="height:100%;display:flex;flex-direction:column;animation:hlfade .3s ease both">
+        <button onClick="{{ backAff }}" style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:#6B7A85;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 2px 10px;font-family:'IBM Plex Sans'" style-hover="color:#233240"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Moje sprawy</button>
+        <div class="hl-two" style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(320px,380px) 1fr;gap:14px">
+          <main style="overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18)">
+            <div style="padding:13px 16px;border-bottom:1px solid #C9D3DB;position:sticky;top:0;background:#fff;z-index:5">
+              <div style="font-weight:700;font-size:15px">Notatki</div>
+              <div style="font-size:11.5px;color:#7C8B96;margin-bottom:10px">{{ notesSummary }}</div>
+              <div style="display:flex;align-items:center;gap:8px;background:#F1F5F7;border:1px solid #DCE3E9;border-radius:8px;padding:8px 11px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#8A98A2" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg><input onChange="{{ setAffQuery }}" placeholder="Szukaj w notatkach…" style="border:none;background:none;font-size:13px;width:100%;outline:none"></div>
+            </div>
+            <sc-for list="{{ notes }}" as="n" hint-placeholder-count="6">
+              <div onClick="{{ n.go }}" class="flt-row" style="{{ n.rowStyle }}" style-hover="background:#F2F7F6">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:13px;font-weight:600;color:#233240;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.title }}</span><span style="{{ n.st }}">{{ n.priLabel }}</span></div>
+                <div style="font-size:11.5px;color:#7C8B96;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.excerpt }}</div>
+                <div style="font-family:'IBM Plex Mono';font-size:10px;color:#9AA7B0">{{ n.when }}</div>
+              </div>
+            </sc-for>
+          </main>
+          <section class="hl-preview" style="overflow-y:auto;background:#DFE5EA;border-radius:16px;box-shadow:inset 0 0 0 1px #D2DAE1;padding:22px">
+            <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 12px 34px -14px rgba(16,32,45,.4);overflow:hidden">
+              <div style="padding:18px 22px;border-bottom:1px solid #EEF2F5;display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div style="font-weight:700;font-size:17px;letter-spacing:-.01em">{{ noteSel.title }}</div><div style="font-family:'IBM Plex Mono';font-size:11px;color:#9AA7B0;margin-top:3px">{{ noteSel.when }}</div></div><span style="{{ noteSel.st }}">{{ noteSel.priLabel }}</span></div>
+              <div style="padding:20px 22px;font-size:14px;line-height:1.8;color:#3A4B57;min-height:180px;background:repeating-linear-gradient(#fff,#fff 31px,#EEF3F5 31px,#EEF3F5 32px)">{{ noteSel.body }}</div>
+            </div>
+            <div style="max-width:600px;margin:14px auto 0;display:flex;gap:8px">
+              <button onClick="{{ noteSel.save }}" style="display:inline-flex;align-items:center;gap:7px;background:#0E7C66;color:#fff;border:none;border-radius:10px;padding:10px 15px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans'">Zapisz zmiany</button>
+              <button onClick="{{ noteSel.del }}" style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#B0392B;border:1px solid #F0D3CE;border-radius:10px;padding:10px 15px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'IBM Plex Sans'">Usuń</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===== MOJE SPRAWY · Wypłaty / IMIR ===== -->
+    <sc-if value="{{ isAffPay }}" hint-placeholder-val="{{ false }}">
+      <div style="height:100%;overflow-y:auto;animation:hlfade .3s ease both">
+        <button onClick="{{ backAff }}" style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:#6B7A85;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 2px 10px;font-family:'IBM Plex Sans'" style-hover="color:#233240"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Moje sprawy</button>
+        <div style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);overflow:hidden;max-width:1160px">
+          <div style="padding:14px 18px;border-bottom:1px solid #E4EAEF"><div style="font-weight:700;font-size:16px">Wypłaty / IMIR</div><div style="font-size:11.5px;color:#7C8B96">Wynagrodzenia i dokumenty ZUS · 2026</div></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 150px 92px 166px 120px;padding:0 18px;background:#F4F7F9;border-bottom:1px solid #DCE3E9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8A98A2;height:32px;align-items:center"><div>Nazwa dokumentu</div><div>Przesłał(a)</div><div>Okres</div><div>Odczytanie</div><div style="text-align:right">Akcje</div></div>
+          <sc-for list="{{ paysTable }}" as="p" hint-placeholder-count="7"><div style="display:grid;grid-template-columns:minmax(0,1fr) 150px 92px 166px 120px;align-items:center;padding:10px 18px;border-bottom:1px solid #F1F4F7" style-hover="background:#F8FAFB"><div style="display:flex;align-items:center;gap:11px;min-width:0"><div style="width:34px;height:34px;border-radius:9px;background:#E8F1EE;color:#0E7C66;display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div><div style="min-width:0"><div style="font-size:13px;font-weight:600;color:#233240;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</div><div style="font-family:'IBM Plex Mono';font-size:10.5px;color:#9AA7B0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sub }}</div></div></div><div style="font-size:12.5px;color:#4A5B67;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sender }}</div><div style="font-family:'IBM Plex Mono';font-size:11.5px;color:#4A5B67">{{ p.date }}</div><div><span style="{{ p.readStyle }}">{{ p.readLabel }}</span></div><div style="display:flex;justify-content:flex-end;gap:6px"><button onClick="{{ p.preview }}" title="Podgląd" style="width:30px;height:30px;border-radius:8px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button><button onClick="{{ p.email }}" title="Wyślij na e-mail" style="width:30px;height:30px;border-radius:8px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg></button><button onClick="{{ p.download }}" title="Pobierz PDF" style="width:30px;height:30px;border-radius:8px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg></button></div></div></sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+        <!-- ===== MOJE SPRAWY · PIT ===== -->
+    <sc-if value="{{ isAffPit }}" hint-placeholder-val="{{ false }}">
+      <div style="height:100%;overflow-y:auto;animation:hlfade .3s ease both">
+        <button onClick="{{ backAff }}" style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:#6B7A85;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 2px 10px;font-family:'IBM Plex Sans'" style-hover="color:#233240"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Moje sprawy</button>
+        <div style="background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(16,32,45,.05),0 10px 28px -12px rgba(16,32,45,.18);overflow:hidden;max-width:1160px">
+          <div style="padding:14px 18px;border-bottom:1px solid #E4EAEF"><div style="font-weight:700;font-size:16px">PIT — rozliczenia roczne</div><div style="font-size:11.5px;color:#7C8B96">Deklaracje PIT-11 od płatnika</div></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 150px 92px 166px 120px;padding:0 18px;background:#F4F7F9;border-bottom:1px solid #DCE3E9;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8A98A2;height:32px;align-items:center"><div>Nazwa dokumentu</div><div>Przesłał(a)</div><div>Rok</div><div>Odczytanie</div><div style="text-align:right">Akcje</div></div>
+          <sc-for list="{{ pitsTable }}" as="p" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:minmax(0,1fr) 150px 92px 166px 120px;align-items:center;padding:10px 18px;border-bottom:1px solid #F1F4F7" style-hover="background:#F8FAFB"><div style="display:flex;align-items:center;gap:11px;min-width:0"><div style="width:34px;height:34px;border-radius:9px;background:#FBF0DA;color:#96650B;display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div><div style="min-width:0"><div style="font-size:13px;font-weight:600;color:#233240;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</div><div style="font-family:'IBM Plex Mono';font-size:10.5px;color:#9AA7B0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sub }}</div></div></div><div style="font-size:12.5px;color:#4A5B67;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sender }}</div><div style="font-family:'IBM Plex Mono';font-size:11.5px;color:#4A5B67">{{ p.date }}</div><div><span style="{{ p.readStyle }}">{{ p.readLabel }}</span></div><div style="display:flex;justify-content:flex-end;gap:6px"><button onClick="{{ p.preview }}" title="Podgląd" style="width:30px;height:30px;border-radius:8px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button><button onClick="{{ p.email }}" title="Wyślij na e-mail" style="width:30px;height:30px;border-radius:8px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg></button><button onClick="{{ p.download }}" title="Pobierz PDF" style="width:30px;height:30px;border-radius:8px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67" style-hover="background:#EAF0F5"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg></button></div></div></sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- KREATOR (nowa rzecz) -->
+    <sc-if value="{{ creatorOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeCreator }}" style="position:fixed;inset:0;background:rgba(11,22,32,.55);z-index:75;display:flex;align-items:center;justify-content:center;padding:26px;animation:hlfade .2s ease both">
+        <div onClick="{{ stop }}" style="width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;background:#fff;border-radius:16px;box-shadow:0 30px 80px -20px rgba(11,22,32,.6);overflow:hidden;font-family:'IBM Plex Sans'">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 20px 14px;border-bottom:1px solid #EEF2F5">
+            <div><div style="font-weight:700;font-size:17px;letter-spacing:-.01em">{{ creatorTitle }}</div><div style="font-size:12.5px;color:#7C8B96;margin-top:2px">{{ creatorSub }}</div></div>
+            <button onClick="{{ closeCreator }}" style="width:32px;height:32px;border-radius:9px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67;flex-shrink:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+          </div>
+          <div style="padding:16px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ creatorFields }}" as="f" hint-placeholder-count="4">
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:#8A98A2;margin-bottom:6px">{{ f.label }}</div>
+                <sc-if value="{{ f.isText }}" hint-placeholder-val="{{ false }}"><input placeholder="{{ f.ph }}" style="width:100%;border:1px solid #DCE3E9;border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:'IBM Plex Sans';outline:none;background:#FAFBFC"></sc-if>
+                <sc-if value="{{ f.isArea }}" hint-placeholder-val="{{ false }}"><textarea placeholder="{{ f.ph }}" style="width:100%;min-height:74px;resize:vertical;border:1px solid #DCE3E9;border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:'IBM Plex Sans';outline:none;background:#FAFBFC"></textarea></sc-if>
+                <sc-if value="{{ f.isSelect }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;justify-content:space-between;border:1px solid #DCE3E9;border-radius:10px;padding:10px 12px;font-size:13.5px;color:#233240;background:#FAFBFC;cursor:pointer">{{ f.value }}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8A98A2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></div></sc-if>
+                <sc-if value="{{ f.isChips }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{ f.options }}" as="o" hint-placeholder-count="3"><span style="{{ o.style }}">{{ o.label }}</span></sc-for></div></sc-if>
+                <sc-if value="{{ f.isFile }}" hint-placeholder-val="{{ false }}"><div style="border:1.5px dashed #CBD5DD;border-radius:10px;padding:18px;text-align:center;font-size:12.5px;color:#7C8B96;background:#FAFBFC;cursor:pointer">Przeciągnij plik lub kliknij, aby wybrać</div></sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:9px;justify-content:flex-end;padding:14px 20px;border-top:1px solid #EEF2F5;background:#F8FAFB">
+            <button onClick="{{ closeCreator }}" style="background:#fff;color:#233240;border:1px solid #DCE3E9;border-radius:10px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans'">Anuluj</button>
+            <button onClick="{{ submitCreator }}" style="background:#0E7C66;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-weight:600;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans';box-shadow:0 8px 18px -8px rgba(16,32,45,.4)">{{ creatorSubmit }}</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- MOJE SPRAWY · podgląd (modal) -->
+    <sc-if value="{{ msModalOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeMsModal }}" style="position:fixed;inset:0;background:rgba(11,22,32,.55);z-index:70;display:flex;align-items:center;justify-content:center;padding:26px;animation:hlfade .2s ease both">
+        <div onClick="{{ stop }}" style="width:min(700px,100%);max-height:100%;display:flex;flex-direction:column;background:#DFE5EA;border-radius:14px;box-shadow:0 30px 80px -20px rgba(11,22,32,.6);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;background:#fff;border-bottom:1px solid #E4EAEF">
+            <div style="font-weight:700;font-size:14px">Podgląd</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button onClick="{{ msModalEmail }}" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#233240;border:1px solid #DCE3E9;border-radius:9px;padding:8px 12px;font-weight:600;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans'">Wyślij na e-mail</button>
+              <button onClick="{{ msModalDownload }}" style="display:inline-flex;align-items:center;gap:6px;background:#0E7C66;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-weight:600;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans'">Pobierz PDF</button>
+              <button onClick="{{ closeMsModal }}" style="width:32px;height:32px;border-radius:9px;border:1px solid #DCE3E9;background:#fff;display:grid;place-items:center;cursor:pointer;color:#4A5B67"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+            </div>
+          </div>
+          <div style="overflow-y:auto;padding:22px">
+            <sc-if value="{{ msIsDoc }}" hint-placeholder-val="{{ true }}"><div style="background:#fff;border-radius:6px;box-shadow:0 12px 34px -14px rgba(16,32,45,.4);overflow:hidden"><div style="padding:24px 30px 16px;border-bottom:2px solid #0E7C66;display:flex;justify-content:space-between;align-items:flex-start;gap:14px"><div style="display:flex;align-items:center;gap:11px"><div style="width:34px;height:34px;border-radius:8px;background:#0E7C66;color:#fff;display:grid;place-items:center;font-weight:700">H</div><div><div style="font-weight:700;font-size:15px">HealthLab Sp. z o.o.</div><div style="font-size:11.5px;color:#7C8B96">Dział kadr i płac</div></div></div><span style="{{ myDocSel.stStyle }}">{{ myDocSel.statusLabel }}</span></div><div style="padding:22px 30px 28px"><div style="font-family:'IBM Plex Mono';font-size:11px;color:#8A98A2;text-transform:uppercase;letter-spacing:.06em">{{ myDocSel.type }} · {{ myDocSel.date }}</div><div style="font-weight:700;font-size:19px;letter-spacing:-.01em;margin:4px 0 16px">{{ myDocSel.title }}</div><div style="font-size:13px;line-height:1.7;color:#3A4B57">{{ myDocSel.body }}</div></div></div></sc-if>
+            <sc-if value="{{ msIsPay }}" hint-placeholder-val="{{ false }}"><div style="background:#fff;border-radius:6px;box-shadow:0 12px 34px -14px rgba(16,32,45,.4);overflow:hidden"><div style="padding:22px 30px 16px;border-bottom:2px solid #0E7C66;display:flex;align-items:center;justify-content:space-between;gap:12px"><div style="display:flex;align-items:center;gap:11px"><div style="width:34px;height:34px;border-radius:8px;background:#0E7C66;color:#fff;display:grid;place-items:center;font-weight:700">H</div><div><div style="font-weight:700;font-size:15px">Pasek wynagrodzenia</div><div style="font-family:'IBM Plex Mono';font-size:11px;color:#7C8B96">{{ paySel.code }}</div></div></div><div style="font-size:13px;font-weight:600;color:#4A5B67">{{ paySel.period }}</div></div><div style="padding:14px 30px 26px"><sc-for list="{{ paySel.rows }}" as="r" hint-placeholder-count="8"><div style="{{ r.rowStyle }}"><span style="{{ r.kStyle }}">{{ r.k }}</span><span style="{{ r.vStyle }}">{{ r.v }}</span></div></sc-for></div></div></sc-if>
+            <sc-if value="{{ msIsPit }}" hint-placeholder-val="{{ false }}"><div style="background:#fff;border-radius:6px;box-shadow:0 12px 34px -14px rgba(16,32,45,.4);overflow:hidden"><div style="padding:22px 30px 16px;border-bottom:2px solid #96650B;display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div style="font-family:'IBM Plex Mono';font-size:11px;color:#8A98A2;text-transform:uppercase;letter-spacing:.06em">Informacja PIT-11</div><div style="font-weight:700;font-size:19px;margin-top:2px">Rok podatkowy {{ pitSel.year }}</div></div><div style="width:34px;height:34px;border-radius:8px;background:#0E7C66;color:#fff;display:grid;place-items:center;font-weight:700">H</div></div><div style="padding:14px 30px 26px"><sc-for list="{{ pitSel.rows }}" as="r" hint-placeholder-count="6"><div style="{{ r.rowStyle }}"><span style="{{ r.kStyle }}">{{ r.k }}</span><span style="{{ r.vStyle }}">{{ r.v }}</span></div></sc-for></div></div></sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:11px;background:#122636;color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 18px 40px -12px rgba(11,22,32,.6);animation:hlfade .25s ease both;max-width:min(90vw,520px)">
+      <span style="width:28px;height:28px;border-radius:8px;background:{{ toastColor }};display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ toastIcon }}"></path></svg></span>
+      <span style="font-size:13px;font-weight:500;line-height:1.4">{{ toastText }}</span>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#0E7C66&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Wygląd&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;comfortable&quot;,&quot;options&quot;:[&quot;comfortable&quot;,&quot;compact&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Wygląd&quot;},&quot;showDetail&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Układ&quot;}}">
+class Component extends DCLogic {
+  state = { nav:'menu', curId:'p2', pid:'p2', wlFilter:'all', visits:{p7:'done',p1:'wait',p2:'now',p3:'wait',p4:'wait',p5:'tele',p6:'wait'}, selRes:1, selDoc:0, docFilter:'all', affView:null, affQuery:'', mdFilter:'all', selMydoc:0, selNote:0, selPay:0, selPit:0, gDay:'6-21', toast:null, creator:null };
+
+  data(){
+    return {
+      p1:{ini:'ZD',name:'Zofia Dąbrowska',sex:'K',age:68,pesel:'560••••••',mrn:'A-40218',dx:'Migotanie przedsionków',payer:'NFZ',
+        allergy:'Penicylina, jod (kontrast)', hasAllergy:true,
+        problems:[{t:'Migotanie przedsionków',icd:'I48'},{t:'Nadciśnienie tętnicze',icd:'I10'},{t:'Hipercholesterolemia',icd:'E78.0'}],
+        meds:[{t:'Apiksaban',dose:'5 mg 2×'},{t:'Bisoprolol',dose:'5 mg 1×'},{t:'Atorwastatyna',dose:'20 mg'}],
+        vitals:[{k:'RR',v:'148/92',u:'mmHg',ab:true},{k:'HR',v:'96',u:'/min',ab:true},{k:'Temp',v:'36.6',u:'°C'},{k:'SpO₂',v:'97',u:'%'}],
+        careTeam:'dr A. Kwiat · piel. E. Mróz', phone:'+48 601 220 118', vitalsWhen:'08:41',
+        reason:'Kontrola kardiologiczna', visitMeta:'PLANOWA · 09:00 · Gab. 4',
+        orders:[{t:'EKG spoczynkowe',meta:'zlec. 08:20',status:'W toku',s:'ip'},{t:'Morfologia + INR',meta:'zlec. 08:22',status:'Pobrane',s:'wait'},{t:'TSH',meta:'zlec. 08:22',status:'Zlecone',s:'ord'}],
+        lastNote:'Pacjentka zgłasza kołatania serca 2× w tygodniu. INR w normie. Rozważyć holter EKG. Kontynuować leczenie p/krzepliwe.',
+        history:[['12 lip 2026','Kardiologia','Migotanie przedsionków','Kontrola rytmu, INR w normie. Utrzymano dawkowanie apiksabanu.'],['28 cze 2026','POZ','Nadciśnienie','Podwyższone RR — skorygowano dawkę bisoprololu do 5 mg.'],['10 cze 2026','Kardiologia','Kołatania serca','Napadowe kołatania — zlecono Holter EKG 24h.']],
+        rx:[['12 lip 2026','0421 4471 8830 12','Apiksaban 5 mg ×60; Bisoprolol 5 mg ×28','signed'],['28 cze 2026','0421 4471 2210 09','Atorwastatyna 20 mg ×30','signed']]},
+      p2:{ini:'MK',name:'Marek Kowalczyk',sex:'M',age:54,pesel:'710••••••',mrn:'A-39877',dx:'Cukrzyca typu 2',payer:'NFZ',
+        allergy:'Brak znanych alergii', hasAllergy:false,
+        problems:[{t:'Cukrzyca typu 2',icd:'E11'},{t:'Otyłość',icd:'E66'},{t:'Stłuszczenie wątroby',icd:'K76.0'}],
+        meds:[{t:'Metformina',dose:'1000 mg 2×'},{t:'Empagliflozyna',dose:'10 mg'}],
+        vitals:[{k:'RR',v:'132/84',u:'mmHg'},{k:'HR',v:'78',u:'/min'},{k:'Temp',v:'36.7',u:'°C'},{k:'Glu',v:'156',u:'mg/dl',ab:true}],
+        careTeam:'dr A. Kwiat', phone:'+48 602 771 400', vitalsWhen:'08:55',
+        reason:'Kontrola cukrzycy + HbA1c', visitMeta:'W TRAKCIE · 09:30 · Gab. 4',
+        orders:[{t:'HbA1c',meta:'zlec. 09:32',status:'Pobrane',s:'wait'},{t:'Lipidogram',meta:'zlec. 09:32',status:'Zlecone',s:'ord'},{t:'Kreatynina / eGFR',meta:'gotowe 09:40',status:'Gotowe',s:'done'}],
+        lastNote:'Masa ciała bez zmian. HbA1c 3 mies. temu 7,8%. Wzmocnić edukację dietetyczną, rozważyć skierowanie do dietetyka.',
+        history:[['12 lip 2026','Diabetologia','Cukrzyca typu 2','HbA1c 7,8%. Wzmocniono edukację dietetyczną, zalecono kontrolę za 3 mies.'],['02 cze 2026','POZ','Kontrola','Kontrola glikemii na czczo 128 mg/dl. Masa ciała stabilna.'],['18 kwi 2026','Diabetologia','Cukrzyca typu 2','Dołączono empagliflozynę 10 mg z powodu niedostatecznej kontroli.']],
+        rx:[['12 lip 2026','0421 8830 1190 22','Metformina 1000 mg ×60; Empagliflozyna 10 mg ×30','signed'],['18 kwi 2026','0421 8830 0021 88','Empagliflozyna 10 mg ×30','signed']]},
+      p3:{ini:'AW',name:'Adam Wójcik',sex:'M',age:41,pesel:'840••••••',mrn:'A-41109',dx:'Infekcja GDO',payer:'Komercyjny',
+        allergy:'Ibuprofen (wysypka)', hasAllergy:true,
+        problems:[{t:'Ostre zapalenie gardła',icd:'J02'},{t:'Alergiczny nieżyt nosa',icd:'J30'}],
+        meds:[{t:'Cetyryzyna',dose:'10 mg wg potrzeby'}],
+        vitals:[{k:'RR',v:'124/78',u:'mmHg'},{k:'HR',v:'82',u:'/min'},{k:'Temp',v:'37.9',u:'°C',ab:true},{k:'SpO₂',v:'98',u:'%'}],
+        careTeam:'dr A. Kwiat', phone:'+48 605 118 902', vitalsWhen:'10:05',
+        reason:'Ból gardła, gorączka', visitMeta:'OCZEKUJE · 10:30 · Gab. 4',
+        orders:[{t:'CRP',meta:'zlec. 10:06',status:'Zlecone',s:'ord'},{t:'Wymaz Strep A',meta:'zlec. 10:06',status:'Zlecone',s:'ord'}],
+        lastNote:'Objawy od 2 dni. Gardło zaczerwienione, migdałki powiększone bez nalotów. Wykluczyć paciorkowca.',
+        history:[['21 lip 2026','POZ','Ostre zapalenie gardła','Gorączka 37,9°C, gardło zaczerwienione. Zlecono CRP i wymaz.'],['15 mar 2026','POZ','Nieżyt nosa','Sezonowy alergiczny nieżyt nosa — cetyryzyna wg potrzeby.']],
+        rx:[['21 lip 2026','0421 1109 4551 03','Cetyryzyna 10 mg ×20','sent']]},
+      p4:{ini:'HK',name:'Hanna Kot',sex:'K',age:29,pesel:'950••••••',mrn:'A-42551',dx:'Niedokrwistość',payer:'NFZ',
+        allergy:'Brak znanych alergii', hasAllergy:false,
+        problems:[{t:'Niedokrwistość z niedoboru żelaza',icd:'D50'}],
+        meds:[{t:'Siarczan żelaza',dose:'80 mg'}],
+        vitals:[{k:'RR',v:'110/70',u:'mmHg'},{k:'HR',v:'68',u:'/min'},{k:'Temp',v:'36.5',u:'°C'},{k:'SpO₂',v:'99',u:'%'}],
+        careTeam:'dr A. Kwiat', phone:'+48 691 334 220', vitalsWhen:'10:20',
+        reason:'Kontrola morfologii', visitMeta:'OCZEKUJE · 11:00 · Gab. 4',
+        orders:[{t:'Morfologia',meta:'gotowe 09:10',status:'Gotowe',s:'done'},{t:'Ferrytyna',meta:'gotowe 09:10',status:'Gotowe',s:'done'}],
+        lastNote:'Suplementacja żelaza od 6 tyg. Kontrola morfologii i ferrytyny — poprawa parametrów.',
+        history:[['21 lip 2026','POZ','Niedokrwistość','Kontrola morfologii i ferrytyny po 6 tyg. suplementacji.'],['09 cze 2026','POZ','Niedokrwistość','Ferrytyna 8 ng/mL — włączono siarczan żelaza 80 mg.']],
+        rx:[['09 cze 2026','0421 2551 3342 20','Siarczan żelaza 80 mg ×60','signed']]},
+      p5:{ini:'JB',name:'Jan Bąk',sex:'M',age:73,pesel:'520••••••',mrn:'A-38220',dx:'POChP',payer:'NFZ',
+        allergy:'Brak znanych alergii', hasAllergy:false,
+        problems:[{t:'POChP',icd:'J44'},{t:'Nadciśnienie tętnicze',icd:'I10'}],
+        meds:[{t:'Tiotropium',dose:'18 µg wziewnie'},{t:'Ramipryl',dose:'5 mg'}],
+        vitals:[{k:'RR',v:'138/86',u:'mmHg'},{k:'HR',v:'74',u:'/min'},{k:'Temp',v:'36.4',u:'°C'},{k:'SpO₂',v:'94',u:'%',ab:true}],
+        careTeam:'dr A. Kwiat', phone:'+48 604 550 771', vitalsWhen:'wczoraj',
+        reason:'Omówienie wyników spirometrii', visitMeta:'TELEPORADA · 11:30',
+        orders:[{t:'Spirometria',meta:'gotowe wczoraj',status:'Gotowe',s:'done'}],
+        lastNote:'Spirometria: obturacja umiarkowana. Utrzymać leczenie wziewne, edukacja techniki inhalacji.',
+        history:[['19 lip 2026','Teleporada','POChP','Omówienie spirometrii — obturacja umiarkowana. Utrzymano leczenie.'],['02 maj 2026','POZ','Nadciśnienie','RR 138/86. Kontynuacja ramiprylu 5 mg.']],
+        rx:[['19 lip 2026','0421 8220 5521 90','Tiotropium 18 µg ×30; Ramipryl 5 mg ×28','signed']]},
+      p6:{ini:'OZ',name:'Ola Zawadzka',sex:'K',age:36,pesel:'880••••••',mrn:'A-42990',dx:'Migrena',payer:'Komercyjny',
+        allergy:'Lateks', hasAllergy:true,
+        problems:[{t:'Migrena z aurą',icd:'G43'}],
+        meds:[{t:'Sumatryptan',dose:'50 mg wg potrzeby'}],
+        vitals:[{k:'RR',v:'118/76',u:'mmHg'},{k:'HR',v:'70',u:'/min'},{k:'Temp',v:'36.6',u:'°C'},{k:'SpO₂',v:'99',u:'%'}],
+        careTeam:'dr A. Kwiat', phone:'+48 662 900 118', vitalsWhen:'12:10',
+        reason:'Nawracające bóle głowy', visitMeta:'PLANOWA · 12:30 · Gab. 4',
+        orders:[],
+        lastNote:'Bóle głowy 3–4× w miesiącu, jednostronne, z aurą. Rozważyć profilaktykę farmakologiczną.',
+        history:[['02 lip 2026','Neurologia','Migrena z aurą','Bóle 3–4×/mies. Skierowanie do poradni neurologicznej.'],['14 kwi 2026','POZ','Migrena','Sumatryptan 50 mg doraźnie — dobra tolerancja.']],
+        rx:[['14 kwi 2026','0421 2990 6621 44','Sumatryptan 50 mg ×6','signed']]},
+      p7:{ini:'EL',name:'Ewa Lis',sex:'K',age:47,pesel:'790••••••',mrn:'A-40077',dx:'Badania okresowe',payer:'Lab',
+        allergy:'Brak znanych alergii', hasAllergy:false,
+        problems:[{t:'Badania okresowe',icd:'Z00'}],
+        meds:[],
+        vitals:[{k:'RR',v:'122/80',u:'mmHg'},{k:'HR',v:'72',u:'/min'},{k:'Temp',v:'36.6',u:'°C'},{k:'SpO₂',v:'98',u:'%'}],
+        careTeam:'piel. E. Mróz', phone:'+48 600 231 887', vitalsWhen:'08:15',
+        reason:'Pakiet badań okresowych', visitMeta:'ZREALIZOWANA · 08:00 · Punkt pobrań',
+        orders:[{t:'Pakiet okresowy (12)',meta:'pobrane 08:05',status:'W laboratorium',s:'ip'}],
+        lastNote:'Pobranie w ramach medycyny pracy. Wyniki spodziewane po południu.',
+        history:[['21 lip 2026','Medycyna pracy','Badania okresowe','Pobranie pakietu okresowego. Wyniki i orzeczenie po południu.'],['20 lip 2025','Medycyna pracy','Badania okresowe','Poprzednie badania okresowe — zdolna do pracy.']],
+        rx:[]},
+    };
+  }
+
+  av(sex){ return sex==='K' ? {bg:'#EAF0F6',ink:'#2F5E86'} : {bg:'#E8F1EE',ink:'#0E7C66'}; }
+  pill(bg,ink){ return 'display:inline-flex;align-items:center;gap:5px;background:'+bg+';color:'+ink+';font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;white-space:nowrap;line-height:1.2'; }
+
+  setNav(n){ this.setState({nav:n, affView:null, msModal:null, creator:null}); }
+  openPatient(id){ this.setState({nav:'patient',pid:id}); }
+  setWl(f){ this.setState({wlFilter:f}); }
+  startVisit(id){ this.setState({visits:{...this.state.visits,[id]:'now'}}); this.fire('ok','#1F6FB2','Wizyta rozpoczęta — '+this.data()[id].name); }
+  endVisit(id){ this.setState({visits:{...this.state.visits,[id]:'done'}}); this.fire('ok','#2E7D46','Wizyta zakończona — '+this.data()[id].name); }
+  cancelVisit(id){ this.setState({visits:{...this.state.visits,[id]:'cancel'}}); this.fire('ok','#B0392B','Wizyta anulowana — '+this.data()[id].name); }
+  pickRes(i){ this.setState({selRes:i}); }
+  pickDoc(i){ this.setState({selDoc:i}); }
+  setDocFilter(f){ this.setState({docFilter:f}); }
+  fire(icon,color,text){ if(this._tt) clearTimeout(this._tt); this.setState({toast:{icon,color,text}}); this._tt=setTimeout(()=>this.setState({toast:null}),2800); }
+
+  buildPatient(p){
+    const a=this.av(p.sex);
+    const histType=(t)=>{ const m={'Kardiologia':['#FBE9E7','#B0392B'],'Diabetologia':['#E8F1EE','#0E7C66'],'POZ':['#EAF0F6','#2F5E86'],'Teleporada':['#EDE7F7','#6A4CB0'],'Neurologia':['#EDE7F7','#6A4CB0'],'Medycyna pracy':['#FBF0DA','#96650B']}; const c=m[t]||['#EEF2F5','#6B7A85']; return this.pill(c[0],c[1]); };
+    const rxSt={signed:this.pill('#E4F1E7','#2E7D46'),sent:this.pill('#E4EEF7','#1F6FB2'),todo:this.pill('#FBF0DA','#96650B')};
+    const rxLbl={signed:'Podpisana',sent:'Wysłana',todo:'Do podpisu'};
+    return {
+      ini:p.ini, name:p.name, mrn:p.mrn, pesel:p.pesel, phone:p.phone, avBg:a.bg, avInk:a.ink,
+      ageSexLine:p.age+' lat · '+(p.sex==='K'?'Kobieta':'Mężczyzna')+' · '+p.payer,
+      allergyText:p.allergy,
+      allergyChip: p.hasAllergy
+        ? 'display:inline-flex;align-items:center;gap:7px;background:#FBE7E4;color:#B0392B;border-radius:8px;padding:8px 12px;align-self:flex-start'
+        : 'display:inline-flex;align-items:center;gap:7px;background:#EEF2F5;color:#5F6E79;border-radius:8px;padding:8px 12px;align-self:flex-start',
+      problems:p.problems, meds:p.meds, vitalsWhen:p.vitalsWhen,
+      vitals:p.vitals.map(v=>({k:v.k,v:v.v,u:v.u,ink:v.ab?'#B0392B':'#15242F'})),
+      history:p.history.map(h=>({d:h[0],type:h[1],typeStyle:histType(h[1]),dx:h[2],note:h[3]})),
+      notes:[{d:'dziś',author:'dr A. Kwiat',text:p.lastNote}].concat(p.history.map(h=>({d:h[0],author:'dr A. Kwiat',text:h[3]}))),
+      rx:p.rx.map(r=>({d:r[0],code:r[1],items:r[2],status:rxLbl[r[3]],st:rxSt[r[3]]})),
+    };
+  }
+
+  renderVals(){
+    const accent = this.props.accent ?? '#0E7C66';
+    const compact = (this.props.density ?? 'comfortable') === 'compact';
+    const showDetail = this.props.showDetail ?? true;
+    const P = this.data();
+    const nav = this.state.nav;
+    const rowPad = compact ? '5px 18px' : '9px 18px';
+
+    const S = {
+      now:{l:'W trakcie',bg:'#E4EEF7',ink:'#1F6FB2'}, wait:{l:'Oczekuje',bg:'#FBF0DA',ink:'#96650B'},
+      done:{l:'Zrealizowana',bg:'#E4F1E7',ink:'#2E7D46'}, tele:{l:'Teleporada',bg:'#EDE7F7',ink:'#6A4CB0'}, cancel:{l:'Anulowana',bg:'#EEF0F2',ink:'#8A8F98'},
+    };
+    const T = {
+      poz:{l:'Wizyta POZ',bg:'#EAF0F6',ink:'#2F5E86'}, kardio:{l:'Kardiologia',bg:'#FBE9E7',ink:'#B0392B'},
+      diab:{l:'Diabetologia',bg:'#E8F1EE',ink:'#0E7C66'}, lab:{l:'Lab / pobranie',bg:'#FBF0DA',ink:'#96650B'}, tele:{l:'Teleporada',bg:'#EDE7F7',ink:'#6A4CB0'},
+    };
+    const WL = [
+      ['p7','08:00','lab','PP','done'],['p1','09:00','kardio','4','wait'],['p2','09:30','diab','4','now'],
+      ['p3','10:30','poz','4','wait'],['p4','11:00','poz','4','wait'],['p5','11:30','tele','—','tele'],['p6','12:30','poz','4','wait'],
+    ];
+    const vBig=(bg,ink,bd)=>'display:inline-flex;align-items:center;justify-content:center;gap:6px;background:'+bg+';color:'+ink+';border:'+(bd||'none')+';border-radius:11px;padding:11px 16px;font-weight:600;font-size:13px;cursor:pointer;font-family:\'IBM Plex Sans\';white-space:nowrap';
+    const vSm=(bg,ink,bd)=>'display:inline-flex;align-items:center;gap:5px;background:'+bg+';color:'+ink+';border:'+(bd||'none')+';border-radius:8px;padding:6px 11px;font-weight:600;font-size:11.5px;cursor:pointer;font-family:\'IBM Plex Sans\';white-space:nowrap';
+    const vStop=(fn)=>(e)=>{ if(e&&e.stopPropagation)e.stopPropagation(); fn(); };
+    const bigActions=(id)=>{ const c=this.state.visits[id]||'wait';
+      if(c==='done') return [{label:'✓ Wizyta zrealizowana',style:vBig('#E4F1E7','#2E7D46'),go:()=>{}}];
+      if(c==='cancel') return [{label:'Wizyta anulowana',style:vBig('#EEF0F2','#8A8F98'),go:()=>{}}];
+      return [{label:(c==='now'?'Zakończ wizytę':'Rozpocznij wizytę'),style:vBig(c==='now'?'#B0392B':accent,'#fff'),go:()=>(c==='now'?this.endVisit(id):this.startVisit(id))},{label:'Anuluj wizytę',style:vBig('#FBF0DA','#96650B','1px solid #EAD9AE'),go:()=>this.cancelVisit(id)}];
+    };
+    const rowActions=(id)=>{ const c=this.state.visits[id]||'wait';
+      if(c==='done'||c==='cancel') return [];
+      return [{label:(c==='now'?'Zakończ':'Rozpocznij'),style:vSm(c==='now'?'#B0392B':accent,'#fff'),go:vStop(()=>(c==='now'?this.endVisit(id):this.startVisit(id)))},{label:'Anuluj',style:vSm('#FBF0DA','#96650B','1px solid #EAD9AE'),go:vStop(()=>this.cancelVisit(id))}];
+    };
+    const vMeta=(id)=>{ const c=this.state.visits[id]||'wait'; const parts=P[id].visitMeta.split('·'); parts[0]=(S[c]?S[c].l.toUpperCase():parts[0].trim())+' '; return parts.join('·'); };
+    const filt = this.state.wlFilter;
+    let nextUpId=null;
+    for(const w of WL){ const c=this.state.visits[w[0]]||w[4]; if(c==='wait'||c==='tele'){ nextUpId=w[0]; break; } }
+    const rows = WL.filter(w=>{const c=this.state.visits[w[0]]||w[4]; return filt==='all'?true: filt==='tele'?(c==='tele'||w[2]==='tele'):c===filt;}).map(w=>{
+      const p=P[w[0]]; const a=this.av(p.sex);
+      const cur=this.state.visits[w[0]]||w[4]; const isNow=cur==='now'; const isUp=w[0]===nextUpId&&(cur==='wait'||cur==='tele'); const hl=isNow?';background:#EAF3FB;box-shadow:inset 3px 0 0 #1F6FB2':isUp?';background:#FFF8EC;box-shadow:inset 3px 0 0 #D9A21B':cur==='done'?';opacity:.5':cur==='cancel'?';opacity:.42':'';
+      const st=S[cur]||S[w[4]]; const ty=T[w[2]];
+      return {
+        go:()=>this.openPatient(w[0]), actions:rowActions(w[0]), time:w[1], name:p.name, mrn:p.mrn, ini:p.ini,
+        meta:'MRN '+p.mrn+' · '+p.age+' l/'+p.sex+' · '+(w[3]==='—'?'zdalnie':'Gab. '+w[3]),
+        type:ty.l, status:st.l, avBg:a.bg, avInk:a.ink, timeInk:isNow?'#1F6FB2':'#233240',
+        nowDot:isNow?'width:7px;height:7px;border-radius:50%;background:#1F6FB2;display:inline-block;animation:hlpulse 1.6s ease-in-out infinite':isUp?'width:7px;height:7px;border-radius:50%;background:#D9A21B;display:inline-block':'width:7px;height:7px;display:inline-block',
+        typeStyle:this.pill(ty.bg,ty.ink), statusStyle:this.pill(st.bg,st.ink),
+        rowStyle:'display:grid;grid-template-columns:58px 1fr 116px 96px 176px;align-items:center;padding:'+rowPad+';cursor:pointer;border-bottom:1px solid #F1F4F7;transition:background .12s'+hl,
+      };
+    });
+    const nWait=WL.filter(w=>(this.state.visits[w[0]]||w[4])==='wait').length;
+    const curPat = Object.assign(this.buildPatient(P[this.state.curId]), {
+      reason:P[this.state.curId].reason, visitMeta:vMeta(this.state.curId), visitActions:bigActions(this.state.curId), lastNote:P[this.state.curId].lastNote,
+      open:()=>this.openPatient(this.state.curId),
+      orders:(()=>{const ordDot={done:'#2E7D46',ip:'#1F6FB2',wait:'#D9A21B',ord:'#9AA7B0'};const ordSt={done:this.pill('#E4F1E7','#2E7D46'),ip:this.pill('#E4EEF7','#1F6FB2'),wait:this.pill('#FBF0DA','#96650B'),ord:this.pill('#EEF2F5','#6B7A85')};return P[this.state.curId].orders.map(o=>({t:o.t,meta:o.meta,status:o.status,dot:ordDot[o.s],st:ordSt[o.s]}));})(),
+    });
+
+    // results
+    const RES = [
+      {id:'p2',panel:'HbA1c',flag:'—',fl:'pending',when:'spodziewany 14:00',status:'W toku',orderNo:'ZL-2026-88301'},
+      {id:'p4',panel:'Morfologia krwi',flag:'W normie',fl:'ok',when:'09:10',status:'Gotowe',orderNo:'ZL-2026-42551'},
+      {id:'p1',panel:'INR / koagulogram',flag:'Poza zakresem',fl:'ab',when:'08:55',status:'Gotowe',orderNo:'ZL-2026-40218'},
+      {id:'p2',panel:'Kreatynina / eGFR',flag:'W normie',fl:'ok',when:'09:40',status:'Gotowe',orderNo:'ZL-2026-39877'},
+      {id:'p5',panel:'Spirometria',flag:'Nieprawidłowa',fl:'ab',when:'wczoraj',status:'Gotowe',orderNo:'PF-2026-38220'},
+      {id:'p4',panel:'Ferrytyna',flag:'Niska',fl:'low',when:'09:10',status:'Gotowe',orderNo:'ZL-2026-42551'},
+    ];
+    const flagMap={ok:{bg:'#E4F1E7',ink:'#2E7D46',bar:'#2E7D46'},ab:{bg:'#FBE7E4',ink:'#B0392B',bar:'#C0392B'},low:{bg:'#FBF0DA',ink:'#96650B',bar:'#D9A21B'},pending:{bg:'#EEF2F5',ink:'#6B7A85',bar:'#C4D0D9'}};
+    const resStatusStyle=(s)=> s==='Gotowe'?this.pill('#E4F1E7','#2E7D46'):this.pill('#FBF0DA','#96650B');
+    const results = RES.map((r,i)=>{const p=P[r.id];const f=flagMap[r.fl];const isSel=i===this.state.selRes;return {
+      go:()=>this.pickRes(i), panel:r.panel, name:p.name, mrn:p.mrn, when:r.when, flag:r.flag, status:r.status,
+      flagStyle:this.pill(f.bg,f.ink), bar:f.bar, statusStyle:resStatusStyle(r.status),
+      rowStyle:'display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #F1F4F7;transition:background .12s'+(isSel?';background:#E7F2EF;box-shadow:inset 3px 0 0 '+accent:''),
+    };});
+    const PARAMS={
+      'Morfologia krwi':[['WBC','6.8','10³/µL','4.0–10.0','ok'],['RBC','4.7','10⁶/µL','4.2–5.4','ok'],['HGB','13.9','g/dL','12.0–16.0','ok'],['HCT','41','%','37–47','ok'],['PLT','250','10³/µL','150–400','ok']],
+      'INR / koagulogram':[['INR','3.6','','2.0–3.0','ab'],['PT','38','s','11–14','ab'],['APTT','34','s','26–36','ok'],['Fibrynogen','3.1','g/L','2.0–4.0','ok']],
+      'Kreatynina / eGFR':[['Kreatynina','0.92','mg/dL','0.7–1.2','ok'],['eGFR','88','mL/min','>90','low'],['Mocznik','34','mg/dL','15–43','ok']],
+      'Spirometria':[['FEV1','62','% n.','>80','ab'],['FVC','81','% n.','>80','ok'],['FEV1/FVC','0.63','','>0.70','ab']],
+      'Ferrytyna':[['Ferrytyna','11','ng/mL','15–150','low'],['Żelazo','42','µg/dL','60–170','low'],['TIBC','410','µg/dL','250–400','ab']],
+    };
+    const INTERP={
+      'Morfologia krwi':'Parametry morfologii w granicach normy. Bez cech niedokrwistości ani stanu zapalnego.',
+      'INR / koagulogram':'INR powyżej zakresu terapeutycznego — ryzyko krwawień. Zalecane wstrzymanie dawki i kontrola za 3 dni.',
+      'Kreatynina / eGFR':'Filtracja kłębuszkowa nieznacznie obniżona (G2). Kontynuować monitorowanie funkcji nerek.',
+      'Spirometria':'Obturacja o umiarkowanym nasileniu (FEV1 62% n., FEV1/FVC 0,63). Obraz zgodny z POChP.',
+      'Ferrytyna':'Niska ferrytyna i żelazo przy podwyższonym TIBC — niedobór żelaza. Kontynuować suplementację.',
+    };
+    const pdArrow={ab:'↑',low:'↓',ok:''};
+    const sr=RES[this.state.selRes]; const srp=P[sr.id];
+    const prm=(PARAMS[sr.panel]||[]).map(x=>{const f=flagMap[x[4]];return {k:x[0],v:x[1],u:x[2],ref:x[3],ink:x[4]==='ok'?'#233240':f.ink,dot:f.bar,arrow:pdArrow[x[4]]||''};});
+    const resSel = sr.fl==='pending'
+      ? {pending:true,ready:false,panel:sr.panel,name:srp.name,when:'Spodziewany: '+sr.when}
+      : {pending:false,ready:true,panel:sr.panel,name:srp.name,lab:'Lab centralne',orderNo:sr.orderNo,auth:'mgr J. Sikora',interp:INTERP[sr.panel]||'',
+         meta:[{k:'Pacjent',v:srp.name},{k:'MRN',v:srp.mrn},{k:'PESEL',v:srp.pesel},{k:'Płeć / wiek',v:(srp.sex==='K'?'K':'M')+' / '+srp.age+' l'},{k:'Pobranie',v:sr.when==='wczoraj'?'20 lip 2026':'21 lip 2026 '+sr.when},{k:'Zlecający',v:'dr A. Kwiat'}],
+         params:prm};
+    if(resSel.ready){ resSel.emailPatient=()=>this.fire('mail','#1F6FB2','E-mail z wynikiem „'+sr.panel+'” wysłany do '+srp.name); resSel.smsPatient=()=>this.fire('sms','#0E7C66','SMS: wynik „'+sr.panel+'” gotowy — powiadomiono '+srp.name); resSel.printRes=()=>this.fire('download','#6B7A85',sr.panel+' — pobrano PDF'); }
+
+    // documents
+    const DOCS=[
+      ['Recepta','p2','12 lip 2026','signed','0421 8830 1190 22'],
+      ['Skierowanie','p1','21 lip 2026','signed','SKR/2026/4471'],
+      ['Zwolnienie ZLA','p3','21 lip 2026','sent','ZLA 8842 1190'],
+      ['Zaświadczenie','p7','21 lip 2026','todo','ZAS/2026/1190'],
+      ['Recepta','p5','19 lip 2026','signed','0421 8220 5521 90'],
+      ['Skierowanie','p6','02 lip 2026','todo','SKR/2026/4390'],
+      ['Zaświadczenie','p4','21 lip 2026','signed','ZAS/2026/1188'],
+    ];
+    const docIcon={'Recepta':{p:'M4 7h11a4 4 0 0 1 0 8H8l-4 4V7ZM8 11l6 6',bg:'#EAF0F6',ink:'#2F5E86'},'Skierowanie':{p:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 13h6M9 17h4',bg:'#E8F1EE',ink:'#0E7C66'},'Zwolnienie ZLA':{p:'M8 2v4M16 2v4M3 10h18M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z',bg:'#FBF0DA',ink:'#96650B'},'Zaświadczenie':{p:'M12 2 4 5v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V5z',bg:'#EDE7F7',ink:'#6A4CB0'}};
+    const docStStyle={signed:this.pill('#E4F1E7','#2E7D46'),sent:this.pill('#E4EEF7','#1F6FB2'),todo:this.pill('#FBF0DA','#96650B')};
+    const docStLbl={signed:'Podpisany',sent:'Wysłany',todo:'Do podpisu'};
+    const df=this.state.docFilter;
+    const docFiltered = DOCS.map((d,i)=>({d,i})).filter(o=> df==='all'?true:o.d[0]===df);
+    const documents = docFiltered.map(o=>{const d=o.d;const p=P[d[1]];const ic=docIcon[d[0]];const isSel=o.i===this.state.selDoc;return {
+      go:()=>this.pickDoc(o.i), kind:d[0], patient:p.name, date:d[2], statusLabel:docStLbl[d[3]], st:docStStyle[d[3]],
+      icon:ic.p, iconBg:ic.bg, iconInk:ic.ink,
+      rowStyle:'display:flex;align-items:center;gap:11px;padding:11px 16px;cursor:pointer;border-bottom:1px solid #F1F4F7;transition:background .12s'+(isSel?';background:#E7F2EF;box-shadow:inset 3px 0 0 '+accent:''),
+    };});
+    const sd=DOCS[this.state.selDoc]; const sdp=P[sd[1]];
+    const buildDoc=()=>{
+      const base={kind:sd[0].toUpperCase(),code:sd[4],statusLabel:docStLbl[sd[3]],st:docStStyle[sd[3]],hasMeds:false,hasBody:false,meds:[],body:''};
+      if(sd[0]==='Recepta'){ const rx=sdp.rx.find(r=>r[1]===sd[4])||sdp.rx[0]; const items=(rx?rx[2]:'').split(';').map(s=>{const m=s.trim().match(/^(.*?)\s(×\d+.*)$/); return m?{d:m[1],q:m[2],s:'wg zaleceń'}:{d:s.trim(),q:'',s:''};});
+        return Object.assign(base,{meta:[{k:'Pacjent',v:sdp.name},{k:'PESEL',v:sdp.pesel},{k:'Data wystawienia',v:sd[2]},{k:'Refundacja',v:'30% (NFZ)'},{k:'Ważność',v:'30 dni'}],hasMeds:true,meds:items}); }
+      if(sd[0]==='Skierowanie'){ return Object.assign(base,{meta:[{k:'Pacjent',v:sdp.name},{k:'PESEL',v:sdp.pesel},{k:'Data',v:sd[2]},{k:'Do poradni',v:sdp.dx==='Migotanie przedsionków'?'Kardiologicznej':'Neurologicznej'},{k:'Rozpoznanie (ICD-10)',v:sdp.problems[0].icd}],hasBody:true,body:'Kieruję pacjenta do dalszej diagnostyki i leczenia specjalistycznego w związku z rozpoznaniem: '+sdp.problems[0].t+'. '+sdp.lastNote}); }
+      if(sd[0]==='Zwolnienie ZLA'){ return Object.assign(base,{meta:[{k:'Pacjent',v:sdp.name},{k:'PESEL',v:sdp.pesel},{k:'Niezdolność od',v:'21 lip 2026'},{k:'Niezdolność do',v:'25 lip 2026'},{k:'Liczba dni',v:'5'},{k:'Kod',v:'A — niezdolność'}],hasBody:true,body:'Zwolnienie lekarskie z powodu: '+sdp.problems[0].t+' ('+sdp.problems[0].icd+'). Zalecany odpoczynek.'}); }
+      return Object.assign(base,{meta:[{k:'Pacjent',v:sdp.name},{k:'PESEL',v:sdp.pesel},{k:'Data',v:sd[2]}],hasBody:true,body:'Zaświadcza się, że pacjent(ka) '+sdp.name+' pozostaje pod opieką Przychodni HealthLab. '+(sdp.dx==='Badania okresowe'?'Wykonano badania okresowe w ramach medycyny pracy — zdolny(a) do pracy.':'Zaświadczenie wydane na wniosek pacjenta.')}); };
+    const docSel = buildDoc();
+    docSel.emailPatient=()=>this.fire('mail','#1F6FB2',sd[0]+' wysłany e-mailem do '+sdp.name);
+    docSel.smsPatient=()=>this.fire('sms','#0E7C66',sd[0]==='Recepta'?('Kod e-recepty wysłany SMS-em do '+sdp.name):(sd[0]+' — SMS z linkiem wysłany do '+sdp.name));
+    docSel.printDoc=()=>this.fire('download','#6B7A85',sd[0]+' — pobrano PDF');
+
+    // patient detail
+    const pd = this.buildPatient(P[this.state.pid]);
+    pd.emailPatient=()=>this.fire('mail','#1F6FB2','E-mail wysłany do '+pd.name);
+    pd.smsPatient=()=>this.fire('sms','#0E7C66','SMS wysłany do '+pd.name);
+    pd.visitActions=bigActions(this.state.pid);
+
+    // menu
+    const nextThree = WL.filter(w=>w[4]!=='done').map(w=>{const p=P[w[0]];const live=this.state.visits[w[0]]||w[4];const st=S[live]||S[w[4]];return {a:w[1],b:p.name,c:st.l,pill:this.pill(st.bg,st.ink),id:w[0]};});
+    const resThree = RES.map(r=>{const f=flagMap[r.fl];return {a:P[r.id].ini,b:r.panel,c:r.flag,pill:this.pill(f.bg,f.ink)};});
+    const docThree = DOCS.map(d=>({a:d[0].split(' ')[0].slice(0,4),b:P[d[1]].name,c:docStLbl[d[3]],pill:docStStyle[d[3]]}));
+    const menuCards=[
+      {go:()=>this.setNav('today'),title:'Pacjenci dziś',sub:WL.length+' w kolejce · 1 w trakcie',icon:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',iconBg:'#E8F1EE',iconInk:'#0E7C66',items:nextThree},
+      {go:()=>this.setNav('results'),title:'Wyniki',sub:RES.length+' pozycji · 2 poza zakresem',icon:'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',iconBg:'#E4EEF7',iconInk:'#1F6FB2',items:resThree},
+      {go:()=>this.setNav('documents'),title:'Dokumenty',sub:'Recepty · skierowania · ZLA',icon:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 13h6M9 17h4',iconBg:'#EDE7F7',iconInk:'#6A4CB0',items:docThree},
+    ];
+    const menuPrev=this.state.menuPrev||[0,0,0];
+    const menuPrevLabels=['Wybrany pacjent','Wybrany wynik','Wybrany dokument'];
+    const menuMeta=(ci,it)=>[
+      [{k:'Godzina',v:it.a},{k:'Status',v:it.c},{k:'Lekarz',v:'dr A. Kwiat'},{k:'Gabinet',v:'4'}],
+      [{k:'Inicjały',v:it.a},{k:'Ocena',v:it.c},{k:'Zlecił',v:'dr A. Kwiat'},{k:'Lab',v:'centralne'}],
+      [{k:'Typ',v:it.a},{k:'Pacjent',v:it.b},{k:'Status',v:it.c},{k:'Data',v:'21 lip 2026'}],
+    ][ci];
+    menuCards.forEach((c,ci)=>{
+      const si=menuPrev[ci]||0;
+      c.items.forEach((it,ii)=>{
+        it.sel=(e)=>{ if(e&&e.stopPropagation)e.stopPropagation(); const a=(this.state.menuPrev||[0,0,0]).slice(); a[ci]=ii; this.setState({menuPrev:a}); };
+        it.rowStyle='display:flex;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;border-radius:8px;cursor:pointer;border-bottom:1px solid #F3F6F8;transition:background .12s'+(ii===si?';background:#EAF3EF':'');
+      });
+      const it=c.items[si]||c.items[0];
+      c.preview={label:menuPrevLabels[ci],title:it.b,badge:it.c,badgeStyle:it.pill,meta:menuMeta(ci,it),actions:ci===0?bigActions(it.id).map(a=>({label:a.label,style:a.style,go:(e)=>{if(e&&e.stopPropagation)e.stopPropagation();a.go();}})):false};
+    });
+    const menuStats=[
+      {v:WL.length,k:'pacjentów dziś',ink:'#0E7C66'},
+      {v:'2',k:'wyniki poza zakresem',ink:'#B0392B'},
+      {v:DOCS.filter(d=>d[3]==='todo').length,k:'dok. do podpisu',ink:'#96650B'},
+    ];
+
+    // tabs
+    const activeKey = nav==='patient' ? 'today' : nav;
+    const tabDef=[
+      {k:'menu',label:'Menu',icon:'M4 5h16M4 12h16M4 19h16',count:0},
+      {k:'today',label:'Pacjenci dziś',icon:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',count:nWait},
+      {k:'results',label:'Wyniki',icon:'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',count:2},
+      {k:'documents',label:'Dokumenty',icon:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6',count:DOCS.filter(d=>d[3]==='todo').length},
+      {k:'affairs',label:'Moje sprawy',icon:'M4 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2ZM8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2',count:0},
+    ];
+    const tabActive='display:flex;align-items:center;gap:7px;background:none;border:none;border-bottom:2.5px solid '+accent+';color:'+accent+';padding:0 13px;font-weight:600;font-size:13px;cursor:pointer;height:100%;font-family:\'IBM Plex Sans\'';
+    const tabIdle='display:flex;align-items:center;gap:7px;background:none;border:none;border-bottom:2.5px solid transparent;color:#6B7A85;padding:0 13px;font-weight:500;font-size:13px;cursor:pointer;height:100%;font-family:\'IBM Plex Sans\'';
+    const tabs=tabDef.map(t=>({go:()=>this.setNav(t.k),label:t.label,icon:t.icon,count:t.count||false,
+      style:t.k===activeKey?tabActive:tabIdle,
+      countStyle:'font-family:\'IBM Plex Mono\';font-size:10.5px;font-weight:600;background:'+(t.k===activeKey?accent:'#DDE4E9')+';color:'+(t.k===activeKey?'#fff':'#6B7A85')+';border-radius:99px;min-width:17px;height:17px;display:grid;place-items:center;padding:0 4px'}));
+
+    const vc=(k)=>WL.filter(w=>(this.state.visits[w[0]]||w[4])===k).length; const fDef=[['all','Wszystkie',WL.length],['now','W trakcie',vc('now')],['wait','Oczekują',nWait],['tele','Teleporady',vc('tele')]];
+    const fA='background:'+accent+';color:#fff;border:1px solid '+accent+';border-radius:6px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:\'IBM Plex Sans\'';
+    const fI='background:#fff;color:#4A5B67;border:1px solid #DCE3E9;border-radius:6px;padding:6px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:\'IBM Plex Sans\'';
+    const wlFilters=fDef.map(f=>({go:()=>this.setWl(f[0]),label:f[1],n:f[2],style:filt===f[0]?fA:fI}));
+
+    const dfDef=[['all','Wszystkie'],['Recepta','Recepty'],['Skierowanie','Skierowania'],['Zwolnienie ZLA','ZLA'],['Zaświadczenie','Zaświadczenia']];
+    const docFilters=dfDef.map(f=>({go:()=>this.setDocFilter(f[0]),label:f[1],style:df===f[0]?fA:fI}));
+
+    const quickActions=[
+      {label:'Recepta',ink:'#0E7C66',icon:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 13h6M9 17h6'},
+      {label:'Skierowanie',ink:'#2F5E86',icon:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'},
+      {label:'Zlecenie lab.',ink:'#96650B',icon:'M9 3v6l-5 9a2 2 0 0 0 1.8 3h12.4a2 2 0 0 0 1.8-3l-5-9V3M8 3h8M8 14h8'},
+      {label:'Teleporada',ink:'#6A4CB0',icon:'M23 7l-7 5 7 5zM1 5h15a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H1z'},
+    ];
+    const qType={'Recepta':'recepta','Skierowanie':'skierowanie','Zlecenie lab.':'zlecenie','Teleporada':'teleporada'};
+    quickActions.forEach(q=>{ q.go=()=>this.setState({creator:qType[q.label]}); });
+    const newVisit=()=>this.setState({creator:'wizyta'});
+    const remindAll=()=>this.fire('sms','#0E7C66','Przypomnienia SMS wysłane do '+nWait+' oczekujących pacjentów');
+    const okP=this.pill('#E4F1E7','#2E7D46'),inP=this.pill('#E4EEF7','#1F6FB2'),wnP=this.pill('#FBF0DA','#96650B'),nuP=this.pill('#EEF2F5','#6B7A85'),erP=this.pill('#FBE7E4','#B0392B');
+    const aBtnP='display:inline-flex;align-items:center;gap:6px;background:'+accent+';color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:\'IBM Plex Sans\';box-shadow:0 6px 14px -8px rgba(16,32,45,.4)';
+    const aBtnG='display:inline-flex;align-items:center;gap:6px;background:#F4F7FA;color:#233240;border:1px solid #E4EAEF;border-radius:10px;padding:9px 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:\'IBM Plex Sans\'';
+    const affairsCards=[
+      {title:'Moje dokumenty',sub:'Umowy, zaświadczenia, certyfikaty',icon:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 13h6M9 17h4',iconBg:'#E8F1EE',iconInk:'#0E7C66',span:4,
+        items:[{a:'PDF',b:'Umowa o pracę (aktualna)',c:'Aktywna',pill:okP},{a:'PDF',b:'Zaświadczenie o zatrudnieniu',c:'Gotowe',pill:okP},{a:'PDF',b:'Zgoda RODO',c:'Podpisana',pill:okP},{a:'PDF',b:'Certyfikat PWZ 2841190',c:'Ważny',pill:okP},{a:'PDF',b:'Orzeczenie med. pracy',c:'Ważne',pill:okP},{a:'PDF',b:'Polisa OC zawodowa',c:'Aktywna',pill:okP},{a:'PDF',b:'Dyplom specjalizacji',c:'Zweryf.',pill:okP}],
+        actions:[{label:'Pobierz',primary:true,go:()=>this.fire('download','#6B7A85','Dokument — pobrano PDF')},{label:'Wyślij na e-mail',go:()=>this.fire('mail','#1F6FB2','Dokumenty wysłane na Twój e-mail')}]},
+      {title:'Kalendarz pracy / grafik',sub:'Dyżury i nieobecności',icon:'M8 2v4M16 2v4M3 10h18M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z',iconBg:'#E4EEF7',iconInk:'#1F6FB2',span:4,
+        items:[{a:'Dziś',b:'Gabinet 4 · przyjęcia',c:'08–16',pill:inP},{a:'Jutro',b:'Teleporady',c:'10–14',pill:nuP},{a:'25 lip',b:'Sobota',c:'Wolne',pill:okP},{a:'28 lip',b:'Dyżur nocny',c:'20–08',pill:wnP},{a:'01 sie',b:'Urlop wypoczynkowy',c:'Zaplan.',pill:nuP},{a:'05 sie',b:'Gabinet 4 · przyjęcia',c:'08–16',pill:inP},{a:'08 sie',b:'Konferencja',c:'Delegacja',pill:wnP}],
+        actions:[{label:'Wyślij grafik SMS',primary:true,go:()=>this.fire('sms','#0E7C66','Grafik na najbliższy tydzień wysłany SMS-em')},{label:'Zgłoś nieobecność',go:()=>this.fire('mail','#1F6FB2','Wniosek o nieobecność wysłany do kadr')}]},
+      {title:'Notatki',sub:'Prywatne notatki',icon:'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z',iconBg:'#EDE7F7',iconInk:'#6A4CB0',span:4,
+        items:[{a:'',b:'Zamówić materiały do gabinetu',c:'Dziś',pill:wnP},{a:'',b:'Szkolenie RODO',c:'30 lip',pill:nuP},{a:'',b:'Oddzwonić do apteki ws. recept',c:'Pilne',pill:erP},{a:'',b:'Prezentacja na zebranie zespołu',c:'Zaplan.',pill:nuP},{a:'',b:'Podpisać grafik sierpniowy',c:'31 lip',pill:wnP},{a:'',b:'Zamówić pieczątki imienne',c:'Zwykłe',pill:nuP},{a:'',b:'Wyniki kontroli sanepid',c:'Zaplan.',pill:nuP}],
+        actions:[{label:'Nowa notatka',primary:true,go:()=>this.fire('ok',accent,'Nowa notatka — otwarto edytor')}]},
+      {title:'Wypłaty / IMIR',sub:'Wynagrodzenia i ZUS',icon:'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',iconBg:'#E8F1EE',iconInk:'#0E7C66',span:6,
+        items:[{a:'07/26',b:'Wynagrodzenie — lipiec',c:'18 900 zł',pill:okP},{a:'06/26',b:'Wynagrodzenie — czerwiec',c:'18 900 zł',pill:okP},{a:'06/26',b:'IMIR (ZUS RMUA)',c:'Gotowe',pill:inP},{a:'05/26',b:'Wynagrodzenie — maj',c:'18 900 zł',pill:okP},{a:'04/26',b:'Wynagrodzenie — kwiecień',c:'18 900 zł',pill:okP},{a:'03/26',b:'Wynagrodzenie — marzec',c:'18 900 zł',pill:okP},{a:'02/26',b:'Wynagrodzenie — luty',c:'18 900 zł',pill:okP}],
+        actions:[{label:'Pobierz IMIR',primary:true,go:()=>this.fire('download','#6B7A85','IMIR 06/2026 — pobrano PDF')},{label:'Wyślij na e-mail',go:()=>this.fire('mail','#1F6FB2','Pasek wypłaty wysłany na Twój e-mail')}]},
+      {title:'PIT',sub:'Roczne rozliczenia podatkowe',icon:'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',iconBg:'#FBF0DA',iconInk:'#96650B',span:6,
+        items:[{a:'2025',b:'PIT-11',c:'Gotowy',pill:okP},{a:'2024',b:'PIT-11',c:'Archiwum',pill:nuP},{a:'2023',b:'PIT-11',c:'Archiwum',pill:nuP},{a:'2022',b:'PIT-11',c:'Archiwum',pill:nuP},{a:'2021',b:'PIT-11',c:'Archiwum',pill:nuP}],
+        actions:[{label:'Pobierz PIT-11 2025',primary:true,go:()=>this.fire('download','#6B7A85','PIT-11 2025 — pobrano PDF')},{label:'Wyślij na e-mail',go:()=>this.fire('mail','#1F6FB2','PIT-11 2025 wysłany na Twój e-mail')}]},
+    ];
+    affairsCards.forEach(c=>c.actions.forEach(a=>{a.style=a.primary?aBtnP:aBtnG;}));
+
+    // preview (metadata of selected record) inside each bento card
+    const affPrev = this.state.affPrev || [0,0,0,0,0];
+    const prevLabels=['Wybrany dokument','Wybrany dzień','Wybrana notatka','Wybrana wypłata','Deklaracja PIT'];
+    const metaByCard=(ci,it)=>[
+      [{k:'Typ',v:it.a||'—'},{k:'Status',v:it.c},{k:'Przesłał',v:'Kadry · HealthLab'},{k:'Zaktualiz.',v:'2026'}],
+      [{k:'Termin',v:it.a},{k:'Godziny',v:it.c},{k:'Miejsce',v:'Gabinet 4'},{k:'Rodzaj',v:it.b}],
+      [{k:'Priorytet',v:it.c},{k:'Utworzono',v:'21 lip 2026'},{k:'Status',v:'Otwarta'},{k:'Autor',v:'dr A. Kwiat'}],
+      [{k:'Okres',v:it.a},{k:'Kwota',v:it.c},{k:'Wypłata',v:'10. dzień'},{k:'Dokument',v:'RMUA'}],
+      [{k:'Rok',v:it.a},{k:'Formularz',v:it.b},{k:'Status',v:it.c},{k:'Płatnik',v:'HealthLab'}],
+    ][ci];
+    affairsCards.forEach((c,ci)=>{
+      const si = affPrev[ci]||0;
+      c.items.forEach((it,ii)=>{
+        it.sel=()=>{ const a=(this.state.affPrev||[0,0,0,0,0]).slice(); a[ci]=ii; this.setState({affPrev:a}); };
+        it.rowStyle='display:flex;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;border-radius:8px;cursor:pointer;border-bottom:1px solid #F3F6F8;transition:background .12s'+(ii===si?';background:#EAF3EF':'');
+      });
+      const it=c.items[si]||c.items[0];
+      c.preview={label:prevLabels[ci],title:it.b,badge:it.c,badgeStyle:it.pill,meta:metaByCard(ci,it)};
+    });
+
+    // ===== MOJE SPRAWY — sekcje szczegółowe =====
+    const AFF_VIEWS=['mydocs','grafik','notes','pay','pit'];
+    affairsCards.forEach((c,i)=>{ c.open=()=>this.setState({nav:'affairs',affView:AFF_VIEWS[i],affQuery:'',msModal:null,creator:null}); });
+    affairsCards[0].createLabel='Nowy dokument'; affairsCards[0].create=()=>this.setState({nav:'affairs',affView:'mydocs',affQuery:'',msModal:null,creator:'newdoc'});
+    affairsCards[2].createLabel='Nowa notatka'; affairsCards[2].create=()=>this.setState({nav:'affairs',affView:'notes',affQuery:'',msModal:null,creator:'newnote'});
+    const affView=this.state.affView;
+    const aq=(this.state.affQuery||'').toLowerCase();
+
+    const MYDOCS=[
+      ['Umowa o pracę','Umowa','01 sty 2024','Aktywna','Umowa o pracę na czas nieokreślony, pełny etat. Stanowisko: lekarz specjalista chorób wewnętrznych. Miejsce pracy: HealthLab Sp. z o.o., Gabinet 4.','Dział kadr','02 sty 2024'],
+      ['Aneks do umowy — wynagrodzenie','Aneks','01 sty 2026','Aktywny','Aneks zmieniający wysokość wynagrodzenia zasadniczego, obowiązujący od 01.01.2026. Pozostałe warunki umowy bez zmian.','Dział kadr','03 sty 2026'],
+      ['Zaświadczenie o zatrudnieniu','Zaświadczenie','15 lip 2026','Gotowe','Zaświadcza się, że dr Anna Kwiat jest zatrudniona w HealthLab Sp. z o.o. na czas nieokreślony w pełnym wymiarze czasu pracy.','Dział kadr',''],
+      ['Zgoda RODO','Zgoda','01 sty 2024','Podpisana','Zgoda na przetwarzanie danych osobowych pracownika w zakresie niezbędnym do realizacji stosunku pracy.','Dział kadr','02 sty 2024'],
+      ['Certyfikat PWZ 2841190','Certyfikat','—','Ważny','Prawo wykonywania zawodu lekarza nr 2841190, wydane przez Okręgową Izbę Lekarską.','OIL Warszawa','15 lut 2024'],
+      ['Orzeczenie — medycyna pracy','Orzeczenie','10 lut 2026','Ważne do 02.2028','Brak przeciwwskazań zdrowotnych do wykonywania pracy na stanowisku lekarza.','Medycyna pracy','11 lut 2026'],
+      ['Szkolenie BHP','Certyfikat','05 mar 2026','Ważne','Okresowe szkolenie BHP dla pracowników medycznych — zaliczone z wynikiem pozytywnym.','Inspektor BHP',''],
+      ['Polisa OC','Polisa','01 sty 2026','Aktywna','Ubezpieczenie odpowiedzialności cywilnej lekarza. Suma gwarancyjna 350 000 zł.','Broker Medus','05 sty 2026'],
+    ];
+    const mdF=this.state.mdFilter||'all';
+    const mdChips=[['all','Wszystkie'],['Umowa','Umowy'],['Zaświadczenie','Zaświadczenia'],['Certyfikat','Certyfikaty']].map(f=>({go:()=>this.setState({mdFilter:f[0]}),label:f[1],style:mdF===f[0]?fA:fI}));
+    const mdList=MYDOCS.map((d,i)=>({d,i})).filter(o=>(mdF==='all'||o.d[1]===mdF)&&(aq===''||o.d[0].toLowerCase().includes(aq)));
+    const myDocuments=mdList.map(o=>{const d=o.d;const isSel=o.i===this.state.selMydoc;return {
+      go:()=>this.setState({selMydoc:o.i}), title:d[0], type:d[1], date:d[2], statusLabel:d[3], st:this.pill('#EEF2F5','#5F6E79'),
+      rowStyle:'display:flex;align-items:center;gap:11px;padding:11px 16px;cursor:pointer;border-bottom:1px solid #F1F4F7;transition:background .12s'+(isSel?';background:#E7F2EF;box-shadow:inset 3px 0 0 '+accent:''),
+    };});
+    const smd=MYDOCS[this.state.selMydoc];
+    const myDocSel={title:smd[0],type:smd[1],date:smd[2],statusLabel:smd[3],body:smd[4],stStyle:this.pill('#E4F1E7','#2E7D46'),
+      download:()=>this.fire('download','#6B7A85',smd[0]+' — pobrano PDF'), email:()=>this.fire('mail','#1F6FB2',smd[0]+' wysłany na Twój e-mail')};
+
+    const readBadge=(r)=> r ? {label:'Odczytano · '+r, style:this.pill('#E4F1E7','#2E7D46')} : {label:'Nieodczytane', style:this.pill('#FBF0DA','#96650B')};
+    const docsTable=mdList.map(o=>{const d=o.d;const rb=readBadge(d[6]);return {
+      name:d[0], sub:d[1]+' · '+d[3], sender:d[5], date:d[2], readLabel:rb.label, readStyle:rb.style,
+      preview:()=>this.setState({selMydoc:o.i,msModal:'doc'}),
+      email:()=>this.fire('mail','#1F6FB2',d[0]+' wysłany na Twój e-mail'),
+      download:()=>this.fire('download','#6B7A85',d[0]+' — pobrano PDF'),
+    };});
+    const NOTES=[
+      ['Zamówić materiały do gabinetu','Dziś','urgent','Skończyły się rękawiczki rozm. M oraz strzykawki 5 ml. Zamówić przez magazyn do piątku.'],
+      ['Szkolenie RODO — dokończyć','30 lip','plan','Obowiązkowy moduł online. Termin do końca lipca. Certyfikat wgrać do „Moje dokumenty”.'],
+      ['Oddzwonić do apteki ws. recept','Pilne','urgent','Apteka „Pod Orłem” — pytanie o refundację recepty dla pac. A-40218 (Apiksaban).'],
+      ['Prezentacja na zebranie zespołu','05 sie','plan','Przygotować podsumowanie wyników pacjentów diabetologicznych za II kwartał.'],
+      ['Zaktualizować leki w gabinecie','—','done','Sprawdzono daty ważności. Wymieniono 3 pozycje z apteczki podręcznej.'],
+      ['Zamówić nowe pieczątki','12 sie','plan','Imienna + numer PWZ. Dostawca jak poprzednio.'],
+    ];
+    const notePri={urgent:this.pill('#FBE7E4','#B0392B'),plan:this.pill('#EEF2F5','#6B7A85'),done:this.pill('#E4F1E7','#2E7D46')};
+    const notePriL={urgent:'Pilne',plan:'Zaplanowane',done:'Zrobione'};
+    const noteList=NOTES.map((n,i)=>({n,i})).filter(o=>aq===''||o.n[0].toLowerCase().includes(aq)||o.n[3].toLowerCase().includes(aq));
+    const notes=noteList.map(o=>{const n=o.n;const isSel=o.i===this.state.selNote;return {
+      go:()=>this.setState({selNote:o.i}), title:n[0], when:n[1], priLabel:notePriL[n[2]], st:notePri[n[2]], excerpt:n[3],
+      rowStyle:'display:flex;flex-direction:column;gap:4px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #F1F4F7;transition:background .12s'+(isSel?';background:#E7F2EF;box-shadow:inset 3px 0 0 '+accent:''),
+    };});
+    const sn=NOTES[this.state.selNote];
+    const noteSel={title:sn[0],when:sn[1],priLabel:notePriL[sn[2]],st:notePri[sn[2]],body:sn[3],
+      save:()=>this.fire('ok',accent,'Notatka zapisana'), del:()=>this.fire('ok','#B0392B','Notatka usunięta')};
+
+    const PAYS=[['07/2026','Lipiec 2026',''],['06/2026','Czerwiec 2026','06 lip 2026'],['05/2026','Maj 2026','05 cze 2026'],['04/2026','Kwiecień 2026','06 maj 2026'],['03/2026','Marzec 2026','06 kwi 2026'],['02/2026','Luty 2026','06 mar 2026'],['01/2026','Styczeń 2026','06 lut 2026']];
+    const paysTable=PAYS.map((p,i)=>{const rb=readBadge(p[2]);return {
+      name:'Wynagrodzenie — '+p[1], sub:'IMIR / RMUA · '+p[0]+' · 18 900 zł', sender:'Dział płac', date:p[0], readLabel:rb.label, readStyle:rb.style,
+      preview:()=>this.setState({selPay:i,msModal:'pay'}),
+      email:()=>this.fire('mail','#1F6FB2','IMIR '+p[0]+' wysłany na Twój e-mail'),
+      download:()=>this.fire('download','#6B7A85','Pasek wypłaty '+p[0]+' — pobrano PDF'),
+    };});
+    const sp=PAYS[this.state.selPay];
+    const paySel={period:sp[1],code:'RMUA · '+sp[0],
+      rows:[{k:'Wynagrodzenie zasadnicze',v:'21 000,00 zł'},{k:'Dodatek za dyżury',v:'2 400,00 zł'},{k:'Dodatek stażowy',v:'1 200,00 zł'},{k:'Podstawa brutto',v:'24 600,00 zł',b:true},{k:'Składki społeczne ZUS',v:'−3 373,86 zł'},{k:'Składka zdrowotna',v:'−1 909,52 zł'},{k:'Zaliczka na PIT',v:'−2 416,00 zł'},{k:'Do wypłaty (netto)',v:'18 900,62 zł',t:true}],
+      download:()=>this.fire('download','#6B7A85','Pasek wypłaty '+sp[0]+' — pobrano PDF'), email:()=>this.fire('mail','#1F6FB2','IMIR '+sp[0]+' wysłany na Twój e-mail')};
+
+    const PITS=[['2025','Gotowy','ready',''],['2024','Archiwum','arch','21 lut 2025'],['2023','Archiwum','arch','19 lut 2024'],['2022','Archiwum','arch','20 lut 2023']];
+    const pitsTable=PITS.map((p,i)=>{const rb=readBadge(p[3]);return {
+      name:'PIT-11 · '+p[0], sub:'Informacja od płatnika', sender:'Dział płac', date:p[0], readLabel:rb.label, readStyle:rb.style,
+      preview:()=>this.setState({selPit:i,msModal:'pit'}),
+      email:()=>this.fire('mail','#1F6FB2','PIT-11 '+p[0]+' wysłany na Twój e-mail'),
+      download:()=>this.fire('download','#6B7A85','PIT-11 '+p[0]+' — pobrano PDF'),
+    };});
+    const spi=PITS[this.state.selPit];
+    const pitSel={year:spi[0],
+      rows:[{k:'Przychód',v:'226 800,00 zł'},{k:'Koszty uzyskania przychodu',v:'3 000,00 zł'},{k:'Dochód',v:'223 800,00 zł',b:true},{k:'Zaliczki pobrane przez płatnika',v:'28 992,00 zł'},{k:'Składki na ubezpieczenia społeczne',v:'40 486,00 zł'},{k:'Składka na ubezpieczenie zdrowotne',v:'22 914,00 zł'}],
+      download:()=>this.fire('download','#6B7A85','PIT-11 '+spi[0]+' — pobrano PDF'), email:()=>this.fire('mail','#1F6FB2','PIT-11 '+spi[0]+' wysłany na Twój e-mail')};
+    [paySel,pitSel].forEach(o=>o.rows.forEach(r=>{ r.kStyle='font-size:13px;'+((r.b||r.t)?'font-weight:700;color:#15242F;':'color:#4A5B67;'); r.vStyle='font-family:\'IBM Plex Mono\';text-align:right;'+(r.t?'font-weight:700;color:#0E7C66;font-size:15px;':((r.b?'font-weight:700;':'')+'font-size:13px;')); r.rowStyle='display:flex;justify-content:space-between;gap:12px;padding:9px 0;'+((r.b||r.t)?'border-top:1.5px solid #E4EAEF;':'border-bottom:1px solid #F3F6F8;'); }));
+
+    // -- Kalendarz pracy (rok 2026) --
+    const MON=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+    const gdow=['Pn','Wt','Śr','Cz','Pt','So','Nd'];
+    const gtype={work:{l:'Przyjęcia — Gabinet 4',h:'08:00–16:00',dot:'#0E7C66',bg:'#E8F1EE',ink:'#0E7C66'},tele:{l:'Teleporady',h:'10:00–14:00',dot:'#1F6FB2',bg:'#E4EEF7',ink:'#1F6FB2'},dyzur:{l:'Dyżur nocny',h:'20:00–08:00',dot:'#D9A21B',bg:'#FBF0DA',ink:'#96650B'},urlop:{l:'Urlop wypoczynkowy',h:'cały dzień',dot:'#6A4CB0',bg:'#EDE7F7',ink:'#6A4CB0'},holiday:{l:'Święto / dzień wolny',h:'—',dot:'#C0392B',bg:'#FBE7E4',ink:'#B0392B'},wolne:{l:'Wolne',h:'—',dot:'#D4DBE1',bg:'#F5F7F9',ink:'#8A98A2'}};
+    const HOL={'0-1':1,'0-6':1,'3-6':1,'4-1':1,'4-3':1,'5-4':1,'7-15':1,'10-1':1,'10-11':1,'11-25':1,'11-26':1};
+    const classify=(m,d)=>{ if(HOL[m+'-'+d]) return 'holiday'; if(m===7&&d>=3&&d<=14) return 'urlop'; const dow=new Date(2026,m,d).getDay(); if(dow===0) return 'wolne'; if(dow===6) return Math.ceil(d/7)===2?'dyzur':'wolne'; if(dow===3) return 'tele'; return 'work'; };
+    let cWork=0,cDyz=0,cUrl=0;
+    const gmonths=MON.map((nm,m)=>{ const n=new Date(2026,m+1,0).getDate(); const first=(new Date(2026,m,1).getDay()+6)%7; const cells=[]; for(let i=0;i<first;i++) cells.push({blank:true}); for(let d=1;d<=n;d++){ const t=classify(m,d); if(t==='work'||t==='tele')cWork++; else if(t==='dyzur')cDyz++; else if(t==='urlop')cUrl++; const key=m+'-'+d; const isSel=key===this.state.gDay; const g=gtype[t]; const filled=(t!=='wolne'); cells.push({blank:false,day:d,go:()=>this.setState({gDay:key}),
+      style:'height:26px;display:grid;place-items:center;font-size:11px;font-family:\'IBM Plex Mono\';border-radius:6px;cursor:pointer;'+(isSel?'background:'+accent+';color:#fff;font-weight:700':(filled?'background:'+g.bg+';color:'+g.ink:'color:#B4C1CA'))}); } return {name:nm,cells:cells}; });
+    const gp=(this.state.gDay||'6-21').split('-'); const gm=+gp[0],gd=+gp[1]; const gt=classify(gm,gd); const gg=gtype[gt];
+    const gsel={date:gd+' '+MON[gm].toLowerCase()+' 2026',dow:['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'][new Date(2026,gm,gd).getDay()],label:gg.l,hours:gg.h,ink:gg.ink,bg:gg.bg};
+    const gstats=[{v:cWork,k:'dni pracy'},{v:cDyz,k:'dyżury'},{v:cUrl,k:'dni urlopu'},{v:26-cUrl,k:'urlop pozostały'}];
+    const glegend=[['work','Przyjęcia'],['tele','Teleporady'],['dyzur','Dyżur'],['urlop','Urlop'],['holiday','Święto'],['wolne','Wolne']].map(x=>({label:x[1],dot:gtype[x[0]].dot}));
+    const TICON={mail:'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6',sms:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',download:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',ok:'M20 6 9 17l-5-5'};
+    const chipActive='display:inline-flex;align-items:center;padding:7px 12px;border-radius:9px;background:'+accent+';color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:\'IBM Plex Sans\'';
+    const chipIdle='display:inline-flex;align-items:center;padding:7px 12px;border-radius:9px;background:#F1F5F7;color:#4A5B67;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #E4EAEF;font-family:\'IBM Plex Sans\'';
+    const CREATORS={
+      wizyta:{title:'Nowa wizyta',sub:'Zaplanuj wizytę pacjenta',submit:'Zaplanuj wizytę',fields:[{label:'Pacjent',kind:'select',value:'Wybierz pacjenta…'},{label:'Typ wizyty',kind:'chips',options:['Wizyta POZ','Kardiologia','Diabetologia','Kontrola']},{label:'Termin',kind:'text',ph:'np. 22 lip 2026, 09:00'},{label:'Gabinet',kind:'select',value:'Gabinet 4'}]},
+      recepta:{title:'Nowa recepta',sub:'Wystaw e-receptę',submit:'Wystaw receptę',fields:[{label:'Pacjent',kind:'select',value:'Marek Kowalczyk'},{label:'Lek',kind:'text',ph:'np. Metformina 1000 mg'},{label:'Dawkowanie',kind:'text',ph:'np. 2× dziennie'},{label:'Refundacja',kind:'chips',options:['100%','50%','30%','Pełnopłatny']}]},
+      skierowanie:{title:'Nowe skierowanie',sub:'Skieruj na badanie lub do poradni',submit:'Wystaw skierowanie',fields:[{label:'Pacjent',kind:'select',value:'Wybierz pacjenta…'},{label:'Cel skierowania',kind:'text',ph:'np. Poradnia kardiologiczna'},{label:'Tryb',kind:'chips',options:['Planowy','Pilny']},{label:'Uzasadnienie',kind:'area',ph:'Rozpoznanie i uzasadnienie…'}]},
+      zlecenie:{title:'Nowe zlecenie laboratoryjne',sub:'Zleć badania z panelu',submit:'Zleć badania',fields:[{label:'Pacjent',kind:'select',value:'Marek Kowalczyk'},{label:'Badania',kind:'chips',options:['Morfologia','HbA1c','Lipidogram','TSH','CRP','Kreatynina']},{label:'Materiał',kind:'chips',options:['Krew','Mocz','Wymaz']},{label:'Uwagi',kind:'area',ph:'Uwagi dla laboratorium…'}]},
+      teleporada:{title:'Nowa teleporada',sub:'Umów konsultację zdalną',submit:'Umów teleporadę',fields:[{label:'Pacjent',kind:'select',value:'Wybierz pacjenta…'},{label:'Termin',kind:'text',ph:'np. 22 lip 2026, 11:30'},{label:'Kanał',kind:'chips',options:['Wideo','Telefon']},{label:'Powód',kind:'text',ph:'np. omówienie wyników'}]},
+      newdoc:{title:'Nowy dokument',sub:'Dodaj dokument do teczki',submit:'Dodaj dokument',fields:[{label:'Typ dokumentu',kind:'chips',options:['Umowa','Zaświadczenie','Certyfikat','Zgoda','Orzeczenie']},{label:'Nazwa',kind:'text',ph:'np. Zaświadczenie o zatrudnieniu'},{label:'Załącznik',kind:'file'},{label:'Uwagi',kind:'area',ph:'Opis / uwagi…'}]},
+      newnote:{title:'Nowa notatka',sub:'Zapisz prywatną notatkę',submit:'Zapisz notatkę',fields:[{label:'Tytuł',kind:'text',ph:'np. Oddzwonić do apteki'},{label:'Treść',kind:'area',ph:'Treść notatki…'},{label:'Priorytet',kind:'chips',options:['Zwykła','Zaplanowane','Pilne']}]},
+    };
+    const ctype=this.state.creator; const ccfg=ctype?CREATORS[ctype]:null;
+    const creatorFields=ccfg?ccfg.fields.map(f=>({label:f.label,ph:f.ph||'',value:f.value||'',isText:f.kind==='text',isArea:f.kind==='area',isSelect:f.kind==='select',isChips:f.kind==='chips',isFile:f.kind==='file',options:(f.options||[]).map((o,oi)=>({label:o,style:oi===0?chipActive:chipIdle}))})):[];
+    const tst=this.state.toast;
+    return {
+      accent, tabs, wlFilters, quickActions, docFilters, detailCol: showDetail ? '320px' : '0px', showDetail,
+      isMenu:nav==='menu', isToday:nav==='today', isPatient:nav==='patient', isResults:nav==='results', isDocuments:nav==='documents',
+      isAffairs:nav==='affairs'&&!affView, isAffDocs:nav==='affairs'&&affView==='mydocs', isAffGrafik:nav==='affairs'&&affView==='grafik', isAffNotes:nav==='affairs'&&affView==='notes', isAffPay:nav==='affairs'&&affView==='pay', isAffPit:nav==='affairs'&&affView==='pit',
+      backAff:()=>this.setState({affView:null,msModal:null}), setAffQuery:(e)=>this.setState({affQuery:e.target.value}),
+      myDocuments, myDocSel, mdChips, myDocsSummary: mdList.length+' z '+MYDOCS.length+' dokumentów',
+      notes, noteSel, notesSummary: noteList.length+' notatek',
+      paysTable, paySel, pitsTable, pitSel, docsTable, gmonths, gdow, gsel, gstats, glegend,
+      msModalOpen:!!this.state.msModal, msIsDoc:this.state.msModal==='doc', msIsPay:this.state.msModal==='pay', msIsPit:this.state.msModal==='pit',
+      closeMsModal:()=>this.setState({msModal:null}), stop:(e)=>{if(e&&e.stopPropagation)e.stopPropagation();},
+      msModalEmail:(this.state.msModal==='pay'?paySel.email:this.state.msModal==='pit'?pitSel.email:myDocSel.email),
+      msModalDownload:(this.state.msModal==='pay'?paySel.download:this.state.msModal==='pit'?pitSel.download:myDocSel.download),
+      creatorOpen:!!ctype, creatorTitle:ccfg?ccfg.title:'', creatorSub:ccfg?ccfg.sub:'', creatorSubmit:ccfg?ccfg.submit:'', creatorFields,
+      closeCreator:()=>this.setState({creator:null}), submitCreator:()=>{ this.fire('ok',accent,(ccfg?ccfg.submit:'Utworzono')+' — zapisano (makieta)'); this.setState({creator:null}); },
+      rows, curPat, results, resSel, documents, docSel, pd, menuCards, menuStats, affairsCards, newVisit, remindAll,
+      toastShow:!!tst, toastText:tst?tst.text:'', toastColor:tst?tst.color:accent, toastIcon:tst?TICON[tst.icon]:'',
+      backToday:()=>this.setNav('today'),
+      wlSummary: rows.length+' pozycji · '+nWait+' oczekuje · 1 w trakcie',
+      resSummary: RES.length+' wyników · 2 poza zakresem · 1 w toku',
+      docSummary: docFiltered.length+' dokumentów · '+DOCS.filter(d=>d[3]==='todo').length+' do podpisu',
+      clockLabel:'09:37', dateLabel:'21 lip 2026',
+    };
+  }
+}
+</script>
+</body>
+</html>

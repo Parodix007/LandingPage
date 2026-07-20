@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Nunito Sans',sans-serif;color:#21332E;background:#F4EFE4;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:600;letter-spacing:-.01em}
+  p{margin:0}
+  a{color:#12876F;text-decoration:none}
+  a:hover{color:#0E6E58}
+  button{font-family:'Nunito Sans',sans-serif}
+  input,select,textarea{font-family:'Nunito Sans',sans-serif}
+  input:focus,select:focus,textarea:focus{outline:none}
+  ::selection{background:#DCEFE7}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:#D9CFBD;border-radius:9px}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @media (max-width: 860px){
+    .m-app{ flex-direction:column!important; }
+    .m-side{ width:100%!important; height:auto!important; position:static!important; flex-direction:row!important; flex-wrap:wrap!important; align-items:center!important; gap:8px!important; padding:12px 16px!important; }
+    .m-side-nav{ flex-direction:row!important; overflow-x:auto!important; gap:6px!important; width:100%!important; order:3; }
+    .m-side-foot{ display:none!important; }
+    .m-topbar{ flex-wrap:wrap!important; gap:12px!important; height:auto!important; padding:14px 16px!important; }
+    .m-content{ padding:18px 16px 60px!important; }
+    [style*="grid-template-columns: repeat(4, 1fr)"],[style*="grid-template-columns: repeat(3, 1fr)"],[style*="grid-template-columns: 1.4fr 1fr"],[style*="grid-template-columns: 1.5fr 1fr"],[style*="grid-template-columns: repeat(6, 1fr)"]{ grid-template-columns:1fr!important; }
+    .m-search{ display:none!important; }
+    .m-two{ grid-template-columns:1fr!important; }
+  }
+</style>
+</helmet>
+<div class="m-app" style="display:flex;height:100vh;overflow:hidden;background:#F4EFE4">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="m-side" style="width:248px;flex-shrink:0;background:linear-gradient(180deg,#21332E,#182A24);color:#fff;display:flex;flex-direction:column;padding:22px 16px;position:sticky;top:0;height:100vh">
+    <div style="display:flex;align-items:center;gap:11px;padding:0 6px 20px">
+      <div style="width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,#12876F,#16A085);display:grid;place-items:center;box-shadow:0 5px 12px -7px rgba(18,135,111,.5)">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+      </div>
+      <div style="line-height:1.05"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:21px">Merdi</div><div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:700">panel · back-office</div></div>
+    </div>
+
+
+    <nav class="m-side-nav" style="display:flex;flex-direction:column;gap:3px;flex:1">
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
+        <button onClick="{{ n.go }}" style="{{ n.style }}">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="{{ n.icon }}"></path></svg>
+          <span style="flex:1;text-align:left">{{ n.label }}</span>
+          <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}"><span style="background:#CE7257;color:#fff;font-size:11px;font-weight:800;border-radius:999px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 6px">{{ n.badge }}</span></sc-if>
+        </button>
+      </sc-for>
+    </nav>
+
+    <div class="m-side-foot" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)">
+      <button style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;color:rgba(255,255,255,.6);font-weight:700;font-size:13.5px;cursor:pointer;padding:9px 12px;border-radius:11px" style-hover="background:rgba(255,255,255,.06);color:#fff">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
+        Wyloguj się
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0;height:100vh;min-height:0">
+    <!-- topbar -->
+    <header class="m-topbar" style="height:70px;background:rgba(251,246,238,.9);backdrop-filter:blur(10px);border-bottom:1px solid #E7DECE;display:flex;align-items:center;gap:18px;padding:0 26px;position:sticky;top:0;z-index:30">
+      <div style="min-width:0">
+        <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:20px;line-height:1.1">{{ pageTitle }}</div>
+        <div style="font-size:12.5px;color:#7A857F">{{ pageSub }}</div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="m-search" style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #E7DECE;border-radius:12px;padding:8px 14px;width:230px">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#9AA69F" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg>
+        <input placeholder="Szukaj…" style="border:none;background:none;font-size:14px;width:100%;color:#21332E">
+      </div>
+      <button style="position:relative;width:42px;height:42px;border-radius:12px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;flex-shrink:0" style-hover="border-color:#12876F">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="#3A4B44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"></path></svg>
+        <span style="position:absolute;top:-4px;right:-4px;background:#CE7257;color:#fff;font-size:10.5px;font-weight:800;border-radius:999px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px">{{ bellCount }}</span>
+      </button>
+      <span style="width:42px;height:42px;border-radius:50%;background:{{ roleBadgeBg }};color:#fff;display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:600;font-size:15px;flex-shrink:0">{{ roleIni }}</span>
+    </header>
+
+    <div class="m-content" style="flex:1;min-height:0;overflow-y:auto;padding:26px 26px 60px;animation:fadeUp .35s ease both">
+
+      <!-- LEKARZ · PULPIT -->
+        <sc-if value="{{ lPulpit }}" hint-placeholder-val="{{ false }}">
+          <div style="height:100%;display:flex;flex-direction:column;gap:14px;min-height:0">
+
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;flex-shrink:0">
+              <sc-for list="{{ lekKpis }}" as="k" hint-placeholder-count="4">
+                <div style="background:#fff;border:1px solid #EEE6D8;border-radius:16px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16);padding:15px 18px">
+                  <div style="font-size:12.5px;color:#7A857F;font-weight:700">{{ k.label }}</div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:23px;margin-top:5px;color:{{ k.ink }}">{{ k.value }}</div>
+                  <div style="font-size:12px;color:#9AA69F;font-weight:700;margin-top:1px">{{ k.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="flex-shrink:0;display:grid;grid-template-columns:.95fr 1.5fr;border:1px solid #EEE6D8;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 8px 20px -14px rgba(14,110,88,.35);background:linear-gradient(100deg,#0E6E58 0%,#137C66 40%,#7FC1AF 52%,#CDEAE0 62%,#F4FAF7 72%,#ffffff 80%)">
+              <div style="padding:22px 24px;color:#fff;display:flex;flex-direction:column;justify-content:center">
+                <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.72)">Najbliższa wizyta</div>
+                <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:27px;margin-top:7px;line-height:1.05">{{ nvTime }} · {{ nvPet }}</div>
+                <div style="font-size:13.5px;color:rgba(255,255,255,.88);margin-top:3px">{{ nvService }} · {{ nvOwner }}</div>
+                <button onClick="{{ openBruno }}" style="align-self:flex-start;margin-top:16px;background:#fff;color:#0E6E58;border:none;border-radius:11px;padding:10px 16px;font-family:'Bricolage Grotesque';font-weight:600;font-size:13.5px;cursor:pointer">Otwórz kartę pacjenta →</button>
+              </div>
+              <div style="padding:20px 24px 20px 46px;display:flex;justify-content:flex-end;gap:18px;align-items:center;min-width:0">
+                <div style="width:66px;height:66px;border-radius:18px;background:#E7F5EE;display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#0E6E58" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="1.4"/><circle cx="7" cy="7.5" r="1.2"/><circle cx="17" cy="7.5" r="1.2"/><circle cx="5.2" cy="12" r="1.1"/><circle cx="18.8" cy="12" r="1.1"/><path d="M12 12c-2.6 0-4.4 2-4.4 4 0 1.6 1.3 2.4 4.4 2.4s4.4-.8 4.4-2.4c0-2-1.8-4-4.4-4Z"/></svg></div>
+                <div style="min-width:0">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:18px;color:#21332E">{{ nvPet }} <span style="color:#9AA69F;font-weight:600;font-size:14px">· {{ nvBreed }}</span></div>
+                  <div style="font-size:12.5px;color:#7A857F;margin-top:2px">{{ nvMeta }}</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:11px">
+                    <span style="background:#E7F5EE;color:#0E6E58;font-size:11.5px;font-weight:800;padding:5px 11px;border-radius:999px">{{ nvService }}</span>
+                    <span style="background:#FBF0DA;color:#96650B;font-size:11.5px;font-weight:800;padding:5px 11px;border-radius:999px">{{ nvPrice }}</span>
+                    <span style="background:#E4EEF7;color:#1F6FB2;font-size:11.5px;font-weight:800;padding:5px 11px;border-radius:999px">{{ nvStatus }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="flex-shrink:0;display:grid;grid-template-columns:.62fr 1.55fr;border:1px solid #EEE6D8;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+              <div style="padding:18px;background:#FCFAF5;border-right:1px solid #F1EBDF;display:flex;flex-direction:column;gap:9px">
+                <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px;margin-bottom:2px">Szybkie akcje</div>
+                <button onClick="{{ setActVisit }}" style="{{ actVisitStyle }}"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3.5 9.5h17M5 4.5h14a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2M12 13v4M10 15h4"/></svg>Dodaj wizytę</button>
+                <button onClick="{{ setActRx }}" style="{{ actRxStyle }}"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.4 3.6 13.5a4.6 4.6 0 0 1 6.5-6.5l6.9 6.9a4.6 4.6 0 0 1-6.5 6.5ZM7 7l8 8"/></svg>Wystaw receptę</button>
+                <button onClick="{{ setActSk }}" style="{{ actSkStyle }}"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5H7a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6.5a2 2 0 0 0-2-2h-2M9 4.5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 4.5a2 2 0 0 0 0 .4M8.5 13.5l2 2 4-4"/></svg>Wystaw skierowanie</button>
+              </div>
+              <div style="padding:18px 22px;min-width:0">
+                <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px;margin-bottom:12px">{{ inlineTitle }}</div>
+                <sc-if value="{{ inlVisit }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 16px">
+                    <div><label style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px">Pacjent</label>
+                      <select value="{{ cPat }}" onChange="{{ onCPat }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:10px;padding:9px 11px;font-family:'Nunito Sans';font-size:13.5px;background:#FCFAF5;color:#21332E;outline:none"><sc-for list="{{ createRoster }}" as="p" hint-placeholder-count="4"><option value="{{ p }}">{{ p }}</option></sc-for></select></div>
+                    <div><label style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px">Usługa (cennik)</label>
+                      <select value="{{ cSvc }}" onChange="{{ onCSvc }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:10px;padding:9px 11px;font-family:'Nunito Sans';font-size:13.5px;background:#FCFAF5;color:#21332E;outline:none"><sc-for list="{{ priceOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.label }}</option></sc-for></select></div>
+                    <div><label style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px">Data</label>
+                      <input type="date" value="{{ cDate }}" onInput="{{ onCDate }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:10px;padding:9px 11px;font-family:'Nunito Sans';font-size:13.5px;background:#FCFAF5;color:#21332E;outline:none"></div>
+                    <div><label style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px">Godzina</label>
+                      <input type="time" value="{{ cTime }}" onInput="{{ onCTime }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:10px;padding:9px 11px;font-family:'Nunito Sans';font-size:13.5px;background:#FCFAF5;color:#21332E;outline:none"></div>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px">
+                    <div style="font-size:13px;color:#7A857F;font-weight:700">Cena wg cennika: <span style="color:#0E6E58;font-weight:800;font-family:'Bricolage Grotesque'">{{ inlinePrice }}</span></div>
+                    <button onClick="{{ submitInline }}" style="background:#12876F;color:#fff;border:none;border-radius:11px;padding:11px 20px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer">Dodaj wizytę</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ inlDoc }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 16px">
+                    <div><label style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px">Pacjent</label>
+                      <select value="{{ cPat }}" onChange="{{ onCPat }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:10px;padding:9px 11px;font-family:'Nunito Sans';font-size:13.5px;background:#FCFAF5;color:#21332E;outline:none"><sc-for list="{{ createRoster }}" as="p" hint-placeholder-count="4"><option value="{{ p }}">{{ p }}</option></sc-for></select></div>
+                    <div><label style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px">{{ inlAL }}</label>
+                      <input value="{{ cA }}" onInput="{{ onCA }}" placeholder="{{ inlAP }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:10px;padding:9px 11px;font-family:'Nunito Sans';font-size:13.5px;background:#FCFAF5;color:#21332E;outline:none"></div>
+                    <div style="grid-column:1 / -1"><label style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px">{{ inlBL }}</label>
+                      <input value="{{ cB }}" onInput="{{ onCB }}" placeholder="{{ inlBP }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:10px;padding:9px 11px;font-family:'Nunito Sans';font-size:13.5px;background:#FCFAF5;color:#21332E;outline:none"></div>
+                  </div>
+                  <div style="display:flex;justify-content:flex-end;margin-top:14px">
+                    <button onClick="{{ submitInline }}" style="background:#12876F;color:#fff;border:none;border-radius:11px;padding:11px 20px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer">{{ inlineSubmit }}</button>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+
+            <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #EEE6D8;border-radius:16px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16);overflow:hidden">
+              <div style="padding:14px 20px;border-bottom:1px solid #F1EBDF;display:flex;align-items:center;justify-content:space-between;flex-shrink:0"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:16px">Plan na dziś</div><span style="font-size:12.5px;color:#7A857F;font-weight:700">9 wizyt</span></div>
+              <div style="flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:9px">
+                <sc-for list="{{ lekToday }}" as="a" hint-placeholder-count="6">
+                  <div onClick="{{ a.open }}" style="display:flex;align-items:center;gap:14px;background:#FAF6EE;border-radius:12px;padding:11px 15px;border-left:4px solid {{ a.ink }};cursor:pointer;flex-shrink:0">
+                    <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px;color:#21332E;width:48px;flex-shrink:0">{{ a.time }}</div>
+                    <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px">{{ a.pet }} <span style="color:#9AA69F;font-weight:700">· {{ a.owner }}</span></div><div style="font-size:12.5px;color:#7A857F">{{ a.service }}</div></div>
+                    <span style="font-size:11.5px;font-weight:800;color:{{ a.ink }};background:{{ a.bg }};padding:5px 10px;border-radius:999px;white-space:nowrap">{{ a.status }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- LEKARZ · KALENDARZ -->
+        <sc-if value="{{ lKalendarz }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:8px">
+              <button onClick="{{ calPrev }}" style="width:38px;height:38px;border-radius:11px;border:1px solid #E7DECE;background:#fff;cursor:pointer;font-size:17px">‹</button>
+              <button onClick="{{ calNext }}" style="width:38px;height:38px;border-radius:11px;border:1px solid #E7DECE;background:#fff;cursor:pointer;font-size:17px">›</button>
+              <button onClick="{{ calToday }}" style="height:38px;border-radius:11px;border:1px solid #E7DECE;background:#fff;cursor:pointer;font-weight:800;font-size:13px;padding:0 14px;color:#3A4B44">Dziś</button>
+            </div>
+            <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:18px;text-transform:capitalize">{{ calLabel }}</div>
+            <div style="flex:1"></div>
+            <div style="display:flex;background:#EDE5D6;border-radius:11px;padding:4px;gap:2px">
+              <button onClick="{{ setViewMonth }}" style="{{ vMonthStyle }}">Miesiąc</button>
+              <button onClick="{{ setViewWeek }}" style="{{ vWeekStyle }}">Tydzień</button>
+              <button onClick="{{ setViewDay }}" style="{{ vDayStyle }}">Dzień</button>
+            </div>
+          </div>
+          <sc-if value="{{ calMonth }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:14px;padding:18px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:10px">
+                <sc-for list="{{ dowNames }}" as="d" hint-placeholder-count="7"><div style="text-align:center;font-size:12px;font-weight:800;color:#9AA69F;text-transform:uppercase">{{ d }}</div></sc-for>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px">
+                <sc-for list="{{ monthCells }}" as="c" hint-placeholder-count="35">
+                  <div onClick="{{ c.pick }}" style="{{ c.style }}">
+                    <div style="font-weight:800;font-size:13.5px;color:{{ c.numInk }}">{{ c.num }}</div>
+                    <div style="display:flex;flex-direction:column;gap:3px;margin-top:5px">
+                      <sc-for list="{{ c.chips }}" as="a" hint-placeholder-count="2"><div style="font-size:10.5px;font-weight:700;background:{{ a.bg }};color:{{ a.ink }};border-radius:6px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.time }} {{ a.pet }}</div></sc-for>
+                      <sc-if value="{{ c.more }}" hint-placeholder-val="{{ false }}"><div style="font-size:10.5px;color:#9AA69F;font-weight:800">+{{ c.moreN }}</div></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ calWeek }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:14px;padding:8px 12px 12px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16);overflow-x:auto">
+              <div style="display:grid;grid-template-columns:56px repeat(7,minmax(118px,1fr));position:sticky;top:0;background:#fff;z-index:2;padding-bottom:6px">
+                <div></div>
+                <sc-for list="{{ weekCols }}" as="d" hint-placeholder-count="7">
+                  <div onClick="{{ d.pickDay }}" style="{{ d.weekHeadStyle }}"><div style="font-size:11px;font-weight:800;color:#9AA69F;text-transform:uppercase">{{ d.dow }}</div><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:18px">{{ d.date }}</div></div>
+                </sc-for>
+              </div>
+              <sc-for list="{{ weekHours }}" as="h" hint-placeholder-count="11">
+                <div style="display:grid;grid-template-columns:56px repeat(7,minmax(118px,1fr));border-top:1px solid #F1EBDF;min-height:52px">
+                  <div style="font-size:12px;font-weight:800;color:#9AA69F;padding:8px 8px 0 2px">{{ h.label }}</div>
+                  <sc-for list="{{ h.cells }}" as="c" hint-placeholder-count="7">
+                    <div style="border-left:1px solid #F5F0E6;padding:4px;display:flex;flex-direction:column;gap:4px">
+                      <sc-for list="{{ c.appts }}" as="a" hint-placeholder-count="0">
+                        <div onClick="{{ a.open }}" style="background:{{ a.bg }};border-radius:9px;padding:6px 8px;border-left:3px solid {{ a.ink }};cursor:pointer">
+                          <div style="font-weight:800;font-size:11.5px;color:{{ a.ink }}">{{ a.time }}</div>
+                          <div style="font-size:12px;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.pet }}</div>
+                          <div style="font-size:10.5px;color:#7A857F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.service }}</div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ calDay }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:14px;padding:6px 18px 14px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+              <sc-for list="{{ dayHours }}" as="h" hint-placeholder-count="11">
+                <div style="display:grid;grid-template-columns:66px 1fr;gap:14px;border-top:1px solid #F1EBDF;min-height:58px;padding:8px 0">
+                  <div style="font-size:12.5px;font-weight:800;color:#9AA69F;padding-top:3px">{{ h.label }}</div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <sc-for list="{{ h.appts }}" as="a" hint-placeholder-count="1">
+                      <div onClick="{{ a.open }}" style="background:{{ a.bg }};border-radius:12px;padding:11px 14px;border-left:4px solid {{ a.ink }};cursor:pointer;display:flex;align-items:center;gap:12px">
+                        <span style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px;color:{{ a.ink }}">{{ a.time }}</span>
+                        <div style="flex:1;min-width:0"><span style="font-weight:800;font-size:14px">{{ a.pet }}</span> <span style="font-size:13px;color:#7A857F">· {{ a.service }} · {{ a.owner }}</span></div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <!-- LEKARZ · PLAN NA DZIŚ -->
+        <sc-if value="{{ lPlan }}" hint-placeholder-val="{{ false }}">
+          <div style="height:100%;display:flex;flex-direction:column;min-height:0">
+            <div style="flex-shrink:0;margin-bottom:14px">
+              <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:20px">Plan na dziś</div>
+              <div style="font-size:13px;color:#7A857F;margin-top:2px">{{ planSummary }}</div>
+            </div>
+            <div style="flex:1;min-height:0;overflow-y:auto;background:#fff;border:1px solid #EEE6D8;border-radius:16px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+              <div style="display:grid;grid-template-columns:66px 1.6fr 1.3fr 132px auto;gap:14px;padding:13px 20px;background:#FAF6EE;border-bottom:1px solid #EEE6D8;font-size:12px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2">
+                <div>Godz.</div><div>Pacjent</div><div>Powód</div><div style="text-align:center">Status</div><div style="text-align:center">Akcje</div>
+              </div>
+              <sc-for list="{{ planRows }}" as="r" hint-placeholder-count="6">
+                <div onClick="{{ r.open }}" style="{{ r.rowStyle }}" style-hover="background:#FAF6EE">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:14px">{{ r.time }}</div>
+                  <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                    <span style="width:34px;height:34px;border-radius:11px;background:{{ r.bg }};color:{{ r.ink }};display:grid;place-items:center;font-weight:800;font-size:13px;flex-shrink:0">{{ r.ini }}</span>
+                    <div style="min-width:0"><div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.pet }}</div><div style="font-size:12px;color:#7A857F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.owner }}</div></div>
+                  </div>
+                  <div style="font-size:13px;color:#3A4B44;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.service }}</div>
+                  <div style="text-align:center"><span style="{{ r.statusStyle }}">{{ r.statusL }}</span></div>
+                  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+                    <sc-if value="{{ r.canStart }}" hint-placeholder-val="{{ true }}"><button onClick="{{ r.start }}" style="{{ startBtn }}">Rozpocznij</button></sc-if>
+                    <sc-if value="{{ r.canEnd }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.end }}" style="{{ endBtn }}">Zakończ</button></sc-if>
+                    <sc-if value="{{ r.canCancel }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.cancel }}" style="{{ cancelBtn }}">Anuluj</button></sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- LEKARZ · KARTA PACJENTA (podstrona) -->
+        <sc-if value="{{ patPageOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="height:100%;overflow-y:auto">
+            <button onClick="{{ backPlan }}" style="display:inline-flex;align-items:center;gap:7px;background:none;border:none;color:#7A857F;font-weight:700;font-size:13px;cursor:pointer;padding:2px 2px 12px;font-family:'Bricolage Grotesque'"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Wróć do planu</button>
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:18px;padding:22px 24px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16);display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+              <span style="width:60px;height:60px;border-radius:16px;background:{{ patPage.bg }};display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#12876F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"></circle><circle cx="18" cy="8" r="2"></circle><circle cx="20" cy="16" r="2"></circle><path d="M9 10a5 5 0 0 1 5 5 3 3 0 0 1-3 3 4 4 0 0 1-4-4 4 4 0 0 1 2-4Z"></path></svg></span>
+              <div style="flex:1;min-width:200px">
+                <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:24px;line-height:1.1">{{ patPage.pet }}</div>
+                <div style="font-size:13.5px;color:#4A5B54;margin-top:4px">{{ patPage.species }} · {{ patPage.breed }} · {{ patPage.age }} · {{ patPage.weight }}</div>
+                <div style="font-size:13px;color:#7A857F;margin-top:4px">Opiekun: <strong style="color:#3A4B44;font-weight:700">{{ patPage.owner }}</strong> · {{ patPage.phone }}</div>
+              </div>
+              <sc-if value="{{ patPage.hasVisit }}" hint-placeholder-val="{{ true }}">
+                <div style="text-align:right">
+                  <div style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em">Dzisiejsza wizyta</div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:17px;margin-top:3px">{{ patPage.time }} · {{ patPage.service }}</div>
+                  <div style="margin-top:6px"><span style="{{ patPage.statusStyle }}">{{ patPage.statusL }}</span></div>
+                </div>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ patPage.hasVisit }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0">
+                <sc-if value="{{ patPage.canStart }}" hint-placeholder-val="{{ true }}"><button onClick="{{ patPage.start }}" style="{{ startBtnLg }}">Rozpocznij wizytę</button></sc-if>
+                <sc-if value="{{ patPage.canEnd }}" hint-placeholder-val="{{ false }}"><button onClick="{{ patPage.end }}" style="{{ endBtnLg }}">Zakończ wizytę</button></sc-if>
+                <sc-if value="{{ patPage.canCancel }}" hint-placeholder-val="{{ false }}"><button onClick="{{ patPage.cancel }}" style="{{ cancelBtnLg }}">Anuluj wizytę</button></sc-if>
+              </div>
+            </sc-if>
+
+            <div class="m-two" style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start;margin-top:14px">
+              <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+                <div style="background:#fff;border:1px solid #EEE6D8;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+                  <div style="padding:14px 20px;border-bottom:1px solid #F1EBDF;font-family:'Bricolage Grotesque';font-weight:600;font-size:15px">Poprzednie wizyty</div>
+                  <sc-for list="{{ patPage.history }}" as="h" hint-placeholder-count="3">
+                    <div style="padding:13px 20px;border-bottom:1px solid #F5F0E6;display:flex;gap:14px">
+                      <div style="flex-shrink:0;width:96px"><div style="font-weight:700;font-size:12.5px;color:#3A4B44">{{ h.d }}</div><div style="font-size:11.5px;color:#12876F;font-weight:700;margin-top:2px">{{ h.t }}</div></div>
+                      <div style="font-size:13px;color:#4A5B54;line-height:1.55;min-width:0">{{ h.note }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="background:#fff;border:1px solid #EEE6D8;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+                  <div style="padding:14px 20px;border-bottom:1px solid #F1EBDF;font-family:'Bricolage Grotesque';font-weight:600;font-size:15px">Notatki</div>
+                  <sc-for list="{{ patPage.notes }}" as="n" hint-placeholder-count="2">
+                    <div style="padding:13px 20px;border-bottom:1px solid #F5F0E6">
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:11.5px;font-weight:700;color:#7A857F">{{ n.d }}</span><span style="font-size:11.5px;color:#9AA69F">· {{ n.a }}</span></div>
+                      <div style="font-size:13px;color:#4A5B54;line-height:1.55">{{ n.t }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+                <div style="background:#fff;border:1px solid #EEE6D8;border-radius:16px;padding:16px 20px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px;margin-bottom:12px">Karta pacjenta</div>
+                  <div style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em">Choroby przewlekłe</div>
+                  <div style="font-size:13px;color:#3A4B44;margin:3px 0 12px">{{ patPage.chronic }}</div>
+                  <div style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em">Leki stałe</div>
+                  <div style="font-size:13px;color:#3A4B44;margin:3px 0 12px">{{ patPage.meds }}</div>
+                  <div style="font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em">Kategoria</div>
+                  <div style="font-size:13px;color:#3A4B44;margin-top:3px">{{ patPage.tag }}</div>
+                </div>
+                <div style="background:#fff;border:1px solid #EEE6D8;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+                  <div style="padding:14px 20px;border-bottom:1px solid #F1EBDF;font-family:'Bricolage Grotesque';font-weight:600;font-size:15px">Recepty</div>
+                  <sc-for list="{{ patPage.rx }}" as="r" hint-placeholder-count="2">
+                    <div style="padding:12px 20px;border-bottom:1px solid #F5F0E6">
+                      <div style="font-size:13px;font-weight:700;color:#3A4B44">{{ r.items }}</div>
+                      <div style="font-size:11.5px;color:#9AA69F;margin-top:2px">e-recepta {{ r.code }} · {{ r.d }} · {{ r.status }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- LEKARZ · PACJENCI -->
+        <sc-if value="{{ lPacjenci }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px">
+            <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #E7DECE;border-radius:12px;padding:8px 14px;flex:1 1 260px;max-width:360px"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#9AA69F" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg><input placeholder="Szukaj pacjenta lub opiekuna…" style="border:none;background:none;font-size:14px;width:100%"></div>
+            <div style="flex:1"></div>
+            <span style="font-size:13px;color:#7A857F;font-weight:700">128 pacjentów pod opieką</span>
+          </div>
+          <div style="background:#fff;border:1px solid #EEE6D8;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+            <div style="display:grid;grid-template-columns:2fr 1.3fr 1.2fr 1fr 90px;gap:12px;padding:13px 22px;background:#FAF6EE;border-bottom:1px solid #EEE6D8;font-size:12px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.05em"><div>Pacjent</div><div>Opiekun</div><div>Gatunek / rasa</div><div>Ostatnia wizyta</div><div></div></div>
+            <sc-for list="{{ lekPatients }}" as="p" hint-placeholder-count="6">
+              <div onClick="{{ p.open }}" style="display:grid;grid-template-columns:2fr 1.3fr 1.2fr 1fr 90px;gap:12px;padding:14px 22px;border-bottom:1px solid #F1EBDF;align-items:center;cursor:pointer" style-hover="background:#FCFAF5">
+                <div style="display:flex;align-items:center;gap:12px;min-width:0"><span style="width:40px;height:40px;border-radius:13px;background:{{ p.bg }};display:grid;place-items:center;font-size:19px;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#207A67" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"></circle><circle cx="18" cy="8" r="2"></circle><circle cx="20" cy="16" r="2"></circle><path d="M9 10a5 5 0 0 1 5 5v3.2a3.4 3.4 0 0 1-6.6 1.1 3.4 3.4 0 0 0-2.4-2.2A3.4 3.4 0 0 1 6 10Z"></path></svg></span><div style="min-width:0"><div style="font-weight:800;font-size:14px">{{ p.pet }}</div><span style="font-size:11px;font-weight:800;color:{{ p.tagInk }};background:{{ p.tagBg }};padding:2px 8px;border-radius:999px">{{ p.tag }}</span></div></div>
+                <div style="font-size:13.5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.owner }}</div>
+                <div style="font-size:13px;color:#7A857F">{{ p.breed }}</div>
+                <div style="font-size:13px;color:#7A857F">{{ p.last }}</div>
+                <div style="text-align:right"><button onClick="{{ p.open }}" style="background:none;border:1px solid #E7DECE;border-radius:9px;padding:7px 12px;font-weight:800;font-size:12.5px;cursor:pointer;color:#12876F" style-hover="border-color:#12876F;background:#E7F5EE">Karta</button></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- LEKARZ · WYNIKI -->
+        <sc-if value="{{ lWyniki }}" hint-placeholder-val="{{ false }}">
+          <div class="m-two" style="display:grid;grid-template-columns:344px 1fr;gap:18px;align-items:start">
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+              <div style="padding:15px 18px 12px;border-bottom:1px solid #EEE6D8">
+                <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:16px">Wyniki</div>
+                <div style="font-size:12.5px;color:#7A857F;margin-bottom:11px">{{ wynCount }} pozycji</div>
+                <div style="font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#9AA29B;margin-bottom:5px">Status</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><sc-for list="{{ wynStatusChips }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.go }}" style="{{ c.style }}">{{ c.label }}</button></sc-for></div>
+                <div style="font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#9AA29B;margin-bottom:5px">Przesłał</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ wynByChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.go }}" style="{{ c.style }}">{{ c.label }}</button></sc-for></div>
+              </div>
+              <sc-for list="{{ wyniki }}" as="r" hint-placeholder-count="6">
+                <div onClick="{{ r.go }}" style="{{ r.rowStyle }}" style-hover="background:#FCFAF5">
+                  <div style="width:4px;align-self:stretch;background:{{ r.bar }};border-radius:3px;flex-shrink:0"></div>
+                  <span style="width:36px;height:36px;border-radius:11px;background:#FAF6EE;display:grid;place-items:center;font-size:18px;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#207A67" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"></circle><circle cx="18" cy="8" r="2"></circle><circle cx="20" cy="16" r="2"></circle><path d="M9 10a5 5 0 0 1 5 5v3.2a3.4 3.4 0 0 1-6.6 1.1 3.4 3.4 0 0 0-2.4-2.2A3.4 3.4 0 0 1 6 10Z"></path></svg></span>
+                  <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.panel }}</div><div style="font-size:12px;color:#7A857F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.pet }} · {{ r.owner }}</div><div style="font-size:10.5px;color:#9AA29B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">{{ r.date }} · {{ r.by }}</div></div>
+                  <span style="{{ r.statusStyle }}">{{ r.statusL }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+              <sc-if value="{{ resSel.pending }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:60px 30px;text-align:center">
+                  <div style="width:52px;height:52px;border-radius:16px;background:#FDF0DC;color:#C2842A;display:grid;place-items:center;margin:0 auto 14px"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:18px">Wynik w toku</div>
+                  <div style="font-size:13.5px;color:#7A857F;margin-top:5px">{{ resSel.panel }} · {{ resSel.pet }}</div>
+                  <div style="font-size:12.5px;color:#C2842A;font-weight:800;margin-top:10px">{{ resSel.when }}</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ resSel.ready }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:22px 26px;border-bottom:2px solid #12876F;background:#FCFAF5">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
+                    <div><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:18px;color:#12876F">Merdi · Pracownia diagnostyczna</div><div style="font-size:12px;color:#7A857F;margin-top:2px">{{ resSel.lab }} · zlecił {{ resSel.by }}</div></div>
+                    <span style="{{ resSel.flagStyle }}">{{ resSel.flagL }}</span>
+                  </div>
+                </div>
+                <div style="padding:20px 26px">
+                  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><span style="width:46px;height:46px;border-radius:13px;background:#FAF6EE;display:grid;place-items:center;font-size:22px"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#207A67" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"></circle><circle cx="18" cy="8" r="2"></circle><circle cx="20" cy="16" r="2"></circle><path d="M9 10a5 5 0 0 1 5 5v3.2a3.4 3.4 0 0 1-6.6 1.1 3.4 3.4 0 0 0-2.4-2.2A3.4 3.4 0 0 1 6 10Z"></path></svg></span><div><div style="font-weight:800;font-size:16px">{{ resSel.pet }}</div><div style="font-size:12.5px;color:#7A857F">{{ resSel.owner }} · {{ resSel.kind }} · {{ resSel.when }}</div></div></div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:16px;margin-bottom:10px">{{ resSel.panel }}</div>
+                  <sc-if value="{{ resSel.hasRows }}" hint-placeholder-val="{{ true }}">
+                    <div style="border:1px solid #F1EBDF;border-radius:12px;overflow:hidden">
+                      <div style="display:grid;grid-template-columns:1.4fr 1fr .7fr 1fr;gap:8px;padding:9px 14px;background:#FAF6EE;font-size:11px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em"><div>Parametr</div><div>Wynik</div><div>Jedn.</div><div>Zakres</div></div>
+                      <sc-for list="{{ resSel.rows }}" as="p" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:1.4fr 1fr .7fr 1fr;gap:8px;padding:9px 14px;border-top:1px solid #F5F0E6;font-size:13px"><div style="font-weight:700">{{ p.k }}</div><div style="font-family:'Bricolage Grotesque';font-weight:600">{{ p.v }}</div><div style="color:#9AA69F">{{ p.u }}</div><div style="color:#9AA69F">{{ p.ref }}</div></div></sc-for>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ resSel.desc }}" hint-placeholder-val="{{ false }}">
+                    <div style="background:#FAF6EE;border-radius:12px;padding:14px 16px;font-size:13.5px;line-height:1.6;color:#3A4B44">{{ resSel.desc }}</div>
+                  </sc-if>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+                    <button onClick="{{ resEmail }}" style="background:#12876F;color:#fff;border:none;border-radius:11px;padding:11px 16px;font-family:'Bricolage Grotesque';font-weight:600;font-size:13.5px;cursor:pointer">Wyślij opiekunowi</button>
+                    <button onClick="{{ resDownload }}" style="background:#fff;color:#21332E;border:1.5px solid #E7DECE;border-radius:11px;padding:11px 16px;font-family:'Bricolage Grotesque';font-weight:600;font-size:13.5px;cursor:pointer">Pobierz PDF</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- LEKARZ · DOKUMENTY -->
+        <sc-if value="{{ lDokumenty }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px solid #EEE6D8;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+            <div style="display:grid;grid-template-columns:2.2fr 1.4fr 1fr 1fr 128px;gap:12px;padding:13px 22px;background:#FAF6EE;border-bottom:1px solid #EEE6D8;font-size:12px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.05em"><div>Dokument</div><div>Opiekun</div><div>Data</div><div style="text-align:center">Status</div><div style="text-align:center">Akcje</div></div>
+            <sc-for list="{{ documents }}" as="d" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:2.2fr 1.4fr 1fr 1fr 128px;gap:12px;padding:13px 22px;border-bottom:1px solid #F1EBDF;align-items:center" style-hover="background:#FCFAF5">
+                <div style="display:flex;align-items:center;gap:12px;min-width:0"><span style="width:38px;height:38px;border-radius:11px;background:#FAF6EE;display:grid;place-items:center;font-size:17px;flex-shrink:0"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="#207A67" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M9 13h6M9 17h6"></path></svg></span><div style="min-width:0"><div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.kind }}</div><div style="font-size:12px;color:#7A857F">{{ d.pet }}</div></div></div>
+                <div style="font-size:13.5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.owner }}</div>
+                <div style="font-size:13px;color:#7A857F">{{ d.date }}</div>
+                <div><span style="{{ d.statusStyle }}">{{ d.statusL }}</span></div>
+                <div style="display:flex;gap:6px;justify-content:center">
+                  <button onClick="{{ d.open }}" style="width:32px;height:32px;border-radius:9px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#3A4B44" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                  <button onClick="{{ d.email }}" style="width:32px;height:32px;border-radius:9px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#3A4B44" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg></button>
+                  <button onClick="{{ d.download }}" style="width:32px;height:32px;border-radius:9px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#3A4B44" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg></button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- LEKARZ · MOJE SPRAWY -->
+        <sc-if value="{{ lSprawy }}" hint-placeholder-val="{{ false }}">
+          <div style="height:100%;display:flex;flex-direction:column;min-height:0">
+            <div style="flex-shrink:0;background:#fff;border:1px solid #EEE6D8;border-radius:16px;padding:15px 20px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+              <span style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#12876F,#16A085);color:#fff;display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:600;font-size:21px;flex-shrink:0">AK</span>
+              <div style="min-width:0">
+                <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:19px;line-height:1.15">lek. wet. Anna Kowalska</div>
+                <div style="font-size:12.5px;color:#7C8B84;margin-top:3px">Internista · lekarz weterynarii · Merdi Klinika Weterynaryjna</div>
+              </div>
+              <div style="flex:1;min-width:16px"></div>
+              <div style="display:flex;gap:22px;flex-wrap:wrap">
+                <div><div style="font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9AA69F">Nr PWZW</div><div style="font-size:13px;font-weight:600;color:#2A362F;margin-top:2px">2841190</div></div>
+                <div><div style="font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9AA69F">E-mail</div><div style="font-size:13px;font-weight:600;color:#2A362F;margin-top:2px">a.kowalska@merdi.pl</div></div>
+                <div><div style="font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9AA69F">Telefon</div><div style="font-size:13px;font-weight:600;color:#2A362F;margin-top:2px">+48 601 234 567</div></div>
+                <div><div style="font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9AA69F">Zatrudnienie</div><div style="font-size:13px;font-weight:600;color:#2A362F;margin-top:2px">Umowa o pracę · od 2019</div></div>
+              </div>
+              <button onClick="{{ editProfile }}" style="border:1px solid #E7DECE;background:#fff;border-radius:11px;padding:9px 16px;font-family:'Bricolage Grotesque';font-weight:600;font-size:13px;cursor:pointer;color:#2A362F">Edytuj profil</button>
+            </div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;flex-shrink:0">
+              <sc-for list="{{ sprawyTabs }}" as="t" hint-placeholder-count="5"><button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button></sc-for>
+            </div>
+
+            <sc-if value="{{ spGrafik }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;min-height:0;display:flex;gap:16px">
+              <div style="flex:2;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #EEE6D8;border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-shrink:0">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:19px;flex:1;text-transform:capitalize">{{ grLabel }}</div>
+                  <button onClick="{{ grPrev }}" style="width:34px;height:34px;border-radius:9px;border:1px solid #E7DECE;background:#fff;cursor:pointer;font-size:16px;color:#3A4B44">‹</button>
+                  <button onClick="{{ grToday }}" style="border:1px solid #E7DECE;background:#fff;border-radius:9px;padding:8px 15px;font-weight:800;font-size:13px;cursor:pointer;color:#3A4B44">Dziś</button>
+                  <button onClick="{{ grNext }}" style="width:34px;height:34px;border-radius:9px;border:1px solid #E7DECE;background:#fff;cursor:pointer;font-size:16px;color:#3A4B44">›</button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;flex-shrink:0">
+                  <sc-for list="{{ dowNames }}" as="d" hint-placeholder-count="7"><div style="text-align:center;font-size:11px;font-weight:800;color:#9AA69F;text-transform:uppercase;letter-spacing:.04em">{{ d }}</div></sc-for>
+                </div>
+                <div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;gap:6px">
+                  <sc-for list="{{ grafikCells }}" as="c" hint-placeholder-count="42"><div style="{{ c.style }}"><div style="font-weight:800;font-size:13px;color:{{ c.numInk }}">{{ c.num }}</div><div style="font-size:11px;font-weight:800;color:{{ c.shiftInk }}">{{ c.shift }}</div></div></sc-for>
+                </div>
+                <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;flex-shrink:0;font-size:11.5px;color:#7A857F;font-weight:700">
+                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:4px;background:#E7F5EE"></span>Dyżur poranny</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:4px;background:#E8F1FB"></span>Dyżur popołudniowy</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:11px;height:11px;border-radius:4px;background:#FDF0DC"></span>Dyżur weekendowy</span>
+                </div>
+              </div>
+              <div style="width:360px;flex-shrink:0;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #EEE6D8;border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:16px">Urlopy i nieobecności</div><button onClick="{{ openLeave }}" style="background:#12876F;color:#fff;border:none;border-radius:10px;padding:8px 13px;font-weight:800;font-size:12.5px;cursor:pointer">+ Wniosek</button></div>
+                <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px">
+                  <sc-for list="{{ urlopy }}" as="u" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:flex-start;gap:11px;background:#FAF6EE;border-radius:13px;padding:12px 13px;flex-shrink:0">
+                      <span style="width:34px;height:34px;border-radius:10px;background:{{ u.bg }};color:{{ u.ink }};display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span>
+                      <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13px">{{ u.type }}</div><div style="font-size:11.5px;color:#7A857F;margin-top:1px">{{ u.range }} · {{ u.days }}</div><span style="font-size:11px;font-weight:800;color:{{ u.stInk }};background:{{ u.stBg }};padding:3px 9px;border-radius:999px;white-space:nowrap;display:inline-block;margin-top:6px">{{ u.status }}</span></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ spDocs }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+              <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #EEE6D8;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+                <div style="padding:15px 20px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;border-bottom:1px solid #F1EBDF;flex-shrink:0">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:16px;margin-right:auto">Dokumenty pracownicze</div>
+                  <sc-for list="{{ hrTypeChips }}" as="f" hint-placeholder-count="5"><button onClick="{{ f.go }}" style="{{ f.style }}">{{ f.label }}</button></sc-for>
+                </div>
+                <div style="display:grid;grid-template-columns:minmax(150px,2.4fr) 112px 144px 112px 122px 128px;padding:10px 20px;background:#FBF7EF;border-bottom:1px solid #EFE7D8;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#9AA69F;flex-shrink:0;align-items:center">
+                  <div>Dokument</div><div style="text-align:center">Typ</div><div style="text-align:center">Przesłał</div><button onClick="{{ hrSortToggle }}" style="text-align:center;width:100%;background:none;border:none;padding:0;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:#7A857F;cursor:pointer">{{ hrDateHdr }}</button><div style="text-align:center">Status</div><div style="text-align:center">Akcje</div>
+                </div>
+                <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden">
+                  <sc-for list="{{ hrDocs }}" as="r" hint-placeholder-count="6">
+                    <div style="display:grid;grid-template-columns:minmax(150px,2.4fr) 112px 144px 112px 122px 128px;align-items:center;padding:11px 20px;border-bottom:1px solid #F4EFE4" style-hover="background:#FAF6EE">
+                      <div style="display:flex;align-items:center;gap:11px;min-width:0"><span style="width:34px;height:34px;border-radius:10px;background:#E8F1FB;color:#2C6FB5;display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg></span><span style="font-weight:800;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span></div>
+                      <div style="text-align:center;font-size:12.5px;color:#5A6B63">{{ r.type }}</div>
+                      <div style="text-align:center;font-size:12.5px;color:#5A6B63;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.by }}</div>
+                      <div style="text-align:center;font-size:12.5px;color:#5A6B63">{{ r.date }}</div>
+                      <div style="text-align:center"><span style="{{ r.statusStyle }}">{{ r.statusL }}</span></div>
+                      <div style="display:flex;gap:6px;justify-content:center">
+                        <button onClick="{{ r.view }}" style="width:31px;height:31px;border-radius:8px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#5A6B63" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <button onClick="{{ r.email }}" style="width:31px;height:31px;border-radius:8px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#5A6B63" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg></button>
+                        <button onClick="{{ r.download }}" style="width:31px;height:31px;border-radius:8px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#5A6B63" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg></button>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #EEE6D8;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+                <div style="padding:15px 20px;border-bottom:1px solid #F1EBDF;flex-shrink:0"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:16px">Wypłaty / IMIR</div><div style="font-size:12.5px;color:#7A857F;margin-top:2px">Paski wynagrodzeń i dokumenty ZUS</div></div>
+                <div style="display:grid;grid-template-columns:100px minmax(140px,2fr) 128px 180px 118px 128px;padding:10px 20px;background:#FBF7EF;border-bottom:1px solid #EFE7D8;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#9AA69F;flex-shrink:0;align-items:center">
+                  <button onClick="{{ paySortToggle }}" style="text-align:left;background:none;border:none;padding:0;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:#7A857F;cursor:pointer">{{ payDateHdr }}</button><div style="text-align:center">Dokument</div><div style="text-align:center">Data</div><div style="text-align:center">Kwota</div><div style="text-align:center">Status</div><div style="text-align:center">Akcje</div>
+                </div>
+                <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden">
+                  <sc-for list="{{ paysTable }}" as="r" hint-placeholder-count="5">
+                    <div style="display:grid;grid-template-columns:100px minmax(140px,2fr) 128px 180px 118px 128px;align-items:center;padding:11px 20px;border-bottom:1px solid #F4EFE4" style-hover="background:#FAF6EE">
+                      <div style="font-weight:800;font-size:13.5px">{{ r.period }}</div>
+                      <div style="display:flex;align-items:center;justify-content:center;gap:11px;min-width:0"><span style="width:34px;height:34px;border-radius:10px;background:#E7F5EE;color:#0E6E58;display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 10h18M7 15h4"></path></svg></span><span style="font-size:12.5px;color:#5A6B63;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.doc }}</span></div>
+                      <div style="text-align:center;font-size:12.5px;color:#5A6B63">{{ r.date }}</div>
+                      <div style="text-align:center;font-size:13px;font-weight:800;color:#3A4B44">{{ r.brutto }} <span style="color:#12876F;font-weight:700">/ {{ r.netto }}</span></div>
+                      <div style="text-align:center"><span style="{{ r.statusStyle }}">{{ r.statusL }}</span></div>
+                      <div style="display:flex;gap:6px;justify-content:center">
+                        <button onClick="{{ r.view }}" style="width:31px;height:31px;border-radius:8px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#5A6B63" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <button onClick="{{ r.email }}" style="width:31px;height:31px;border-radius:8px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#5A6B63" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg></button>
+                        <button onClick="{{ r.download }}" style="width:31px;height:31px;border-radius:8px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#5A6B63" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg></button>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #EEE6D8;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(33,51,46,.05),0 6px 16px -12px rgba(33,51,46,.16)">
+                <div style="padding:15px 20px;border-bottom:1px solid #F1EBDF;flex-shrink:0"><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:16px">PIT — rozliczenia roczne</div><div style="font-size:12.5px;color:#7A857F;margin-top:2px">Deklaracje PIT-11 od płatnika</div></div>
+                <div style="display:grid;grid-template-columns:100px minmax(140px,2fr) 128px 180px 118px 128px;padding:10px 20px;background:#FBF7EF;border-bottom:1px solid #EFE7D8;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#9AA69F;flex-shrink:0;align-items:center">
+                  <button onClick="{{ pitSortToggle }}" style="text-align:left;background:none;border:none;padding:0;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:#7A857F;cursor:pointer">{{ pitYearHdr }}</button><div style="text-align:center">Formularz</div><div style="text-align:center">Data</div><div style="text-align:center">Przychód</div><div style="text-align:center">Status</div><div style="text-align:center">Akcje</div>
+                </div>
+                <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden">
+                  <sc-for list="{{ pitTable }}" as="r" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:100px minmax(140px,2fr) 128px 180px 118px 128px;align-items:center;padding:11px 20px;border-bottom:1px solid #F4EFE4" style-hover="background:#FAF6EE">
+                      <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:15px;color:#12876F">{{ r.year }}</div>
+                      <div style="display:flex;align-items:center;justify-content:center;gap:11px;min-width:0"><span style="width:34px;height:34px;border-radius:10px;background:#FDF0DC;color:#C2842A;display:grid;place-items:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M9 13h6M9 17h4"></path></svg></span><span style="font-weight:800;font-size:13.5px">{{ r.form }}</span></div>
+                      <div style="text-align:center;font-size:12.5px;color:#5A6B63">{{ r.date }}</div>
+                      <div style="text-align:center;font-size:13px;font-weight:800;color:#3A4B44">{{ r.income }}</div>
+                      <div style="text-align:center"><span style="{{ r.statusStyle }}">{{ r.statusL }}</span></div>
+                      <div style="display:flex;gap:6px;justify-content:center">
+                        <button onClick="{{ r.view }}" style="width:31px;height:31px;border-radius:8px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#5A6B63" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <button onClick="{{ r.email }}" style="width:31px;height:31px;border-radius:8px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#5A6B63" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg></button>
+                        <button onClick="{{ r.download }}" style="width:31px;height:31px;border-radius:8px;border:1px solid #E7DECE;background:#fff;cursor:pointer;display:grid;place-items:center;color:#5A6B63" style-hover="border-color:#12876F;color:#12876F"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg></button>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              </div>
+            </sc-if>
+
+
+
+
+
+
+          </div>
+        </sc-if>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+
+  <sc-if value="{{ patModal }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closePatient }}" style="position:fixed;inset:0;z-index:100;background:rgba(33,51,46,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;overflow:auto">
+      <div onClick="{{ stop }}" style="background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px -28px rgba(0,0,0,.4)">
+        <div style="padding:24px 26px;background:{{ patModal.bg }};display:flex;align-items:center;gap:16px;position:relative">
+          <button onClick="{{ closePatient }}" style="position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,.7);cursor:pointer;font-size:15px">✕</button>
+          <span style="width:64px;height:64px;border-radius:14px;background:#fff;display:grid;place-items:center;font-size:32px"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#207A67" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"></circle><circle cx="18" cy="8" r="2"></circle><circle cx="20" cy="16" r="2"></circle><path d="M9 10a5 5 0 0 1 5 5v3.2a3.4 3.4 0 0 1-6.6 1.1 3.4 3.4 0 0 0-2.4-2.2A3.4 3.4 0 0 1 6 10Z"></path></svg></span>
+          <div><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:24px">{{ patModal.pet }}</div><div style="font-size:12.5px;font-weight:800;color:#0E6E58;background:rgba(255,255,255,.65);display:inline-block;padding:3px 10px;border-radius:999px;margin-top:5px">{{ patModal.tag }}</div></div>
+        </div>
+        <div style="padding:22px 26px">
+          <div style="display:flex;align-items:center;gap:11px;margin-bottom:16px"><span style="width:40px;height:40px;border-radius:12px;background:#FAF6EE;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#207A67" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"></path></svg></span><div><div style="font-weight:800;font-size:14.5px">{{ patModal.owner }}</div><div style="font-size:13px;color:#7A857F">{{ patModal.phone }}</div></div></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+            <div style="background:#FAF6EE;border-radius:12px;padding:11px;text-align:center"><div style="font-size:11px;color:#9AA69F;font-weight:700">Gatunek</div><div style="font-weight:800;font-size:13px;margin-top:2px">{{ patModal.species }}</div></div>
+            <div style="background:#FAF6EE;border-radius:12px;padding:11px;text-align:center"><div style="font-size:11px;color:#9AA69F;font-weight:700">Wiek</div><div style="font-weight:800;font-size:13px;margin-top:2px">{{ patModal.age }}</div></div>
+            <div style="background:#FAF6EE;border-radius:12px;padding:11px;text-align:center"><div style="font-size:11px;color:#9AA69F;font-weight:700">Waga</div><div style="font-weight:800;font-size:13px;margin-top:2px">{{ patModal.weight }}</div></div>
+            <div style="background:#FAF6EE;border-radius:12px;padding:11px;text-align:center"><div style="font-size:11px;color:#9AA69F;font-weight:700">Rasa</div><div style="font-weight:800;font-size:11px;margin-top:2px">{{ patModal.breed }}</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;gap:10px"><span style="font-size:13px;font-weight:800;color:#7A857F;width:130px;flex-shrink:0">Choroby przewlekłe</span><span style="font-size:13.5px">{{ patModal.chronic }}</span></div>
+            <div style="display:flex;gap:10px"><span style="font-size:13px;font-weight:800;color:#7A857F;width:130px;flex-shrink:0">Leki</span><span style="font-size:13.5px">{{ patModal.meds }}</span></div>
+            <div style="display:flex;gap:10px"><span style="font-size:13px;font-weight:800;color:#7A857F;width:130px;flex-shrink:0">Ostatnia wizyta</span><span style="font-size:13.5px">{{ patModal.last }}</span></div>
+            <div style="background:#FAF6EE;border-radius:12px;padding:12px 14px;font-size:13.5px;color:#3A4B44;margin-top:2px">{{ patModal.notes }}</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+            <button onClick="{{ msgEmail }}" style="flex:1;min-width:150px;background:#12876F;color:#fff;border:none;border-radius:12px;padding:12px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM22 6l-10 7L2 6"></path></svg>E-mail do opiekuna</button>
+            <button onClick="{{ msgSms }}" style="flex:1;min-width:110px;background:#fff;color:#21332E;border:1.5px solid #E7DECE;border-radius:12px;padding:12px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>SMS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ leaveModal }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeLeave }}" style="position:fixed;inset:0;z-index:100;background:rgba(33,51,46,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;overflow:auto">
+      <div onClick="{{ stop }}" style="background:#fff;border-radius:16px;max-width:460px;width:100%;box-shadow:0 24px 60px -28px rgba(0,0,0,.4);padding:26px">
+        <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:21px;margin-bottom:4px">Złóż wniosek</div>
+        <div style="font-size:13.5px;color:#7A857F;margin-bottom:18px">Wniosek trafi do akceptacji administratora.</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div><label style="font-size:12.5px;font-weight:800;color:#7A857F;display:block;margin-bottom:6px">Typ wniosku</label>
+            <select value="{{ lvType }}" onChange="{{ onLvType }}" style="width:100%;padding:12px 14px;border:1.5px solid #E7DECE;border-radius:11px;font-size:14px;background:#FCFAF5">
+              <option>Urlop wypoczynkowy</option><option>Szkolenie / konferencja</option><option>Zwolnienie lekarskie</option><option>Opieka nad dzieckiem</option>
+            </select></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><label style="font-size:12.5px;font-weight:800;color:#7A857F;display:block;margin-bottom:6px">Od</label><input type="date" value="{{ lvFrom }}" onChange="{{ onLvFrom }}" style="width:100%;padding:11px 12px;border:1.5px solid #E7DECE;border-radius:11px;font-size:14px;background:#FCFAF5"></div>
+            <div><label style="font-size:12.5px;font-weight:800;color:#7A857F;display:block;margin-bottom:6px">Do</label><input type="date" value="{{ lvTo }}" onChange="{{ onLvTo }}" style="width:100%;padding:11px 12px;border:1.5px solid #E7DECE;border-radius:11px;font-size:14px;background:#FCFAF5"></div>
+          </div>
+          <div><label style="font-size:12.5px;font-weight:800;color:#7A857F;display:block;margin-bottom:6px">Uzasadnienie (opcjonalnie)</label><textarea value="{{ lvNote }}" onChange="{{ onLvNote }}" rows="3" placeholder="Krótkie uzasadnienie…" style="width:100%;padding:12px 14px;border:1.5px solid #E7DECE;border-radius:11px;font-size:14px;background:#FCFAF5;resize:vertical;font-family:'Nunito Sans'"></textarea></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button onClick="{{ closeLeave }}" style="flex:1;background:#F4EFE4;border:none;border-radius:12px;padding:13px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer;color:#21332E">Anuluj</button>
+          <button onClick="{{ submitLeave }}" style="flex:1;background:#12876F;color:#fff;border:none;border-radius:12px;padding:13px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer">Wyślij wniosek</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ createModal }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeCreate }}" style="position:fixed;inset:0;z-index:100;background:rgba(33,51,46,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;overflow:auto">
+      <div onClick="{{ stop }}" style="background:#fff;border-radius:16px;max-width:460px;width:100%;box-shadow:0 24px 60px -28px rgba(0,0,0,.4);overflow:hidden">
+        <div style="padding:22px 26px;border-bottom:2px solid #12876F;background:#FCFAF5;display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:19px">{{ createTitle }}</div>
+          <button onClick="{{ closeCreate }}" style="width:34px;height:34px;border-radius:50%;border:none;background:#F4EFE4;cursor:pointer;font-size:15px">✕</button>
+        </div>
+        <div style="padding:22px 26px">
+          <label style="font-size:12px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px;display:block">Pacjent</label>
+          <select value="{{ cPat }}" onChange="{{ onCPat }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:11px;padding:11px 13px;font-family:'Nunito Sans';font-size:14px;background:#FCFAF5;color:#21332E;outline:none">
+            <sc-for list="{{ createRoster }}" as="p" hint-placeholder-count="4"><option value="{{ p }}">{{ p }}</option></sc-for>
+          </select>
+          <label style="font-size:12px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 6px;display:block">{{ cAL }}</label>
+          <input value="{{ cA }}" onInput="{{ onCA }}" placeholder="{{ cAP }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:11px;padding:11px 13px;font-family:'Nunito Sans';font-size:14px;background:#FCFAF5;color:#21332E;outline:none">
+          <label style="font-size:12px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 6px;display:block">{{ cBL }}</label>
+          <input value="{{ cB }}" onInput="{{ onCB }}" placeholder="{{ cBP }}" style="width:100%;border:1.5px solid #E7DECE;border-radius:11px;padding:11px 13px;font-family:'Nunito Sans';font-size:14px;background:#FCFAF5;color:#21332E;outline:none">
+          <div style="display:flex;gap:10px;margin-top:20px">
+            <button onClick="{{ closeCreate }}" style="flex:1;background:#fff;color:#7A857F;border:1.5px solid #E7DECE;border-radius:12px;padding:12px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer">Anuluj</button>
+            <button onClick="{{ submitCreate }}" style="flex:1.4;background:#12876F;color:#fff;border:none;border-radius:12px;padding:12px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer">{{ cSubmit }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ docModal }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeDoc }}" style="position:fixed;inset:0;z-index:100;background:rgba(33,51,46,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;overflow:auto">
+      <div onClick="{{ stop }}" style="background:#fff;border-radius:16px;max-width:460px;width:100%;box-shadow:0 24px 60px -28px rgba(0,0,0,.4);overflow:hidden">
+        <div style="padding:22px 26px;border-bottom:2px solid #12876F;background:#FCFAF5;display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:13px;background:#fff;border:1px solid #EEE6D8;display:grid;place-items:center;font-size:21px"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#207A67" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M9 13h6M9 17h6"></path></svg></span><div><div style="font-family:'Bricolage Grotesque';font-weight:600;font-size:19px">{{ docModal.kind }}</div><div style="font-size:12.5px;color:#7A857F">Merdi Klinika Weterynaryjna</div></div></div>
+          <button onClick="{{ closeDoc }}" style="width:34px;height:34px;border-radius:50%;border:none;background:#F4EFE4;cursor:pointer;font-size:15px">✕</button>
+        </div>
+        <div style="padding:22px 26px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><span style="{{ docModal.statusStyle }}">{{ docModal.statusL }}</span><span style="font-family:'Bricolage Grotesque';font-size:13px;color:#7A857F">{{ docModal.code }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;gap:10px"><span style="font-size:13px;font-weight:800;color:#7A857F;width:110px;flex-shrink:0">Pacjent</span><span style="font-size:13.5px">{{ docModal.pet }}</span></div>
+            <div style="display:flex;gap:10px"><span style="font-size:13px;font-weight:800;color:#7A857F;width:110px;flex-shrink:0">Opiekun</span><span style="font-size:13.5px">{{ docModal.owner }}</span></div>
+            <div style="display:flex;gap:10px"><span style="font-size:13px;font-weight:800;color:#7A857F;width:110px;flex-shrink:0">Data</span><span style="font-size:13.5px">{{ docModal.date }}</span></div>
+            <div style="display:flex;gap:10px"><span style="font-size:13px;font-weight:800;color:#7A857F;width:110px;flex-shrink:0">Wystawił</span><span style="font-size:13.5px">{{ docModal.by }}</span></div>
+          </div>
+          <div style="background:#FAF6EE;border-radius:12px;padding:14px 16px;margin-top:14px"><div style="font-size:12px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Treść</div><div style="font-size:14px;font-weight:800">{{ docModal.body }}</div><div style="font-size:12.5px;color:#7A857F;margin-top:2px">{{ docModal.extra }}</div></div>
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <button onClick="{{ docEmail }}" style="flex:1;background:#12876F;color:#fff;border:none;border-radius:12px;padding:12px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer">Wyślij e-mailem</button>
+            <button onClick="{{ docDownload }}" style="flex:1;background:#fff;color:#21332E;border:1.5px solid #E7DECE;border-radius:12px;padding:12px;font-family:'Bricolage Grotesque';font-weight:600;font-size:14px;cursor:pointer">Pobierz PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:120;background:#21332E;color:#fff;padding:14px 22px;border-radius:14px;font-weight:700;font-size:14px;box-shadow:0 20px 40px -18px rgba(0,0,0,.5)">{{ toast }}</div>
+  </sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:860}}">
+class Component extends DCLogic {
+  state = { role:'lekarz', navA:'pulpit', navL:'pulpit', calView:'week', calDate:'2026-6-21', patModal:null, visits:{}, patPage:null, leaveModal:false, extraUrlopy:[], createModal:null, cPat:'', cA:'', cB:'', extraDocs:[], extraVisits:[], toast:null, lvType:'Urlop wypoczynkowy', lvFrom:'', lvTo:'', lvNote:'', selWyn:'r1', docModal:null, sprawyView:'grafik', grDate:'2026-6-21', hrType:'all', hrSort:'desc', paySort:'desc', pitSort:'desc' };
+
+  // ---- icons (stroke paths) ----
+  ic = {
+    grid:'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
+    users:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+    cal:'M3 4h18v18H3zM3 10h18M8 2v4M16 2v4',
+    bell:'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4',
+    gear:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 6.6 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 3 13.4H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 6.6l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 12 3h0a2 2 0 1 1 4 0',
+    clip:'M9 2h6a1 1 0 0 1 1 1v2H8V3a1 1 0 0 1 1-1zM8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2',
+    folder:'M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+    list:'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+    flask:'M9 3h6M10 3v6l-5.5 9A2 2 0 0 0 6 21h12a2 2 0 0 0 1.5-3L14 9V3M8 14h8',
+    file:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 15h6M9 18h4'
+  };
+
+  setAdmin = () => this.setState({role:'admin'});
+  setLekarz = () => this.setState({role:'lekarz'});
+  showToast(m){ clearTimeout(this._tt); this.setState({toast:m}); this._tt=setTimeout(()=>this.setState({toast:null}),2800); }
+  hash(s){ let h=7; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))%99991; return h; }
+  stop=(e)=>{ e.stopPropagation(); };
+  openPatient=(pet)=>this.setState({patModal:pet});
+  closePatient=()=>this.setState({patModal:null});
+  openPatientPage=(pet)=>this.setState({patPage:pet, patModal:null});
+  backPlan=()=>this.setState({patPage:null});
+  patRoster=[{pet:'Bruno',owner:'Katarzyna Zielińska'},{pet:'Luna',owner:'Adam Mazur'},{pet:'Fela',owner:'Jan Bąk'},{pet:'Sonia',owner:'Piotr Zawadzki'},{pet:'Rex',owner:'Anna Nowicka'},{pet:'Miki',owner:'Ewa Wójcik'},{pet:'Bella',owner:'Tomasz Lis'},{pet:'Kajtek',owner:'Marta Sikora'}];
+  priceList=[{n:'Wizyta kontrolna',p:120},{n:'Konsultacja internistyczna',p:160},{n:'Szczepienie (pakiet)',p:140},{n:'Bilans zdrowia / przegląd',p:180},{n:'USG jamy brzusznej',p:220},{n:'ECHO serca',p:300},{n:'Chirurgia — konsultacja',p:250},{n:'Czipowanie + rejestracja',p:90},{n:'Teleporada',p:80}];
+  setAct=(t)=>this.setState({lekAction:t});
+  submitInline=()=>{ const s=this.state; const pet=s.cPat||this.patRoster[0].pet; const owner=(this.patRoster.find(p=>p.pet===pet)||{}).owner||'Opiekun'; const t=s.lekAction||'visit';
+    if(t==='visit'){ const sv=(s.cSvc||(this.priceList[0].n+'|'+this.priceList[0].p)).split('|'); const service=sv[0]; const price=sv[1]; const time=s.cTime||'—'; const date=s.cDate||'dziś'; this.setState(x=>({extraVisits:[{time,pet,service,owner,bg:'#E7F5EE',ink:'#0E6E58',status:'Oczekuje'},...x.extraVisits], cDate:'',cTime:'',cSvc:''})); this.showToast('Wizyta dodana — '+pet+' · '+date+(time!=='—'?' '+time:'')+' · '+price+' zł'); }
+    else { const isRx=t==='recepta'; const kind=isRx?'Recepta':'Skierowanie na badanie'; const id='c'+Date.now(); const code=isRx?('0421 '+(1000+Math.floor(Math.random()*8999))+' 1190 '+(10+Math.floor(Math.random()*89))):('SKZ-2026-'+(100+Math.floor(Math.random()*899))); const body=s.cA||(isRx?'Lek':'Badanie'); const extra=s.cB||''; const doc={id,kind,emoji:isRx?'\uD83D\uDC8A':'\uD83E\uDDFE',pet,owner,date:'dziś',status:isRx?'Podpisany':'Wystawiony',by:'lek. A. Kowalska',code,body,extra}; this.setState(x=>({extraDocs:[doc,...x.extraDocs], cA:'',cB:''})); this.showToast((isRx?'Recepta wystawiona — ':'Skierowanie wystawione — ')+pet); }
+  };
+  openCreate=(type)=>this.setState({createModal:type, cPat:'', cA:'', cB:''});
+  closeCreate=()=>this.setState({createModal:null});
+  onC=(f)=>(e)=>this.setState({[f]:e.target.value});
+  submitCreate=()=>{ const s=this.state; const pet=s.cPat||this.patRoster[0].pet; const owner=(this.patRoster.find(p=>p.pet===pet)||{}).owner||'Opiekun'; const type=s.createModal;
+    if(type==='visit'){ const time=(s.cA||'—'); const service=(s.cB||'Wizyta'); this.setState(x=>({extraVisits:[{time,pet,service,owner,bg:'#E7F5EE',ink:'#0E6E58',status:'Oczekuje'},...x.extraVisits], createModal:null, navL:'plan', patPage:null})); this.showToast('Wizyta dodana — '+pet); }
+    else { const isRx=type==='recepta'; const kind=isRx?'Recepta':'Skierowanie na badanie'; const id='c'+Date.now(); const code=isRx?('0421 '+(1000+Math.floor(Math.random()*8999))+' 1190 '+(10+Math.floor(Math.random()*89))):('SKZ-2026-'+(100+Math.floor(Math.random()*899))); const body=s.cA||(isRx?'Lek':'Badanie'); const extra=s.cB||''; const doc={id,kind,emoji:isRx?'\uD83D\uDC8A':'\uD83E\uDDFE',pet,owner,date:'dziś',status:isRx?'Podpisany':'Wystawiony',by:'lek. A. Kowalska',code,body,extra}; this.setState(x=>({extraDocs:[doc,...x.extraDocs], createModal:null, navL:'dokumenty', patPage:null})); this.showToast((isRx?'Recepta wystawiona — ':'Skierowanie wystawione — ')+pet); }
+  };
+  startVisit=(pet)=>{ this.setState(s=>({visits:{...s.visits,[pet]:'now'}})); this.showToast('Wizyta rozpoczęta — '+pet); };
+  endVisit=(pet)=>{ this.setState(s=>({visits:{...s.visits,[pet]:'done'}})); this.showToast('Wizyta zakończona — '+pet); };
+  cancelVisit=(pet)=>{ this.setState(s=>({visits:{...s.visits,[pet]:'cancel'}})); this.showToast('Wizyta anulowana — '+pet); };
+  msgOwner=(ch)=>this.showToast(ch+' wysłany do opiekuna (makieta)');
+  openLeave=()=>this.setState({leaveModal:true});
+  closeLeave=()=>this.setState({leaveModal:false});
+  onLv=(k)=>(e)=>this.setState({[k]:e.target.value});
+  submitLeave=()=>{ const s=this.state; const rec={emoji:'🌴',bg:'#FDF0DC',ink:'#C2842A',type:s.lvType||'Wniosek',range:((s.lvFrom||'—')+' → '+(s.lvTo||'—')),days:'nowy wniosek',status:'Oczekuje',stBg:'#FDF0DC',stInk:'#C2842A'}; this.setState(st=>({extraUrlopy:[rec,...(st.extraUrlopy||[])],leaveModal:false,lvFrom:'',lvTo:'',lvNote:''})); this.showToast('✅ Wniosek złożony — potwierdzenie e-mail i SMS wysłane'); };
+  setSprawy=(v)=>()=>this.setState({sprawyView:v});
+  grShift=(dir)=>()=>{ const cur=this._parse(this.state.grDate||'2026-6-21'); cur.setMonth(cur.getMonth()+dir); this.setState({grDate:this._iso(cur)}); };
+  grToday=()=>this.setState({grDate:'2026-6-21'});
+  toggleSort=(k)=>()=>this.setState(s=>({[k]:(s[k]||'desc')==='desc'?'asc':'desc'}));
+  setView=(v)=>()=>this.setState({calView:v});
+  calShift=(dir)=>()=>{ const s=this.state; const cur=this._parse(s.calDate||'2026-6-21'); const v=s.calView||'week'; if(v==='month') cur.setMonth(cur.getMonth()+dir); else if(v==='week') cur.setDate(cur.getDate()+7*dir); else cur.setDate(cur.getDate()+dir); this.setState({calDate:this._iso(cur)}); };
+  calToday=()=>this.setState({calDate:'2026-6-21'});
+  pickDay=(isoStr)=>()=>this.setState({calView:'day',calDate:isoStr});
+  _iso=(dt)=>dt.getFullYear()+'-'+dt.getMonth()+'-'+dt.getDate();
+  _parse=(s)=>{const p=String(s).split('-').map(Number);return new Date(p[0],p[1],p[2]);};
+  colorFor(svc){ const s=(svc||'').toLowerCase(); if(/chirurg|zabieg/.test(s)) return {ink:'#E0653B',bg:'#FDECE4'}; if(/echo|kardio|serc/.test(s)) return {ink:'#C2492E',bg:'#FDECE4'}; if(/szczep/.test(s)) return {ink:'#0E6E58',bg:'#E7F5EE'}; if(/dermat/.test(s)) return {ink:'#7A5AC2',bg:'#EFEAF9'}; return {ink:'#2C6FB5',bg:'#E8F1FB'}; }
+  apptPool=[{pet:'Rex',service:'Kontrola',owner:'A. Nowicka'},{pet:'Luna',service:'ECHO serca',owner:'A. Mazur'},{pet:'Miki',service:'Zabieg chirurgiczny',owner:'E. Wójcik'},{pet:'Bella',service:'Szczepienie',owner:'K. Dąb'},{pet:'Coco',service:'Konsultacja',owner:'R. Woźniak'},{pet:'Fela',service:'Szczepienie',owner:'Jan Bąk'},{pet:'Sonia',service:'Bilans zdrowia',owner:'P. Zawadzki'},{pet:'Kajtek',service:'Konsultacja',owner:'M. Sikora'}];
+  apptTimes=['08:30','09:30','10:30','11:15','12:00','13:00','14:30','15:30','16:00','17:00'];
+  apptSeed={'2026-6-20':[{time:'09:00',pet:'Fela',service:'Szczepienie',owner:'Jan Bąk'},{time:'11:30',pet:'Rex',service:'Kontrola',owner:'A. Nowicka'}],'2026-6-21':[{time:'08:30',pet:'Fela',service:'Szczepienie',owner:'Jan Bąk'},{time:'09:30',pet:'Bruno',service:'Wizyta kontrolna',owner:'K. Zielińska'},{time:'10:30',pet:'Sonia',service:'Bilans zdrowia',owner:'P. Zawadzki'},{time:'12:00',pet:'Luna',service:'Kontrola wyników',owner:'A. Mazur'}],'2026-6-22':[{time:'10:00',pet:'Miki',service:'Zabieg chirurgiczny',owner:'E. Wójcik'}],'2026-6-23':[{time:'09:15',pet:'Sonia',service:'Bilans zdrowia',owner:'P. Zawadzki'},{time:'13:00',pet:'Kajtek',service:'Konsultacja',owner:'M. Sikora'}],'2026-6-24':[{time:'08:00',pet:'Puszek',service:'Kontrola',owner:'D. Lewandowska'},{time:'10:30',pet:'Bella',service:'Szczepienie',owner:'K. Dąb'}],'2026-6-25':[{time:'09:00',pet:'Coco',service:'Konsultacja',owner:'R. Woźniak'}]};
+  apptsForRaw(dt){ const iso=this._iso(dt); if(this.apptSeed[iso]) return this.apptSeed[iso].slice(); const dow=(dt.getDay()+6)%7; if(dow===6) return []; const hh=this.hash(iso); const n=hh%4; if(n===0) return []; const out=[]; const seen={}; for(let i=0;i<n;i++){ const p=this.apptPool[(hh+i*5)%this.apptPool.length]; const t=this.apptTimes[(hh+i*3)%this.apptTimes.length]; if(seen[t]) continue; seen[t]=1; out.push({time:t,pet:p.pet,service:p.service,owner:p.owner}); } out.sort((a,b)=>a.time.localeCompare(b.time)); return out; }
+  patDetail={Bruno:{emoji:'🐶',bg:'#E7F5EE',owner:'Katarzyna Zielińska',phone:'+48 601 234 567',species:'Pies',breed:'Labrador retriever',age:'4 lata',weight:'28 kg',last:'21 lipca 2026',tag:'Stały pacjent',chronic:['Atopowe zapalenie skóry'],meds:['Apoquel 16 mg — 1×/dzień'],notes:'Reaguje nerwowo na obcinanie pazurów — potrzebny spokój.'},Fela:{emoji:'🐱',bg:'#EFEAF9',owner:'Jan Bąk',phone:'+48 602 111 222',species:'Kot',breed:'Brytyjski krótkowłosy',age:'6 lat',weight:'5,2 kg',last:'18 lipca 2026',tag:'Szczepienia',chronic:[],meds:[],notes:'Kalendarz szczepień aktualny do 2027.'},Luna:{emoji:'🐱',bg:'#E8F1FB',owner:'Adam Mazur',phone:'+48 603 222 333',species:'Kot',breed:'Maine Coon',age:'3 lata',weight:'6,8 kg',last:'28 czerwca 2026',tag:'Kardiologia',chronic:['Kardiomiopatia (HCM) — obserwacja'],meds:['Vetmedin 1,25 mg — 2×/dzień'],notes:'Kontrola ECHO co 6 miesięcy.'}};
+  patFallback(){ return {emoji:'🐾',bg:'#E7F5EE',owner:'Opiekun',phone:'+48 600 000 000',species:'—',breed:'—',age:'—',weight:'—',last:'—',tag:'Pacjent',chronic:[],meds:[],notes:'Brak dodatkowych notatek w karcie.'}; }
+  patExtra={
+    Bruno:{history:[{d:'21 lip 2026',t:'Kontrola',note:'Skóra w wyraźnej poprawie. Kontynuacja Apoquel.'},{d:'14 cze 2026',t:'Szczepienie',note:'Szczepienie przeciw wściekliźnie — bez odczynu.'},{d:'2 maj 2026',t:'Wizyta',note:'Nasilony świąd, rumień. Włączono leczenie p/świądowe.'}],
+      notes:[{d:'21 lip',a:'lek. A. Kowalska',t:'Reaguje nerwowo na obcinanie pazurów — potrzebny spokój i asysta.'},{d:'2 maj',a:'lek. A. Kowalska',t:'Opiekun zgłasza sezonowość objawów (wiosna).'}],
+      rx:[{items:'Apoquel 16 mg — 60 tabl.',code:'0421 8830 1190 22',d:'21 lip 2026',status:'Zrealizowana'},{items:'Szampon łagodzący',code:'0421 8830 1190 09',d:'2 maj 2026',status:'Zrealizowana'}]},
+    Fela:{history:[{d:'18 lip 2026',t:'Szczepienie',note:'Szczepienie kompleksowe. Stan ogólny dobry.'},{d:'10 sty 2026',t:'Bilans zdrowia',note:'Badanie kontrolne — bez odchyleń.'}],
+      notes:[{d:'18 lip',a:'lek. A. Kowalska',t:'Kalendarz szczepień aktualny do 2027.'}],
+      rx:[{items:'Odrobaczanie — Milbemax',code:'0421 8830 1188 04',d:'18 lip 2026',status:'Zrealizowana'}]},
+    Luna:{history:[{d:'28 cze 2026',t:'Kardiologia',note:'ECHO serca — HCM stabilne. Kontynuacja Vetmedin.'},{d:'2 sty 2026',t:'Kontrola',note:'Kontrola kardiologiczna — bez pogorszenia.'}],
+      notes:[{d:'28 cze',a:'lek. A. Kowalska',t:'Kontrola ECHO co 6 miesięcy. Następna: grudzień 2026.'}],
+      rx:[{items:'Vetmedin 1,25 mg — 60 tabl.',code:'0421 8830 1177 51',d:'28 cze 2026',status:'Zrealizowana'}]}
+  };
+  patExtraFallback(pet,d){ return {
+    history:[{d:d.last||'—',t:'Ostatnia wizyta',note:d.notes||'Brak szczegółowego opisu.'}],
+    notes: d.notes?[{d:d.last||'—',a:'lek. A. Kowalska',t:d.notes}]:[],
+    rx: (d.meds&&d.meds.length)?[{items:d.meds[0],code:'0421 ——',d:d.last||'—',status:'Aktywna'}]:[] }; }
+
+  resData=[
+    {id:'r1',pet:'Luna',owner:'Adam Mazur',emoji:'🐱',panel:'Morfologia krwi',kind:'Laboratorium',flag:'ok',status:'Gotowe',when:'dziś 09:10',lab:'Lab Merdi',by:'lek. A. Kowalska',rows:[['WBC','8,4','10³/µL','6–17'],['RBC','7,1','10⁶/µL','5,5–8,5'],['HGB','15,2','g/dL','12–18'],['HCT','44','%','37–55'],['PLT','312','10³/µL','200–500']]},
+    {id:'r2',pet:'Luna',owner:'Adam Mazur',emoji:'🐱',panel:'ECHO serca',kind:'Obrazowe',flag:'ab',status:'Gotowe',when:'wczoraj',lab:'Pracownia USG',by:'lek. M. Wiśniewska',desc:'Pogrubienie ściany lewej komory serca. Frakcja skracania w dolnej granicy normy. Obraz odpowiada kardiomiopatii przerostowej (HCM). Zalecana kontrola ECHO za 6 miesięcy oraz utrzymanie leczenia.'},
+    {id:'r3',pet:'Bruno',owner:'K. Zielińska',emoji:'🐶',panel:'Biochemia — profil wątrobowy',kind:'Laboratorium',flag:'low',status:'Gotowe',when:'dziś 08:40',lab:'Lab Merdi',by:'lek. A. Kowalska',rows:[['ALT','48','U/L','10–100'],['ALP','120','U/L','23–212'],['Albumina','2,6','g/dL','2,6–4,0'],['Glukoza','88','mg/dL','75–128']]},
+    {id:'r4',pet:'Sonia',owner:'P. Zawadzki',emoji:'🐶',panel:'Badanie moczu',kind:'Laboratorium',flag:'ok',status:'Gotowe',when:'dziś 07:55',lab:'Lab Merdi',by:'lek. A. Kowalska',rows:[['pH','6,5','','5,5–7,0'],['Ciężar wł.','1,030','','1,015–1,045'],['Białko','ślad','','ujemny'],['Glukoza','ujemny','','ujemny']]},
+    {id:'r5',pet:'Miki',owner:'E. Wójcik',emoji:'🐶',panel:'RTG klatki piersiowej',kind:'Obrazowe',flag:'ok',status:'W toku',when:'oczekiwany 14:00',lab:'Pracownia RTG',by:'lek. P. Nowak'},
+    {id:'r6',pet:'Fela',owner:'Jan Bąk',emoji:'🐱',panel:'Poziom T4 (tarczyca)',kind:'Laboratorium',flag:'ok',status:'W toku',when:'oczekiwany 12:30',lab:'Lab zewnętrzne',by:'lek. A. Kowalska'},
+  ];
+  docData=[
+    {id:'d1',kind:'Recepta',emoji:'💊',pet:'Bruno',owner:'Katarzyna Zielińska',date:'21 lip 2026',status:'Podpisany',by:'lek. A. Kowalska',code:'0421 8830 1190 22',body:'Apoquel 16 mg',extra:'1× dziennie · 30 dni'},
+    {id:'d2',kind:'Skierowanie na badanie',emoji:'🧾',pet:'Luna',owner:'Adam Mazur',date:'20 lip 2026',status:'Wystawiony',by:'lek. M. Wiśniewska',code:'SKZ-2026-118',body:'ECHO serca — kontrola HCM',extra:'Pracownia USG'},
+    {id:'d3',kind:'Karta szczepień',emoji:'💉',pet:'Fela',owner:'Jan Bąk',date:'18 lip 2026',status:'Aktualna',by:'lek. A. Kowalska',code:'KSZ-4471',body:'Wścieklizna, koci katar, panleukopenia',extra:'Ważne do 07.2027'},
+    {id:'d4',kind:'Zaświadczenie',emoji:'📋',pet:'Sonia',owner:'Piotr Zawadzki',date:'15 lip 2026',status:'Podpisany',by:'lek. A. Kowalska',code:'ZAS-2026-77',body:'Zdolność do podróży',extra:'Ważne 10 dni'},
+    {id:'d5',kind:'Recepta',emoji:'💊',pet:'Rex',owner:'Anna Nowicka',date:'12 lip 2026',status:'Zrealizowany',by:'lek. T. Zając',code:'0421 7720 1190 30',body:'Synulox 250 mg',extra:'2× dziennie · 10 dni'},
+    {id:'d6',kind:'Wynik badania',emoji:'🔬',pet:'Luna',owner:'Adam Mazur',date:'wczoraj',status:'Wysłany',by:'lek. M. Wiśniewska',code:'ECHO-9920',body:'ECHO serca — opis',extra:'PDF · 2 strony'},
+  ];
+
+  adminNav = [
+    {key:'pulpit',label:'Pulpit',ic:'grid'},
+    {key:'users',label:'Użytkownicy',ic:'users'},
+    {key:'rez',label:'Rezerwacje',ic:'cal',badge:'12'},
+    {key:'notif',label:'Powiadomienia',ic:'bell'},
+    {key:'set',label:'Ustawienia',ic:'gear'},
+  ];
+  lekarzNav = [
+    {key:'pulpit',label:'Pulpit',ic:'grid'},
+    {key:'plan',label:'Plan na dziś',ic:'list'},
+    {key:'kalendarz',label:'Kalendarz',ic:'cal'},
+    {key:'pacjenci',label:'Pacjenci',ic:'clip'},
+    {key:'wyniki',label:'Wyniki',ic:'flask',badge:'2'},
+    {key:'dokumenty',label:'Dokumenty',ic:'file'},
+    {key:'sprawy',label:'Moje sprawy',ic:'folder'},
+  ];
+
+  adminKpis = [
+    {label:'Pacjenci',value:'1 284',delta:'+3,2% / mies.',deltaInk:'#12876F',bg:'#E7F5EE',ink:'#12876F',icon:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8'},
+    {label:'Wizyty dziś',value:'38',delta:'12 oczekuje',deltaInk:'#B87A16',bg:'#FDF0DC',ink:'#C2842A',icon:'M3 4h18v18H3zM3 10h18M8 2v4M16 2v4'},
+    {label:'Przychód (mies.)',value:'82 400 zł',delta:'+8,1%',deltaInk:'#12876F',bg:'#E8F1FB',ink:'#2C6FB5',icon:'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'},
+    {label:'Nowi użytkownicy',value:'47',delta:'ostatnie 7 dni',deltaInk:'#9AA69F',bg:'#FDECE4',ink:'#E0653B',icon:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M20 8v6M23 11h-6'},
+  ];
+  chartBars = [
+    {d:'Pn',h:'62%'},{d:'Wt',h:'80%'},{d:'Śr',h:'55%'},{d:'Czw',h:'92%'},{d:'Pt',h:'74%'},{d:'Sob',h:'40%'},
+  ];
+  approvals = [
+    {emoji:'🌴',bg:'#FDF0DC',ink:'#C2842A',title:'Urlop — Piotr Nowak',sub:'4–8 sierpnia · 5 dni'},
+    {emoji:'👤',bg:'#E7F5EE',ink:'#12876F',title:'Nowe konto — recepcja',sub:'Ewa Lis · czeka na aktywację'},
+    {emoji:'🗓️',bg:'#E8F1FB',ink:'#2C6FB5',title:'Zmiana grafiku',sub:'Maria Wiśniewska · piątki'},
+  ];
+  activity = [
+    {ini:'KZ',bg:'#FDECE4',ink:'#E0653B',who:'Katarzyna Zielińska',action:'zarezerwowała wizytę kontrolną (Bruno).',when:'6 min'},
+    {ini:'AK',bg:'#E7F5EE',ink:'#12876F',who:'lek. Anna Kowalska',action:'opisała wizytę i wystawiła receptę.',when:'24 min'},
+    {ini:'SY',bg:'#E8F1FB',ink:'#2C6FB5',who:'System',action:'wysłał 34 przypomnienia SMS o wizytach.',when:'1 godz.'},
+    {ini:'MW',bg:'#EFEAF9',ink:'#7A5AC2',who:'lek. Maria Wiśniewska',action:'dodała wynik badania ECHO serca.',when:'2 godz.'},
+  ];
+  users = [
+    {ini:'AK',bg:'#E7F5EE',ink:'#12876F',name:'Anna Kowalska',email:'a.kowalska@merdi.pl',role:'Lekarz',roleBg:'#E7F5EE',roleInk:'#0E6E58',status:'Aktywny',statusInk:'#12876F',last:'dziś, 08:12',cat:'lekarze'},
+    {ini:'PN',bg:'#FDECE4',ink:'#E0653B',name:'Piotr Nowak',email:'p.nowak@merdi.pl',role:'Lekarz',roleBg:'#E7F5EE',roleInk:'#0E6E58',status:'Aktywny',statusInk:'#12876F',last:'dziś, 07:50',cat:'lekarze'},
+    {ini:'EL',bg:'#E8F1FB',ink:'#2C6FB5',name:'Ewa Lis',email:'e.lis@merdi.pl',role:'Recepcja',roleBg:'#E8F1FB',roleInk:'#2C6FB5',status:'Oczekuje',statusInk:'#C2842A',last:'—',cat:'recepcja'},
+    {ini:'KZ',bg:'#FDECE4',ink:'#E0653B',name:'Katarzyna Zielińska',email:'k.zielinska@gmail.com',role:'Pacjent',roleBg:'#F4EFE4',roleInk:'#7A857F',status:'Aktywny',statusInk:'#12876F',last:'wczoraj, 19:03',cat:'pacjenci'},
+    {ini:'MW',bg:'#EFEAF9',ink:'#7A5AC2',name:'Maria Wiśniewska',email:'m.wisniewska@merdi.pl',role:'Lekarz',roleBg:'#E7F5EE',roleInk:'#0E6E58',status:'Aktywny',statusInk:'#12876F',last:'dziś, 09:20',cat:'lekarze'},
+    {ini:'JB',bg:'#F4EFE4',ink:'#7A857F',name:'Jan Bąk',email:'jan.bak@gmail.com',role:'Pacjent',roleBg:'#F4EFE4',roleInk:'#7A857F',status:'Zablokowany',statusInk:'#C2492E',last:'12 lip, 14:00',cat:'pacjenci'},
+    {ini:'TZ',bg:'#EFEAF9',ink:'#7A5AC2',name:'Tomasz Zając',email:'t.zajac@merdi.pl',role:'Lekarz',roleBg:'#E7F5EE',roleInk:'#0E6E58',status:'Aktywny',statusInk:'#12876F',last:'dziś, 08:40',cat:'lekarze'},
+    {ini:'AD',bg:'#21332E',ink:'#fff',name:'Adam Dyrektor',email:'admin@merdi.pl',role:'Administrator',roleBg:'#21332E',roleInk:'#fff',status:'Aktywny',statusInk:'#12876F',last:'dziś, 10:01',cat:'admin'},
+  ];
+  userFiltersDef = [{k:'all',l:'Wszyscy'},{k:'pacjenci',l:'Pacjenci'},{k:'lekarze',l:'Lekarze'},{k:'recepcja',l:'Recepcja'}];
+
+  adminRez = [
+    {time:'08:30',pet:'Fela',owner:'Jan Bąk',vet:'lek. A. Kowalska',service:'Szczepienie',pay:'Opłacone',payInk:'#12876F',status:'Zrealizowana',stBg:'#E7F5EE',stInk:'#0E6E58'},
+    {time:'09:30',pet:'Bruno',owner:'K. Zielińska',vet:'lek. A. Kowalska',service:'Wizyta kontrolna',pay:'Online',payInk:'#12876F',status:'W trakcie',stBg:'#FDF0DC',stInk:'#C2842A'},
+    {time:'10:15',pet:'Miki',owner:'E. Wójcik',vet:'lek. P. Nowak',service:'Zabieg chirurgiczny',pay:'W klinice',payInk:'#7A857F',status:'Potwierdzona',stBg:'#E8F1FB',stInk:'#2C6FB5'},
+    {time:'11:00',pet:'Luna',owner:'M. Kaczmarek',vet:'lek. M. Wiśniewska',service:'ECHO serca',pay:'Online',payInk:'#12876F',status:'Potwierdzona',stBg:'#E8F1FB',stInk:'#2C6FB5'},
+    {time:'12:30',pet:'Rex',owner:'A. Nowicki',vet:'lek. T. Zając',service:'Dermatologia',pay:'—',payInk:'#C2492E',status:'Oczekuje',stBg:'#FDECE4',stInk:'#C2492E'},
+    {time:'14:00',pet:'Puszek',owner:'D. Lewandowska',vet:'lek. P. Nowak',service:'Kontrola pooperacyjna',pay:'Online',payInk:'#12876F',status:'Potwierdzona',stBg:'#E8F1FB',stInk:'#2C6FB5'},
+  ];
+  rezFiltersDef = [{k:'all',l:'Wszystkie'},{k:'wait',l:'Oczekujące'},{k:'done',l:'Zrealizowane'}];
+
+  notifChannels = [
+    {emoji:'✉️',name:'E-mail',desc:'Potwierdzenia i przypomnienia',on:true,sent:'2 140'},
+    {emoji:'💬',name:'SMS',desc:'Przypomnienia 24 h / 2 h',on:true,sent:'1 380'},
+    {emoji:'🔔',name:'Push (aplikacja)',desc:'Wyniki i status wizyty',on:false,sent:'0'},
+  ];
+  notifTemplates = [
+    {emoji:'✅',name:'Potwierdzenie rezerwacji',trigger:'utworzenie wizyty',channels:'E-mail · SMS',state:'Aktywny',stBg:'#E7F5EE',stInk:'#0E6E58'},
+    {emoji:'⏰',name:'Przypomnienie 24 h',trigger:'24 h przed wizytą',channels:'SMS',state:'Aktywny',stBg:'#E7F5EE',stInk:'#0E6E58'},
+    {emoji:'🔬',name:'Wyniki gotowe',trigger:'dodanie wyniku badania',channels:'E-mail',state:'Aktywny',stBg:'#E7F5EE',stInk:'#0E6E58'},
+    {emoji:'💉',name:'Przypomnienie o szczepieniu',trigger:'30 dni przed terminem',channels:'E-mail · SMS',state:'Wersja robocza',stBg:'#FDF0DC',stInk:'#C2842A'},
+  ];
+  roles = [
+    {name:'Administrator',perms:'Pełny dostęp',count:'1 osoba',ink:'#21332E'},
+    {name:'Lekarz',perms:'Pacjenci, kalendarz, wyniki',count:'12 osób',ink:'#12876F'},
+    {name:'Recepcja',perms:'Rezerwacje, płatności',count:'4 osoby',ink:'#2C6FB5'},
+    {name:'Pacjent',perms:'Konto własne',count:'1 267 osób',ink:'#7A857F'},
+  ];
+
+  lekKpis = [
+    {label:'Wizyty dziś',value:'9',sub:'2 pozostały',ink:'#12876F'},
+    {label:'Do opisania',value:'3',sub:'wizyty z dziś',ink:'#C2842A'},
+    {label:'Nowi pacjenci',value:'2',sub:'ten tydzień',ink:'#2C6FB5'},
+    {label:'Pod opieką',value:'128',sub:'pacjentów',ink:'#21332E'},
+  ];
+  lekToday = [
+    {time:'08:30',pet:'Fela',owner:'Jan Bąk',service:'Szczepienie',status:'Zrealizowana',bg:'#E7F5EE',ink:'#0E6E58'},
+    {time:'09:30',pet:'Bruno',owner:'K. Zielińska',service:'Wizyta kontrolna',status:'Teraz',bg:'#FDF0DC',ink:'#C2842A'},
+    {time:'10:30',pet:'Sonia',owner:'P. Zawadzki',service:'Bilans zdrowia',status:'Potwierdzona',bg:'#E8F1FB',ink:'#2C6FB5'},
+    {time:'11:15',pet:'Kajtek',owner:'M. Sikora',service:'Konsultacja',status:'Potwierdzona',bg:'#E8F1FB',ink:'#2C6FB5'},
+    {time:'12:00',pet:'Luna',owner:'A. Mazur',service:'Kontrola wyników',status:'Potwierdzona',bg:'#E8F1FB',ink:'#2C6FB5'},
+  ];
+  lekPatients = [
+    {emoji:'🐶',bg:'#E7F5EE',pet:'Bruno',owner:'Katarzyna Zielińska',breed:'Pies · labrador',last:'21 lip 2026',tag:'Stały',tagBg:'#E7F5EE',tagInk:'#0E6E58'},
+    {emoji:'🐱',bg:'#EFEAF9',pet:'Fela',owner:'Jan Bąk',breed:'Kot · brytyjski',last:'18 lip 2026',tag:'Szczepienia',tagBg:'#E8F1FB',tagInk:'#2C6FB5'},
+    {emoji:'🐶',bg:'#FDECE4',pet:'Sonia',owner:'Piotr Zawadzki',breed:'Pies · beagle',last:'10 lip 2026',tag:'Stały',tagBg:'#E7F5EE',tagInk:'#0E6E58'},
+    {emoji:'🐇',bg:'#FDF0DC',pet:'Kajtek',owner:'Marta Sikora',breed:'Królik',last:'2 lip 2026',tag:'Nowy',tagBg:'#FDECE4',tagInk:'#E0653B'},
+    {emoji:'🐱',bg:'#E8F1FB',pet:'Luna',owner:'Adam Mazur',breed:'Kot · maine coon',last:'28 cze 2026',tag:'Kardio',tagBg:'#FDECE4',tagInk:'#C2492E'},
+    {emoji:'🐶',bg:'#E7F5EE',pet:'Rex',owner:'Anna Nowicka',breed:'Pies · owczarek',last:'20 cze 2026',tag:'Stały',tagBg:'#E7F5EE',tagInk:'#0E6E58'},
+  ];
+  hrDocsData=[
+    {id:'h1',name:'Umowa o pracę',type:'Umowa',by:'Kadry',date:'01 sty 2024',iso:'2024-01-01',status:'Aktywna'},
+    {id:'h2',name:'Aneks — wynagrodzenie',type:'Umowa',by:'Kadry',date:'01 sty 2026',iso:'2026-01-01',status:'Aktywny'},
+    {id:'h3',name:'Zaświadczenie o zatrudnieniu',type:'Zaświadczenie',by:'Kadry',date:'15 lip 2026',iso:'2026-07-15',status:'Gotowe'},
+    {id:'h4',name:'Zgoda RODO',type:'RODO',by:'Administracja',date:'01 sty 2024',iso:'2024-01-01',status:'Podpisana'},
+    {id:'h5',name:'Prawo wykonywania zawodu',type:'Certyfikat',by:'Izba Lek.-Wet.',date:'12 mar 2021',iso:'2021-03-12',status:'Ważny'},
+    {id:'h6',name:'Szkolenie BHP',type:'Certyfikat',by:'Dział BHP',date:'08 lut 2026',iso:'2026-02-08',status:'Ważny'},
+  ];
+  paysData=[
+    {period:'Lipiec 2026',doc:'Pasek wynagrodzeń',date:'25 lip 2026',iso:'2026-07-25',brutto:'18 900 zł',netto:'13 240 zł',status:'Dostępny'},
+    {period:'Czerwiec 2026',doc:'Pasek wynagrodzeń',date:'25 cze 2026',iso:'2026-06-25',brutto:'18 900 zł',netto:'13 240 zł',status:'Dostępny'},
+    {period:'Maj 2026',doc:'Pasek wynagrodzeń',date:'25 maj 2026',iso:'2026-05-25',brutto:'19 450 zł',netto:'13 560 zł',status:'Dostępny'},
+    {period:'Kwiecień 2026',doc:'Pasek wynagrodzeń',date:'25 kwi 2026',iso:'2026-04-25',brutto:'18 900 zł',netto:'13 240 zł',status:'Dostępny'},
+    {period:'Rok 2025',doc:'IMIR (RMUA) roczny',date:'31 sty 2026',iso:'2026-01-31',brutto:'—',netto:'—',status:'Dostępny'},
+  ];
+  pitData=[
+    {year:'2025',form:'PIT-11',date:'28 lut 2026',iso:'2026-02-28',income:'226 800 zł',status:'Gotowy'},
+    {year:'2024',form:'PIT-11',date:'25 lut 2025',iso:'2025-02-25',income:'214 200 zł',status:'Archiwum'},
+    {year:'2023',form:'PIT-11',date:'27 lut 2024',iso:'2024-02-27',income:'198 400 zł',status:'Archiwum'},
+    {year:'2022',form:'PIT-11',date:'24 lut 2023',iso:'2023-02-24',income:'186 900 zł',status:'Archiwum'},
+  ];
+  weekDays = [
+    {dow:'Pon',date:'20',appts:[{time:'09:00',pet:'Fela',service:'Szczepienie',bg:'#E7F5EE',ink:'#0E6E58'},{time:'11:30',pet:'Rex',service:'Kontrola',bg:'#E8F1FB',ink:'#2C6FB5'}]},
+    {dow:'Wt',date:'21',appts:[{time:'08:30',pet:'Fela',service:'Szczepienie',bg:'#E7F5EE',ink:'#0E6E58'},{time:'09:30',pet:'Bruno',service:'Kontrolna',bg:'#FDF0DC',ink:'#C2842A'},{time:'12:00',pet:'Luna',service:'Wyniki',bg:'#E8F1FB',ink:'#2C6FB5'}]},
+    {dow:'Śr',date:'22',appts:[{time:'10:00',pet:'Miki',service:'Chirurgia',bg:'#FDECE4',ink:'#E0653B'}]},
+    {dow:'Czw',date:'23',appts:[{time:'09:15',pet:'Sonia',service:'Bilans',bg:'#E8F1FB',ink:'#2C6FB5'},{time:'13:00',pet:'Kajtek',service:'Konsultacja',bg:'#E8F1FB',ink:'#2C6FB5'}]},
+    {dow:'Pt',date:'24',appts:[{time:'08:00',pet:'Puszek',service:'Kontrola',bg:'#E7F5EE',ink:'#0E6E58'},{time:'10:30',pet:'Bella',service:'Szczepienie',bg:'#E7F5EE',ink:'#0E6E58'}]},
+    {dow:'Sob',date:'25',appts:[{time:'09:00',pet:'Coco',service:'Konsultacja',bg:'#E8F1FB',ink:'#2C6FB5'}]},
+  ];
+  urlopy = [
+    {emoji:'🌴',bg:'#FDF0DC',ink:'#C2842A',type:'Urlop wypoczynkowy',range:'4–8 sierpnia 2026',days:'5 dni',status:'Oczekuje',stBg:'#FDF0DC',stInk:'#C2842A'},
+    {emoji:'🩺',bg:'#E8F1FB',ink:'#2C6FB5',type:'Szkolenie — kardiologia',range:'15 lipca 2026',days:'1 dzień',status:'Zatwierdzony',stBg:'#E7F5EE',stInk:'#0E6E58'},
+    {emoji:'🤒',bg:'#FDECE4',ink:'#C2492E',type:'Zwolnienie lekarskie',range:'2–3 lipca 2026',days:'2 dni',status:'Rozliczony',stBg:'#F4EFE4',stInk:'#7A857F'},
+  ];
+  docs = [
+    {name:'Umowa o pracę',meta:'PDF · 12 sty 2021'},
+    {name:'Prawo wykonywania zawodu',meta:'PDF · ważne do 2028'},
+    {name:'Certyfikat RTG',meta:'PDF · odnów za 30 dni'},
+    {name:'Rozliczenie — czerwiec 2026',meta:'PDF · 1 lip 2026'},
+  ];
+  grafik = [
+    {day:'Pon',hours:'08:00 – 16:00',bg:'#FAF6EE',ink:'#3A4B44'},
+    {day:'Wt',hours:'08:00 – 16:00',bg:'#FAF6EE',ink:'#3A4B44'},
+    {day:'Śr',hours:'12:00 – 20:00',bg:'#FAF6EE',ink:'#3A4B44'},
+    {day:'Czw',hours:'08:00 – 16:00',bg:'#FAF6EE',ink:'#3A4B44'},
+    {day:'Pt',hours:'08:00 – 14:00',bg:'#FAF6EE',ink:'#3A4B44'},
+    {day:'Sob',hours:'wolne',bg:'#F4EFE4',ink:'#9AA69F'},
+  ];
+
+  pillActive(active){ return active
+    ? 'background:#12876F;color:#fff;border:1.5px solid #12876F;border-radius:999px;padding:8px 15px;font-weight:800;font-size:13px;cursor:pointer'
+    : 'background:#fff;color:#7A857F;border:1.5px solid #E7DECE;border-radius:999px;padding:8px 15px;font-weight:800;font-size:13px;cursor:pointer'; }
+
+  navStyle(active){ return active
+    ? 'display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.14);color:#fff;border:none;border-radius:12px;padding:11px 13px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:inset 3px 0 0 #16A085'
+    : 'display:flex;align-items:center;gap:12px;background:none;color:rgba(255,255,255,.62);border:none;border-radius:12px;padding:11px 13px;font-weight:700;font-size:14px;cursor:pointer'; }
+
+  renderVals(){
+    const st = this.state;
+    const isAdmin = false;
+    const nav = isAdmin ? this.adminNav : this.lekarzNav;
+    const cur = isAdmin ? st.navA : st.navL;
+    const setNav = (k)=> isAdmin ? this.setState({navA:k, patPage:null}) : this.setState({navL:k, patPage:null});
+    const navItems = nav.map(n=>({ label:n.label, icon:this.ic[n.ic], badge:n.badge||'', style:this.navStyle(cur===n.key), go:()=>setNav(n.key) }));
+
+    const titles = {
+      pulpit: isAdmin ? ['Pulpit','Przegląd kliniki · dziś, 21 lipca'] : ['Pulpit','Dzień dobry, lek. Anna Kowalska'],
+      users:['Użytkownicy','Konta pacjentów i pracowników'],
+      rez:['Rezerwacje','Wszystkie wizyty w klinice'],
+      notif:['Powiadomienia','Kanały i szablony wiadomości'],
+      set:['Ustawienia','Konfiguracja placówki'],
+      kalendarz:['Kalendarz','Twoje rezerwacje i bloki'],
+      pacjenci:['Pacjenci','Zwierzęta pod Twoją opieką'],
+      wyniki:['Wyniki','Wyniki badań pacjentów'],
+      dokumenty:['Dokumenty','Recepty, skierowania, karty'],
+      sprawy:['Moje sprawy','Urlopy, dokumenty, grafik'],
+    };
+    const t = titles[cur] || ['',''];
+
+    const uf = st.role==='admin' ? (this._uf||'all') : 'all';
+    const userFilters = this.userFiltersDef.map(f=>({ label:f.l, style:this.pillActive((this._uf||'all')===f.k), pick:()=>{ this._uf=f.k; this.forceUpdate(); } }));
+    const usersShown = (this._uf&&this._uf!=='all') ? this.users.filter(u=>u.cat===this._uf) : this.users;
+    const rezFilters = this.rezFiltersDef.map((f,i)=>({ label:f.l, style:this.pillActive(i===0) }));
+    // ===== kalendarz lekarza =====
+    const mNames=['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
+    const mGen=['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+    const mShort=['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+    const dowFull=['Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota','Niedziela'];
+    const dowSh=['Pon','Wt','Śr','Czw','Pt','Sob','Ndz'];
+    const cview=st.calView||'week';
+    const cDate=this._parse(st.calDate||'2026-6-21');
+    const todayISO='2026-6-21';
+    const deco=(a)=>{const c=this.colorFor(a.service);return {...a,ink:c.ink,bg:c.bg,open:()=>this.openPatientPage(a.pet)};};
+    const cy=cDate.getFullYear(), cm=cDate.getMonth();
+    const startDow=(new Date(cy,cm,1).getDay()+6)%7;
+    const gStart=new Date(cy,cm,1-startDow);
+    const monthCells=[];
+    for(let i=0;i<42;i++){ const dt=new Date(gStart); dt.setDate(gStart.getDate()+i); const ap=this.apptsForRaw(dt).map(deco); const inM=dt.getMonth()===cm; const isT=this._iso(dt)===todayISO; monthCells.push({ num:dt.getDate(), numInk:isT?'#12876F':(inM?'#21332E':'#C9BFAD'), chips:ap.slice(0,3), more:ap.length>3, moreN:ap.length-3, pick:this.pickDay(this._iso(dt)), style:'min-height:96px;padding:8px;border-radius:12px;cursor:pointer;overflow:hidden;border:1px solid '+(isT?'#12876F':'#F1EBDF')+';background:'+(inM?(isT?'#F3FAF6':'#fff'):'#FBF8F1') }); }
+    const wd=(cDate.getDay()+6)%7; const wkStart=new Date(cy,cm,cDate.getDate()-wd);
+    const weekCols=[]; for(let i=0;i<7;i++){ const dt=new Date(wkStart); dt.setDate(wkStart.getDate()+i); const ap=this.apptsForRaw(dt).map(deco); const isT=this._iso(dt)===todayISO; weekCols.push({ dow:dowSh[i], date:dt.getDate(), appts:ap, pickDay:this.pickDay(this._iso(dt)), headStyle:'text-align:center;padding-bottom:10px;border-bottom:1px solid #F1EBDF;margin-bottom:10px;cursor:pointer;border-radius:9px;'+(isT?'background:#E7F5EE;padding-top:6px':''), weekHeadStyle:'text-align:center;padding:6px 2px;cursor:pointer;border-radius:9px;'+(isT?'background:#E7F5EE':'') }); }
+    const we=new Date(wkStart); we.setDate(wkStart.getDate()+6);
+    const weekHours=[]; for(let hh=8;hh<=18;hh++){ const lab=(hh<10?'0':'')+hh+':00'; weekHours.push({ label:lab, cells: weekCols.map(c=>({ appts:(c.appts||[]).filter(a=>parseInt(a.time,10)===hh) })) }); }
+    const dayAppts=this.apptsForRaw(cDate).map(deco);
+    const dayHours=[]; for(let hh=8;hh<=18;hh++){ const lab=(hh<10?'0':'')+hh+':00'; dayHours.push({ label:lab, appts:dayAppts.filter(a=>parseInt(a.time,10)===hh) }); }
+    let calLabel=''; if(cview==='month') calLabel=mNames[cm]+' '+cy; else if(cview==='week') calLabel=wkStart.getDate()+' '+mShort[wkStart.getMonth()]+' – '+we.getDate()+' '+mShort[we.getMonth()]+' '+we.getFullYear(); else calLabel=dowFull[(cDate.getDay()+6)%7]+', '+cDate.getDate()+' '+mGen[cm]+' '+cy;
+    const vseg=(on)=> on?"background:#fff;color:#21332E;border:none;border-radius:8px;padding:7px 14px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 2px 6px rgba(33,51,46,.14)":"background:none;color:#7A857F;border:none;border-radius:8px;padding:7px 14px;font-weight:800;font-size:13px;cursor:pointer";
+    let patModal=null; if(st.patModal){ const d=this.patDetail[st.patModal]||this.patFallback(); patModal={ pet:st.patModal, emoji:d.emoji,bg:d.bg,owner:d.owner,phone:d.phone,species:d.species,breed:d.breed,age:d.age,weight:d.weight,last:d.last,tag:d.tag,notes:d.notes, chronic:d.chronic.length?d.chronic.join(', '):'brak', meds:d.meds.length?d.meds.join(', '):'brak' }; }
+    const allUrlopy=[...(st.extraUrlopy||[]), ...this.urlopy];
+
+    // ===== wyniki + dokumenty =====
+    const pill=(bg,ink)=>'font-size:11.5px;font-weight:800;color:'+ink+';background:'+bg+';padding:4px 10px;border-radius:999px;white-space:nowrap';
+    const rFlag={ok:{bg:'#E7F5EE',ink:'#0E6E58',l:'W normie'},ab:{bg:'#FDECE4',ink:'#C2492E',l:'Nieprawidłowy'},low:{bg:'#FDF0DC',ink:'#C2842A',l:'Poza zakresem'}};
+    const rStat=(s)=> s==='Gotowe'?{bg:'#E7F5EE',ink:'#0E6E58'}:{bg:'#FDF0DC',ink:'#C2842A'};
+    const curWynStatus=st.wynStatus||'all', curWynBy=st.wynBy||'all';
+    const senders=[...new Set(this.resData.map(r=>r.by))];
+    const wynFiltered=this.resData.filter(r=>(curWynStatus==='all'||r.status===curWynStatus)&&(curWynBy==='all'||r.by===curWynBy));
+    const wchip=(a)=> a?'background:#207A67;color:#fff;border:1px solid #207A67;border-radius:9px;padding:5px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap':'background:#fff;color:#4B5A52;border:1px solid #E4DCCB;border-radius:9px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap';
+    const wynStatusChips=[['all','Wszystkie'],['Gotowe','Gotowe'],['W toku','W toku']].map(s=>({go:()=>this.setState({wynStatus:s[0]}),label:s[1],style:wchip(curWynStatus===s[0])}));
+    const wynByChips=[['all','Wszyscy'],...senders.map(s=>[s,s])].map(s=>({go:()=>this.setState({wynBy:s[0]}),label:s[1],style:wchip(curWynBy===s[0])}));
+    const wynCount=wynFiltered.length;
+    const wyniki=wynFiltered.map(r=>{const isSel=r.id===st.selWyn;const f=rFlag[r.flag];const s2=rStat(r.status);return { go:()=>this.setState({selWyn:r.id}), pet:r.pet, emoji:r.emoji, panel:r.panel, owner:r.owner, date:r.when, by:r.by, statusL:r.status, statusStyle:pill(s2.bg,s2.ink), bar:f.ink, rowStyle:'display:flex;align-items:center;gap:12px;padding:13px 15px;border-bottom:1px solid #F1EBDF;cursor:pointer;transition:background .12s'+(isSel?';background:#F3FAF6':'') };});
+    const rs=this.resData.find(r=>r.id===st.selWyn)||this.resData[0];
+    const rsPending=rs.status!=='Gotowe';
+    const resSel={ pending:rsPending, ready:!rsPending, pet:rs.pet, emoji:rs.emoji, owner:rs.owner, panel:rs.panel, kind:rs.kind, when:rs.when, lab:rs.lab, by:rs.by, flagL:rFlag[rs.flag].l, flagStyle:pill(rFlag[rs.flag].bg,rFlag[rs.flag].ink), hasRows:!!rs.rows, rows:(rs.rows||[]).map(a=>({k:a[0],v:a[1],u:a[2],ref:a[3]})), desc:rs.desc||'' };
+    const dStat={'Podpisany':{bg:'#E7F5EE',ink:'#0E6E58'},'Aktualna':{bg:'#E7F5EE',ink:'#0E6E58'},'Wystawiony':{bg:'#E8F1FB',ink:'#2C6FB5'},'Wysłany':{bg:'#E8F1FB',ink:'#2C6FB5'},'Zrealizowany':{bg:'#F4EFE4',ink:'#7A857F'}};
+    const allDocs=[...(st.extraDocs||[]), ...this.docData];
+    const documents=allDocs.map(d=>{const s3=dStat[d.status]||{bg:'#F4EFE4',ink:'#7A857F'};return { kind:d.kind, emoji:d.emoji, pet:d.pet, owner:d.owner, date:d.date, statusL:d.status, statusStyle:pill(s3.bg,s3.ink), open:()=>this.setState({docModal:d.id}), email:()=>this.showToast('✉️ Dokument wysłany e-mailem (makieta)'), download:()=>this.showToast('⬇️ Pobieranie PDF (makieta)') };});
+    let docModal=null; if(st.docModal){ const d=allDocs.find(x=>x.id===st.docModal); if(d){ const s4=dStat[d.status]||{bg:'#F4EFE4',ink:'#7A857F'}; docModal={ kind:d.kind, emoji:d.emoji, pet:d.pet, owner:d.owner, date:d.date, code:d.code, body:d.body, extra:d.extra||'', by:d.by, statusL:d.status, statusStyle:pill(s4.bg,s4.ink) }; } }
+
+    // ===== moje sprawy =====
+    const sv=st.sprawyView||'grafik';
+    const spTab=(on)=> on?"background:#12876F;color:#fff;border:none;border-radius:11px;padding:9px 16px;font-family:'Bricolage Grotesque';font-weight:600;font-size:13.5px;cursor:pointer":"background:#fff;color:#4B5A52;border:1px solid #E7DECE;border-radius:11px;padding:9px 16px;font-family:'Bricolage Grotesque';font-weight:600;font-size:13.5px;cursor:pointer";
+    const sprawyTabs=[['grafik','Grafik i urlopy'],['dokumenty','Dokumenty']].map(t=>({go:this.setSprawy(t[0]),label:t[1],style:spTab(sv===t[0])}));
+    const grCur=this._parse(st.grDate||'2026-6-21'); const gy=grCur.getFullYear(), gmo=grCur.getMonth();
+    const plM=['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
+    const grLabel=plM[gmo]+' '+gy;
+    const gSd=(new Date(gy,gmo,1).getDay()+6)%7; const gS=new Date(gy,gmo,1-gSd);
+    const gtISO=this._iso(this._parse('2026-6-21'));
+    const grafikCells=[];
+    for(let i=0;i<42;i++){ const dt=new Date(gS); dt.setDate(gS.getDate()+i); const inM=dt.getMonth()===gmo; const dow=(dt.getDay()+6)%7; const isT=this._iso(dt)===gtISO;
+      let shift='',bg='#FCFAF5',ink='#B7B0A2';
+      if(inM){ if(dow<=4){ if(dow===2){shift='10–18';bg='#E8F1FB';ink='#2C6FB5';} else {shift='08–16';bg='#E7F5EE';ink='#0E6E58';} } else if(dow===5 && dt.getDate()<=14){ shift='09–13';bg='#FDF0DC';ink='#C2842A'; } else { shift='wolne';bg='#FAF6EE';ink='#B7B0A2'; } }
+      grafikCells.push({ num:inM?dt.getDate():'', shift:inM?shift:'', numInk:isT?'#12876F':(inM?'#3A4B44':'#C9C2B4'), shiftInk:ink, style:'border-radius:11px;padding:8px 9px;display:flex;flex-direction:column;justify-content:space-between;min-height:0;background:'+(inM?bg:'#FCFAF5')+';border:'+(isT?'2px solid #12876F':'1px solid #EFE7D8')+';opacity:'+(inM?1:.45) });
+    }
+    const hrStat={'Aktywna':['#E7F5EE','#0E6E58'],'Aktywny':['#E7F5EE','#0E6E58'],'Gotowe':['#E8F1FB','#2C6FB5'],'Gotowy':['#E8F1FB','#2C6FB5'],'Podpisana':['#E7F5EE','#0E6E58'],'Ważny':['#E7F5EE','#0E6E58'],'Dostępny':['#E7F5EE','#0E6E58'],'Archiwum':['#F4EFE4','#7A857F']};
+    const spill=(s)=>{const c=hrStat[s]||['#F4EFE4','#7A857F'];return pill(c[0],c[1]);};
+    const mkAct=()=>({ view:()=>this.showToast('Podgląd dokumentu (makieta)'), email:()=>this.showToast('Dokument wysłany e-mailem (makieta)'), download:()=>this.showToast('Pobieranie PDF (makieta)') });
+    const dirOf=(k)=> (st[k]||'desc')==='desc'?-1:1;
+    const bySort=(k)=>(a,b)=> (a.iso<b.iso?-1:a.iso>b.iso?1:0)*dirOf(k);
+    const arrow=(k)=> (st[k]||'desc')==='desc'?'↓':'↑';
+    const hrType=st.hrType||'all';
+    const hchip=(on)=> on?'background:#207A67;color:#fff;border:1px solid #207A67;border-radius:9px;padding:5px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit':'background:#fff;color:#4B5A52;border:1px solid #E4DCCB;border-radius:9px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit';
+    const hrTypeChips=['all','Umowa','Zaświadczenie','RODO','Certyfikat'].map(t=>({go:()=>this.setState({hrType:t}),label:t==='all'?'Wszystkie':t,style:hchip(hrType===t)}));
+    const hrDocs=this.hrDocsData.filter(d=>hrType==='all'||d.type===hrType).sort(bySort('hrSort')).map(d=>{const a=mkAct();return { name:d.name,type:d.type,by:d.by,date:d.date,statusL:d.status,statusStyle:spill(d.status),view:a.view,email:a.email,download:a.download };});
+    const hrDateHdr='Data '+arrow('hrSort');
+    const paysTable=[...this.paysData].sort(bySort('paySort')).map(p=>{const a=mkAct();return { period:p.period,doc:p.doc,date:p.date,brutto:p.brutto,netto:p.netto,statusL:p.status,statusStyle:spill(p.status),view:a.view,email:a.email,download:a.download };});
+    const payDateHdr='Okres '+arrow('paySort');
+    const pitTable=[...this.pitData].sort(bySort('pitSort')).map(p=>{const a=mkAct();return { year:p.year,form:p.form,date:p.date,income:p.income,statusL:p.status,statusStyle:spill(p.status),view:a.view,email:a.email,download:a.download };});
+    const pitYearHdr='Rok '+arrow('pitSort');
+
+    const baseMap={'Zrealizowana':'done','Teraz':'now','W trakcie':'now','Potwierdzona':'wait','Oczekuje':'wait'};
+    const stMeta={wait:{l:'Oczekuje',bg:'#FDF0DC',ink:'#C2842A'},now:{l:'W trakcie',bg:'#E8F1FB',ink:'#2C6FB5'},done:{l:'Zrealizowana',bg:'#E7F5EE',ink:'#0E6E58'},cancel:{l:'Anulowana',bg:'#F4EFE4',ink:'#9AA69F'}};
+    const vst=(pet,base)=> st.visits[pet]||base;
+    const sst=(m)=>'display:inline-flex;align-items:center;background:'+m.bg+';color:'+m.ink+';font-weight:800;font-size:12px;padding:5px 11px;border-radius:999px';
+    const bStart="background:#12876F;color:#fff;border:none;border-radius:10px;padding:8px 13px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:'Nunito Sans'";
+    const bEnd="background:#C2492E;color:#fff;border:none;border-radius:10px;padding:8px 13px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:'Nunito Sans'";
+    const bCancel="background:#fff;color:#C2842A;border:1.5px solid #F0DEB8;border-radius:10px;padding:8px 13px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:'Nunito Sans'";
+    const bStartLg="background:#12876F;color:#fff;border:none;border-radius:12px;padding:12px 20px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Nunito Sans';box-shadow:0 6px 16px -8px rgba(18,135,111,.6)";
+    const bEndLg="background:#C2492E;color:#fff;border:none;border-radius:12px;padding:12px 20px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Nunito Sans';box-shadow:0 6px 16px -8px rgba(194,73,46,.5)";
+    const bCancelLg="background:#fff;color:#C2842A;border:1.5px solid #F0DEB8;border-radius:12px;padding:12px 20px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Nunito Sans'";
+    const lekTodayAll=[...(st.extraVisits||[]), ...this.lekToday];
+    let firstWaitIdx=-1;
+    lekTodayAll.forEach((a,i)=>{ const s=vst(a.pet,baseMap[a.status]||'wait'); if(s==='wait'&&firstWaitIdx<0) firstWaitIdx=i; });
+    const planRowBase='display:grid;grid-template-columns:66px 1.6fr 1.3fr 132px auto;gap:14px;align-items:center;padding:14px 20px;border-bottom:1px solid #F1EBDF;cursor:pointer;transition:background .12s';
+    const planRows=lekTodayAll.map((a,i)=>{ const base=baseMap[a.status]||'wait'; const s=vst(a.pet,base); const m=stMeta[s];
+      let rowStyle=planRowBase;
+      if(s==='now') rowStyle+=';background:#EAF2FB;box-shadow:inset 4px 0 0 #2C6FB5';
+      else if(i===firstWaitIdx) rowStyle+=';background:#FFF8EC;box-shadow:inset 4px 0 0 #C2842A';
+      if(s==='done'||s==='cancel') rowStyle+=';opacity:.5';
+      return {time:a.time,pet:a.pet,ini:a.pet[0],owner:a.owner,service:a.service,bg:a.bg,ink:a.ink,statusL:m.l,statusStyle:sst(m),rowStyle,
+        canStart:s==='wait',canEnd:s==='now',canCancel:(s==='wait'||s==='now'),
+        start:(e)=>{this.stop(e);this.startVisit(a.pet);},end:(e)=>{this.stop(e);this.endVisit(a.pet);},cancel:(e)=>{this.stop(e);this.cancelVisit(a.pet);},
+        open:()=>this.openPatientPage(a.pet)}; });
+    const nNow=planRows.filter(r=>r.canEnd).length, nWaitP=planRows.filter(r=>r.canStart).length;
+    const planSummary=planRows.length+' wizyt · '+nWaitP+' oczekuje · '+nNow+' w trakcie';
+    let patPage=null;
+    if(st.patPage){ const d=this.patDetail[st.patPage]||this.patFallback(); const ex=this.patExtra[st.patPage]||this.patExtraFallback(st.patPage,d);
+      const tItem=lekTodayAll.find(a=>a.pet===st.patPage); let s=null,m=null;
+      if(tItem){ const base=baseMap[tItem.status]||'wait'; s=vst(st.patPage,base); m=stMeta[s]; } else if(st.visits[st.patPage]){ s=st.visits[st.patPage]; m=stMeta[s]; }
+      patPage={pet:st.patPage,ini:st.patPage[0],bg:d.bg,owner:d.owner,phone:d.phone,species:d.species,breed:d.breed,age:d.age,weight:d.weight,tag:d.tag,
+        chronic:(d.chronic&&d.chronic.length?d.chronic.join(', '):'Brak'),meds:(d.meds&&d.meds.length?d.meds.join(', '):'Brak'),
+        hasVisit:!!s, time:tItem?tItem.time:'', service:tItem?tItem.service:'', statusL:m?m.l:'', statusStyle:m?sst(m):'',
+        canStart:s==='wait',canEnd:s==='now',canCancel:(s==='wait'||s==='now'),
+        start:()=>this.startVisit(st.patPage),end:()=>this.endVisit(st.patPage),cancel:()=>this.cancelVisit(st.patPage),
+        history:ex.history,notes:ex.notes,rx:[...((st.extraDocs||[]).filter(x=>x.pet===st.patPage&&x.kind==='Recepta').map(x=>({items:x.body+(x.extra?' — '+x.extra:''),code:x.code,d:x.date,status:x.status}))), ...ex.rx]}; }
+    const actStyle=(on)=>'display:flex;align-items:center;gap:9px;text-align:left;border-radius:12px;padding:12px 14px;font-family:\'Bricolage Grotesque\';font-weight:600;font-size:14px;cursor:pointer;'+(on?'background:#12876F;color:#fff;border:none':'background:#fff;color:#21332E;border:1.5px solid #E7DECE');
+    const svSel=(st.cSvc||(this.priceList[0].n+'|'+this.priceList[0].p)).split('|');
+    const cm2=st.createModal; const cMeta = cm2==='visit'?{title:'Dodaj wizytę',aL:'Godzina',aP:'np. 10:30',bL:'Powód / usługa',bP:'np. Kontrola',submit:'Dodaj wizytę'}: cm2==='recepta'?{title:'Wystaw receptę',aL:'Lek',aP:'np. Apoquel 16 mg',bL:'Dawkowanie',bP:'np. 1× dziennie · 30 dni',submit:'Wystaw receptę'}: cm2==='skier'?{title:'Wystaw skierowanie',aL:'Badanie / cel',aP:'np. ECHO serca',bL:'Placówka',bP:'np. Pracownia USG',submit:'Wystaw skierowanie'}:{title:'',aL:'',aP:'',bL:'',bP:'',submit:''};
+    return {
+      isAdmin, isLekarz:!isAdmin,
+      createModal:st.createModal, createRoster:this.patRoster.map(p=>p.pet), cPat:st.cPat||this.patRoster[0].pet, cA:st.cA||'', cB:st.cB||'',
+      onCPat:this.onC('cPat'), onCA:this.onC('cA'), onCB:this.onC('cB'),
+      openCreateVisit:()=>this.openCreate('visit'), openCreateRx:()=>this.openCreate('recepta'), openCreateSkier:()=>this.openCreate('skier'),
+      closeCreate:this.closeCreate, submitCreate:this.submitCreate,
+      createTitle:cMeta.title, cAL:cMeta.aL, cAP:cMeta.aP, cBL:cMeta.bL, cBP:cMeta.bP, cSubmit:cMeta.submit,
+      lekAction:(st.lekAction||'visit'), inlVisit:(st.lekAction||'visit')==='visit', inlDoc:(st.lekAction||'visit')!=='visit',
+      inlineTitle:((st.lekAction||'visit')==='recepta'?'Nowa recepta':(st.lekAction||'visit')==='skier'?'Nowe skierowanie':'Nowa wizyta'),
+      inlAL:((st.lekAction||'visit')==='recepta'?'Lek':'Badanie / cel'), inlAP:((st.lekAction||'visit')==='recepta'?'np. Apoquel 16 mg':'np. ECHO serca'),
+      inlBL:((st.lekAction||'visit')==='recepta'?'Dawkowanie':'Placówka'), inlBP:((st.lekAction||'visit')==='recepta'?'np. 1× dziennie · 30 dni':'np. Pracownia USG'),
+      inlineSubmit:((st.lekAction||'visit')==='recepta'?'Wystaw receptę':(st.lekAction||'visit')==='skier'?'Wystaw skierowanie':'Dodaj wizytę'),
+      actVisitStyle:actStyle((st.lekAction||'visit')==='visit'), actRxStyle:actStyle((st.lekAction||'visit')==='recepta'), actSkStyle:actStyle((st.lekAction||'visit')==='skier'),
+      setActVisit:()=>this.setAct('visit'), setActRx:()=>this.setAct('recepta'), setActSk:()=>this.setAct('skier'), submitInline:this.submitInline,
+      priceOpts:this.priceList.map(x=>({v:x.n+'|'+x.p,label:x.n+' — '+x.p+' zł'})),
+      cSvc:st.cSvc||(this.priceList[0].n+'|'+this.priceList[0].p), cDate:st.cDate||'', cTime:st.cTime||'',
+      onCSvc:this.onC('cSvc'), onCDate:this.onC('cDate'), onCTime:this.onC('cTime'), inlinePrice:svSel[1]+' zł',
+      nvTime:'09:30', nvPet:'Bruno', nvService:'Wizyta kontrolna', nvOwner:'Katarzyna Zielińska', nvBreed:'Pies · Labrador retriever', nvMeta:'4 lata · 28 kg · po leczeniu skóry', nvPrice:'120 zł', nvStatus:'Za 12 min',
+      lPlan: !isAdmin&&cur==='plan'&&!st.patPage, patPageOpen: !isAdmin&&!!st.patPage,
+      planRows, planSummary, patPage, backPlan:this.backPlan,
+      startBtn:bStart, endBtn:bEnd, cancelBtn:bCancel, startBtnLg:bStartLg, endBtnLg:bEndLg, cancelBtnLg:bCancelLg,
+      navItems,
+      roleName: isAdmin ? 'Adam Dyrektor' : 'lek. wet. Anna Kowalska',
+      roleTitle: isAdmin ? 'Administrator' : 'Internista',
+      roleIni: isAdmin ? 'AD' : 'AK',
+      roleBadgeBg: isAdmin ? 'linear-gradient(135deg,#21332E,#3A4B44)' : 'linear-gradient(135deg,#12876F,#16A085)',
+      pageTitle:t[0], pageSub:t[1],
+      bellCount: isAdmin ? '5' : '3',
+      roleAdminStyle: isAdmin
+        ? 'background:#fff;color:#21332E;border:none;border-radius:9px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 2px 6px rgba(33,51,46,.14)'
+        : 'background:none;color:#7A857F;border:none;border-radius:9px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer',
+      roleLekarzStyle: !isAdmin
+        ? 'background:#fff;color:#21332E;border:none;border-radius:9px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 2px 6px rgba(33,51,46,.14)'
+        : 'background:none;color:#7A857F;border:none;border-radius:9px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer',
+      setAdmin:this.setAdmin, setLekarz:this.setLekarz,
+
+      aPulpit: isAdmin&&cur==='pulpit', aUsers: isAdmin&&cur==='users', aRez: isAdmin&&cur==='rez', aNotif: isAdmin&&cur==='notif', aSet: isAdmin&&cur==='set',
+      lPulpit: !isAdmin&&cur==='pulpit'&&!st.patPage, lKalendarz: !isAdmin&&cur==='kalendarz'&&!st.patPage, lPacjenci: !isAdmin&&cur==='pacjenci'&&!st.patPage, lSprawy: !isAdmin&&cur==='sprawy'&&!st.patPage,
+      lWyniki: !isAdmin&&cur==='wyniki'&&!st.patPage, lDokumenty: !isAdmin&&cur==='dokumenty'&&!st.patPage,
+      wyniki, resSel, documents, docModal, wynCount, wynStatusChips, wynByChips,
+      closeDoc:()=>this.setState({docModal:null}),
+      resEmail:()=>this.showToast('✉️ Wynik wysłany opiekunowi (makieta)'), resDownload:()=>this.showToast('⬇️ Pobieranie PDF (makieta)'),
+      docEmail:()=>this.showToast('✉️ Dokument wysłany e-mailem (makieta)'), docDownload:()=>this.showToast('⬇️ Pobieranie PDF (makieta)'),
+
+      adminKpis:this.adminKpis, chartBars:this.chartBars, approvals:this.approvals, activity:this.activity,
+      approve:()=>this.showToast('Zatwierdzono (makieta)'),
+      users:usersShown, userFilters, rezFilters, adminRez:this.adminRez,
+      notifChannels:this.notifChannels.map(c=>({ ...c, stateLabel:c.on?'Włączony':'Wyłączony', pillStyle:(c.on?'background:#E7F5EE;color:#0E6E58':'background:#F4EFE4;color:#9AA69F')+';font-size:11.5px;font-weight:800;padding:5px 11px;border-radius:999px' })),
+      notifTemplates:this.notifTemplates, roles:this.roles,
+
+      lekKpis:this.lekKpis, lekToday:lekTodayAll.map(a=>{const s=vst(a.pet,baseMap[a.status]||'wait');const m=stMeta[s];return {time:a.time,pet:a.pet,owner:a.owner,service:a.service,status:m.l,ink:m.ink,bg:m.bg,open:()=>this.openPatientPage(a.pet)};}), lekPatients:this.lekPatients.map(p=>({...p,open:()=>this.openPatientPage(p.pet)})),
+      openBruno:()=>this.openPatientPage('Bruno'),
+      calView:cview, calMonth:cview==='month', calWeek:cview==='week', calDay:cview==='day',
+      calLabel, dowNames:dowSh, monthCells, weekCols, weekHours, dayHours,
+      calPrev:this.calShift(-1), calNext:this.calShift(1), calToday:this.calToday,
+      setViewMonth:this.setView('month'), setViewWeek:this.setView('week'), setViewDay:this.setView('day'),
+      vMonthStyle:vseg(cview==='month'), vWeekStyle:vseg(cview==='week'), vDayStyle:vseg(cview==='day'),
+      patModal, closePatient:this.closePatient, stop:this.stop, msgEmail:()=>this.msgOwner('✉️ E-mail'), msgSms:()=>this.msgOwner('💬 SMS'),
+      leaveModal:st.leaveModal, openLeave:this.openLeave, closeLeave:this.closeLeave, submitLeave:this.submitLeave,
+      lvType:st.lvType||'Urlop wypoczynkowy', lvFrom:st.lvFrom||'', lvTo:st.lvTo||'', lvNote:st.lvNote||'',
+      onLvType:this.onLv('lvType'), onLvFrom:this.onLv('lvFrom'), onLvTo:this.onLv('lvTo'), onLvNote:this.onLv('lvNote'),
+      toast:st.toast,
+      urlopy:allUrlopy, docs:this.docs, grafik:this.grafik,
+      sprawyTabs, spGrafik:sv==='grafik', spDocs:sv==='dokumenty',
+      editProfile:()=>this.showToast('Edycja profilu — tryb demonstracyjny'),
+      grLabel, grafikCells, grPrev:this.grShift(-1), grNext:this.grShift(1), grToday:this.grToday,
+      hrTypeChips, hrDocs, hrDateHdr, hrSortToggle:this.toggleSort('hrSort'),
+      paysTable, payDateHdr, paySortToggle:this.toggleSort('paySort'),
+      pitTable, pitYearHdr, pitSortToggle:this.toggleSort('pitSort'),
+    };
+  }
+}
+</script>
+</body>
+</html>

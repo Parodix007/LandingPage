@@ -52,11 +52,15 @@ if (analyticsSrc && analyticsDomain) {
 const analyticsSuffix = analyticsOrigin ? ` ${analyticsOrigin}` : "";
 const apiSuffix = apiOrigin ? ` ${apiOrigin}` : "";
 
+// Calendly popup widget (lazy-loaded on click — CalendlyCta/lib/calendly.ts): script/style/img
+// origins for the injected widget assets, frame-src for the popup iframe itself (served from
+// calendly.com, not assets.calendly.com).
 const csp =
   "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; " +
-  "img-src 'self' data:; style-src 'self' 'unsafe-inline'; " +
-  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${analyticsSuffix}; ` +
-  "frame-src https://challenges.cloudflare.com; " +
+  "img-src 'self' data: https://assets.calendly.com; " +
+  "style-src 'self' 'unsafe-inline' https://assets.calendly.com; " +
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://assets.calendly.com${analyticsSuffix}; ` +
+  "frame-src https://challenges.cloudflare.com https://calendly.com; " +
   `connect-src 'self'${apiSuffix}${analyticsSuffix};`;
 
 console.log(`[gen-headers] CSP: ${csp}`);
@@ -78,3 +82,27 @@ const htaccessContent =
 const htaccessPath = resolve(outDir, ".htaccess");
 writeFileSync(htaccessPath, htaccessContent, "utf8");
 console.log(`[gen-headers] Zapisano ${htaccessPath}`);
+
+// out/demo/ = verbatim third-party-style clinic-website mockups (public/demo/**, never
+// modified/relinted — see docs/superpowers/specs/2026-07-20-demo-section-design.md). They load
+// Google Fonts, which the landing's own CSP above does not allow — rather than weakening the
+// landing's script-src/style-src for the whole site, we scope a relaxed CSP + noindex to this
+// one subdirectory only (per-directory .htaccess override, Apache/LiteSpeed semantics).
+const demoDir = resolve(outDir, "demo");
+if (existsSync(demoDir)) {
+  const demoCsp =
+    "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; " +
+    "img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; " +
+    "connect-src 'self';";
+
+  const demoHtaccessContent =
+    `<IfModule mod_headers.c>\n` +
+    `  Header always set Content-Security-Policy "${demoCsp}"\n` +
+    `  Header always set X-Robots-Tag "noindex, nofollow"\n` +
+    `</IfModule>\n`;
+
+  const demoHtaccessPath = resolve(demoDir, ".htaccess");
+  writeFileSync(demoHtaccessPath, demoHtaccessContent, "utf8");
+  console.log(`[gen-headers] Zapisano ${demoHtaccessPath} (CSP zawężone do /demo/ — Google Fonts w makietach)`);
+}

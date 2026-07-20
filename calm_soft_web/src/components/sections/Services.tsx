@@ -2,6 +2,8 @@ import { services } from "@/content/services";
 import { site } from "@/content/site";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Chip } from "@/components/ui/Chip";
+import { FilledPill } from "@/components/ui/FilledPill";
+import { Watermark } from "@/components/ui/Watermark";
 import { CardActions } from "@/components/interactive/CardActions";
 import type { Tone } from "@/content/types";
 
@@ -52,6 +54,9 @@ export function Services() {
               aria-hidden="true"
               className={`card-glow -right-[120px] -top-[120px] h-[320px] w-[320px] ${TONE_GLOW[s.tone]}`}
             />
+            <span aria-hidden="true" className="absolute right-[26px] top-6">
+              <Watermark />
+            </span>
             <p className={`text-[13px] font-semibold uppercase tracking-[0.12em] ${TONE_TAG[s.tone]}`}>
               {s.tag}
             </p>
@@ -72,6 +77,12 @@ export function Services() {
             />
           </div>
         ))}
+      </div>
+      <div className="mt-10 flex flex-col gap-4 rounded-[var(--radius-card)] border border-border-08 bg-surface p-[28px_30px] min-[560px]:flex-row min-[560px]:items-center min-[560px]:justify-between">
+        <p className="text-[17px] text-ink-85">{site.sections.services.pricingPrompt}</p>
+        <FilledPill size="lg" as="a" href="/pricing/">
+          {site.sections.services.pricingCta}
+        </FilledPill>
       </div>
     </section>
   );

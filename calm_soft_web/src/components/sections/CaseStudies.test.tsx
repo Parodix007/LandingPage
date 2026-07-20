@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { services } from "@/content/services";
 import { cases, getCaseBySlug } from "@/content/cases";
+import { demos } from "@/content/demos";
 import { site } from "@/content/site";
 import { InquiryProvider } from "@/components/providers/InquiryProvider";
 import { ModalProvider } from "@/components/providers/ModalProvider";
@@ -13,40 +14,48 @@ vi.mock("@/lib/scroll", () => ({ scrollToContact: vi.fn() }));
 function renderSection() {
   render(
     <InquiryProvider>
-      <ModalProvider services={services} cases={cases}>
+      <ModalProvider services={services} cases={cases} demos={demos}>
         <CaseStudies />
       </ModalProvider>
     </InquiryProvider>,
   );
 }
 
-describe("CaseStudies (HANDOFF §6/§7, SPEC §14.2)", () => {
-  it("renders the section heading and the featured case resolved by slug (not index)", () => {
+describe("CaseStudies (HANDOFF §6/§7, SPEC §14.2, 2026-07-20 round2 polish)", () => {
+  it("renders the section heading and all 3 featured cases resolved by slug (not index)", () => {
     renderSection();
 
     expect(
       screen.getByRole("heading", { name: new RegExp(site.sections.cases.line1) }),
     ).toBeInTheDocument();
 
-    const featured = getCaseBySlug(site.featuredCaseSlug)!;
-    expect(screen.getByText(featured.headline)).toBeInTheDocument();
-  });
-
-  it("renders the other 5 cases (excluding the featured slug) in the grid", () => {
-    renderSection();
-
-    const gridCases = cases.filter((c) => c.slug !== site.featuredCaseSlug);
-    expect(gridCases).toHaveLength(cases.length - 1);
-    for (const c of gridCases) {
+    expect(site.featuredCaseSlugs).toHaveLength(3);
+    for (const slug of site.featuredCaseSlugs) {
+      const c = getCaseBySlug(slug)!;
       expect(screen.getByText(c.headline)).toBeInTheDocument();
     }
   });
 
-  it("clicking the featured card's 'Read the story' opens a dialog showing that case's headline", async () => {
+  it("does not render a non-featured case on the homepage", () => {
+    renderSection();
+
+    const nonFeatured = cases.find((c) => !site.featuredCaseSlugs.includes(c.slug));
+    expect(nonFeatured).toBeDefined();
+    expect(screen.queryByText(nonFeatured!.headline)).not.toBeInTheDocument();
+  });
+
+  it('the "See all case studies" link points to /work/', () => {
+    renderSection();
+
+    const link = screen.getByRole("link", { name: site.sections.cases.seeAllCta });
+    expect(link).toHaveAttribute("href", "/work/");
+  });
+
+  it("clicking a featured card's 'Read the story' opens a dialog showing that case's headline", async () => {
     const user = userEvent.setup();
     renderSection();
 
-    const featured = getCaseBySlug(site.featuredCaseSlug)!;
+    const featured = getCaseBySlug(site.featuredCaseSlugs[0])!;
     await user.click(
       screen.getByRole("button", { name: `Read the story: ${featured.client}` }),
     );
@@ -58,27 +67,11 @@ describe("CaseStudies (HANDOFF §6/§7, SPEC §14.2)", () => {
     ).toBeInTheDocument();
   });
 
-  it("clicking a grid card's 'Read the story' opens a dialog showing that case's headline", async () => {
-    const user = userEvent.setup();
-    renderSection();
-
-    const gridCase = cases.find((c) => c.slug !== site.featuredCaseSlug)!;
-    await user.click(
-      screen.getByRole("button", { name: `Read the story: ${gridCase.client}` }),
-    );
-
-    const dialog = screen.getByRole("dialog");
-    expect(dialog).toBeInTheDocument();
-    expect(
-      within(dialog).getByRole("heading", { name: gridCase.headline }),
-    ).toBeInTheDocument();
-  });
-
   it("case modal content exposes the challenge/approach/results copy and the CTA footer", async () => {
     const user = userEvent.setup();
     renderSection();
 
-    const featured = getCaseBySlug(site.featuredCaseSlug)!;
+    const featured = getCaseBySlug(site.featuredCaseSlugs[0])!;
     await user.click(
       screen.getByRole("button", { name: `Read the story: ${featured.client}` }),
     );

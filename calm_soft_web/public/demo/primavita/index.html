@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#fff;color:#1A1F24;font-family:'Source Sans 3',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#046A38}a:hover{color:#03532C}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+input::placeholder{color:rgba(26,31,36,.4)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.pv-burger{display:none;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;border:1.5px solid #046A38;background:#fff;color:#046A38;flex-shrink:0}
+.pv-mnav{background:none;border:none;padding:14px 12px;border-radius:8px;font-size:16px;font-weight:700;color:#fff;text-align:left;cursor:pointer;font-family:'Schibsted Grotesk',sans-serif}
+.pv-mnav:active{background:#03532C}
+@media (max-width:820px){
+  .pv-actions{display:none!important}
+  .pv-greenbar{display:none!important}
+  .pv-burger{display:inline-flex!important}
+}
+</style>
+</helmet>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99;background:#1A1F24;color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;box-shadow:0 8px 24px rgba(26,31,36,.3);max-width:90vw">{{ toast }}</div>
+</sc-if>
+
+<div style="background:#fff">
+<div style="max-width:1220px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+<button onClick="{{ goHome }}" style="display:flex;align-items:center;gap:11px;background:none;border:none;padding:0">
+<div style="width:42px;height:42px;border-radius:8px;background:#046A38;color:#fff;display:grid;place-items:center;font-weight:800;font-size:24px;font-family:'Schibsted Grotesk',sans-serif">✚</div>
+<div style="text-align:left"><div style="font-family:'Schibsted Grotesk',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1.05">Primavita</div><div style="font-size:11px;color:rgba(26,31,36,.55);font-weight:600;letter-spacing:.04em">CENTRUM MEDYCZNE</div></div>
+</button>
+<div style="flex:1"></div>
+<div class="pv-actions" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+<button onClick="{{ goAccount }}" style="{{ accBtnStyle }}" style-hover="opacity:.9">{{ accBtnLabel }}</button>
+<button onClick="{{ openResults }}" style="background:none;border:1.5px solid #046A38;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;color:#046A38" style-hover="background:#E8F3ED">Wyniki online</button>
+<button onClick="{{ startBlank }}" style="background:#FFC20E;color:#1A1F24;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(240,180,0,.32),0 5px 14px rgba(240,180,0,.22);transition:transform .15s ease,box-shadow .15s ease;padding:11px 20px;font-size:14.5px;font-weight:800" style-hover="background:#F0B400;transform:translateY(-2px);box-shadow:0 4px 10px rgba(240,180,0,.42),0 12px 24px rgba(240,180,0,.28)">Umów wizytę</button>
+</div>
+<button class="pv-burger" onClick="{{ toggleMenu }}" aria-label="Menu">
+<sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></sc-if>
+<sc-if value="{{ menuClosed }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></sc-if>
+</button>
+</div>
+<sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+<div style="background:#046A38;padding:8px 18px 18px;display:flex;flex-direction:column;gap:2px;animation:fadeUp .2s ease">
+<button class="pv-mnav" onClick="{{ goHome }}">Strona główna</button>
+<button class="pv-mnav" onClick="{{ goCennik }}">Cennik</button>
+<button class="pv-mnav" onClick="{{ goLekarze }}">Lekarze</button>
+<button class="pv-mnav" onClick="{{ goPakiety }}">Pakiety opieki</button>
+<button class="pv-mnav" onClick="{{ goKontakt }}">Kontakt</button>
+<div style="height:1px;background:rgba(255,255,255,.2);margin:7px 2px"></div>
+<button class="pv-mnav" onClick="{{ goAccount }}">{{ accBtnLabel }}</button>
+<button class="pv-mnav" onClick="{{ mResults }}">Wyniki online</button>
+<button onClick="{{ startBlank }}" style="margin-top:8px;background:#FFC20E;color:#1A1F24;border:none;border-radius:10px;padding:16px;font-size:16px;font-weight:800;font-family:'Schibsted Grotesk',sans-serif;cursor:pointer">Umów wizytę</button>
+</div>
+</sc-if>
+</div>
+
+<div class="pv-greenbar" style="position:sticky;top:0;z-index:50;background:#046A38;box-shadow:0 6px 20px rgba(4,106,56,.22)">
+<div style="max-width:1220px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:2px;flex-wrap:wrap">
+<button onClick="{{ goHome }}" style="{{ navHomeStyle }}" style-hover="background:#03532C">Strona główna</button>
+<button onClick="{{ goCennik }}" style="{{ navCenStyle }}" style-hover="background:#03532C">Cennik</button>
+<button onClick="{{ goLekarze }}" style="{{ navLekStyle }}" style-hover="background:#03532C">Lekarze</button>
+<button onClick="{{ goPakiety }}" style="{{ navPakStyle }}" style-hover="background:#03532C">Pakiety opieki</button>
+<button onClick="{{ goKontakt }}" style="{{ navKontStyle }}" style-hover="background:#03532C">Kontakt</button>
+</div>
+</div>
+
+<sc-if value="{{ showPromo }}" hint-placeholder-val="{{ true }}">
+<div style="background:#FFF4D6;color:#6B5200;text-align:center;padding:9px 16px;font-size:14px;font-weight:600">🎁 Pierwsza wizyta w Primavita? Odbierz −20% na konsultację — kod <strong>WITAJ20</strong> przy rezerwacji.</div>
+</sc-if>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Strona główna">
+<div style="background:#046A38;color:#fff">
+<div style="max-width:1220px;margin:0 auto;padding:52px 24px 84px;display:flex;gap:48px;align-items:center;flex-wrap:wrap">
+<div style="flex:1 1 480px;min-width:300px">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:clamp(30px,4.2vw,46px);line-height:1.15;letter-spacing:-.02em;margin:0 0 14px;font-weight:800">Umów wizytę u specjalisty bez dzwonienia i czekania</h1>
+<p style="font-size:17.5px;line-height:1.6;opacity:.88;margin:0 0 24px;max-width:540px;text-wrap:pretty">Pełny cennik online, wybór konkretnego lekarza i wolne terminy zwykle w 48 godzin. Płatność na miejscu albo online.</p>
+<div style="display:flex;gap:28px;flex-wrap:wrap">
+<div><div style="font-family:'Schibsted Grotesk',sans-serif;font-size:26px;font-weight:800;color:#FFC20E">36</div><div style="font-size:13.5px;opacity:.8">lekarzy</div></div>
+<div><div style="font-family:'Schibsted Grotesk',sans-serif;font-size:26px;font-weight:800;color:#FFC20E">12</div><div style="font-size:13.5px;opacity:.8">specjalizacji</div></div>
+<div><div style="font-family:'Schibsted Grotesk',sans-serif;font-size:26px;font-weight:800;color:#FFC20E">48 h</div><div style="font-size:13.5px;opacity:.8">średnio do wizyty</div></div>
+<div><div style="font-family:'Schibsted Grotesk',sans-serif;font-size:26px;font-weight:800;color:#FFC20E">4,8 ★</div><div style="font-size:13.5px;opacity:.8">ocena pacjentów</div></div>
+</div>
+</div>
+<div style="flex:1 1 340px;min-width:280px;max-width:460px">
+<x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-clinic" shape="rounded" radius="14" placeholder="Zdjęcie: lekarz z pacjentem" style="width:100%;height:340px" hint-size="100%,340px"></x-import>
+</div>
+</div>
+</div>
+
+<div style="max-width:1220px;margin:-46px auto 0;padding:0 24px;position:relative;z-index:5">
+<div style="background:#fff;border-radius:14px;box-shadow:0 14px 40px rgba(26,31,36,.16),inset 0 1px 0 rgba(255,255,255,.9);padding:22px 24px">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:12px">Czego szukasz?</div>
+<div style="position:relative">
+<div style="display:flex;align-items:center;gap:10px;background:#F4F6F5;border:1.5px solid rgba(26,31,36,.14);border-radius:10px;padding:4px 6px 4px 16px">
+<span style="font-size:18px;color:rgba(26,31,36,.45)">⌕</span>
+<input value="{{ q }}" onChange="{{ onQ }}" placeholder="np. chirurg, USG jamy brzusznej, pediatra…" style="flex:1;border:none;outline:none;background:none;font-size:16px;padding:12px 0;color:#1A1F24;min-width:0">
+<button onClick="{{ goCennik }}" style="background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:12px 20px;font-size:14.5px;font-weight:700;white-space:nowrap" style-hover="background:#03532C">Zobacz cennik</button>
+</div>
+<sc-if value="{{ hasResults }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:calc(100% + 8px);left:0;right:0;background:#fff;border:1px solid rgba(26,31,36,.12);border-radius:12px;box-shadow:0 16px 40px rgba(26,31,36,.18);overflow:hidden;z-index:20;animation:fadeUp .18s ease">
+<sc-for list="{{ results }}" as="r" hint-placeholder-count="3">
+<button onClick="{{ r.go }}" style="display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;border-bottom:1px solid rgba(26,31,36,.07);padding:13px 18px;text-align:left" style-hover="background:#E8F3ED">
+<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700;color:#1A1F24">{{ r.n }}</div><div style="font-size:12.5px;color:rgba(26,31,36,.55)">{{ r.c }}</div></div>
+<div style="font-size:15.5px;font-weight:700;color:#046A38;white-space:nowrap">{{ r.priceTxt }}</div>
+<div style="font-size:13px;color:#046A38;font-weight:700;white-space:nowrap;text-decoration:underline">Umów</div>
+</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap">
+<span style="font-size:13px;color:rgba(26,31,36,.55)">Najczęściej szukane:</span>
+<sc-for list="{{ popular }}" as="p" hint-placeholder-count="4">
+<button onClick="{{ p.pick }}" style="background:#F4F6F5;border:none;border-radius:8px;padding:7px 14px;font-size:13.5px;font-weight:600;color:#1A1F24" style-hover="background:#E8F3ED;color:#046A38">{{ p.n }}</button>
+</sc-for>
+</div>
+</div>
+</div>
+
+<div style="max-width:1220px;margin:0 auto;padding:40px 24px 8px">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+<button onClick="{{ startBlank }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1.5px solid rgba(26,31,36,.12);border-radius:12px;padding:18px 20px;text-align:left;box-shadow:0 1px 2px rgba(26,31,36,.05),0 6px 16px rgba(26,31,36,.06),inset 0 1px 0 rgba(255,255,255,.7);transition:transform .2s ease,box-shadow .2s ease" style-hover="border-color:#046A38;transform:translateY(-4px);box-shadow:0 14px 30px rgba(4,106,56,.18)"><span><span style="display:block;font-family:'Schibsted Grotesk',sans-serif;font-size:16px;font-weight:700">Umów wizytę</span><span style="display:block;font-size:13px;color:rgba(26,31,36,.55);margin-top:2px">online w 2 minuty</span></span><span style="color:#046A38;font-size:20px">→</span></button>
+<button onClick="{{ goCennik }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1.5px solid rgba(26,31,36,.12);border-radius:12px;padding:18px 20px;text-align:left;box-shadow:0 1px 2px rgba(26,31,36,.05),0 6px 16px rgba(26,31,36,.06),inset 0 1px 0 rgba(255,255,255,.7);transition:transform .2s ease,box-shadow .2s ease" style-hover="border-color:#046A38;transform:translateY(-4px);box-shadow:0 14px 30px rgba(4,106,56,.18)"><span><span style="display:block;font-family:'Schibsted Grotesk',sans-serif;font-size:16px;font-weight:700">Sprawdź ceny</span><span style="display:block;font-size:13px;color:rgba(26,31,36,.55);margin-top:2px">pełny cennik usług</span></span><span style="color:#046A38;font-size:20px">→</span></button>
+<button onClick="{{ goLekarze }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1.5px solid rgba(26,31,36,.12);border-radius:12px;padding:18px 20px;text-align:left;box-shadow:0 1px 2px rgba(26,31,36,.05),0 6px 16px rgba(26,31,36,.06),inset 0 1px 0 rgba(255,255,255,.7);transition:transform .2s ease,box-shadow .2s ease" style-hover="border-color:#046A38;transform:translateY(-4px);box-shadow:0 14px 30px rgba(4,106,56,.18)"><span><span style="display:block;font-family:'Schibsted Grotesk',sans-serif;font-size:16px;font-weight:700">Znajdź lekarza</span><span style="display:block;font-size:13px;color:rgba(26,31,36,.55);margin-top:2px">36 specjalistów</span></span><span style="color:#046A38;font-size:20px">→</span></button>
+<button onClick="{{ openResults }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1.5px solid rgba(26,31,36,.12);border-radius:12px;padding:18px 20px;text-align:left;box-shadow:0 1px 2px rgba(26,31,36,.05),0 6px 16px rgba(26,31,36,.06),inset 0 1px 0 rgba(255,255,255,.7);transition:transform .2s ease,box-shadow .2s ease" style-hover="border-color:#046A38;transform:translateY(-4px);box-shadow:0 14px 30px rgba(4,106,56,.18)"><span><span style="display:block;font-family:'Schibsted Grotesk',sans-serif;font-size:16px;font-weight:700">Wyniki online</span><span style="display:block;font-size:13px;color:rgba(26,31,36,.55);margin-top:2px">portal pacjenta</span></span><span style="color:#046A38;font-size:20px">→</span></button>
+</div>
+</div>
+
+<div style="max-width:1220px;margin:0 auto;padding:48px 24px 8px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px">
+<h2 style="font-family:'Schibsted Grotesk',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.02em;margin:0">Specjalizacje</h2>
+<button onClick="{{ goCennik }}" style="background:none;border:none;padding:0;font-size:14.5px;font-weight:700;color:#046A38;text-decoration:underline" style-hover="color:#03532C">Pełny cennik</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">
+<sc-for list="{{ specs }}" as="s" hint-placeholder-count="8">
+<button onClick="{{ s.go }}" style="text-align:left;background:#fff;border:1.5px solid rgba(26,31,36,.12);border-radius:12px;border-top:4px solid #046A38;padding:18px 20px;display:flex;flex-direction:column;gap:7px;box-shadow:0 2px 4px rgba(26,31,36,.05),0 8px 20px rgba(26,31,36,.07),inset 0 1px 0 rgba(255,255,255,.7);transition:transform .2s ease,box-shadow .2s ease" style-hover="border-color:#046A38;transform:translateY(-4px);box-shadow:0 16px 34px rgba(4,106,56,.2)">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-family:'Schibsted Grotesk',sans-serif;font-size:17px;font-weight:700">{{ s.n }}</div><div style="font-size:14.5px;font-weight:700;color:#046A38;white-space:nowrap">od {{ s.p }} zł</div></div>
+<div style="font-size:13.5px;line-height:1.5;color:rgba(26,31,36,.6)">{{ s.d }}</div>
+<div style="font-size:14px;font-weight:700;color:#046A38;margin-top:4px;text-decoration:underline">Umów wizytę</div>
+</button>
+</sc-for>
+</div>
+</div>
+
+<div style="max-width:1220px;margin:0 auto;padding:48px 24px 64px">
+<div style="background:#E8F3ED;border-radius:16px;padding:32px 36px;display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+<div style="flex:1 1 380px">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:22px;font-weight:800;color:#046A38;margin-bottom:6px">Wyniki badań online</div>
+<div style="font-size:15px;color:rgba(26,31,36,.7);line-height:1.6">Odbierz wyniki bez wychodzenia z domu — zaloguj się numerem zlecenia i PESEL.</div>
+</div>
+<button onClick="{{ openResults }}" style="background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 26px;font-size:15px;font-weight:700;white-space:nowrap" style-hover="background:#03532C">Przejdź do portalu</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPakiety }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Pakiety" style="background:linear-gradient(180deg,#F7F9F8,#ECF1EE)">
+<div style="max-width:1220px;margin:0 auto;padding:40px 24px 72px">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:31px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px">Pakiety opieki</h1>
+<p style="font-size:15.5px;color:rgba(26,31,36,.65);margin:0 0 28px;text-wrap:pretty">Stała opieka bez limitów zamiast pojedynczych wizyt. Kliknij pakiet, aby poznać szczegóły.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+<sc-for list="{{ packages }}" as="p" hint-placeholder-count="3">
+<div style="{{ p.cardStyle }}" style-hover="{{ p.cardHover }}">
+<sc-if value="{{ p.featured }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:-13px;left:22px;background:#FFC20E;color:#1A1F24;font-size:11.5px;font-weight:800;padding:4px 12px;border-radius:6px;letter-spacing:.03em">NAJCZĘŚCIEJ WYBIERANY</div>
+</sc-if>
+<div style="font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#046A38">{{ p.forWhoShort }}</div>
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:19px;font-weight:800">{{ p.name }}</div>
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:31px;font-weight:800;color:#046A38">{{ p.price }}<span style="font-size:14px;font-weight:600;color:rgba(26,31,36,.55);font-family:'Source Sans 3',sans-serif"> {{ p.unit }}</span></div>
+<div style="font-size:14.5px;line-height:1.7;color:rgba(26,31,36,.72)">{{ p.summary }}</div>
+<div style="display:flex;gap:8px;margin-top:auto">
+<button onClick="{{ p.open }}" style="flex:1;background:none;border:1.5px solid rgba(26,31,36,.2);border-radius:8px;padding:11px 16px;font-size:14px;font-weight:700;color:#1A1F24" style-hover="border-color:#046A38;color:#046A38">Szczegóły</button>
+<button onClick="{{ p.cta }}" style="{{ p.ctaStyle }}">{{ p.ctaLabel }}</button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ pkgOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ pkgClose }}" style="position:fixed;inset:0;z-index:90;background:rgba(26,31,36,.55);display:grid;place-items:center;padding:20px;overflow:auto">
+<div onClick="{{ mdStop }}" style="background:#fff;border-radius:14px;max-width:520px;width:100%;box-shadow:0 24px 60px rgba(26,31,36,.4),inset 0 1px 0 rgba(255,255,255,.85);overflow:hidden;animation:fadeUp .2s ease">
+<div style="background:#046A38;color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+<div>
+<div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.85">Pakiet opieki</div>
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:22px;font-weight:800;margin-top:2px">{{ pkg.name }}</div>
+</div>
+<button onClick="{{ pkgClose }}" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:32px;height:32px;font-size:15px;color:#fff;flex:none" style-hover="background:rgba(255,255,255,.3)">✕</button>
+</div>
+<div style="padding:22px 24px 24px">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:16px">
+<span style="font-family:'Schibsted Grotesk',sans-serif;font-size:34px;font-weight:800;color:#046A38">{{ pkg.price }}</span>
+<span style="font-size:15px;font-weight:600;color:rgba(26,31,36,.55)">{{ pkg.unit }}</span>
+</div>
+<p style="font-size:15px;line-height:1.6;color:rgba(26,31,36,.78);margin:0 0 18px;text-wrap:pretty">{{ pkg.desc }}</p>
+<div style="background:#E8F3ED;border-radius:10px;padding:14px 16px;margin-bottom:18px">
+<div style="font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#046A38;margin-bottom:4px">Dla kogo</div>
+<div style="font-size:14.5px;color:rgba(26,31,36,.8);line-height:1.55">{{ pkg.forWho }}</div>
+</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:rgba(26,31,36,.5);margin-bottom:8px">Co obejmuje</div>
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px">
+<sc-for list="{{ pkg.features }}" as="ft" hint-placeholder-count="4">
+<div style="display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:rgba(26,31,36,.8);line-height:1.5"><span style="color:#046A38;font-weight:800;flex:none">✓</span><span>{{ ft }}</span></div>
+</sc-for>
+</div>
+<button onClick="{{ pkg.cta }}" style="width:100%;background:#FFC20E;color:#1A1F24;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(240,180,0,.32),0 5px 14px rgba(240,180,0,.22);transition:transform .15s ease,box-shadow .15s ease;padding:14px;font-size:15px;font-weight:800" style-hover="background:#F0B400;transform:translateY(-2px)">{{ pkg.ctaLabel }}</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ mdOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ mdClose }}" style="position:fixed;inset:0;z-index:90;background:rgba(26,31,36,.55);display:grid;place-items:center;padding:20px;overflow:auto">
+<div onClick="{{ mdStop }}" style="background:#fff;border-radius:14px;max-width:560px;width:100%;box-shadow:0 24px 60px rgba(26,31,36,.4),inset 0 1px 0 rgba(255,255,255,.85);overflow:hidden;animation:fadeUp .2s ease">
+<div style="background:#046A38;color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:19px;font-weight:700">Profil lekarza</div>
+<button onClick="{{ mdClose }}" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:32px;height:32px;font-size:15px;color:#fff" style-hover="background:rgba(255,255,255,.3)">✕</button>
+</div>
+<div style="padding:22px 24px 0;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<x-import component-from-global-scope="image-slot" from="./image-slot.js" id="{{ mdImgId }}" shape="rounded" radius="12" placeholder="Zdjęcie lekarza" style="width:118px;height:118px;flex:none" hint-size="118px,118px"></x-import>
+<div style="flex:1;min-width:200px">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:21px;font-weight:800;line-height:1.2">{{ mdName }}</div>
+<div style="font-size:14.5px;font-weight:700;color:#046A38;margin-top:3px">{{ mdSpec }}</div>
+<div style="font-size:13.5px;color:rgba(26,31,36,.65);margin-top:6px"><span style="color:#FFB600">★</span> {{ mdRating }} · {{ mdReviews }} opinii · {{ mdExpTxt }}</div>
+</div>
+</div>
+<div style="padding:16px 24px 0;font-size:15px;line-height:1.65;color:rgba(26,31,36,.8)">{{ mdBio }}</div>
+<div style="padding:18px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+<div style="background:#F4F6F5;border-radius:10px;padding:12px 14px"><div style="font-size:12px;color:rgba(26,31,36,.55);margin-bottom:2px">Języki</div><div style="font-size:13.5px;font-weight:700">{{ mdLangs }}</div></div>
+<div style="background:#F4F6F5;border-radius:10px;padding:12px 14px"><div style="font-size:12px;color:rgba(26,31,36,.55);margin-bottom:2px">Cena konsultacji</div><div style="font-size:13.5px;font-weight:700;color:#046A38">{{ mdPriceTxt }}</div></div>
+<div style="background:#F4F6F5;border-radius:10px;padding:12px 14px"><div style="font-size:12px;color:rgba(26,31,36,.55);margin-bottom:2px">Najbliższy termin</div><div style="font-size:13.5px;font-weight:700">{{ mdNext }}</div></div>
+</div>
+<div style="border-top:1px solid rgba(26,31,36,.1);padding:16px 24px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+<button onClick="{{ mdClose }}" style="background:none;border:1.5px solid rgba(26,31,36,.2);border-radius:8px;padding:11px 20px;font-size:14px;font-weight:700;color:#1A1F24" style-hover="border-color:#046A38;color:#046A38">Zamknij</button>
+<button onClick="{{ mdBook }}" style="background:#FFC20E;color:#1A1F24;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(240,180,0,.32),0 5px 14px rgba(240,180,0,.22);transition:transform .15s ease,box-shadow .15s ease;padding:11px 22px;font-size:14px;font-weight:800" style-hover="background:#F0B400;transform:translateY(-2px);box-shadow:0 4px 10px rgba(240,180,0,.42),0 12px 24px rgba(240,180,0,.28)">Umów wizytę →</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLekarze }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Lekarze" style="background:linear-gradient(180deg,#F7F9F8,#ECF1EE)">
+<div style="max-width:1220px;margin:0 auto;padding:40px 24px 64px">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:clamp(26px,3.6vw,36px);font-weight:800;letter-spacing:-.02em;margin:0 0 6px">Nasi lekarze</h1>
+<p style="font-size:15.5px;color:rgba(26,31,36,.65);margin:0 0 22px">36 specjalistów w 12 dziedzinach. Otwórz profil, aby poznać lekarza przed wizytą.</p>
+<div style="background:#fff;border-radius:12px;padding:14px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:flex;align-items:center;gap:8px;background:#F4F6F5;border-radius:8px;padding:2px 14px;flex:1 1 240px;max-width:340px">
+<span style="color:rgba(26,31,36,.45)">⌕</span>
+<input value="{{ docQ }}" onChange="{{ onDocQ }}" placeholder="Szukaj lekarza lub specjalizacji…" style="flex:1;border:none;outline:none;background:none;font-size:14.5px;padding:10px 0;min-width:0">
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<sc-for list="{{ docCats }}" as="c" hint-placeholder-count="6">
+<button onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.n }}</button>
+</sc-for>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+<sc-for list="{{ lekarze }}" as="d" hint-placeholder-count="9">
+<div style="background:#fff;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease" style-hover="transform:translateY(-4px);box-shadow:0 16px 34px rgba(26,31,36,.18)">
+<div style="display:flex;gap:14px;align-items:center">
+<div style="width:54px;height:54px;border-radius:10px;background:#E8F3ED;color:#046A38;display:grid;place-items:center;font-weight:800;font-size:18px;flex:none;font-family:'Schibsted Grotesk',sans-serif">{{ d.initials }}</div>
+<div style="min-width:0">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:16px;font-weight:700">{{ d.name }}</div>
+<div style="font-size:13.5px;color:#046A38;font-weight:700">{{ d.specN }}</div>
+</div>
+</div>
+<div style="font-size:13px;color:rgba(26,31,36,.65)"><span style="color:#FFB600">★</span> {{ d.rating }} · {{ d.reviews }} opinii · {{ d.expTxt }}</div>
+<div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;color:rgba(26,31,36,.6)"><span>najbliżej: {{ d.next }}</span><span style="font-weight:700;color:#046A38;white-space:nowrap">{{ d.priceTxt }}</span></div>
+<div style="display:flex;gap:8px;margin-top:auto">
+<button onClick="{{ d.open }}" style="flex:1;background:none;border:1.5px solid rgba(26,31,36,.18);border-radius:8px;padding:10px 12px;font-size:13.5px;font-weight:700;color:#1A1F24" style-hover="border-color:#046A38;color:#046A38">Zobacz profil</button>
+<button onClick="{{ d.book }}" style="flex:1;background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:10px 12px;font-size:13.5px;font-weight:700" style-hover="background:#03532C">Umów</button>
+</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ lekEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border-radius:12px;padding:26px;text-align:center;color:rgba(26,31,36,.6);font-size:15px">Nie znaleźliśmy takiego lekarza — zmień filtr lub zadzwoń: <a href="tel:221234567" style="font-weight:700">22 123 45 67</a></div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCennik }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Cennik" style="background:linear-gradient(180deg,#F7F9F8,#ECF1EE)">
+<div style="max-width:1220px;margin:0 auto;padding:40px 24px 64px">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:clamp(26px,3.6vw,36px);font-weight:800;letter-spacing:-.02em;margin:0 0 6px">Cennik usług</h1>
+<p style="font-size:15.5px;color:rgba(26,31,36,.65);margin:0 0 22px">Ceny końcowe — bez ukrytych opłat. Każdą usługę umówisz jednym kliknięciem.</p>
+<div style="background:#fff;border-radius:12px;padding:14px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:flex;align-items:center;gap:8px;background:#F4F6F5;border-radius:8px;padding:2px 14px;flex:1 1 260px;max-width:380px">
+<span style="color:rgba(26,31,36,.45)">⌕</span>
+<input value="{{ cenQ }}" onChange="{{ onCenQ }}" placeholder="Szukaj usługi…" style="flex:1;border:none;outline:none;background:none;font-size:14.5px;padding:10px 0;min-width:0">
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
+<button onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.n }}</button>
+</sc-for>
+</div>
+</div>
+<div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:flex;gap:14px;padding:12px 20px;background:#046A38;color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase"><div style="flex:1">Usługa</div><div style="width:90px;text-align:right">Cena</div><div style="width:86px"></div></div>
+<sc-for list="{{ cenRows }}" as="r" hint-placeholder-count="8">
+<div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(26,31,36,.07);flex-wrap:wrap" style-hover="background:#F8FAF9">
+<div style="flex:1 1 240px;min-width:0"><div style="font-size:15.5px;font-weight:700">{{ r.n }}</div><div style="font-size:12.5px;color:rgba(26,31,36,.55)">{{ r.c }}</div></div>
+<div style="width:90px;text-align:right;font-size:16px;font-weight:700;color:#046A38;white-space:nowrap">{{ r.priceTxt }}</div>
+<button onClick="{{ r.go }}" style="width:86px;background:#FFC20E;color:#1A1F24;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(240,180,0,.32),0 5px 14px rgba(240,180,0,.22);transition:transform .15s ease,box-shadow .15s ease;padding:9px 0;font-size:13.5px;font-weight:800" style-hover="background:#F0B400;transform:translateY(-2px);box-shadow:0 4px 10px rgba(240,180,0,.42),0 12px 24px rgba(240,180,0,.28)">Umów</button>
+</div>
+</sc-for>
+<sc-if value="{{ cenEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="padding:28px;text-align:center;color:rgba(26,31,36,.55);font-size:15px">Nie znaleźliśmy takiej usługi. Zadzwoń: <a href="tel:221234567" style="font-weight:700">22 123 45 67</a></div>
+</sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isBooking }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Rezerwacja wizyty" style="background:linear-gradient(180deg,#F7F9F8,#ECF1EE)">
+<div style="max-width:920px;margin:0 auto;padding:34px 24px 72px">
+<div style="background:#fff;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin-bottom:24px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+<button onClick="{{ s.click }}" style="{{ s.btnStyle }}">
+<span style="{{ s.circStyle }}">{{ s.mark }}</span>
+<span style="{{ s.lblStyle }}">{{ s.label }}</span>
+</button>
+</sc-for>
+</div>
+
+<sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:27px;font-weight:800;letter-spacing:-.02em;margin:0 0 18px">Co chcesz zarezerwować?</h1>
+<sc-for list="{{ bookGroups }}" as="g" hint-placeholder-count="2">
+<div style="margin-bottom:26px">
+<div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,31,36,.5);margin-bottom:10px">{{ g.title }}</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">
+<sc-for list="{{ g.items }}" as="it" hint-placeholder-count="6">
+<button onClick="{{ it.go }}" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1.5px solid transparent;border-radius:10px;padding:14px 16px;text-align:left;box-shadow:0 2px 8px rgba(26,31,36,.06)" style-hover="border-color:#046A38">
+<span style="font-size:14.5px;font-weight:700;min-width:0">{{ it.n }}</span>
+<span style="font-size:14px;font-weight:700;color:#046A38;white-space:nowrap">{{ it.priceTxt }}</span>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</sc-if>
+
+<sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:27px;font-weight:800;letter-spacing:-.02em;margin:0">Wybierz lekarza</h1>
+<button onClick="{{ goStep1 }}" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:#046A38;text-decoration:underline" style-hover="color:#03532C">‹ zmień usługę</button>
+</div>
+<p style="font-size:15px;color:rgba(26,31,36,.65);margin:0 0 20px">{{ svcName }} · <strong style="color:#046A38">{{ svcPriceTxt }}</strong></p>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ doctors }}" as="d" hint-placeholder-count="3">
+<div style="background:#fff;border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="width:52px;height:52px;border-radius:10px;background:#E8F3ED;color:#046A38;display:grid;place-items:center;font-weight:800;font-size:17px;flex:none;font-family:'Schibsted Grotesk',sans-serif">{{ d.initials }}</div>
+<div style="flex:1 1 200px;min-width:0">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:16.5px;font-weight:700">{{ d.name }} <button onClick="{{ d.openProfile }}" style="background:none;border:none;padding:0;font-size:12.5px;font-weight:700;color:#046A38;vertical-align:middle;text-decoration:underline;font-family:'Source Sans 3',sans-serif" style-hover="color:#03532C">zobacz profil</button></div>
+<div style="font-size:13.5px;color:rgba(26,31,36,.6)">{{ d.sub }}</div>
+<sc-if value="{{ showRatings }}" hint-placeholder-val="{{ true }}">
+<div style="font-size:13px;color:rgba(26,31,36,.7);margin-top:3px"><span style="color:#FFB600">★</span> {{ d.rating }} · {{ d.reviews }} opinii</div>
+</sc-if>
+</div>
+<div style="text-align:right;flex:none">
+<div style="font-size:16px;font-weight:700;color:#046A38">{{ d.priceTxt }}</div>
+<div style="font-size:12.5px;color:rgba(26,31,36,.55);margin-top:2px">najbliżej: {{ d.next }}</div>
+</div>
+<button onClick="{{ d.pick }}" style="background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:11px 20px;font-size:14px;font-weight:700;flex:none" style-hover="background:#03532C">Zobacz terminy</button>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:27px;font-weight:800;letter-spacing:-.02em;margin:0">Wybierz termin</h1>
+<button onClick="{{ goStep2 }}" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:#046A38;text-decoration:underline" style-hover="color:#03532C">‹ zmień lekarza</button>
+</div>
+<p style="font-size:15px;color:rgba(26,31,36,.65);margin:0 0 20px">{{ svcName }} · {{ docName }} · <strong style="color:#046A38">{{ svcPriceTxt }}</strong></p>
+<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:18px">
+<div style="background:#fff;border-radius:12px;padding:16px 18px;flex:0 1 380px;min-width:290px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+<button onClick="{{ calPrev }}" style="{{ calPrevStyle }}">‹</button>
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:15px;font-weight:700;text-transform:capitalize">{{ calTitle }}</div>
+<button onClick="{{ calNext }}" style="{{ calNextStyle }}">›</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(26,31,36,.45)">pn</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(26,31,36,.45)">wt</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(26,31,36,.45)">śr</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(26,31,36,.45)">cz</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(26,31,36,.45)">pt</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(26,31,36,.45)">sb</div>
+<div style="text-align:center;font-size:12px;font-weight:700;color:rgba(26,31,36,.45)">nd</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+<sc-for list="{{ calCells }}" as="c" hint-placeholder-count="35">
+<button onClick="{{ c.pick }}" style="{{ c.style }}">{{ c.num }}</button>
+</sc-for>
+</div>
+<div style="display:flex;gap:14px;margin-top:12px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(26,31,36,.55)"><span style="width:10px;height:10px;border-radius:3px;background:#fff;border:1.5px solid #046A38"></span>wolne terminy</div>
+<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(26,31,36,.55)"><span style="width:10px;height:10px;border-radius:3px;background:rgba(26,31,36,.08)"></span>brak terminów</div>
+</div>
+</div>
+<div style="flex:1 1 300px;min-width:260px;background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:14.5px;font-weight:700;margin-bottom:12px">Wolne godziny — {{ vDateLabel }}</div>
+<sc-if value="{{ hasTimes }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px">
+<sc-for list="{{ times }}" as="t" hint-placeholder-count="8">
+<button onClick="{{ t.pick }}" style="background:#F4F6F5;border:1.5px solid transparent;border-radius:8px;padding:11px 6px;font-size:15px;font-weight:700;color:#1A1F24" style-hover="border-color:#046A38;color:#046A38;background:#E8F3ED">{{ t.t }}</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ noTimes }}" hint-placeholder-val="{{ false }}">
+<div style="border:1.5px dashed rgba(26,31,36,.25);border-radius:8px;padding:22px;text-align:center;color:rgba(26,31,36,.6);font-size:14px">Wybierz dzień z wolnymi terminami w kalendarzu.</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isStep4 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:27px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px">Twoje dane</h1>
+<p style="font-size:15px;color:rgba(26,31,36,.65);margin:0 0 20px">{{ svcName }} · {{ docName }} · {{ whenTxt }}</p>
+<sc-if value="{{ isLoggedIn }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;background:#E8F3ED;border:1px solid rgba(4,106,56,.25);border-radius:8px;padding:12px 16px;font-size:14px;color:#046A38;font-weight:700">✓ Dane uzupełnione z Twojego konta ({{ userName }}). Aby je zmienić, edytuj profil w panelu konta.</div>
+</sc-if>
+<sc-if value="{{ notLoggedIn }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
+<button onClick="{{ setGuest }}" style="{{ guestBtnStyle }}">Rezerwuję jako gość</button>
+<button onClick="{{ setLogin }}" style="{{ loginBtnStyle }}">Mam konto pacjenta</button>
+</div>
+</sc-if>
+<sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+<div style="background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(26,31,36,.75)">Imię *<input name="fname" value="{{ form.fname }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="np. Anna" style="{{ fnameStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(26,31,36,.75)">Nazwisko *<input name="lname" value="{{ form.lname }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="np. Kowalska" style="{{ lnameStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(26,31,36,.75)">PESEL (opcjonalnie)<input name="pesel" value="{{ form.pesel }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="11 cyfr" style="{{ peselStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(26,31,36,.75)">Telefon *<input name="phone" value="{{ form.phone }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="+48 600 000 000" style="{{ phoneStyle }}"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(26,31,36,.75)">E-mail *<input name="email" value="{{ form.email }}" onChange="{{ onForm }}" readOnly="{{ formReadOnly }}" placeholder="anna@przyklad.pl" style="{{ emailStyle }}"></label>
+</div>
+<sc-if value="{{ formErr }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:14px;background:#FDECEC;color:#B4432A;border-radius:8px;padding:11px 14px;font-size:13.5px;font-weight:600">{{ formErr }}</div>
+</sc-if>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap">
+<div style="font-size:12.5px;color:rgba(26,31,36,.5);max-width:420px">Dane posłużą wyłącznie do obsługi rezerwacji. Potwierdzenie wyślemy SMS-em i e-mailem.</div>
+<button onClick="{{ submitGuest }}" style="background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 26px;font-size:15px;font-weight:700" style-hover="background:#03532C">Dalej — podsumowanie →</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border-radius:12px;padding:24px;max-width:440px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:flex;flex-direction:column;gap:14px">
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(26,31,36,.75)">E-mail<input name="email" value="{{ lg.email }}" onChange="{{ onLg }}" placeholder="anna@przyklad.pl" style="border:1.5px solid rgba(26,31,36,.18);border-radius:8px;padding:11px 13px;font-size:15px;outline-color:#046A38;box-shadow:inset 0 1px 2px rgba(26,31,36,.06)"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(26,31,36,.75)">Hasło<input type="password" name="pass" value="{{ lg.pass }}" onChange="{{ onLg }}" placeholder="••••••••" style="border:1.5px solid rgba(26,31,36,.18);border-radius:8px;padding:11px 13px;font-size:15px;outline-color:#046A38;box-shadow:inset 0 1px 2px rgba(26,31,36,.06)"></label>
+<sc-if value="{{ loginErr }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FDECEC;color:#B4432A;border-radius:8px;padding:11px 14px;font-size:13.5px;font-weight:600">{{ loginErr }}</div>
+</sc-if>
+<button onClick="{{ doLogin }}" style="background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 26px;font-size:15px;font-weight:700" style-hover="background:#03532C">Zaloguj i kontynuuj →</button>
+<div style="font-size:12.5px;color:rgba(26,31,36,.5)">To makieta — zadziała dowolny e-mail i hasło. Dane profilu uzupełnią się automatycznie.</div>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isStep5 }}" hint-placeholder-val="{{ false }}">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:27px;font-weight:800;letter-spacing:-.02em;margin:0 0 20px">Podsumowanie rezerwacji</h1>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start">
+<div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 20px 12px">
+<div style="font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,31,36,.5)">Zamówiona usługa</div>
+<button onClick="{{ goStep1 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#046A38;text-decoration:underline" style-hover="color:#03532C">zmień</button>
+</div>
+<div style="padding:0 20px 8px">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed rgba(26,31,36,.12)"><span style="font-size:14.5px;font-weight:700">{{ svcName }}</span><span style="font-size:14.5px;font-weight:700;color:#046A38;white-space:nowrap">{{ svcPriceTxt }}</span></div>
+</div>
+<div style="background:#046A38;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+<span style="font-size:14px;font-weight:700">{{ payDueVisit }}</span>
+<span style="font-family:'Schibsted Grotesk',sans-serif;font-size:23px;font-weight:800;color:#FFC20E">{{ svcPriceTxt }}</span>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="background:#fff;border-radius:12px;padding:16px 20px 18px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,31,36,.5);margin-bottom:12px">Realizacja wizyty</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><div><div style="font-size:12.5px;color:rgba(26,31,36,.5);margin-bottom:2px">Lekarz</div><div style="font-size:14.5px;font-weight:700">{{ docName }}</div></div><button onClick="{{ goStep2 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#046A38;flex:none;text-decoration:underline" style-hover="color:#03532C">zmień</button></div>
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><div><div style="font-size:12.5px;color:rgba(26,31,36,.5);margin-bottom:2px">Termin</div><div style="font-size:14.5px;font-weight:700">{{ whenTxt }}</div></div><button onClick="{{ goStep3 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#046A38;flex:none;text-decoration:underline" style-hover="color:#03532C">zmień</button></div>
+<div><div style="font-size:12.5px;color:rgba(26,31,36,.5);margin-bottom:2px">Miejsce</div><div style="font-size:14.5px;font-weight:700">Przychodnia Primavita</div><div style="font-size:13px;color:rgba(26,31,36,.6)">ul. Zdrowa 12, Warszawa</div></div>
+</div>
+</div>
+<div style="background:#fff;border-radius:12px;padding:16px 20px 18px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px">
+<div style="font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,31,36,.5)">Pacjent</div>
+<button onClick="{{ goStep4 }}" style="background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#046A38;text-decoration:underline" style-hover="color:#03532C">zmień</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div><div style="font-size:12.5px;color:rgba(26,31,36,.5);margin-bottom:2px">Imię i nazwisko</div><div style="font-size:14.5px;font-weight:700">{{ patName }}</div></div>
+<div style="display:flex;gap:24px;flex-wrap:wrap">
+<div><div style="font-size:12.5px;color:rgba(26,31,36,.5);margin-bottom:2px">Telefon</div><div style="font-size:14.5px;font-weight:700">{{ patPhone }}</div></div>
+<div><div style="font-size:12.5px;color:rgba(26,31,36,.5);margin-bottom:2px">E-mail</div><div style="font-size:14.5px;font-weight:700">{{ patEmail }}</div></div>
+</div>
+</div>
+</div>
+<div style="background:#fff;border-radius:12px;padding:16px 20px 18px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,31,36,.5);margin-bottom:12px">Płatność</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<button onClick="{{ setPayOnsite }}" style="{{ payOnsiteStyle }}"><span style="{{ payOnsiteDot }}"></span><span style="text-align:left"><span style="display:block;font-size:14px;font-weight:700">Na miejscu</span><span style="display:block;font-size:12.5px;opacity:.65">gotówka lub karta w recepcji</span></span></button>
+<button onClick="{{ setPayOnline }}" style="{{ payOnlineStyle }}"><span style="{{ payOnlineDot }}"></span><span style="text-align:left;flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700">Online — BLIK, karta, Apple Pay</span><span style="display:block;font-size:12.5px;opacity:.65">zapłać teraz i pomiń recepcję</span></span><span style="background:#FFC20E;color:#1A1F24;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.04em;flex:none">NOWOŚĆ</span></button>
+</div>
+<sc-if value="{{ payOnline }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:10px;font-size:12.5px;line-height:1.5;color:rgba(26,31,36,.55)">Po potwierdzeniu przekierujemy Cię do operatora płatności — w makiecie ten krok jest pominięty.</div>
+</sc-if>
+</div>
+</div>
+</div>
+<label style="display:flex;gap:10px;align-items:flex-start;margin:18px 2px;font-size:13.5px;line-height:1.5;color:rgba(26,31,36,.75);cursor:pointer">
+<input type="checkbox" checked="{{ agree }}" onChange="{{ onAgree }}" style="margin-top:2px;accent-color:#046A38;width:16px;height:16px">
+<span>Akceptuję regulamin świadczenia usług i wyrażam zgodę na przetwarzanie danych w celu realizacji wizyty. *</span>
+</label>
+<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+<button onClick="{{ confirm }}" style="{{ confirmBtnStyle }}">Potwierdź rezerwację</button>
+<span style="font-size:13px;color:rgba(26,31,36,.55)">{{ payNoteVisit }}</span>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Potwierdzenie rezerwacji" style="background:linear-gradient(180deg,#F7F9F8,#ECF1EE)">
+<div style="max-width:640px;margin:0 auto;padding:56px 24px 72px;text-align:center">
+<div style="width:76px;height:76px;border-radius:16px;background:#046A38;color:#fff;display:grid;place-items:center;font-size:36px;margin:0 auto 20px;animation:fadeUp .3s ease">✓</div>
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:31px;font-weight:800;letter-spacing:-.02em;margin:0 0 8px">Rezerwacja potwierdzona</h1>
+<p style="font-size:15.5px;color:rgba(26,31,36,.65);margin:0 0 26px">Numer rezerwacji: <strong style="color:#1A1F24">{{ bookedNo }}</strong>. Potwierdzenie wysłaliśmy SMS-em i e-mailem.</p>
+<div style="background:#fff;border-radius:12px;padding:22px 24px;text-align:left;display:flex;flex-direction:column;gap:12px;margin-bottom:26px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span style="font-size:13.5px;color:rgba(26,31,36,.55)">Usługa</span><span style="font-size:14.5px;font-weight:700">{{ svcName }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span style="font-size:13.5px;color:rgba(26,31,36,.55)">Lekarz</span><span style="font-size:14.5px;font-weight:700">{{ docName }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span style="font-size:13.5px;color:rgba(26,31,36,.55)">Termin</span><span style="font-size:14.5px;font-weight:700">{{ whenTxt }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span style="font-size:13.5px;color:rgba(26,31,36,.55)">Cena</span><span style="font-size:14.5px;font-weight:700;color:#046A38">{{ svcPriceTxt }}</span></div>
+</div>
+<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+<button onClick="{{ goHome }}" style="background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 24px;font-size:15px;font-weight:700" style-hover="background:#03532C">Wróć na stronę główną</button>
+<button onClick="{{ startBlank }}" style="background:none;border:1.5px solid rgba(26,31,36,.2);border-radius:8px;padding:13px 24px;font-size:15px;font-weight:700;color:#1A1F24" style-hover="border-color:#046A38;color:#046A38">Umów kolejną wizytę</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isKonto }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Logowanie" style="background:linear-gradient(180deg,#F7F9F8,#ECF1EE)">
+<div style="max-width:440px;margin:0 auto;padding:48px 24px 80px">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px">Portal pacjenta</h1>
+<p style="font-size:15px;color:rgba(26,31,36,.65);margin:0 0 22px;text-wrap:pretty">Zaloguj się, aby zobaczyć wyniki, historię wizyt i swoją kartę lekarską.</p>
+<div style="background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease;display:flex;flex-direction:column;gap:14px">
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(26,31,36,.75)">E-mail<input name="email" type="email" value="{{ acc.email }}" onChange="{{ onAcc }}" placeholder="jan@example.com" style="border:1.5px solid rgba(26,31,36,.16);border-radius:8px;padding:12px 14px;font-size:15px;font-weight:500;color:#1A1F24"></label>
+<label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:rgba(26,31,36,.75)">Hasło<input name="pass" type="password" value="{{ acc.pass }}" onChange="{{ onAcc }}" placeholder="••••••••" style="border:1.5px solid rgba(26,31,36,.16);border-radius:8px;padding:12px 14px;font-size:15px;font-weight:500;color:#1A1F24"></label>
+<sc-if value="{{ accErr }}" hint-placeholder-val="{{ false }}">
+<div style="background:#FDECEC;color:#B4432A;border-radius:8px;padding:11px 14px;font-size:13.5px;font-weight:600">{{ accErr }}</div>
+</sc-if>
+<button onClick="{{ doLoginAcc }}" style="background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:13px 26px;font-size:15px;font-weight:700" style-hover="background:#03532C">Zaloguj się</button>
+<div style="display:flex;align-items:center;gap:10px;margin:2px 0">
+<div style="flex:1;height:1px;background:rgba(26,31,36,.12)"></div>
+<span style="font-size:12.5px;color:rgba(26,31,36,.5)">lub</span>
+<div style="flex:1;height:1px;background:rgba(26,31,36,.12)"></div>
+</div>
+<button onClick="{{ loginGoogle }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1.5px solid rgba(26,31,36,.18);border-radius:8px;padding:12px 20px;font-size:14.5px;font-weight:700;color:#1A1F24" style-hover="border-color:#046A38"><svg width="19" height="19" viewBox="0 0 48 48" style="flex:none"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"></path><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"></path><path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24s.85 6.91 2.34 9.88l7.35-5.7z"></path><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"></path></svg>Zaloguj przez Google</button>
+<button onClick="{{ loginApple }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#1A1F24;border:1.5px solid #1A1F24;border-radius:8px;padding:12px 20px;font-size:14.5px;font-weight:700;color:#fff" style-hover="background:#000"><svg width="16" height="19" viewBox="0 0 384 512" fill="#fff" style="flex:none"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zM262.1 104.5c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"></path></svg>Zaloguj przez Apple</button>
+<div style="font-size:12.5px;color:rgba(26,31,36,.5);text-align:center;text-wrap:pretty">To makieta — logowanie zadziała z dowolnymi danymi.</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPanel }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Panel pacjenta" style="background:linear-gradient(180deg,#F7F9F8,#ECF1EE)">
+<div style="max-width:1000px;margin:0 auto;padding:36px 24px 80px">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px">
+<div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#046A38;margin-bottom:5px">Portal pacjenta</div>
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:30px;font-weight:800;letter-spacing:-.02em;margin:0">Witaj, {{ userName }}</h1>
+</div>
+<button onClick="{{ logout }}" style="background:none;border:1.5px solid rgba(26,31,36,.2);border-radius:8px;padding:10px 20px;font-size:14px;font-weight:700;color:#1A1F24" style-hover="border-color:#046A38;color:#046A38">Wyloguj się</button>
+</div>
+<div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+<nav style="display:flex;flex-direction:column;gap:8px;width:230px;flex:none">
+<button onClick="{{ goTabProfil }}" style="{{ tabProfilStyle }}">Profil</button>
+<button onClick="{{ goTabHist }}" style="{{ tabHistStyle }}">Historia zamówień</button>
+<button onClick="{{ goTabKarta }}" style="{{ tabKartaStyle }}">Karta lekarska</button>
+</nav>
+<div style="flex:1;min-width:300px">
+
+<sc-if value="{{ isTabProfil }}" hint-placeholder-val="{{ true }}">
+<div style="background:#fff;border-radius:12px;padding:24px 26px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px">
+<h2 style="font-family:'Schibsted Grotesk',sans-serif;font-size:20px;font-weight:800;margin:0">Dane podstawowe</h2>
+<sc-if value="{{ pView }}" hint-placeholder-val="{{ true }}">
+<button onClick="{{ editProfile }}" style="background:none;border:1.5px solid rgba(26,31,36,.2);border-radius:8px;padding:8px 18px;font-size:13.5px;font-weight:700;color:#1A1F24" style-hover="border-color:#046A38;color:#046A38">Edytuj</button>
+</sc-if>
+<sc-if value="{{ pEdit }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:8px">
+<button onClick="{{ cancelProfile }}" style="background:none;border:1.5px solid rgba(26,31,36,.2);border-radius:8px;padding:8px 16px;font-size:13.5px;font-weight:700;color:#1A1F24">Anuluj</button>
+<button onClick="{{ saveProfile }}" style="background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:8px 18px;font-size:13.5px;font-weight:700" style-hover="background:#03532C">Zapisz</button>
+</div>
+</sc-if>
+</div>
+<sc-if value="{{ pView }}" hint-placeholder-val="{{ true }}">
+<table style="width:100%;border-collapse:collapse">
+<sc-for list="{{ profileRows }}" as="r" hint-placeholder-count="6">
+<tr style="border-bottom:1px solid rgba(26,31,36,.08)">
+<td style="padding:12px 0;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:rgba(26,31,36,.5);width:170px;vertical-align:top">{{ r.k }}</td>
+<td style="padding:12px 0;font-size:15px;font-weight:600">{{ r.v }}</td>
+</tr>
+</sc-for>
+</table>
+</sc-if>
+<sc-if value="{{ pEdit }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+<sc-for list="{{ profileFields }}" as="f" hint-placeholder-count="6">
+<label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:rgba(26,31,36,.5)">{{ f.label }}<input name="{{ f.name }}" value="{{ f.value }}" onChange="{{ onProfileField }}" style="border:1.5px solid rgba(26,31,36,.16);border-radius:8px;padding:11px 13px;font-size:14.5px;font-weight:500;color:#1A1F24;text-transform:none;letter-spacing:normal"></label>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isTabHist }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ ordersView }}" as="o" hint-placeholder-count="3">
+<div style="background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px">
+<div style="flex:1 1 220px;min-width:0">
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:3px">
+<span style="font-size:12.5px;font-weight:800;color:rgba(26,31,36,.5)">{{ o.id }}</span>
+<span style="{{ o.badgeStyle }}">{{ o.status }}</span>
+</div>
+<div style="font-size:15px;font-weight:700;text-wrap:pretty">{{ o.title }}</div>
+<div style="font-size:12.5px;color:rgba(26,31,36,.5);margin-top:2px">{{ o.typeLabel }} · {{ o.date }}</div>
+</div>
+<div style="font-size:16px;font-weight:800;color:#046A38;white-space:nowrap">{{ o.total }}</div>
+<button onClick="{{ o.act }}" style="background:none;border:1.5px solid rgba(26,31,36,.2);border-radius:8px;padding:9px 16px;font-size:13.5px;font-weight:700;color:#1A1F24;white-space:nowrap" style-hover="border-color:#046A38;color:#046A38">{{ o.actLabel }}</button>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isTabKarta }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:14px">
+<sc-for list="{{ medSections }}" as="s" hint-placeholder-count="3">
+<div style="background:#fff;border-radius:12px;padding:22px 24px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<h2 style="font-family:'Schibsted Grotesk',sans-serif;font-size:18px;font-weight:800;margin:0">{{ s.title }}</h2>
+<div style="display:flex;flex-direction:column;margin:12px 0 14px">
+<sc-for list="{{ s.items }}" as="it" hint-placeholder-count="2">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(26,31,36,.08)">
+<span style="font-size:14.5px;font-weight:600">{{ it.txt }}</span>
+<button onClick="{{ it.remove }}" style="background:none;border:none;color:rgba(26,31,36,.4);font-size:17px;padding:0;width:24px;height:24px;line-height:1;flex:none" style-hover="color:#B4432A">✕</button>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:8px">
+<input value="{{ s.draft }}" onChange="{{ s.onDraft }}" placeholder="{{ s.ph }}" style="flex:1;min-width:0;border:1.5px solid rgba(26,31,36,.16);border-radius:8px;padding:10px 13px;font-size:14px;color:#1A1F24">
+<button onClick="{{ s.add }}" style="background:#046A38;color:#fff;border:none;border-radius:8px;box-shadow:0 2px 6px rgba(4,106,56,.22),0 5px 14px rgba(4,106,56,.16);transition:transform .15s ease,box-shadow .15s ease;padding:10px 18px;font-size:14px;font-weight:700;white-space:nowrap" style-hover="background:#03532C">Dodaj</button>
+</div>
+</div>
+</sc-for>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+<div style="background:#fff;border-radius:12px;padding:22px 24px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<h2 style="font-family:'Schibsted Grotesk',sans-serif;font-size:18px;font-weight:800;margin:0 0 12px">Grupa krwi</h2>
+<input value="{{ medBlood }}" onChange="{{ onMedBlood }}" placeholder="np. A Rh+" style="width:100%;box-sizing:border-box;border:1.5px solid rgba(26,31,36,.16);border-radius:8px;padding:11px 13px;font-size:15px;font-weight:600;color:#1A1F24">
+</div>
+</div>
+<div style="background:#fff;border-radius:12px;padding:22px 24px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<h2 style="font-family:'Schibsted Grotesk',sans-serif;font-size:18px;font-weight:800;margin:0 0 12px">Notatki medyczne</h2>
+<textarea value="{{ medNotes }}" onChange="{{ onMedNotes }}" rows="3" style="width:100%;box-sizing:border-box;border:1.5px solid rgba(26,31,36,.16);border-radius:8px;padding:11px 13px;font-size:14.5px;line-height:1.5;color:#1A1F24;resize:vertical;font-family:inherit"></textarea>
+</div>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isKontakt }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Kontakt" style="background:linear-gradient(180deg,#F7F9F8,#ECF1EE)">
+<div style="max-width:1220px;margin:0 auto;padding:40px 24px 72px">
+<h1 style="font-family:'Schibsted Grotesk',sans-serif;font-size:31px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px">Kontakt</h1>
+<p style="font-size:15.5px;color:rgba(26,31,36,.65);margin:0 0 28px;text-wrap:pretty">Zadzwoń, napisz lub odwiedź jedną z naszych placówek.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:40px">
+<div style="background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#046A38;margin-bottom:8px">Rejestracja telefoniczna</div>
+<a href="tel:221234567" style="font-family:'Schibsted Grotesk',sans-serif;font-size:26px;font-weight:800;color:#1A1F24;text-decoration:none">22 123 45 67</a>
+<div style="font-size:13.5px;color:rgba(26,31,36,.6);margin-top:6px">pn–pt 7:00–20:00 · sb 8:00–14:00</div>
+</div>
+<div style="background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#046A38;margin-bottom:8px">E-mail</div>
+<a href="mailto:rejestracja@primavita.pl" style="font-family:'Schibsted Grotesk',sans-serif;font-size:21px;font-weight:800;color:#1A1F24;text-decoration:none">rejestracja@primavita.pl</a>
+<div style="font-size:13.5px;color:rgba(26,31,36,.6);margin-top:6px">Odpowiadamy w ciągu 1 dnia roboczego</div>
+</div>
+</div>
+<h2 style="font-family:'Schibsted Grotesk',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px">Nasze placówki</h2>
+<p style="font-size:14.5px;color:rgba(26,31,36,.6);margin:0 0 20px">Każda placówka prowadzi własną rejestrację — zadzwoń bezpośrednio do wybranej lokalizacji.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+<sc-for list="{{ contactLocs }}" as="l" hint-placeholder-count="3">
+<div style="background:#fff;border-radius:12px;padding:22px 24px;box-shadow:0 1px 2px rgba(26,31,36,.05),0 10px 24px rgba(26,31,36,.08),inset 0 1px 0 rgba(255,255,255,.75);transition:transform .2s ease,box-shadow .2s ease">
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px">{{ l.n }}</div>
+<div style="font-size:14px;color:rgba(26,31,36,.7);margin-bottom:2px">{{ l.addr }}</div>
+<div style="font-size:13px;color:rgba(26,31,36,.55);margin-bottom:16px">{{ l.hours }}</div>
+<table style="width:100%;border-collapse:collapse">
+<tr style="border-top:1px solid rgba(26,31,36,.08)"><td style="padding:9px 0;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(26,31,36,.5);width:70px">Telefon</td><td style="padding:9px 0;text-align:right"><a href="{{ l.tel }}" style="font-size:15px;font-weight:700;color:#046A38;text-decoration:none">{{ l.phone }}</a></td></tr>
+<tr style="border-top:1px solid rgba(26,31,36,.08)"><td style="padding:9px 0;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(26,31,36,.5)">E-mail</td><td style="padding:9px 0;text-align:right"><a href="{{ l.mailto }}" style="font-size:14px;font-weight:600;color:#1A1F24;text-decoration:none">{{ l.email }}</a></td></tr>
+</table>
+<iframe src="{{ l.map }}" style="width:100%;height:170px;border:none;border-radius:10px;margin-top:16px;display:block" loading="lazy" title="Mapa {{ l.n }}"></iframe>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<div style="background:#1A1F24;color:#fff">
+<div style="max-width:1220px;margin:0 auto;padding:40px 24px;display:flex;gap:40px;flex-wrap:wrap">
+<div style="flex:2 1 260px">
+<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">
+<div style="width:32px;height:32px;border-radius:8px;background:#046A38;color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px">✚</div>
+<div style="font-family:'Schibsted Grotesk',sans-serif;font-weight:800;font-size:18px">Primavita</div>
+</div>
+<div style="font-size:13.5px;line-height:1.7;opacity:.7">Centrum Medyczne<br>ul. Zdrowa 12, 00-001 Warszawa<br>pn–pt 7:00–20:00, sb 8:00–14:00</div>
+</div>
+<div style="flex:1 1 160px">
+<div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.55;margin-bottom:10px">Kontakt</div>
+<div style="font-size:14px;line-height:2"><a href="tel:221234567" style="color:#fff;text-decoration:none">22 123 45 67</a><br><a href="mailto:rejestracja@primavita.pl" style="color:#fff;text-decoration:none">rejestracja@primavita.pl</a></div>
+</div>
+<div style="flex:1 1 160px">
+<div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.55;margin-bottom:10px">Na skróty</div>
+<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+<button onClick="{{ goCennik }}" style="background:none;border:none;padding:0;color:#fff;font-size:14px;opacity:.85" style-hover="opacity:1">Cennik</button>
+<button onClick="{{ goLekarze }}" style="background:none;border:none;padding:0;color:#fff;font-size:14px;opacity:.85" style-hover="opacity:1">Nasi lekarze</button>
+<button onClick="{{ startBlank }}" style="background:none;border:none;padding:0;color:#fff;font-size:14px;opacity:.85" style-hover="opacity:1">Umów wizytę</button>
+<button onClick="{{ openResults }}" style="background:none;border:none;padding:0;color:#fff;font-size:14px;opacity:.85" style-hover="opacity:1">Wyniki online</button>
+</div>
+</div>
+</div>
+<div style="border-top:1px solid rgba(255,255,255,.12);padding:14px 24px;text-align:center;font-size:12.5px;opacity:.5">© 2026 Primavita — makieta poglądowa</div>
+</div>
+
+<div style="background:#fff;border-top:1px solid rgba(26,31,36,.1);padding:12px 24px;text-align:center;font-size:13px;color:rgba(26,31,36,.6)">Makieta 1 z 2 — usługi lekarskie · <a href="Przychodnia z laboratorium.dc.html" style="font-weight:700">Zobacz makietę 2: przychodnia + laboratorium →</a></div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showPromo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Strona&quot;},&quot;showRatings&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Rezerwacja&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    const F=[['Anna','Kowalska'],['Magdalena','Zielińska'],['Katarzyna','Wiśniewska'],['Joanna','Dąbrowska'],['Ewa','Kamińska'],['Barbara','Mazur'],['Monika','Piotrowska'],['Aleksandra','Zając'],['Dorota','Michalska'],['Iwona','Kwiatkowska'],['Natalia','Król'],['Agnieszka','Pawlak']];
+    const M=[['Piotr','Nowak'],['Tomasz','Wójcik'],['Marek','Lewandowski'],['Paweł','Szymański'],['Michał','Woźniak'],['Krzysztof','Kozłowski'],['Adam','Krawczyk'],['Jacek','Grabowski'],['Rafał','Wieczorek'],['Łukasz','Jabłoński'],['Grzegorz','Kubiak'],['Andrzej','Sawicki']];
+    this.SPECS=[['chirurg','Chirurg ogólny',220,'Konsultacje, kwalifikacja do zabiegów, drobne zabiegi'],['pediatra','Pediatra',180,'Opieka nad dziećmi od 1. dnia życia'],['internista','Internista',160,'Choroby wewnętrzne, recepty, skierowania'],['kardiolog','Kardiolog',250,'Serce i układ krążenia, EKG, echo'],['dermatolog','Dermatolog',200,'Skóra, włosy i paznokcie, dermatoskopia'],['ortopeda','Ortopeda',230,'Urazy, stawy, kręgosłup'],['ginekolog','Ginekolog',210,'Profilaktyka, USG, cytologia'],['endokrynolog','Endokrynolog',240,'Tarczyca i gospodarka hormonalna'],['neurolog','Neurolog',240,'Bóle głowy, zawroty, diagnostyka'],['okulista','Okulista',190,'Badanie wzroku, dobór korekcji'],['laryngolog','Laryngolog',190,'Uszy, nos, gardło'],['psychiatra','Psychiatra',280,'Konsultacje i farmakoterapia']].map((s,i)=>({id:s[0],n:s[1],p:s[2],d:s[3],i}));
+    const X=[['EKG spoczynkowe','Diagnostyka',60,'kardiolog'],['Echo serca (UKG)','Diagnostyka',280,'kardiolog'],['Holter EKG (24 h)','Diagnostyka',220,'kardiolog'],['USG jamy brzusznej','Diagnostyka',180,'internista'],['USG tarczycy','Diagnostyka',170,'endokrynolog'],['Dermatoskopia (ocena znamion)','Diagnostyka',150,'dermatolog'],['Spirometria','Diagnostyka',90,'internista'],['Badanie wzroku z doborem korekcji','Diagnostyka',120,'okulista'],['Zdjęcie szwów','Zabiegi',80,'chirurg'],['Chirurgiczne usunięcie znamienia','Zabiegi',350,'chirurg'],['Krioterapia zmian skórnych','Zabiegi',130,'dermatolog'],['Płukanie uszu','Zabiegi',70,'laryngolog'],['Blokada dostawowa','Zabiegi',160,'ortopeda'],['Cytologia','Zabiegi',100,'ginekolog'],['Iniekcja domięśniowa','Zabiegi',40,'internista']];
+    this.CATALOG=[...this.SPECS.map(s=>({id:'c-'+s.id,n:'Konsultacja: '+s.n,c:'Konsultacje',p:s.p,spec:s.id})),...X.map((x,i)=>({id:'x'+i,n:x[0],c:x[1],p:x[2],spec:x[3]}))];
+    this.DOCS={};
+    const EDU=['Warszawskiego Uniwersytetu Medycznego','Collegium Medicum UJ w Krakowie','Uniwersytetu Medycznego w Poznaniu','Gdańskiego Uniwersytetu Medycznego'];
+    const LANGS=['polski, angielski','polski, angielski, niemiecki','polski, ukraiński, angielski'];
+    const TRAIT=['spokój i bardzo dokładny wywiad','jasne tłumaczenie diagnozy i planu leczenia','indywidualne podejście do pacjenta','punktualność i rzeczowe zalecenia'];
+    this.SPECS.forEach((s,i)=>{this.DOCS[s.id]=[0,1,2].map(j=>{const female=j!==1;const nm=female?F[(i*2+j)%12]:M[(i*3+j)%12];const idx=i*3+j;return {id:s.id+'-'+j,fn:nm[0],ln:nm[1],female,title:idx%3===0?'dr n. med.':'lek. med.',exp:6+(idx*5)%22,rating:(4.6+((idx*7)%4)/10).toFixed(1).replace('.',','),reviews:40+(idx*13)%180,edu:EDU[idx%4],langs:LANGS[idx%3],trait:TRAIT[idx%4]};});});
+    this.ALLDOCS=[];this.SPECS.forEach(s=>this.DOCS[s.id].forEach(d=>this.ALLDOCS.push({...d,spec:s})));
+    const dows=['nd','pn','wt','śr','cz','pt','sb'],mons=['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+    this.dows=dows;this.mons=mons;
+    this.monsFull=['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
+  }
+  dateSlots(docId,d){if(!d||d.getDay()===0)return [];const all=['08:00','08:45','09:30','10:15','11:00','11:45','12:30','14:00','14:45','15:30','16:15','17:00','17:45'];const seed=this.hash(docId)+(d.getDate()+(d.getMonth()+1)*37+d.getDay())*5;return all.filter((t,i)=>(i+seed)%3!==0&&(i*2+seed)%5!==1);}
+  firstAvail(docId){for(let k=1;k<43;k++){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+k);if(this.dateSlots(docId,d).length)return d;}return null;}
+  fmtDate(d){return this.dows[d.getDay()]+' '+d.getDate()+' '+this.mons[d.getMonth()];}
+  calendar(calM,selTs,availFn,onPick,onNav){
+    const now=new Date();
+    const base=new Date(now.getFullYear(),now.getMonth()+calM,1);
+    const tomorrow=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+    const maxD=new Date(now.getFullYear(),now.getMonth(),now.getDate()+42);
+    const startDow=(base.getDay()+6)%7;
+    const dim=new Date(base.getFullYear(),base.getMonth()+1,0).getDate();
+    const cellBase='height:38px;border-radius:8px;font-size:14px;display:grid;place-items:center;padding:0;';
+    const sel=selTs?new Date(selTs):null;
+    const cells=[];
+    for(let i=0;i<startDow;i++)cells.push({num:'',style:cellBase+'background:none;border:none;cursor:default',pick:null});
+    for(let day=1;day<=dim;day++){const d=new Date(base.getFullYear(),base.getMonth(),day,12);const avail=d>=tomorrow&&d<=maxD&&availFn(d);const s=sel&&sel.getDate()===day&&sel.getMonth()===base.getMonth()&&sel.getFullYear()===base.getFullYear();cells.push({num:String(day),pick:avail?()=>onPick(d.getTime()):null,style:cellBase+(s?'background:#046A38;color:#fff;border:1.5px solid #046A38;font-weight:800;cursor:pointer':avail?'background:#fff;color:#1A1F24;border:1.5px solid rgba(4,106,56,.45);font-weight:600;cursor:pointer':'background:rgba(26,31,36,.05);color:rgba(26,31,36,.3);border:1px solid transparent;cursor:default')});}
+    const nav=en=>'width:30px;height:30px;border-radius:8px;font-size:16px;display:grid;place-items:center;padding:0;'+(en?'background:#fff;border:1.5px solid rgba(26,31,36,.2);color:#1A1F24;cursor:pointer':'background:none;border:1.5px solid rgba(26,31,36,.08);color:rgba(26,31,36,.25);cursor:default');
+    return {title:this.monsFull[base.getMonth()]+' '+base.getFullYear(),cells,prev:calM>0?()=>onNav(calM-1):null,next:calM<2?()=>onNav(calM+1):null,prevStyle:nav(calM>0),nextStyle:nav(calM<2)};
+  }
+  state={screen:'home',menu:false,q:'',cenQ:'',cenCat:'Wszystkie',step:1,svc:null,doc:null,vDate:null,calM:0,time:null,pay:'onsite',docCat:'Wszyscy',docQ:'',docModalI:-1,pkgModal:null,mode:'guest',form:{fname:'',lname:'',pesel:'',phone:'',email:''},lg:{email:'',pass:''},tried:false,triedLg:false,agree:false,no:null,toast:'',user:null,acc:{email:'',pass:''},accTried:false,panelTab:'profil',pEdit:false,pForm:null,orders:[{id:'PV-48120',type:'visit',title:'Konsultacja kardiologiczna — dr n. med. Piotr Nowak',date:'24 lipca 2026, 09:30',status:'Nadchodząca',sc:'blue',total:'250 zł'},{id:'PV-39655',type:'visit',title:'Echo serca (UKG)',date:'2 lipca 2026',status:'Zrealizowana',sc:'gray',total:'280 zł'},{id:'PV-31288',type:'visit',title:'Konsultacja dermatologiczna — lek. med. Ewa Kamińska',date:'14 czerwca 2026',status:'Zrealizowana',sc:'gray',total:'200 zł'}],med:{chronic:['Nadciśnienie tętnicze','Niedoczynność tarczycy'],meds:['Euthyrox 50 µg — rano','Ramipril 5 mg — wieczorem'],allergies:['Penicylina','Pyłki traw'],blood:'A Rh+',notes:'Ostatnia kontrola tarczycy: kwiecień 2026. Zalecana kontrola lipidogramu co 6 miesięcy.'},draft:{chronic:'',meds:'',allergies:''}};
+  hash(s){let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%997;return h;}
+  go(screen,extra){window.scrollTo({top:0});this.setState(Object.assign({screen,toast:'',menu:false},extra||{}));}
+  step(n,extra){extra=extra||{};if(n===4){const u=this.state.user;if(u)extra=Object.assign({mode:'guest',form:{fname:u.fname,lname:u.lname,pesel:u.pesel,phone:u.phone,email:u.email}},extra);}window.scrollTo({top:0});this.setState(Object.assign({step:n},extra));}
+  book(svc){this.go('booking',{step:svc?2:1,svc:svc||null,doc:null,time:null,vDate:null,calM:0,q:'',agree:false,tried:false});}
+  flash(m){clearTimeout(this._tt);this.setState({toast:m});this._tt=setTimeout(()=>this.setState({toast:''}),3500);}
+  mkUser(email){return {fname:'Anna',lname:'Kowalska',pesel:'88031298765',phone:'+48 600 100 200',email:email||'anna.kowalska@example.com',address:'ul. Zdrowa 12/8, 00-001 Warszawa'};}
+  PACKAGES=[
+    {id:'single',name:'Wizyty pojedyncze',price:'od 160 zł',unit:'/ wizyta',forWhoShort:'Bez zobowiązań',forWho:'Dla osób korzystających z lekarza okazjonalnie — płacisz tylko wtedy, gdy potrzebujesz wizyty.',summary:'Płacisz tylko za wizytę · bez abonamentu · wszystkie specjalizacje.',desc:'Model pay-as-you-go: umawiasz pojedyncze konsultacje i badania w cenniku, bez comiesięcznych opłat i bez umowy. Idealny, gdy potrzebujesz lekarza sporadycznie.',features:['Dostęp do wszystkich specjalizacji','Ceny zgodne z cennikiem, bez ukrytych opłat','Rezerwacja online 24/7','Brak zobowiązań i okresu wypowiedzenia']},
+    {id:'ty',name:'Pakiet Ty',price:'129 zł',unit:'/ mies.',featured:true,forWhoShort:'Dla jednej osoby',forWho:'Dla jednej dorosłej osoby, która chce mieć stałą opiekę internisty i szybki dostęp do specjalistów.',summary:'Nielimitowane wizyty u internisty · −40% na specjalistów · e-recepty w 24 h.',desc:'Abonament dla jednej osoby dorosłej. Nielimitowane konsultacje internistyczne, zniżki na specjalistów oraz e-konsultacje i recepty bez wychodzenia z domu.',features:['Nielimitowane wizyty u internisty','−40% na konsultacje specjalistyczne','E-konsultacje i e-recepty w 24 h','Przypomnienia o badaniach profilaktycznych','Priorytetowa rejestracja telefoniczna']},
+    {id:'rodzina',name:'Pakiet Rodzina',price:'299 zł',unit:'/ mies.',forWhoShort:'Dla całej rodziny',forWho:'Dla rodzin — 2 osoby dorosłe oraz dzieci bez limitu, z pediatrą bez kolejki.',summary:'2 dorosłych + dzieci bez limitu · pediatra bez kolejki · −40% na specjalistów i zabiegi.',desc:'Abonament rodzinny obejmujący dwoje dorosłych i wszystkie dzieci. Pediatra bez kolejki, zniżki na specjalistów i zabiegi oraz wspólny portal pacjenta dla całej rodziny.',features:['2 osoby dorosłe + dzieci bez limitu','Pediatra bez kolejki','−40% na specjalistów i zabiegi','E-konsultacje dla całej rodziny','Wspólna karta zdrowia w portalu pacjenta']},
+  ];
+  renderVals(){
+    const st=this.state;
+    const price=v=>v+' zł';
+    const chip=on=>'border-radius:8px;padding:9px 14px;font-size:13.5px;font-weight:700;'+(on?'background:#046A38;color:#fff;border:1.5px solid #046A38':'background:#fff;color:#1A1F24;border:1.5px solid rgba(26,31,36,.18)');
+    const navSt=on=>'background:none;border:none;padding:13px 16px;font-size:14.5px;color:#fff;border-bottom:3px solid '+(on?'#FFC20E;font-weight:800':'transparent;font-weight:600');
+    const q=st.q.trim().toLowerCase();
+    const specName=id=>{const s=this.SPECS.find(x=>x.id===id);return s?s.n:'';};
+    const results=q.length>=2?this.CATALOG.filter(c=>(c.n+' '+specName(c.spec)).toLowerCase().includes(q)).slice(0,7).map(c=>({...c,priceTxt:price(c.p),go:()=>this.book(c)})):[];
+    const cq=st.cenQ.trim().toLowerCase();
+    const cenRows=this.CATALOG.filter(c=>(st.cenCat==='Wszystkie'||c.c===st.cenCat)&&(!cq||(c.n+' '+specName(c.spec)).toLowerCase().includes(cq))).map(c=>({...c,priceTxt:price(c.p),go:()=>this.book(c)}));
+    const svc=st.svc;
+    const nowD=new Date();
+    const doctors=svc?this.DOCS[svc.spec].map(d=>{const fd=this.firstAvail(d.id);return {initials:d.fn[0]+d.ln[0],name:d.title+' '+d.fn+' '+d.ln,sub:specName(svc.spec)+' · '+d.exp+' lat doświadczenia',rating:d.rating,reviews:d.reviews,priceTxt:price(svc.p),next:fd?this.fmtDate(fd)+', '+this.dateSlots(d.id,fd)[0]:'brak terminów',openProfile:()=>this.setState({docModalI:this.ALLDOCS.findIndex(x=>x.id===d.id)}),pick:()=>this.step(3,{doc:d,vDate:fd?fd.getTime():null,calM:fd?(fd.getFullYear()-nowD.getFullYear())*12+(fd.getMonth()-nowD.getMonth()):0,time:null})};}):[];
+    const doc=st.doc;
+    const vd=st.vDate?new Date(st.vDate):null;
+    const cal=this.calendar(st.calM,st.vDate,d=>doc&&this.dateSlots(doc.id,d).length>0,ts=>this.setState({vDate:ts,time:null}),m=>this.setState({calM:m}));
+    const times=(doc&&vd?this.dateSlots(doc.id,vd):[]).map(t=>({t,pick:()=>this.step(4,{time:t})}));
+    const f=st.form;
+    const vEmail=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim());
+    const vPhone=f.phone.replace(/[^\d]/g,'').length>=9;
+    const vName=n=>n.trim().length>=2;
+    const formOk=vName(f.fname)&&vName(f.lname)&&vPhone&&vEmail;
+    const fBase='border-radius:8px;padding:11px 13px;font-size:15px;box-shadow:inset 0 1px 2px rgba(26,31,36,.06);';
+    const ffs=bad=>fBase+(bad?'border:1.5px solid #D94A3D;background:#FDECEC;outline-color:#D94A3D':'border:1.5px solid rgba(26,31,36,.18);background:#fff;outline-color:#046A38');
+    const lockStyle=fBase+'border:1.5px solid rgba(26,31,36,.12);background:#F0F3F1;color:rgba(26,31,36,.6);cursor:not-allowed';
+    const locked=!!st.user;const ffield=bad=>locked?lockStyle:ffs(bad);
+    const T=st.tried;
+    const badFname=T&&!vName(f.fname),badLname=T&&!vName(f.lname),badPhone=T&&!vPhone,badEmail=T&&!vEmail;
+    const isEmail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((e||'').trim());
+    const lgOk=isEmail(st.lg.email)&&st.lg.pass.length>0;
+    const vDateLabel=vd?this.fmtDate(vd):'—';
+    const whenTxt=(vd?this.fmtDate(vd):'')+(st.time?', godz. '+st.time:'');
+    const pf=st.pForm;
+    const maskPesel=p=>p?p.slice(0,2)+'•••••'+p.slice(-4):'—';
+    const ptab=on=>'display:block;width:100%;text-align:left;border-radius:8px;padding:12px 16px;font-size:14.5px;font-weight:700;cursor:pointer;transition:background .15s ease,color .15s ease;'+(on?'background:#046A38;color:#fff;border:1.5px solid #046A38':'background:#fff;color:#1A1F24;border:1.5px solid rgba(26,31,36,.16)');
+    const obadge=sc=>{const m={green:['#E3F2E9','#046A38'],blue:['#FFF4D6','#8A6D00'],gray:['rgba(26,31,36,.07)','rgba(26,31,36,.55)']};const c=m[sc]||m.gray;return 'background:'+c[0]+';color:'+c[1]+';border-radius:6px;padding:5px 11px;font-size:12.5px;font-weight:800;white-space:nowrap;display:inline-block';};
+    const medSections=[['chronic','Choroby przewlekłe','np. Nadciśnienie tętnicze'],['meds','Przyjmowane leki','np. Euthyrox 50 µg — rano'],['allergies','Alergie','np. Penicylina']].map(g=>{const key=g[0];return {key,title:g[1],ph:g[2],draft:st.draft[key],items:st.med[key].map((txt,i)=>({txt,remove:()=>{const arr=st.med[key].slice();arr.splice(i,1);this.setState({med:{...st.med,[key]:arr}});}})),onDraft:e=>this.setState({draft:{...st.draft,[key]:e.target.value}}),add:()=>{const v=(st.draft[key]||'').trim();if(!v)return;this.setState({med:{...st.med,[key]:[...st.med[key],v]},draft:{...st.draft,[key]:''}});}};});
+    const labels=['Usługa','Lekarz','Termin','Twoje dane','Podsumowanie'];
+    const steps=labels.map((label,i)=>{const n=i+1,done=st.step>n,act=st.step===n;return {label,mark:done?'✓':String(n),click:done?()=>this.step(n):null,btnStyle:'display:flex;align-items:center;gap:7px;background:none;border:none;padding:6px 10px 6px 0;'+(done?'cursor:pointer':'cursor:default'),circStyle:'width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex:none;'+(act?'background:#046A38;color:#fff':done?'background:#E8F3ED;color:#046A38':'background:rgba(26,31,36,.08);color:rgba(26,31,36,.45)'),lblStyle:'font-size:13.5px;white-space:nowrap;'+(act?'font-weight:800;color:#1A1F24':done?'font-weight:700;color:#046A38':'font-weight:600;color:rgba(26,31,36,.45)')};});
+    const bookGroups=[{title:'Konsultacje specjalistyczne',items:this.CATALOG.filter(c=>c.c==='Konsultacje').map(c=>({n:c.n.replace('Konsultacja: ',''),priceTxt:price(c.p),go:()=>this.book(c)}))},{title:'Badania i zabiegi',items:this.CATALOG.filter(c=>c.c!=='Konsultacje').map(c=>({n:c.n,priceTxt:price(c.p),go:()=>this.book(c)}))}];
+    const bookDoc=d=>{const svcD=this.CATALOG.find(c=>c.id==='c-'+d.spec.id);const fd2=this.firstAvail(d.id);this.go('booking',{step:3,svc:svcD,doc:d,vDate:fd2?fd2.getTime():null,calM:fd2?(fd2.getFullYear()-nowD.getFullYear())*12+(fd2.getMonth()-nowD.getMonth()):0,time:null,agree:false,docModalI:-1});};
+    const dq=st.docQ.trim().toLowerCase();
+    const lekarze=this.ALLDOCS.map((d,i)=>({d,i})).filter(x=>(st.docCat==='Wszyscy'||x.d.spec.n===st.docCat)&&(!dq||(x.d.fn+' '+x.d.ln+' '+x.d.spec.n).toLowerCase().includes(dq))).map(x=>{const d=x.d;const fd=this.firstAvail(d.id);return {initials:d.fn[0]+d.ln[0],name:d.title+' '+d.fn+' '+d.ln,specN:d.spec.n,expTxt:d.exp+' lat doświadczenia',rating:d.rating,reviews:d.reviews,priceTxt:'od '+d.spec.p+' zł',next:fd?this.fmtDate(fd)+', '+this.dateSlots(d.id,fd)[0]:'brak terminów',open:()=>this.setState({docModalI:x.i}),book:()=>bookDoc(d)};});
+    const md=st.docModalI>=0?this.ALLDOCS[st.docModalI]:null;
+    const mdFd=md?this.firstAvail(md.id):null;
+    return {
+      showPromo:this.props.showPromo??true, showRatings:this.props.showRatings??true,
+      docCats:['Wszyscy'].concat(this.SPECS.map(s=>s.n)).map(n=>({n,style:chip(st.docCat===n),pick:()=>this.setState({docCat:n})})),
+      docQ:st.docQ,onDocQ:e=>this.setState({docQ:e.target.value}),
+      lekarze,lekEmpty:lekarze.length===0,
+      mdOpen:!!md,
+      mdName:md?md.title+' '+md.fn+' '+md.ln:'',mdSpec:md?md.spec.n:'',mdInitials:md?md.fn[0]+md.ln[0]:'',
+      mdExpTxt:md?md.exp+' lat doświadczenia':'',mdRating:md?md.rating:'',mdReviews:md?md.reviews:'',
+      mdBio:md?(md.female?'Absolwentka ':'Absolwent ')+md.edu+'. '+(md.female?'Specjalistka':'Specjalista')+' z '+md.exp+'-letnim doświadczeniem klinicznym. Zakres konsultacji: '+md.spec.d.toLowerCase()+'. Pacjenci cenią '+(md.female?'ją':'go')+' za '+md.trait+'.':'',
+      mdLangs:md?md.langs:'',mdEdu:md?md.edu:'',mdPriceTxt:md?md.spec.p+' zł':'',
+      mdNext:mdFd?this.fmtDate(mdFd)+', '+this.dateSlots(md.id,mdFd)[0]:'brak terminów',
+      mdImgId:md?'doc-photo-'+md.id:'doc-photo',
+      mdClose:()=>this.setState({docModalI:-1}),mdStop:e=>e.stopPropagation(),mdBook:()=>bookDoc(md),
+      toast:st.toast,
+      isHome:st.screen==='home',isCennik:st.screen==='cennik',isBooking:st.screen==='booking',isConfirm:st.screen==='confirm',
+      isStep1:st.step===1,isStep2:st.step===2,isStep3:st.step===3,isStep4:st.step===4,isStep5:st.step===5,
+      navHomeStyle:navSt(st.screen==='home'),navCenStyle:navSt(st.screen==='cennik'),navLekStyle:navSt(st.screen==='lekarze'),
+      isLekarze:st.screen==='lekarze',goLekarze:()=>this.go('lekarze'),
+      goHome:()=>this.go('home'),goCennik:()=>this.go('cennik'),
+      isPakiety:st.screen==='pakiety',goPakiety:()=>this.go('pakiety'),navPakStyle:navSt(st.screen==='pakiety'),
+      packages:this.PACKAGES.map(p=>({...p,
+        cardStyle:'background:#fff;border-radius:12px;padding:26px;display:flex;flex-direction:column;gap:10px;position:relative;transition:transform .2s ease,box-shadow .2s ease;'+(p.featured?'border:2px solid #046A38;box-shadow:0 4px 10px rgba(4,106,56,.12),0 22px 46px -14px rgba(4,106,56,.3),inset 0 1px 0 rgba(255,255,255,.85)':'border:1.5px solid rgba(26,31,36,.1);box-shadow:0 1px 2px rgba(26,31,36,.05),0 14px 32px -10px rgba(26,31,36,.18),inset 0 1px 0 rgba(255,255,255,.85)'),
+        cardHover:'transform:translateY(-4px);'+(p.featured?'box-shadow:0 8px 18px rgba(4,106,56,.16),0 30px 60px -16px rgba(4,106,56,.36),inset 0 1px 0 rgba(255,255,255,.85)':'box-shadow:0 4px 10px rgba(26,31,36,.08),0 24px 50px -14px rgba(26,31,36,.26),inset 0 1px 0 rgba(255,255,255,.85)'),
+        ctaLabel:p.id==='single'?'Umów wizytę':'Wybierz pakiet',
+        ctaStyle:'flex:1;border:none;border-radius:8px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer;'+(p.featured?'background:#FFC20E;color:#1A1F24':'background:#046A38;color:#fff'),
+        cta:p.id==='single'?(()=>this.book(null)):(()=>this.flash('Zamówienie pakietu: doradca skontaktuje się z Tobą — 22 123 45 67 (makieta)')),
+        open:()=>this.setState({pkgModal:p.id})})),
+      pkgOpen:!!st.pkgModal,
+      pkg:(()=>{const p=this.PACKAGES.find(x=>x.id===st.pkgModal);if(!p)return {name:'',price:'',unit:'',desc:'',forWho:'',features:[],ctaLabel:''};return {...p,ctaLabel:p.id==='single'?'Umów wizytę':'Wybierz pakiet',cta:p.id==='single'?(()=>{this.setState({pkgModal:null});this.book(null);}):(()=>{this.setState({pkgModal:null});this.flash('Zamówienie pakietu: doradca skontaktuje się z Tobą — 22 123 45 67 (makieta)');})};})(),
+      pkgClose:()=>this.setState({pkgModal:null}),
+      isKontakt:st.screen==='kontakt',goKontakt:()=>this.go('kontakt'),navKontStyle:navSt(st.screen==='kontakt'),
+      contactLocs:[{n:'Primavita Śródmieście',addr:'ul. Zdrowa 12, 00-001 Warszawa',hours:'pn–pt 7:00–20:00 · sb 8:00–14:00',phone:'22 123 45 60',email:'srodmiescie@primavita.pl'},{n:'Primavita Mokotów',addr:'ul. Wielicka 44, 02-657 Warszawa',hours:'pn–pt 7:00–19:00',phone:'22 123 45 61',email:'mokotow@primavita.pl'},{n:'Primavita Ursynów',addr:'al. KEN 36, 02-797 Warszawa',hours:'pn–pt 8:00–20:00 · sb 9:00–13:00',phone:'22 123 45 62',email:'ursynow@primavita.pl'}].map(l=>({...l,tel:'tel:'+l.phone.replace(/\s/g,''),mailto:'mailto:'+l.email,map:'https://maps.google.com/maps?q='+encodeURIComponent(l.addr)+'&z=15&output=embed'})),
+      startBlank:()=>this.book(null),
+      menuOpen:st.menu,menuClosed:!st.menu,toggleMenu:()=>this.setState(s=>({menu:!s.menu})),mResults:()=>{this.setState({menu:false});this.flash('Portal wyników pacjenta — poza zakresem tej makiety');},
+      openResults:()=>this.flash('Portal wyników pacjenta — poza zakresem tej makiety'),
+      askPakiet:()=>this.flash('Zamówienie pakietu: skontaktuje się z Tobą doradca — 22 123 45 67 (poza zakresem makiety)'),
+      q:st.q,onQ:e=>this.setState({q:e.target.value}),results,hasResults:results.length>0,
+      popular:['Chirurg','Pediatra','Kardiolog','USG'].map(n=>({n,pick:()=>this.setState({q:n})})),
+      specs:this.SPECS.map(s=>({...s,go:()=>this.book(this.CATALOG.find(c=>c.id==='c-'+s.id))})),
+      cenQ:st.cenQ,onCenQ:e=>this.setState({cenQ:e.target.value}),
+      cats:['Wszystkie','Konsultacje','Diagnostyka','Zabiegi'].map(n=>({n,style:chip(st.cenCat===n),pick:()=>this.setState({cenCat:n})})),
+      cenRows,cenEmpty:cenRows.length===0,
+      steps,bookGroups,
+      svcName:svc?svc.n:'',svcPriceTxt:svc?price(svc.p):'',
+      doctors,goStep1:()=>this.step(1),goStep2:()=>this.step(2),goStep3:()=>this.step(3),goStep4:()=>this.step(4),
+      docName:doc?doc.title+' '+doc.fn+' '+doc.ln:'',
+      times,hasTimes:times.length>0,noTimes:times.length===0,whenTxt,vDateLabel,
+      calTitle:cal.title,calCells:cal.cells,calPrev:cal.prev,calNext:cal.next,calPrevStyle:cal.prevStyle,calNextStyle:cal.nextStyle,
+      isGuest:st.user?true:st.mode==='guest',isLogin:st.user?false:st.mode==='login',isLoggedIn:!!st.user,notLoggedIn:!st.user,
+      setGuest:()=>this.setState({mode:'guest'}),setLogin:()=>this.setState({mode:'login'}),
+      guestBtnStyle:chip(st.mode==='guest'),loginBtnStyle:chip(st.mode==='login'),
+      form:f,onForm:e=>this.setState({form:{...f,[e.target.name]:e.target.value}}),
+      fnameStyle:ffield(badFname),lnameStyle:ffield(badLname),peselStyle:ffield(false),phoneStyle:ffield(badPhone),emailStyle:ffield(badEmail),formReadOnly:locked,
+      formErr:st.tried&&!formOk?'Popraw zaznaczone pola: '+[!vName(f.fname)&&'imię',!vName(f.lname)&&'nazwisko',!vPhone&&'telefon (min. 9 cyfr)',!vEmail&&'poprawny e-mail'].filter(Boolean).join(', ')+'.':'',
+      submitGuest:()=>{if(formOk)this.step(5,{tried:false});else this.setState({tried:true});},
+      lg:st.lg,onLg:e=>this.setState({lg:{...st.lg,[e.target.name]:e.target.value}}),
+      loginErr:st.triedLg&&!lgOk?(isEmail(st.lg.email)?'Podaj hasło.':'Podaj poprawny adres e-mail i hasło.'):'',
+      doLogin:()=>{if(lgOk){const u=this.mkUser(st.lg.email);this.step(5,{triedLg:false,user:u,form:{fname:u.fname,lname:u.lname,pesel:u.pesel,phone:u.phone,email:u.email}});}else this.setState({triedLg:true});},
+      whoTxt:f.fname&&f.lname?f.fname+' '+f.lname+' · '+f.phone:'',
+      patName:f.fname&&f.lname?f.fname+' '+f.lname:'—',patPhone:f.phone||'—',patEmail:f.email||'—',
+      payOnline:st.pay==='online',
+      setPayOnsite:()=>this.setState({pay:'onsite'}),setPayOnline:()=>this.setState({pay:'online'}),
+      payOnsiteStyle:(st.pay!=='online'?'background:#E8F3ED;border:2px solid #046A38;':'background:#fff;border:1.5px solid rgba(26,31,36,.15);cursor:pointer;')+'display:flex;align-items:center;gap:10px;border-radius:10px;padding:11px 14px;width:100%',
+      payOnlineStyle:(st.pay==='online'?'background:#E8F3ED;border:2px solid #046A38;':'background:#fff;border:1.5px solid rgba(26,31,36,.15);cursor:pointer;')+'display:flex;align-items:center;gap:10px;border-radius:10px;padding:11px 14px;width:100%',
+      payOnsiteDot:'width:16px;height:16px;border-radius:50%;flex:none;'+(st.pay!=='online'?'background:#046A38;box-shadow:inset 0 0 0 3px #E8F3ED;border:1px solid #046A38':'border:1.5px solid rgba(26,31,36,.3)'),
+      payOnlineDot:'width:16px;height:16px;border-radius:50%;flex:none;'+(st.pay==='online'?'background:#046A38;box-shadow:inset 0 0 0 3px #E8F3ED;border:1px solid #046A38':'border:1.5px solid rgba(26,31,36,.3)'),
+      payDueVisit:st.pay==='online'?'Do zapłaty online':'Do zapłaty na miejscu',
+      payNoteVisit:st.pay==='online'?'Płatność online po potwierdzeniu — przekierujemy Cię do operatora. Odwołanie do 24 h przed wizytą.':'Bez przedpłaty — zapłacisz na miejscu. Odwołanie do 24 h przed wizytą.',
+      agree:st.agree,onAgree:e=>this.setState({agree:e.target.checked}),
+      confirmBtnStyle:'border:none;border-radius:8px;padding:14px 28px;font-size:15.5px;font-weight:800;'+(st.agree?'background:#FFC20E;color:#1A1F24;cursor:pointer':'background:rgba(26,31,36,.12);color:rgba(26,31,36,.4);cursor:not-allowed'),
+      confirm:()=>{if(!st.agree){this.flash('Zaznacz zgodę, aby potwierdzić rezerwację.');return;}const no='PV-'+(10000+Math.floor(Math.random()*89999));const ord={id:no,type:'visit',title:(svc?svc.n:'Wizyta')+(doc?' — '+doc.title+' '+doc.fn+' '+doc.ln:''),date:whenTxt,status:'Nadchodząca',sc:'blue',total:svc?price(svc.p):''};this.go('confirm',{no,orders:[ord,...st.orders]});},
+      bookedNo:st.no||'',
+      isKonto:st.screen==='konto',isPanel:st.screen==='panel',
+      goAccount:()=>this.go(st.user?'panel':'konto',{panelTab:'profil'}),
+      accBtnLabel:st.user?'Moje konto':'Zaloguj',
+      accBtnStyle:'border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;border:1.5px solid #046A38;'+(st.user?'background:#046A38;color:#fff':'background:none;color:#046A38'),
+      acc:st.acc,onAcc:e=>this.setState({acc:{...st.acc,[e.target.name]:e.target.value}}),
+      accErr:st.accTried&&!(isEmail(st.acc.email)&&st.acc.pass)?(isEmail(st.acc.email)?'Podaj hasło.':'Podaj poprawny adres e-mail i hasło.'):'',
+      doLoginAcc:()=>{if(isEmail(st.acc.email)&&st.acc.pass)this.go('panel',{user:this.mkUser(st.acc.email),accTried:false,panelTab:'profil'});else this.setState({accTried:true});},
+      loginGoogle:()=>this.go('panel',{user:this.mkUser('anna.kowalska@gmail.com'),panelTab:'profil'}),
+      loginApple:()=>this.go('panel',{user:this.mkUser('anna.kowalska@icloud.com'),panelTab:'profil'}),
+      logout:()=>this.go('home',{user:null}),
+      userName:st.user?st.user.fname:'',
+      tabProfilStyle:ptab(st.panelTab==='profil'),tabHistStyle:ptab(st.panelTab==='historia'),tabKartaStyle:ptab(st.panelTab==='karta'),
+      goTabProfil:()=>this.setState({panelTab:'profil'}),goTabHist:()=>this.setState({panelTab:'historia'}),goTabKarta:()=>this.setState({panelTab:'karta'}),
+      isTabProfil:st.panelTab==='profil',isTabHist:st.panelTab==='historia',isTabKarta:st.panelTab==='karta',
+      pEdit:st.pEdit,pView:!st.pEdit,
+      profileRows:st.user?[{k:'Imię',v:st.user.fname},{k:'Nazwisko',v:st.user.lname},{k:'PESEL',v:maskPesel(st.user.pesel)},{k:'Telefon',v:st.user.phone},{k:'E-mail',v:st.user.email},{k:'Adres',v:st.user.address}]:[],
+      profileFields:pf?[{label:'Imię',name:'fname',value:pf.fname},{label:'Nazwisko',name:'lname',value:pf.lname},{label:'PESEL',name:'pesel',value:pf.pesel},{label:'Telefon',name:'phone',value:pf.phone},{label:'E-mail',name:'email',value:pf.email},{label:'Adres',name:'address',value:pf.address}]:[],
+      onProfileField:e=>this.setState({pForm:{...this.state.pForm,[e.target.name]:e.target.value}}),
+      editProfile:()=>this.setState({pEdit:true,pForm:{...st.user}}),
+      cancelProfile:()=>this.setState({pEdit:false}),
+      saveProfile:()=>this.setState({pEdit:false,user:{...st.pForm}}),
+      ordersView:st.orders.map(o=>({...o,badgeStyle:obadge(o.sc),typeLabel:o.type==='lab'?'Badania':'Wizyta lekarska',act:()=>this.flash(o.status==='Wyniki gotowe'?'Pobieranie wyników PDF — poza zakresem makiety':'Szczegóły rezerwacji — poza zakresem makiety'),actLabel:o.status==='Wyniki gotowe'?'Pobierz wyniki':'Szczegóły'})),
+      ordersEmpty:st.orders.length===0,
+      medSections,
+      medBlood:st.med.blood,onMedBlood:e=>this.setState({med:{...st.med,blood:e.target.value}}),
+      medNotes:st.med.notes,onMedNotes:e=>this.setState({med:{...st.med,notes:e.target.value}})
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Nunito Sans',sans-serif;color:#21332E;background:#FBF6EE;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:'Baloo 2',sans-serif;margin:0;font-weight:600;letter-spacing:-.01em}
+  p{margin:0}
+  a{color:#12876F;text-decoration:none}
+  a:hover{color:#0E6E58}
+  button{font-family:'Nunito Sans',sans-serif}
+  input,textarea,select{font-family:'Nunito Sans',sans-serif}
+  ::selection{background:#FFD9CC}
+  input:focus,textarea:focus{outline:none}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(6deg)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pop{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
+  @keyframes wag{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#E4D9C6;border-radius:10px}
+  .m-burger{display:none;align-items:center;justify-content:center;width:46px;height:46px;border-radius:13px;border:1.5px solid #E7DECE;background:#fff;cursor:pointer;color:#21332E;flex-shrink:0;box-shadow:0 4px 12px -8px rgba(33,51,46,.4)}
+  .m-mnav{background:none;border:none;padding:15px 14px;border-radius:13px;font-family:'Baloo 2',sans-serif;font-weight:600;font-size:18px;color:#21332E;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px}
+  .m-mnav:active{background:#F1E8DA}
+  /* ===== RESPONSIVE / MOBILE (selectors match React-serialized style strings) ===== */
+  @media (max-width: 900px){
+    [style*="grid-template-columns: 1.05fr 0.95fr"],
+    [style*="grid-template-columns: 1.3fr 0.7fr"],
+    [style*="grid-template-columns: 1.3fr 1fr"],
+    [style*="grid-template-columns: 1fr 320px"],
+    [style*="grid-template-columns: 260px 1fr"]{ grid-template-columns:1fr!important; }
+    [style*="grid-template-columns: repeat(4, 1fr)"]{ grid-template-columns:repeat(2,1fr)!important; }
+  }
+  @media (max-width: 860px){
+    .m-navlinks{ display:none!important; }
+    .m-navright{ display:none!important; }
+    .m-burger{ display:inline-flex!important; }
+  }
+  @media (max-width: 640px){
+    .m-nav{ gap:10px!important; padding:12px 16px!important; }
+    [style*="grid-template-columns: repeat(3, 1fr)"],
+    [style*="grid-template-columns: repeat(4, 1fr)"],
+    [style*="grid-template-columns: repeat(2, 1fr)"],
+    [style*="grid-template-columns: 1fr 1fr"]{ grid-template-columns:1fr!important; }
+    main, section{ padding-left:16px!important; padding-right:16px!important; }
+    [style*="top: 90px"][style*="position: sticky"]{ position:static!important; }
+    [style*="font-size: 40px"],[style*="font-size: 38px"],[style*="font-size: 36px"]{ font-size:27px!important; line-height:1.15!important; }
+    [style*="font-size: 44px"],[style*="font-size: 46px"],[style*="font-size: 34px"]{ font-size:28px!important; line-height:1.15!important; }
+    [style*="font-size: 32px"]{ font-size:25px!important; }
+    [style*="font-size: 26px"]{ font-size:22px!important; }
+    [style*="min-width: 200px"],[style*="min-width: 210px"]{ min-width:0!important; }
+    [style*="padding: 52px"],[style*="padding: 44px"]{ padding:26px!important; }
+    [style*="padding: 48px 44px"]{ padding:28px 20px!important; }
+    [style*="position: fixed"][style*="place-items: center"]{ padding:16px!important; }
+    [style*="position: fixed"][style*="place-items: center"] > div{ max-height:92vh!important; overflow-y:auto!important; }
+    .m-cal{ gap:3px!important; }
+    .m-cal button{ font-size:11px!important; padding:7px 1px!important; }
+  }
+</style>
+</helmet>
+<div style="min-height:100vh;background:radial-gradient(120% 60% at 90% -10%,#FDEDE4 0%,rgba(253,237,228,0) 45%),radial-gradient(90% 50% at -10% 0%,#E7F5EE 0%,rgba(231,245,238,0) 45%),#FBF6EE">
+
+  <nav style="position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(251,246,238,.82);border-bottom:1px solid #EFE7D9">
+    <div class="m-nav" style="max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:22px">
+      <div onClick="{{ goHome }}" style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-right:6px">
+        <div style="width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#12876F,#16A085);display:grid;place-items:center;color:#fff;box-shadow:0 10px 20px -10px rgba(18,135,111,.8)">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+        </div>
+        <div style="line-height:1"><div style="font-family:'Baloo 2';font-weight:600;font-size:22px;color:#12876F">Merdi</div><div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9AA69F;font-weight:700">klinika weterynaryjna</div></div>
+      </div>
+      <div class="m-navlinks" style="display:flex;gap:4px;margin-left:8px">
+        <button onClick="{{ goUslugi }}" style="background:none;border:none;cursor:pointer;padding:9px 14px;border-radius:10px;font-size:15px;font-weight:700;color:#3A4B44">Usługi</button>
+        <button onClick="{{ goZespol }}" style="background:none;border:none;cursor:pointer;padding:9px 14px;border-radius:10px;font-size:15px;font-weight:700;color:#3A4B44">Nasz zespół</button>
+        <button onClick="{{ goRezerwacja }}" style="background:none;border:none;cursor:pointer;padding:9px 14px;border-radius:10px;font-size:15px;font-weight:700;color:#3A4B44">Rezerwacja</button>
+      </div>
+      <div class="m-navright" style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <div class="m-phone" style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:#FCE8E4;color:#D64545;font-weight:800;font-size:14px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#D64545;box-shadow:0 0 0 4px rgba(214,69,69,.18)"></span>Pogotowie 24h · 500 600 700
+        </div>
+        <sc-if value="{{ user }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ goKonto }}" style="display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #E7DECE;cursor:pointer;padding:6px 14px 6px 6px;border-radius:999px;font-weight:800;font-size:14px;color:#21332E">
+            <span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#FF7A5A,#FF9E6B);display:grid;place-items:center;color:#fff;font-family:'Baloo 2';font-weight:600">{{ userInitial }}</span>
+            Moje konto
+          </button>
+        </sc-if>
+        <sc-if value="{{ notUser }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ goLogin }}" style="background:none;border:1.5px solid #D9CFC0;cursor:pointer;padding:10px 18px;border-radius:999px;font-weight:800;font-size:14px;color:#21332E">Zaloguj</button>
+        </sc-if>
+        <button onClick="{{ startBlank }}" style="display:inline-flex;align-items:center;gap:8px;background:#FF7A5A;color:#fff;border:none;border-radius:999px;padding:11px 20px;font-family:'Baloo 2';font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 12px 22px -12px rgba(255,122,90,.9)">Umów wizytę</button>
+      </div>
+      <button class="m-burger" onClick="{{ toggleMenu }}" aria-label="Menu" style="margin-left:auto">
+        <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></sc-if>
+        <sc-if value="{{ menuClosed }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></sc-if>
+      </button>
+    </div>
+    <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="border-top:1px solid #EFE7D9;background:rgba(251,246,238,.98);padding:10px 16px 20px;display:flex;flex-direction:column;gap:3px;animation:fadeUp .2s ease">
+        <button class="m-mnav" onClick="{{ goUslugi }}">Usługi</button>
+        <button class="m-mnav" onClick="{{ goZespol }}">Nasz zespół</button>
+        <button class="m-mnav" onClick="{{ goRezerwacja }}">Rezerwacja</button>
+        <div style="height:1px;background:#EFE7D9;margin:7px 2px"></div>
+        <sc-if value="{{ bLoggedIn }}" hint-placeholder-val="{{ false }}">
+          <button class="m-mnav" onClick="{{ goKonto }}"><span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#FF7A5A,#FF9E6B);display:grid;place-items:center;color:#fff;font-family:'Baloo 2';font-weight:600;font-size:14px">{{ userInitial }}</span>Moje konto</button>
+        </sc-if>
+        <sc-if value="{{ notUser }}" hint-placeholder-val="{{ true }}">
+          <button class="m-mnav" onClick="{{ goLogin }}">Zaloguj</button>
+        </sc-if>
+        <a href="tel:500600700" style="display:flex;align-items:center;gap:10px;padding:14px 12px;border-radius:13px;background:#FCE8E4;color:#D64545;font-weight:800;font-size:15px;margin-top:4px"><span style="width:9px;height:9px;border-radius:50%;background:#D64545;box-shadow:0 0 0 4px rgba(214,69,69,.18)"></span>Pogotowie 24h · 500 600 700</a>
+        <button onClick="{{ startBlank }}" style="margin-top:8px;background:#FF7A5A;color:#fff;border:none;border-radius:14px;padding:16px;font-family:'Baloo 2';font-weight:600;font-size:17px;cursor:pointer;box-shadow:0 12px 22px -12px rgba(255,122,90,.9)">Umów wizytę</button>
+      </div>
+    </sc-if>
+  </nav>
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <main>
+    <!-- HERO -->
+    <section style="position:relative;max-width:1200px;margin:0 auto;padding:64px 24px 40px;overflow:hidden">
+      <svg viewBox="0 0 24 24" width="46" height="46" fill="#F3C9B8" style="position:absolute;top:80px;right:8%;animation:floaty 6s ease-in-out infinite"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="#BFE3D4" style="position:absolute;top:230px;right:22%;animation:floaty 7.5s ease-in-out infinite"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+      <div style="display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center">
+        <div style="animation:fadeUp .6s ease both">
+          <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #E7DECE;padding:7px 14px;border-radius:999px;font-weight:800;font-size:13px;color:#12876F;margin-bottom:22px">
+            <span style="width:7px;height:7px;border-radius:50%;background:#16A085"></span>Ponad 12 000 zadowolonych pupili
+          </div>
+          <h1 style="font-size:56px;line-height:1.04;letter-spacing:-.02em;color:#21332E;text-wrap:balance">Opieka, która rozumie<br><span style="color:#12876F">Twojego pupila</span></h1>
+          <p style="font-size:19px;line-height:1.55;color:#5F6F69;margin-top:20px;max-width:480px;text-wrap:pretty">Prowadzimy Cię za rękę przez każdy krok — od wyboru usługi po wynik badania. Rezerwacja w 2 minuty, a resztą zajmiemy się my.</p>
+          <div style="display:flex;gap:14px;margin-top:30px;flex-wrap:wrap">
+            <button onClick="{{ startBlank }}" style="display:inline-flex;align-items:center;gap:10px;background:#12876F;color:#fff;border:none;border-radius:999px;padding:16px 30px;font-family:'Baloo 2';font-weight:600;font-size:17px;cursor:pointer;box-shadow:0 16px 30px -14px rgba(18,135,111,.8)">Umów wizytę online →</button>
+            <button onClick="{{ goUslugi }}" style="display:inline-flex;align-items:center;gap:10px;background:#fff;color:#21332E;border:1.5px solid #E2D8C8;border-radius:999px;padding:16px 28px;font-family:'Baloo 2';font-weight:600;font-size:17px;cursor:pointer">Zobacz usługi</button>
+          </div>
+          <div style="display:flex;gap:26px;margin-top:34px">
+            <div><div style="font-family:'Baloo 2';font-weight:600;font-size:26px;color:#12876F">24/7</div><div style="font-size:13px;color:#7A857F;font-weight:700">pogotowie</div></div>
+            <div style="width:1px;background:#E7DECE"></div>
+            <div><div style="font-family:'Baloo 2';font-weight:600;font-size:26px;color:#12876F">15+</div><div style="font-size:13px;color:#7A857F;font-weight:700">specjalistów</div></div>
+            <div style="width:1px;background:#E7DECE"></div>
+            <div><div style="font-family:'Baloo 2';font-weight:600;font-size:26px;color:#12876F">4,9★</div><div style="font-size:13px;color:#7A857F;font-weight:700">ocena opiekunów</div></div>
+          </div>
+        </div>
+        <div style="position:relative;animation:pop .7s ease both">
+          <div style="aspect-ratio:4/3.4;border-radius:32px;background:linear-gradient(150deg,#16A085,#0E6E58);box-shadow:0 40px 70px -34px rgba(14,110,88,.7);position:relative;overflow:hidden;display:grid;place-items:center">
+            <svg viewBox="0 0 24 24" width="150" height="150" fill="rgba(255,255,255,.14)"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+            <div style="position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.9);text-align:center;font-family:'Baloo 2';font-weight:500;font-size:15px;padding:20px"><div><div style="font-size:60px;margin-bottom:6px">🐾</div>Miejsce na zdjęcie<br>zadowolonego pacjenta</div></div>
+          </div>
+          <div style="position:absolute;bottom:-22px;left:-22px;background:#fff;border-radius:20px;padding:14px 18px;box-shadow:0 24px 40px -22px rgba(33,51,46,.5);display:flex;align-items:center;gap:12px">
+            <span style="width:44px;height:44px;border-radius:14px;background:#FCE8E4;display:grid;place-items:center;font-size:22px">💚</span>
+            <div><div style="font-weight:800;font-size:14px">Wizyta potwierdzona</div><div style="font-size:12px;color:#7A857F">Bruno · jutro 10:30</div></div>
+          </div>
+          <div style="position:absolute;top:-18px;right:-14px;background:#fff;border-radius:16px;padding:12px 16px;box-shadow:0 20px 34px -20px rgba(33,51,46,.5);display:flex;align-items:center;gap:10px">
+            <span style="width:36px;height:36px;border-radius:12px;background:#E7F5EE;display:grid;place-items:center">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#12876F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <div style="font-weight:800;font-size:13px">Wyniki gotowe</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK ACTIONS -->
+    <section style="max-width:1200px;margin:0 auto;padding:10px 24px 20px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+        <div onClick="{{ startBlank }}" style="cursor:pointer;background:#fff;border:1px solid #EEE6D8;border-radius:22px;padding:20px;box-shadow:0 20px 45px -34px rgba(33,51,46,.4);transition:transform .18s" style-hover="transform:translateY(-4px)">
+          <span style="width:46px;height:46px;border-radius:14px;background:#E7F5EE;display:grid;place-items:center;color:#12876F"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;margin-top:14px">Umów wizytę</div>
+          <div style="font-size:13.5px;color:#7A857F;margin-top:3px">Wybierz termin online</div>
+        </div>
+        <div onClick="{{ goUslugi }}" style="cursor:pointer;background:#fff;border:1px solid #EEE6D8;border-radius:22px;padding:20px;box-shadow:0 20px 45px -34px rgba(33,51,46,.4);transition:transform .18s" style-hover="transform:translateY(-4px)">
+          <span style="width:46px;height:46px;border-radius:14px;background:#FDECE4;display:grid;place-items:center;color:#E0653B"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg></span>
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;margin-top:14px">Nasze usługi</div>
+          <div style="font-size:13.5px;color:#7A857F;margin-top:3px">Zobacz pełną ofertę</div>
+        </div>
+        <div onClick="{{ goKonto }}" style="cursor:pointer;background:#fff;border:1px solid #EEE6D8;border-radius:22px;padding:20px;box-shadow:0 20px 45px -34px rgba(33,51,46,.4);transition:transform .18s" style-hover="transform:translateY(-4px)">
+          <span style="width:46px;height:46px;border-radius:14px;background:#EFEAF9;display:grid;place-items:center;color:#7A5AC2"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 1 0-16 0"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;margin-top:14px">Panel opiekuna</div>
+          <div style="font-size:13.5px;color:#7A857F;margin-top:3px">Historia i wyniki</div>
+        </div>
+        <div style="background:linear-gradient(150deg,#FF7A5A,#E0653B);border-radius:22px;padding:20px;box-shadow:0 20px 45px -30px rgba(224,101,59,.8);color:#fff">
+          <span style="width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.22);display:grid;place-items:center"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.66A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.98.36 1.93.7 2.85a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.23-1.27a2 2 0 0 1 2.11-.45c.92.34 1.87.57 2.85.7A2 2 0 0 1 22 16.92Z"/></svg></span>
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;margin-top:14px">Pogotowie 24h</div>
+          <div style="font-size:13.5px;opacity:.92;margin-top:3px">Dzwoń: 500 600 700</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- JAK TO DZIALA -->
+    <section style="max-width:1200px;margin:0 auto;padding:56px 24px 30px">
+      <div style="text-align:center;max-width:620px;margin:0 auto 40px">
+        <div style="font-weight:800;color:#FF7A5A;letter-spacing:.1em;text-transform:uppercase;font-size:13px;margin-bottom:10px">Prosto i spokojnie</div>
+        <h2 style="font-size:38px;color:#21332E">Trzy kroki i gotowe</h2>
+        <p style="font-size:17px;color:#5F6F69;margin-top:12px">Prowadzimy Cię przez cały proces — nie musisz nic wiedzieć wcześniej.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px">
+        <div style="position:relative;background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:30px 26px;box-shadow:0 24px 50px -36px rgba(33,51,46,.4)">
+          <div style="position:absolute;top:-16px;left:26px;width:38px;height:38px;border-radius:12px;background:#12876F;color:#fff;display:grid;place-items:center;font-family:'Baloo 2';font-weight:600;font-size:18px">1</div>
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:21px;margin-top:14px">Wybierz usługę</div>
+          <p style="font-size:15px;color:#5F6F69;margin-top:8px;line-height:1.55">Każda usługa ma jasny opis, czas trwania i cenę. Nie wiesz co wybrać? Podpowiemy.</p>
+        </div>
+        <div style="position:relative;background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:30px 26px;box-shadow:0 24px 50px -36px rgba(33,51,46,.4)">
+          <div style="position:absolute;top:-16px;left:26px;width:38px;height:38px;border-radius:12px;background:#FF7A5A;color:#fff;display:grid;place-items:center;font-family:'Baloo 2';font-weight:600;font-size:18px">2</div>
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:21px;margin-top:14px">Zarezerwuj termin</div>
+          <p style="font-size:15px;color:#5F6F69;margin-top:8px;line-height:1.55">Wybierz lekarza i dogodną godzinę w kalendarzu. Dostaniesz przypomnienie.</p>
+        </div>
+        <div style="position:relative;background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:30px 26px;box-shadow:0 24px 50px -36px rgba(33,51,46,.4)">
+          <div style="position:absolute;top:-16px;left:26px;width:38px;height:38px;border-radius:12px;background:#7A5AC2;color:#fff;display:grid;place-items:center;font-family:'Baloo 2';font-weight:600;font-size:18px">3</div>
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:21px;margin-top:14px">Zaopiekujemy się</div>
+          <p style="font-size:15px;color:#5F6F69;margin-top:8px;line-height:1.55">Po wizycie wyniki, zalecenia i kalendarz szczepień znajdziesz w swoim panelu.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- USLUGI PREVIEW -->
+    <section style="max-width:1200px;margin:0 auto;padding:46px 24px 20px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px;gap:20px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:800;color:#FF7A5A;letter-spacing:.1em;text-transform:uppercase;font-size:13px;margin-bottom:8px">Kompleksowa opieka</div>
+          <h2 style="font-size:38px;color:#21332E">Nasze usługi</h2>
+        </div>
+        <button onClick="{{ goUslugi }}" style="background:#fff;border:1.5px solid #E2D8C8;border-radius:999px;padding:12px 22px;font-family:'Baloo 2';font-weight:600;font-size:15px;cursor:pointer;color:#21332E">Zobacz wszystkie →</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+        <sc-for list="{{ servicesHome }}" as="s" hint-placeholder-count="6">
+          <div onClick="{{ s.open }}" style="cursor:pointer;background:#fff;border:1px solid #EEE6D8;border-radius:22px;padding:24px;box-shadow:0 22px 46px -36px rgba(33,51,46,.4);transition:transform .18s,box-shadow .18s" style-hover="transform:translateY(-5px);box-shadow:0 30px 55px -34px rgba(33,51,46,.5)">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="width:50px;height:50px;border-radius:15px;background:{{ s.chipBg }};color:{{ s.chipInk }};display:grid;place-items:center">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+              </span>
+              <span style="font-size:12px;font-weight:800;color:{{ s.chipInk }};background:{{ s.chipBg }};padding:5px 11px;border-radius:999px">{{ s.kat }}</span>
+            </div>
+            <div style="font-family:'Baloo 2';font-weight:600;font-size:20px;margin-top:16px">{{ s.nazwa }}</div>
+            <p style="font-size:14.5px;color:#5F6F69;margin-top:7px;line-height:1.5;min-height:44px">{{ s.opis }}</p>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px dashed #EAE1D2">
+              <span style="font-size:13px;color:#7A857F;font-weight:700">⏱ {{ s.czas }}</span>
+              <span style="font-family:'Baloo 2';font-weight:600;font-size:18px;color:#12876F">{{ s.cena }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- 24H BAND -->
+    <section style="max-width:1200px;margin:40px auto;padding:0 24px">
+      <div style="border-radius:30px;background:linear-gradient(120deg,#21332E,#173A32);padding:44px;display:grid;grid-template-columns:1.3fr .7fr;gap:30px;align-items:center;overflow:hidden;position:relative">
+        <svg viewBox="0 0 24 24" width="220" height="220" fill="rgba(255,255,255,.04)" style="position:absolute;right:-30px;bottom:-50px"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(214,69,69,.2);color:#FF9E8C;padding:7px 14px;border-radius:999px;font-weight:800;font-size:13px;margin-bottom:18px"><span style="width:8px;height:8px;border-radius:50%;background:#FF6B6B;box-shadow:0 0 0 4px rgba(255,107,107,.25)"></span>Zawsze czuwamy</div>
+          <h2 style="font-size:34px;color:#fff;line-height:1.1">Nagły przypadek?<br>Jesteśmy przy Was 24 godziny na dobę</h2>
+          <p style="font-size:16px;color:rgba(255,255,255,.72);margin-top:14px;max-width:520px">Zespół dyżurny, sala zabiegowa i hospitalizacja dostępne o każdej porze — także w weekendy i święta.</p>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:26px;text-align:center;backdrop-filter:blur(6px)">
+          <div style="font-size:13px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:.1em">Telefon alarmowy</div>
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:34px;color:#fff;margin:8px 0 16px">500 600 700</div>
+          <button style="width:100%;background:#FF7A5A;color:#fff;border:none;border-radius:999px;padding:14px;font-family:'Baloo 2';font-weight:600;font-size:16px;cursor:pointer">Zadzwoń teraz</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZESPOL -->
+    <section id="zespol-anchor" style="max-width:1200px;margin:0 auto;padding:46px 24px 20px">
+      <div style="text-align:center;max-width:620px;margin:0 auto 38px">
+        <div style="font-weight:800;color:#FF7A5A;letter-spacing:.1em;text-transform:uppercase;font-size:13px;margin-bottom:10px">Ludzie, którym ufasz</div>
+        <h2 style="font-size:38px;color:#21332E">Nasz zespół</h2>
+        <p style="font-size:17px;color:#5F6F69;margin-top:12px">Doświadczeni specjaliści, którzy traktują Twojego pupila jak własnego.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+        <sc-for list="{{ vetsView }}" as="v" hint-placeholder-count="4">
+          <div onClick="{{ v.open }}" style="cursor:pointer;background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:22px;text-align:center;box-shadow:0 22px 46px -36px rgba(33,51,46,.4);transition:transform .18s" style-hover="transform:translateY(-5px)">
+            <div style="width:96px;height:96px;border-radius:50%;margin:0 auto;background:{{ v.bg }};display:grid;place-items:center;font-family:'Baloo 2';font-weight:600;font-size:34px;color:{{ v.ink }}">{{ v.ini }}</div>
+            <div style="font-family:'Baloo 2';font-weight:600;font-size:18px;margin-top:14px">{{ v.imie }}</div>
+            <div style="font-size:13.5px;color:{{ v.ink }};font-weight:800;margin-top:3px">{{ v.spec }}</div>
+            <div style="font-size:12.5px;color:#9AA69F;margin-top:8px">{{ v.lata }} doświadczenia</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- TESTIMONIAL -->
+    <section style="max-width:1200px;margin:0 auto;padding:50px 24px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+        <sc-for list="{{ opinie }}" as="o" hint-placeholder-count="3">
+          <div style="background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:26px;box-shadow:0 22px 46px -38px rgba(33,51,46,.4)">
+            <div style="color:#FFB020;font-size:16px;letter-spacing:2px">★★★★★</div>
+            <p style="font-size:15.5px;color:#3A4B44;margin-top:12px;line-height:1.6;text-wrap:pretty">{{ o.tekst }}</p>
+            <div style="display:flex;align-items:center;gap:11px;margin-top:18px">
+              <span style="width:40px;height:40px;border-radius:50%;background:{{ o.bg }};color:{{ o.ink }};display:grid;place-items:center;font-family:'Baloo 2';font-weight:600">{{ o.ini }}</span>
+              <div><div style="font-weight:800;font-size:14px">{{ o.imie }}</div><div style="font-size:12.5px;color:#9AA69F">opiekun {{ o.pet }}</div></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="max-width:1200px;margin:0 auto 60px;padding:0 24px">
+      <div style="border-radius:30px;background:linear-gradient(135deg,#16A085,#0E6E58);padding:52px;text-align:center;position:relative;overflow:hidden;box-shadow:0 40px 70px -40px rgba(14,110,88,.7)">
+        <h2 style="font-size:40px;color:#fff;line-height:1.08">Zadbaj o zdrowie pupila już dziś</h2>
+        <p style="font-size:18px;color:rgba(255,255,255,.82);margin-top:14px;max-width:520px;margin-left:auto;margin-right:auto">Rezerwacja zajmuje 2 minuty. My przypomnimy o terminie i poprowadzimy Cię krok po kroku.</p>
+        <button onClick="{{ startBlank }}" style="margin-top:26px;background:#fff;color:#0E6E58;border:none;border-radius:999px;padding:17px 36px;font-family:'Baloo 2';font-weight:600;font-size:18px;cursor:pointer;box-shadow:0 18px 34px -18px rgba(0,0,0,.4)">Umów wizytę online →</button>
+      </div>
+    </section>
+  </main>
+  </sc-if>
+
+  <!-- USLUGI -->
+  <sc-if value="{{ isUslugi }}" hint-placeholder-val="{{ false }}">
+  <main style="max-width:1200px;margin:0 auto;padding:48px 24px 60px">
+    <div style="text-align:center;max-width:640px;margin:0 auto 12px">
+      <div style="font-weight:800;color:#FF7A5A;letter-spacing:.1em;text-transform:uppercase;font-size:13px;margin-bottom:10px">Wszystko czego potrzebuje Twój pupil</div>
+      <h1 style="font-size:46px;color:#21332E">Nasze usługi</h1>
+      <p style="font-size:17px;color:#5F6F69;margin-top:14px;text-wrap:pretty">Każdą usługę opisaliśmy prostym językiem — dowiesz się co obejmuje, ile trwa i jak się przygotować. Kliknij, by poznać szczegóły lub od razu zarezerwować.</p>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:26px">
+      <sc-for list="{{ uslKats }}" as="k" hint-placeholder-count="6">
+        <button onClick="{{ k.pick }}" style="{{ k.style }}">{{ k.label }} <span style="opacity:.65;font-weight:700">· {{ k.count }}</span></button>
+      </sc-for>
+    </div>
+    <sc-for list="{{ servicesByCat }}" as="c" hint-placeholder-count="3">
+      <section style="margin-top:44px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+          <span style="width:12px;height:34px;border-radius:6px;background:{{ c.ink }}"></span>
+          <div>
+            <h2 style="font-size:26px;color:#21332E">{{ c.label }}</h2>
+            <p style="font-size:14.5px;color:#7A857F;margin-top:2px">{{ c.desc }}</p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+          <sc-for list="{{ c.items }}" as="s" hint-placeholder-count="3">
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:22px;padding:24px;box-shadow:0 22px 46px -38px rgba(33,51,46,.4);display:flex;flex-direction:column">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="width:50px;height:50px;border-radius:15px;background:{{ s.chipBg }};color:{{ s.chipInk }};display:grid;place-items:center">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+                </span>
+                <span style="font-family:'Baloo 2';font-weight:600;font-size:18px;color:#12876F">{{ s.cena }}</span>
+              </div>
+              <div style="font-family:'Baloo 2';font-weight:600;font-size:20px;margin-top:16px">{{ s.nazwa }}</div>
+              <p style="font-size:14.5px;color:#5F6F69;margin-top:7px;line-height:1.5;flex:1">{{ s.opis }}</p>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:#7A857F;font-weight:700">⏱ {{ s.czas }}</div>
+              <div style="display:flex;gap:10px;margin-top:16px">
+                <button onClick="{{ s.open }}" style="flex:1;background:#F4F0E7;border:none;border-radius:12px;padding:12px;font-family:'Baloo 2';font-weight:600;font-size:14.5px;cursor:pointer;color:#21332E">Szczegóły</button>
+                <button onClick="{{ s.book }}" style="flex:1;background:#12876F;border:none;border-radius:12px;padding:12px;font-family:'Baloo 2';font-weight:600;font-size:14.5px;cursor:pointer;color:#fff">Rezerwuj</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-for>
+  </main>
+  </sc-if>
+
+  <!-- REZERWACJA -->
+  <sc-if value="{{ isRezerwacja }}" hint-placeholder-val="{{ false }}">
+  <main style="max-width:1140px;margin:0 auto;padding:32px 24px 70px">
+    <button onClick="{{ goZespol }}" style="background:none;border:none;color:#7A857F;font-weight:800;font-size:14px;cursor:pointer;margin-bottom:16px">← Wróć do zespołu</button>
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:26px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:20px">
+
+        <!-- profil specjalisty -->
+        <div style="background:#fff;border:1px solid #EEE6D8;border-radius:26px;padding:26px;box-shadow:0 26px 54px -42px rgba(33,51,46,.5)">
+          <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+            <div style="width:88px;height:88px;border-radius:50%;background:{{ bookVetObj.bg }};color:{{ bookVetObj.ink }};display:grid;place-items:center;font-family:'Baloo 2';font-weight:600;font-size:32px;flex-shrink:0">{{ bookVetObj.ini }}</div>
+            <div style="flex:1;min-width:210px">
+              <h1 style="font-size:26px;color:#21332E">lek. wet. {{ bookVetObj.imie }}</h1>
+              <div style="font-size:14.5px;font-weight:800;color:{{ bookVetObj.ink }};margin-top:2px">{{ bookVetObj.spec }} · {{ bookVetObj.lata }} doświadczenia</div>
+              <div style="display:flex;align-items:center;gap:16px;margin-top:10px;flex-wrap:wrap">
+                <span style="display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:14px;color:#21332E"><span style="color:#FFB020">★</span> {{ bookVetObj.ocena }} <span style="color:#9AA69F;font-weight:700">· {{ bookVetObj.ile }} opinii</span></span>
+                <span style="font-size:13.5px;color:#7A857F">📍 Merdi · ul. Wesoła 24, Wrocław</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:20px;padding-top:18px;border-top:1px solid #F1EBDF">
+            <span style="font-size:13px;font-weight:800;color:#7A857F;margin-right:2px">Specjalista:</span>
+            <sc-for list="{{ vetSwitch }}" as="v" hint-placeholder-count="4">
+              <button onClick="{{ v.pick }}" style="{{ v.style }}">{{ v.imie }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- kalendarz tygodniowy -->
+        <div style="background:#fff;border:1px solid #EEE6D8;border-radius:26px;padding:26px;box-shadow:0 30px 60px -46px rgba(33,51,46,.5)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:20px;flex-wrap:wrap">
+            <div>
+              <h2 style="font-size:20px;color:#21332E">Wybierz termin wizyty</h2>
+              <p style="font-size:13.5px;color:#7A857F;margin-top:2px">Kliknij wolną godzinę, aby przejść do rezerwacji.</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button onClick="{{ prevWeek }}" disabled="{{ prevDisabled }}" style="{{ prevStyle }}">‹</button>
+              <span style="font-family:'Baloo 2';font-weight:600;font-size:15px;color:#21332E;min-width:150px;text-align:center">{{ weekLabel }}</span>
+              <button onClick="{{ nextWeek }}" disabled="{{ nextDisabled2 }}" style="{{ nextStyle2 }}">›</button>
+            </div>
+          </div>
+          <div class="m-cal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">
+            <sc-for list="{{ calDays }}" as="d" hint-placeholder-count="7">
+              <div style="{{ d.colStyle }}">
+                <div style="text-align:center;margin-bottom:10px">
+                  <div style="font-size:11.5px;font-weight:800;color:#7A857F;text-transform:uppercase;letter-spacing:.04em">{{ d.dow }}</div>
+                  <div style="font-family:'Baloo 2';font-weight:600;font-size:15px;color:#21332E">{{ d.dnum }} {{ d.mon }}</div>
+                </div>
+                <sc-if value="{{ d.closed }}" hint-placeholder-val="{{ false }}">
+                  <div style="text-align:center;font-size:11.5px;color:#B9AE9B;padding-top:6px">Nieczynne</div>
+                </sc-if>
+                <sc-if value="{{ d.empty }}" hint-placeholder-val="{{ false }}">
+                  <div style="text-align:center;font-size:12px;color:#B9AE9B;padding-top:6px">Brak</div>
+                </sc-if>
+                <sc-if value="{{ d.hasSlots }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <sc-for list="{{ d.slotsView }}" as="t" hint-placeholder-count="4">
+                      <button onClick="{{ t.pick }}" style="{{ t.style }}">{{ t.label }}</button>
+                    </sc-for>
+                    <sc-if value="{{ d.hiddenNote }}" hint-placeholder-val="{{ false }}">
+                      <div style="text-align:center;font-size:11px;color:#12876F;font-weight:800;padding-top:2px">+{{ d.hiddenCount }}</div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="text-align:center;margin-top:18px">
+            <button onClick="{{ toggleMore }}" style="background:none;border:none;color:#12876F;font-weight:800;font-size:14px;cursor:pointer">{{ moreLabel }}</button>
+          </div>
+        </div>
+
+        <!-- formularz po wyborze slotu -->
+        <sc-if value="{{ slotPicked }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #EEE6D8;border-radius:26px;padding:30px;box-shadow:0 30px 60px -46px rgba(33,51,46,.5)">
+          <div style="display:flex;align-items:center;gap:12px;background:#E7F5EE;border:1.5px solid #BFE3D2;border-radius:16px;padding:14px 18px;margin-bottom:24px">
+            <span style="font-size:22px">📅</span>
+            <div><div style="font-size:12px;font-weight:800;color:#0E6E58;text-transform:uppercase;letter-spacing:.05em">Wybrany termin</div><div style="font-family:'Baloo 2';font-weight:600;font-size:17px;color:#21332E">{{ bDateLabel }}, godz. {{ bTimeLabel }}</div></div>
+          </div>
+
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;color:#21332E">Jakiej usługi potrzebuje pupil?</div>
+          <sc-if value="{{ svcErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#C2492E;font-weight:800;margin-top:6px">Wybierz usługę.</div></sc-if>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px">
+            <sc-for list="{{ bServices }}" as="s" hint-placeholder-count="6">
+              <div onClick="{{ s.pick }}" style="{{ s.pillStyle }}">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-family:'Baloo 2';font-weight:600;font-size:14.5px;color:#21332E">{{ s.nazwa }}</span><span style="font-weight:800;font-size:13px;color:#12876F">{{ s.cena }}</span></div>
+                <div style="font-size:12px;color:#7A857F;margin-top:2px">{{ s.czas }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;color:#21332E;margin-top:26px">Kogo zabieramy do kliniki?</div>
+          <sc-if value="{{ petErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#C2492E;font-weight:800;margin-top:6px">Wybierz pupila.</div></sc-if>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px">
+            <sc-for list="{{ bPets }}" as="p" hint-placeholder-count="1">
+              <div onClick="{{ p.pick }}" style="{{ p.cardStyle }}">
+                <div style="display:flex;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:14px;background:{{ p.bg }};color:{{ p.ink }};display:grid;place-items:center;font-size:22px;flex-shrink:0">🐶</span><div><div style="font-family:'Baloo 2';font-weight:600;font-size:16px">{{ p.imie }}</div><div style="font-size:12.5px;color:#7A857F">{{ p.gat }} · {{ p.rasa }}</div></div></div>
+              </div>
+            </sc-for>
+            <div onClick="{{ openAddPet }}" style="border:2px dashed #D9CFC0;border-radius:20px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:10px;color:#7A857F;font-weight:800"><span style="width:40px;height:40px;border-radius:12px;background:#F4F0E7;display:grid;place-items:center;font-size:22px">+</span> Dodaj zwierzaka</div>
+          </div>
+
+          <sc-if value="{{ bLoggedIn }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;margin-top:26px;background:#E7F5EE;border:1.5px solid #BFE3D2;border-radius:14px;padding:13px 16px;font-size:14px;color:#0E6E58;font-weight:700">🐾 Dane uzupełnione z Twojego konta ({{ user.imie }} {{ user.nazwisko }}). Aby je zmienić, edytuj profil w panelu konta.</div>
+          </sc-if>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px">
+            <div><label style="font-size:13px;font-weight:800;color:#3A4B44;display:block;margin-bottom:7px">Imię i nazwisko</label><input value="{{ bName }}" onChange="{{ onName }}" readOnly="{{ bReadOnly }}" style="{{ bNameStyle }}" style-focus="border-color:#12876F"><sc-if value="{{ nameErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:#C2492E;font-weight:800;margin-top:6px">Podaj imię i nazwisko (min. 3 znaki).</div></sc-if></div>
+            <div><label style="font-size:13px;font-weight:800;color:#3A4B44;display:block;margin-bottom:7px">Telefon</label><input value="{{ bPhone }}" onChange="{{ onPhone }}" readOnly="{{ bReadOnly }}" style="{{ bPhoneStyle }}" style-focus="border-color:#12876F"><sc-if value="{{ phoneErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:#C2492E;font-weight:800;margin-top:6px">Podaj poprawny numer telefonu (min. 9 cyfr).</div></sc-if></div>
+          </div>
+          <div style="margin-top:16px"><label style="font-size:13px;font-weight:800;color:#3A4B44;display:block;margin-bottom:7px">Objawy / powód wizyty <span style="color:#B9AE9B;font-weight:600">(opcjonalnie)</span></label><textarea value="{{ bReason }}" onChange="{{ onReason }}" rows="3" placeholder="Np. Bruno od 2 dni mniej je i jest ospały..." style="width:100%;padding:14px 16px;border:1.5px solid #E7DECE;border-radius:14px;font-size:15px;background:#FCFAF5;resize:vertical;font-family:'Nunito Sans'" style-focus="border-color:#12876F"></textarea></div>
+
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;color:#21332E;margin-top:26px">Sposób płatności</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+            <sc-for list="{{ payOpts }}" as="p" hint-placeholder-count="2">
+              <div onClick="{{ p.pick }}" style="{{ p.style }}">
+                <div style="display:flex;align-items:center;gap:11px">
+                  <span style="width:22px;height:22px;border-radius:50%;border:2px solid {{ p.dot }};display:grid;place-items:center;flex-shrink:0"><span style="{{ p.dotInner }}"></span></span>
+                  <div><div style="font-family:'Baloo 2';font-weight:600;font-size:15px;color:#21332E">{{ p.title }}</div><div style="font-size:12.5px;color:#7A857F">{{ p.desc }}</div></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <button onClick="{{ confirmBooking }}" disabled="{{ confirmDisabled }}" style="{{ confirmStyle }}">{{ confirmLabel }}</button>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ notSlotPicked }}" hint-placeholder-val="{{ true }}">
+          <div style="text-align:center;padding:22px;color:#9AA69F;background:#FAF6EE;border:1px dashed #E2D8C8;border-radius:20px;font-weight:700">👆 Wybierz wolną godzinę w kalendarzu, aby dokończyć rezerwację</div>
+        </sc-if>
+      </div>
+
+      <!-- podsumowanie (ciemny panel Merdi) -->
+      <aside style="background:linear-gradient(160deg,#21332E,#173A32);border-radius:26px;padding:26px;color:#fff;position:sticky;top:90px">
+        <div style="font-family:'Baloo 2';font-weight:600;font-size:18px;margin-bottom:18px">Twoja wizyta</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div><div style="font-size:12px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Specjalista</div><div style="font-weight:800;font-size:15px;margin-top:3px">{{ bVetName }}</div></div>
+          <div><div style="font-size:12px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Termin</div><div style="font-weight:800;font-size:15px;margin-top:3px">{{ bDateLabel }}, {{ bTimeLabel }}</div></div>
+          <div><div style="font-size:12px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Usługa</div><div style="font-weight:800;font-size:15px;margin-top:3px">{{ bServiceName }}</div></div>
+          <div><div style="font-size:12px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Pupil</div><div style="font-weight:800;font-size:15px;margin-top:3px">{{ bPetName }}</div></div>
+        </div>
+        <div style="margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.14)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:13px;color:rgba(255,255,255,.6);font-weight:700">Do zapłaty</span>
+            <span style="font-family:'Baloo 2';font-weight:600;font-size:22px">{{ bPrice }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <span style="font-size:12px;color:rgba(255,255,255,.45);font-weight:700">Płatność</span>
+            <span style="font-size:13px;color:rgba(255,255,255,.85);font-weight:800">{{ payLabel }}</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- CONFIRM -->
+  <sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}">
+  <main style="max-width:640px;margin:0 auto;padding:70px 24px;text-align:center">
+    <div style="width:96px;height:96px;border-radius:50%;background:#E7F5EE;display:grid;place-items:center;margin:0 auto;animation:pop .5s ease both">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#12876F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <h1 style="font-size:36px;margin-top:24px;color:#21332E">Wizyta zarezerwowana! 🎉</h1>
+    <p style="font-size:17px;color:#5F6F69;margin-top:12px">Dziękujemy, że zaufałeś nam opiekę nad pupilem. Do zobaczenia w Merdi!</p>
+    <div style="background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:28px;margin-top:30px;text-align:left;box-shadow:0 26px 54px -40px rgba(33,51,46,.5)">
+      <div style="display:grid;gap:14px">
+        <div style="display:flex;justify-content:space-between"><span style="color:#7A857F;font-weight:700">Usługa</span><span style="font-weight:800">{{ booked.typ }}</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#7A857F;font-weight:700">Pupil</span><span style="font-weight:800">{{ booked.pet }}</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#7A857F;font-weight:700">Specjalista</span><span style="font-weight:800">{{ booked.lek }}</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#7A857F;font-weight:700">Termin</span><span style="font-weight:800">{{ booked.data }}, {{ booked.godz }}</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#7A857F;font-weight:700">Do zapłaty</span><span style="font-weight:800;color:#12876F">{{ booked.cena }}</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#7A857F;font-weight:700">Płatność</span><span style="font-weight:800">{{ booked.platnosc }}</span></div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:26px;margin-top:18px;text-align:left;box-shadow:0 26px 54px -40px rgba(33,51,46,.5)">
+      <div style="font-family:'Baloo 2';font-weight:600;font-size:18px;margin-bottom:18px">Powiadomienia</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:13px">
+          <span style="width:42px;height:42px;border-radius:13px;background:#E7F5EE;display:grid;place-items:center;font-size:19px;flex-shrink:0">✉️</span>
+          <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14.5px">E-mail z potwierdzeniem</div><div style="font-size:13px;color:#7A857F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ booked.email }}</div></div>
+          <sc-if value="{{ notifPending }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#9AA69F;background:#F1EDE4;padding:7px 13px;border-radius:999px">Wysyłanie…</span></sc-if>
+          <sc-if value="{{ notifDone }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:#0E6E58;background:#E7F5EE;padding:7px 13px;border-radius:999px">Wysłano ✓</span></sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:13px">
+          <span style="width:42px;height:42px;border-radius:13px;background:#FDECE4;display:grid;place-items:center;font-size:19px;flex-shrink:0">💬</span>
+          <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14.5px">SMS z potwierdzeniem</div><div style="font-size:13px;color:#7A857F">{{ booked.phone }}</div></div>
+          <sc-if value="{{ notifPending }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#9AA69F;background:#F1EDE4;padding:7px 13px;border-radius:999px">Wysyłanie…</span></sc-if>
+          <sc-if value="{{ notifDone }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:#0E6E58;background:#E7F5EE;padding:7px 13px;border-radius:999px">Wysłano ✓</span></sc-if>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:9px;margin-top:16px;background:#FAF6EE;border-radius:12px;padding:12px 14px;font-size:13px;color:#5F6F69;font-weight:600">🔔 Przypomnienie wyślemy automatycznie 24 h oraz 2 h przed wizytą — e-mailem i SMS-em.</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px dashed #EAE1D2">
+        <span style="font-size:13px;font-weight:800;color:#7A857F;margin-right:2px">📅 Dodaj do kalendarza:</span>
+        <button onClick="{{ confirmCalGoogle }}" style="background:#fff;border:1px solid #E2D8C8;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;color:#21332E">Google</button>
+        <button onClick="{{ confirmCalApple }}" style="background:#fff;border:1px solid #E2D8C8;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;color:#21332E">Apple</button>
+        <button onClick="{{ confirmCalOutlook }}" style="background:#fff;border:1px solid #E2D8C8;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;color:#21332E">Outlook</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap">
+      <button onClick="{{ confirmGoKonto }}" style="background:#12876F;color:#fff;border:none;border-radius:999px;padding:15px 28px;font-family:'Baloo 2';font-weight:600;font-size:16px;cursor:pointer">Zobacz w panelu →</button>
+      <button onClick="{{ confirmHome }}" style="background:#fff;border:1.5px solid #E2D8C8;border-radius:999px;padding:15px 28px;font-family:'Baloo 2';font-weight:600;font-size:16px;cursor:pointer;color:#21332E">Wróć na stronę główną</button>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- LOGIN -->
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+  <main style="max-width:1040px;margin:0 auto;padding:50px 24px 70px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:#fff;border:1px solid #EEE6D8;border-radius:30px;overflow:hidden;box-shadow:0 40px 80px -50px rgba(33,51,46,.6)">
+      <div style="padding:48px 44px">
+        <h1 style="font-size:32px;color:#21332E">Witaj ponownie 👋</h1>
+        <p style="font-size:15.5px;color:#7A857F;margin-top:8px;margin-bottom:28px">Zaloguj się, by zobaczyć historię leczenia, wyniki i nadchodzące wizyty swoich pupili.</p>
+        <div style="display:grid;gap:16px">
+          <div><label style="font-size:13px;font-weight:800;color:#3A4B44;display:block;margin-bottom:7px">E-mail</label><input value="{{ loginEmail }}" onChange="{{ onLoginEmail }}" placeholder="twoj@email.pl" style="width:100%;padding:15px 16px;border:1.5px solid #E7DECE;border-radius:14px;font-size:15px;background:#FCFAF5" style-focus="border-color:#12876F"></div>
+          <div><label style="font-size:13px;font-weight:800;color:#3A4B44;display:block;margin-bottom:7px">Hasło</label><input value="{{ loginPw }}" onChange="{{ onLoginPw }}" type="password" placeholder="••••••••" style="width:100%;padding:15px 16px;border:1.5px solid #E7DECE;border-radius:14px;font-size:15px;background:#FCFAF5" style-focus="border-color:#12876F"></div>
+          <button onClick="{{ doLoginEmail }}" style="background:#12876F;color:#fff;border:none;border-radius:14px;padding:16px;font-family:'Baloo 2';font-weight:600;font-size:16px;cursor:pointer;box-shadow:0 14px 26px -14px rgba(18,135,111,.8)">Zaloguj się</button>
+          <sc-if value="{{ loginErr }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FDECE7;color:#C2492E;border-radius:12px;padding:11px 14px;font-size:13.5px;font-weight:700">{{ loginErr }}</div>
+          </sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;margin:22px 0"><div style="flex:1;height:1px;background:#EEE6D8"></div><span style="font-size:13px;color:#9AA69F;font-weight:700">lub</span><div style="flex:1;height:1px;background:#EEE6D8"></div></div>
+        <div style="display:grid;gap:12px">
+          <button onClick="{{ doLogin }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1.5px solid #E7DECE;border-radius:14px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;color:#21332E"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.9a5 5 0 0 1-2.2 3.3v2.7h3.5c2-1.9 3.3-4.7 3.3-7.9Z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.6H2v2.8A11 11 0 0 0 12 23Z"/><path fill="#FBBC05" d="M5.7 14.1a6.6 6.6 0 0 1 0-4.2V7.1H2a11 11 0 0 0 0 9.8l3.7-2.8Z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3 .6 4.2 1.6l3.1-3.1A11 11 0 0 0 2 7.1l3.7 2.8C6.6 7.3 9.1 5.4 12 5.4Z"/></svg>Kontynuuj z Google</button>
+          <button onClick="{{ doLogin }}" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#21332E;border:none;border-radius:14px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;color:#fff"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.9-3.5.9-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.2 1.7 2.4 3 2.4 1.2 0 1.6-.8 3.1-.8 1.4 0 1.8.8 3.1.8 1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.5-1-2.5-3.8ZM14.1 5.8c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.8 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3Z"/></svg>Kontynuuj z Apple</button>
+        </div>
+        <p style="font-size:12.5px;color:#B9AE9B;margin-top:20px;text-align:center">Makieta demonstracyjna — dowolne dane logują do przykładowego konta.</p>
+      </div>
+      <div style="background:linear-gradient(160deg,#16A085,#0E6E58);padding:48px 40px;color:#fff;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden">
+        <svg viewBox="0 0 24 24" width="200" height="200" fill="rgba(255,255,255,.08)" style="position:absolute;right:-40px;bottom:-50px"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+        <div style="font-family:'Baloo 2';font-weight:600;font-size:26px;line-height:1.2;position:relative">Cała opieka nad pupilem w jednym miejscu</div>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:26px;position:relative">
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.18);display:grid;place-items:center">📋</span><span style="font-weight:700">Pełna historia leczenia</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.18);display:grid;place-items:center">🔬</span><span style="font-weight:700">Wyniki badań od ręki</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.18);display:grid;place-items:center">🔔</span><span style="font-weight:700">Przypomnienia o szczepieniach</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- KONTO -->
+  <sc-if value="{{ isKonto }}" hint-placeholder-val="{{ false }}">
+  <main style="max-width:1200px;margin:0 auto;padding:36px 24px 70px">
+    <div style="display:grid;grid-template-columns:260px 1fr;gap:26px;align-items:start">
+      <!-- sidebar -->
+      <aside style="background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:20px;position:sticky;top:90px;box-shadow:0 24px 50px -40px rgba(33,51,46,.4)">
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 6px 18px;border-bottom:1px solid #F1EBDF;margin-bottom:14px">
+          <span style="width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#FF7A5A,#FF9E6B);display:grid;place-items:center;color:#fff;font-family:'Baloo 2';font-weight:600;font-size:20px">{{ userInitial }}</span>
+          <div style="line-height:1.2"><div style="font-family:'Baloo 2';font-weight:600;font-size:16px">{{ user.imie }} {{ user.nazwisko }}</div><div style="font-size:12px;color:#9AA69F">Opiekun</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
+            <button onClick="{{ t.pick }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+        <button onClick="{{ logout }}" style="width:100%;margin-top:14px;padding:12px;border-radius:12px;border:1px solid #F0DADA;background:#FDF3F3;color:#D64545;font-weight:800;font-size:13.5px;cursor:pointer">Wyloguj się</button>
+      </aside>
+
+      <!-- content -->
+      <div style="min-height:400px">
+        <!-- PRZEGLAD -->
+        <sc-if value="{{ accPrzeg }}" hint-placeholder-val="{{ true }}">
+          <div style="border-radius:26px;background:linear-gradient(130deg,#16A085,#0E6E58);padding:32px;color:#fff;position:relative;overflow:hidden;margin-bottom:22px">
+            <svg viewBox="0 0 24 24" width="170" height="170" fill="rgba(255,255,255,.07)" style="position:absolute;right:-20px;bottom:-46px"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg>
+            <div style="font-size:15px;opacity:.85">Dzień dobry,</div>
+            <h1 style="font-size:30px;margin-top:2px">{{ user.imie }} 🐾</h1>
+            <p style="font-size:15px;opacity:.9;margin-top:8px;max-width:440px">Miło Cię widzieć. Oto najważniejsze sprawy dotyczące zdrowia Twoich pupili.</p>
+            <button onClick="{{ bookFromKonto }}" style="margin-top:18px;background:#fff;color:#0E6E58;border:none;border-radius:999px;padding:12px 22px;font-family:'Baloo 2';font-weight:600;font-size:15px;cursor:pointer">+ Umów nową wizytę</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px">
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:20px;padding:20px"><div style="font-size:13px;color:#7A857F;font-weight:700">Nadchodzące wizyty</div><div style="font-family:'Baloo 2';font-weight:600;font-size:30px;color:#12876F;margin-top:4px">{{ upcomingCount }}</div></div>
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:20px;padding:20px"><div style="font-size:13px;color:#7A857F;font-weight:700">Moje zwierzęta</div><div style="font-family:'Baloo 2';font-weight:600;font-size:30px;color:#FF7A5A;margin-top:4px">{{ petsCount }}</div></div>
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:20px;padding:20px"><div style="font-size:13px;color:#7A857F;font-weight:700">Do przypomnienia</div><div style="font-family:'Baloo 2';font-weight:600;font-size:30px;color:#C8871A;margin-top:4px">2</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:18px">
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:22px;padding:24px">
+              <div style="font-family:'Baloo 2';font-weight:600;font-size:18px;margin-bottom:16px">Nadchodzące wizyty</div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <sc-for list="{{ upcoming }}" as="u" hint-placeholder-count="1">
+                  <div style="background:#FAF6EE;border-radius:16px;padding:14px 16px">
+                    <div style="display:flex;align-items:center;gap:14px">
+                      <div style="width:52px;height:52px;border-radius:14px;background:#E7F5EE;display:grid;place-items:center;text-align:center;line-height:1;color:#12876F"><div><div style="font-family:'Baloo 2';font-weight:600;font-size:19px">{{ u.godz }}</div></div></div>
+                      <div style="flex:1"><div style="font-weight:800;font-size:15px">{{ u.typ }}</div><div style="font-size:13px;color:#7A857F">{{ u.data }} · {{ u.pet }} · dr {{ u.lek }}</div></div>
+                      <span style="font-size:12px;font-weight:800;color:#12876F;background:#E7F5EE;padding:5px 11px;border-radius:999px">{{ u.status }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed #E7DECE">
+                      <span style="font-size:12px;font-weight:800;color:#7A857F;margin-right:1px">📅 Kalendarz:</span>
+                      <button onClick="{{ u.calGoogle }}" style="background:#fff;border:1px solid #E2D8C8;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800;cursor:pointer;color:#21332E">Google</button>
+                      <button onClick="{{ u.calApple }}" style="background:#fff;border:1px solid #E2D8C8;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800;cursor:pointer;color:#21332E">Apple</button>
+                      <button onClick="{{ u.calOutlook }}" style="background:#fff;border:1px solid #E2D8C8;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800;cursor:pointer;color:#21332E">Outlook</button>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #EEE6D8;border-radius:22px;padding:24px">
+              <div style="font-family:'Baloo 2';font-weight:600;font-size:18px;margin-bottom:16px">Przypomnienia</div>
+              <div style="background:#FAF6EE;border-radius:14px;padding:15px 16px;margin-bottom:18px">
+                <div style="font-size:12.5px;font-weight:800;color:#7A857F;margin-bottom:11px">Kanały powiadomień</div>
+                <div style="display:flex;gap:9px">
+                  <button onClick="{{ toggleRemEmail }}" style="{{ remEmailStyle }}">✉️ E-mail</button>
+                  <button onClick="{{ toggleRemSms }}" style="{{ remSmsStyle }}">💬 SMS</button>
+                </div>
+                <div style="font-size:11.5px;color:#9AA69F;margin-top:11px;line-height:1.5">Wyślemy przypomnienie 24 h i 2 h przed wizytą wybranymi kanałami.</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <sc-for list="{{ vaccines }}" as="v" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <span style="width:10px;height:10px;border-radius:50%;background:{{ v.ink }};flex-shrink:0"></span>
+                    <div style="flex:1"><div style="font-weight:800;font-size:14px">{{ v.nazwa }}</div><div style="font-size:12.5px;color:#7A857F">{{ v.termin }}</div></div>
+                    <span style="font-size:11px;font-weight:800;color:{{ v.ink }};background:{{ v.bg }};padding:4px 9px;border-radius:999px">{{ v.status }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ZWIERZETA -->
+        <sc-if value="{{ accZw }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <h1 style="font-size:28px">Moje zwierzęta</h1>
+            <button onClick="{{ openAddPet }}" style="background:#12876F;color:#fff;border:none;border-radius:999px;padding:12px 22px;font-family:'Baloo 2';font-weight:600;font-size:15px;cursor:pointer">+ Dodaj zwierzaka</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px">
+            <sc-for list="{{ petsView }}" as="p" hint-placeholder-count="1">
+              <div style="background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:24px;box-shadow:0 22px 46px -40px rgba(33,51,46,.4)">
+                <div style="display:flex;align-items:center;gap:16px">
+                  <span style="width:72px;height:72px;border-radius:22px;background:{{ p.bg }};display:grid;place-items:center;font-size:36px">🐶</span>
+                  <div style="flex:1"><div style="font-family:'Baloo 2';font-weight:600;font-size:22px">{{ p.imie }}</div><div style="font-size:14px;color:#7A857F">{{ p.rasa }}</div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px">
+                  <div style="background:#FAF6EE;border-radius:12px;padding:10px;text-align:center"><div style="font-size:11px;color:#9AA69F;font-weight:700">Wiek</div><div style="font-weight:800;font-size:14px;margin-top:2px">{{ p.wiek }}</div></div>
+                  <div style="background:#FAF6EE;border-radius:12px;padding:10px;text-align:center"><div style="font-size:11px;color:#9AA69F;font-weight:700">Waga</div><div style="font-weight:800;font-size:14px;margin-top:2px">{{ p.waga }}</div></div>
+                  <div style="background:#FAF6EE;border-radius:12px;padding:10px;text-align:center"><div style="font-size:11px;color:#9AA69F;font-weight:700">Płeć</div><div style="font-weight:800;font-size:14px;margin-top:2px">{{ p.plec }}</div></div>
+                </div>
+                <button onClick="{{ p.open }}" style="width:100%;margin-top:16px;background:#F4F0E7;border:none;border-radius:12px;padding:12px;font-family:'Baloo 2';font-weight:600;font-size:14.5px;cursor:pointer;color:#21332E">Zobacz kartę zdrowia →</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- HISTORIA -->
+        <sc-if value="{{ accHist }}" hint-placeholder-val="{{ false }}">
+          <h1 style="font-size:28px;margin-bottom:8px">Historia leczenia</h1>
+          <p style="font-size:15px;color:#7A857F;margin-bottom:24px">Wszystkie wizyty i zabiegi Bruna w jednym miejscu.</p>
+          <div style="position:relative;padding-left:28px">
+            <div style="position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:#E7DECE"></div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <sc-for list="{{ history }}" as="h" hint-placeholder-count="4">
+                <div style="position:relative">
+                  <span style="position:absolute;left:-24px;top:22px;width:14px;height:14px;border-radius:50%;background:#12876F;border:3px solid #FBF6EE"></span>
+                  <div style="background:#fff;border:1px solid #EEE6D8;border-radius:20px;padding:20px 22px;box-shadow:0 18px 40px -38px rgba(33,51,46,.4)">
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+                      <div style="font-family:'Baloo 2';font-weight:600;font-size:17px">{{ h.typ }}</div>
+                      <span style="font-size:12.5px;color:#7A857F;font-weight:700">{{ h.data }}</span>
+                    </div>
+                    <div style="font-size:13px;color:#12876F;font-weight:800;margin-top:4px">dr {{ h.lek }} · {{ h.kat }}</div>
+                    <p style="font-size:14px;color:#5F6F69;margin-top:10px;line-height:1.55">{{ h.notatka }}</p>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- DOKUMENTY -->
+        <sc-if value="{{ accDok }}" hint-placeholder-val="{{ false }}">
+          <h1 style="font-size:28px;margin-bottom:8px">Wyniki i dokumenty</h1>
+          <p style="font-size:15px;color:#7A857F;margin-bottom:24px">Pobierz wyniki badań i dokumentację w każdej chwili.</p>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ docs }}" as="d" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #EEE6D8;border-radius:18px;padding:16px 20px;box-shadow:0 16px 36px -38px rgba(33,51,46,.4)">
+                <span style="width:46px;height:46px;border-radius:13px;background:#FCE8E4;color:#D64545;display:grid;place-items:center;font-weight:800;font-size:12px">PDF</span>
+                <div style="flex:1"><div style="font-weight:800;font-size:15px">{{ d.nazwa }}</div><div style="font-size:12.5px;color:#7A857F">{{ d.data }} · {{ d.typ }}</div></div>
+                <button style="background:#F4F0E7;border:none;border-radius:10px;padding:10px 16px;font-family:'Baloo 2';font-weight:600;font-size:14px;cursor:pointer;color:#21332E">Pobierz</button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- ZDROWIE (recepty i szczepienia) -->
+        <sc-if value="{{ accZdr }}" hint-placeholder-val="{{ false }}">
+          <h1 style="font-size:28px;margin-bottom:24px">Recepty i szczepienia</h1>
+          <div style="background:#fff;border:1px solid #EEE6D8;border-radius:22px;padding:24px;margin-bottom:20px">
+            <div style="font-family:'Baloo 2';font-weight:600;font-size:18px;margin-bottom:16px">Kalendarz szczepień</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ vaccines }}" as="v" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#FAF6EE;border-radius:16px">
+                  <span style="width:44px;height:44px;border-radius:13px;background:{{ v.bg }};color:{{ v.ink }};display:grid;place-items:center">💉</span>
+                  <div style="flex:1"><div style="font-weight:800;font-size:15px">{{ v.nazwa }}</div><div style="font-size:13px;color:#7A857F">Termin: {{ v.termin }}</div></div>
+                  <span style="font-size:12px;font-weight:800;color:{{ v.ink }};background:{{ v.bg }};padding:5px 12px;border-radius:999px">{{ v.status }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #EEE6D8;border-radius:22px;padding:24px">
+            <div style="font-family:'Baloo 2';font-weight:600;font-size:18px;margin-bottom:16px">Recepty i leki</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ meds }}" as="m" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#FAF6EE;border-radius:16px">
+                  <span style="width:44px;height:44px;border-radius:13px;background:{{ m.bg }};color:{{ m.ink }};display:grid;place-items:center">💊</span>
+                  <div style="flex:1"><div style="font-weight:800;font-size:15px">{{ m.nazwa }}</div><div style="font-size:13px;color:#7A857F">{{ m.dawka }}</div></div>
+                  <span style="font-size:12.5px;color:#7A857F;font-weight:700">{{ m.do }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- PROFIL -->
+        <sc-if value="{{ accProfil }}" hint-placeholder-val="{{ false }}">
+          <h1 style="font-size:28px;margin-bottom:24px">Mój profil</h1>
+          <div style="background:#fff;border:1px solid #EEE6D8;border-radius:24px;padding:28px;box-shadow:0 22px 46px -42px rgba(33,51,46,.4)">
+            <div style="display:flex;align-items:center;gap:18px;padding-bottom:22px;border-bottom:1px solid #F1EBDF;margin-bottom:22px">
+              <span style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#FF7A5A,#FF9E6B);display:grid;place-items:center;color:#fff;font-family:'Baloo 2';font-weight:600;font-size:28px">{{ userInitial }}</span>
+              <div><div style="font-family:'Baloo 2';font-weight:600;font-size:24px">{{ user.imie }} {{ user.nazwisko }}</div><div style="font-size:14px;color:#7A857F">Opiekun · konto od 2021</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+              <div><div style="font-size:12px;color:#9AA69F;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Imię i nazwisko</div><div style="font-weight:800;font-size:15px;margin-top:5px">{{ user.imie }} {{ user.nazwisko }}</div></div>
+              <div><div style="font-size:12px;color:#9AA69F;font-weight:700;text-transform:uppercase;letter-spacing:.06em">E-mail</div><div style="font-weight:800;font-size:15px;margin-top:5px">{{ user.email }}</div></div>
+              <div><div style="font-size:12px;color:#9AA69F;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Telefon</div><div style="font-weight:800;font-size:15px;margin-top:5px">{{ user.telefon }}</div></div>
+              <div><div style="font-size:12px;color:#9AA69F;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Adres</div><div style="font-weight:800;font-size:15px;margin-top:5px">{{ user.adres }}</div></div>
+            </div>
+            <button style="margin-top:24px;background:#F4F0E7;border:none;border-radius:12px;padding:13px 22px;font-family:'Baloo 2';font-weight:600;font-size:15px;cursor:pointer;color:#21332E">Edytuj dane</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- SERVICE MODAL -->
+  <sc-if value="{{ smObj }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeService }}" style="position:fixed;inset:0;z-index:100;background:rgba(33,51,46,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:24px;animation:fadeUp .25s ease">
+      <div onClick="{{ stop }}" style="background:#fff;border-radius:28px;max-width:560px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 40px 80px -30px rgba(0,0,0,.5)">
+        <div style="padding:30px 32px;background:{{ smObj.chipBg }};border-radius:28px 28px 0 0;position:relative">
+          <button onClick="{{ closeService }}" style="position:absolute;top:20px;right:20px;width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.7);cursor:pointer;font-size:18px;color:#21332E">✕</button>
+          <span style="width:58px;height:58px;border-radius:17px;background:#fff;color:{{ smObj.chipInk }};display:grid;place-items:center"><svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg></span>
+          <div style="font-size:12px;font-weight:800;color:{{ smObj.chipInk }};margin-top:14px;text-transform:uppercase;letter-spacing:.08em">{{ smObj.kat }}</div>
+          <h2 style="font-size:28px;margin-top:4px;color:#21332E">{{ smObj.nazwa }}</h2>
+          <div style="display:flex;gap:20px;margin-top:12px">
+            <div style="font-size:14px;color:#3A4B44;font-weight:700">⏱ {{ smObj.czas }}</div>
+            <div style="font-family:'Baloo 2';font-weight:600;font-size:20px;color:{{ smObj.chipInk }}">{{ smObj.cena }}</div>
+          </div>
+        </div>
+        <div style="padding:28px 32px">
+          <p style="font-size:15.5px;color:#3A4B44;line-height:1.6;text-wrap:pretty">{{ smObj.dlugi }}</p>
+          <div style="font-family:'Baloo 2';font-weight:600;font-size:17px;margin:22px 0 12px">Co obejmuje wizyta</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ smObj.wcenie }}" as="w" hint-placeholder-count="4">
+              <div style="display:flex;align-items:flex-start;gap:11px">
+                <span style="width:22px;height:22px;border-radius:50%;background:#E7F5EE;display:grid;place-items:center;flex-shrink:0;margin-top:1px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#12876F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span style="font-size:14.5px;color:#3A4B44;line-height:1.4">{{ w }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;background:#FDF3E0;border-radius:14px;padding:14px 16px;margin-top:22px">
+            <span style="font-size:18px">📋</span>
+            <div><div style="font-weight:800;font-size:13.5px;color:#C8871A;margin-bottom:3px">Jak się przygotować</div><p style="font-size:13.5px;color:#8A6A2A;line-height:1.5">{{ smObj.przygot }}</p></div>
+          </div>
+          <button onClick="{{ bookFromModal }}" style="width:100%;margin-top:24px;background:#12876F;color:#fff;border:none;border-radius:16px;padding:16px;font-family:'Baloo 2';font-weight:600;font-size:17px;cursor:pointer;box-shadow:0 14px 26px -14px rgba(18,135,111,.8)">Zarezerwuj tę usługę →</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- VET MODAL -->
+  <sc-if value="{{ vmObj }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeVet }}" style="position:fixed;inset:0;z-index:100;background:rgba(33,51,46,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:24px;animation:fadeUp .25s ease">
+      <div onClick="{{ stop }}" style="background:#fff;border-radius:28px;max-width:460px;width:100%;box-shadow:0 40px 80px -30px rgba(0,0,0,.5);overflow:hidden">
+        <div style="padding:34px 32px;text-align:center;background:{{ vmObj.bg }};position:relative">
+          <button onClick="{{ closeVet }}" style="position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.7);cursor:pointer;font-size:18px">✕</button>
+          <div style="width:100px;height:100px;border-radius:50%;background:#fff;color:{{ vmObj.ink }};display:grid;place-items:center;font-family:'Baloo 2';font-weight:600;font-size:38px;margin:0 auto">{{ vmObj.ini }}</div>
+          <h2 style="font-size:24px;margin-top:16px;color:#21332E">lek. wet. {{ vmObj.imie }}</h2>
+          <div style="font-size:14px;font-weight:800;color:{{ vmObj.ink }};margin-top:4px">{{ vmObj.spec }} · {{ vmObj.lata }} doświadczenia</div>
+        </div>
+        <div style="padding:26px 32px 30px">
+          <p style="font-size:15px;color:#3A4B44;line-height:1.6;text-wrap:pretty">{{ vmObj.bio }}</p>
+          <button onClick="{{ bookVetFromModal }}" style="width:100%;margin-top:22px;background:#12876F;color:#fff;border:none;border-radius:14px;padding:15px;font-family:'Baloo 2';font-weight:600;font-size:16px;cursor:pointer">Umów wizytę</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- PET MODAL -->
+  <sc-if value="{{ pmObj }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closePet }}" style="position:fixed;inset:0;z-index:100;background:rgba(33,51,46,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:24px;animation:fadeUp .25s ease">
+      <div onClick="{{ stop }}" style="background:#fff;border-radius:28px;max-width:500px;width:100%;box-shadow:0 40px 80px -30px rgba(0,0,0,.5);overflow:hidden">
+        <div style="padding:30px 32px;background:{{ pmObj.bg }};position:relative;display:flex;align-items:center;gap:18px">
+          <button onClick="{{ closePet }}" style="position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.7);cursor:pointer;font-size:18px">✕</button>
+          <span style="width:80px;height:80px;border-radius:24px;background:#fff;display:grid;place-items:center;font-size:40px">🐶</span>
+          <div><h2 style="font-size:26px;color:#21332E">{{ pmObj.imie }}</h2><div style="font-size:14px;color:#3A4B44;font-weight:700">{{ pmObj.gat }} · {{ pmObj.rasa }}</div></div>
+        </div>
+        <div style="padding:26px 32px 30px">
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+            <div style="background:#FAF6EE;border-radius:14px;padding:14px"><div style="font-size:11px;color:#9AA69F;font-weight:700">Wiek</div><div style="font-weight:800;margin-top:3px">{{ pmObj.wiek }}</div></div>
+            <div style="background:#FAF6EE;border-radius:14px;padding:14px"><div style="font-size:11px;color:#9AA69F;font-weight:700">Waga</div><div style="font-weight:800;margin-top:3px">{{ pmObj.waga }}</div></div>
+            <div style="background:#FAF6EE;border-radius:14px;padding:14px"><div style="font-size:11px;color:#9AA69F;font-weight:700">Płeć</div><div style="font-weight:800;margin-top:3px">{{ pmObj.plec }}</div></div>
+            <div style="background:#FAF6EE;border-radius:14px;padding:14px"><div style="font-size:11px;color:#9AA69F;font-weight:700">Umaszczenie</div><div style="font-weight:800;margin-top:3px">{{ pmObj.kolor }}</div></div>
+            <div style="background:#FAF6EE;border-radius:14px;padding:14px;grid-column:span 2"><div style="font-size:11px;color:#9AA69F;font-weight:700">Nr mikroczipa</div><div style="font-weight:800;margin-top:3px">{{ pmObj.chip }}</div></div>
+          </div>
+          <button onClick="{{ startBlank }}" style="width:100%;margin-top:20px;background:#12876F;color:#fff;border:none;border-radius:14px;padding:15px;font-family:'Baloo 2';font-weight:600;font-size:16px;cursor:pointer">Umów wizytę dla {{ pmObj.imie }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ADD PET MODAL -->
+  <sc-if value="{{ addPet }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeAddPet }}" style="position:fixed;inset:0;z-index:100;background:rgba(33,51,46,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:24px;animation:fadeUp .25s ease">
+      <div onClick="{{ stop }}" style="background:#fff;border-radius:28px;max-width:440px;width:100%;box-shadow:0 40px 80px -30px rgba(0,0,0,.5);padding:32px">
+        <h2 style="font-size:24px;margin-bottom:6px">Dodaj zwierzaka 🐾</h2>
+        <p style="font-size:14.5px;color:#7A857F;margin-bottom:22px">Uzupełnij podstawowe dane — resztę dopiszemy podczas wizyty.</p>
+        <div style="display:grid;gap:16px">
+          <div><label style="font-size:13px;font-weight:800;color:#3A4B44;display:block;margin-bottom:7px">Imię</label><input value="{{ npImie }}" onChange="{{ onNpImie }}" placeholder="Np. Luna" style="width:100%;padding:14px 16px;border:1.5px solid #E7DECE;border-radius:14px;font-size:15px;background:#FCFAF5" style-focus="border-color:#12876F"></div>
+          <div><label style="font-size:13px;font-weight:800;color:#3A4B44;display:block;margin-bottom:7px">Rasa</label><input value="{{ npRasa }}" onChange="{{ onNpRasa }}" placeholder="Np. Kot europejski" style="width:100%;padding:14px 16px;border:1.5px solid #E7DECE;border-radius:14px;font-size:15px;background:#FCFAF5" style-focus="border-color:#12876F"></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:24px">
+          <button onClick="{{ closeAddPet }}" style="flex:1;background:#F4F0E7;border:none;border-radius:14px;padding:14px;font-family:'Baloo 2';font-weight:600;font-size:15px;cursor:pointer;color:#21332E">Anuluj</button>
+          <button onClick="{{ savePet }}" style="flex:1;background:#12876F;color:#fff;border:none;border-radius:14px;padding:14px;font-family:'Baloo 2';font-weight:600;font-size:15px;cursor:pointer">Dodaj</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!--INSERT-->
+
+  <footer style="background:#21332E;color:rgba(255,255,255,.7);padding:48px 24px 30px;margin-top:20px">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:30px">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#12876F,#16A085);display:grid;place-items:center;color:#fff"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><ellipse cx="6" cy="11" rx="2" ry="2.8"/><ellipse cx="10.5" cy="7.6" rx="2" ry="2.9"/><ellipse cx="15" cy="7.6" rx="2" ry="2.9"/><ellipse cx="19" cy="11" rx="2" ry="2.8"/><path d="M12.5 12.2c2.4 0 4.4 2 4.9 4.1.4 1.9-1 3.2-2.7 3-.9-.1-1.5-.5-2.2-.5s-1.3.4-2.2.5c-1.7.2-3.1-1.1-2.7-3 .5-2.1 2.5-4.1 4.9-4.1Z"/></svg></div>
+          <span style="font-family:'Baloo 2';font-weight:600;font-size:22px;color:#fff">Merdi</span>
+        </div>
+        <p style="font-size:14.5px;line-height:1.6;max-width:280px">Klinika weterynaryjna z sercem. Opiekujemy się pupilami i ich opiekunami od 2011 roku.</p>
+      </div>
+      <div><div style="color:#fff;font-family:'Baloo 2';font-weight:600;font-size:16px;margin-bottom:14px">Klinika</div><div style="display:flex;flex-direction:column;gap:9px;font-size:14.5px"><span>Usługi</span><span>Nasz zespół</span><span>Cennik</span><span>Pogotowie 24h</span></div></div>
+      <div><div style="color:#fff;font-family:'Baloo 2';font-weight:600;font-size:16px;margin-bottom:14px">Kontakt</div><div style="display:flex;flex-direction:column;gap:9px;font-size:14.5px"><span>ul. Ogrodowa 8, Warszawa</span><span>kontakt@merdi.pl</span><span>22 123 45 67</span><span>Pon–Pt 8–20, Sob 9–15</span></div></div>
+      <div><div style="color:#fff;font-family:'Baloo 2';font-weight:600;font-size:16px;margin-bottom:14px">Godziny</div><div style="display:flex;flex-direction:column;gap:9px;font-size:14.5px"><span>Rejestracja: 8:00–20:00</span><span>Pogotowie: całodobowo</span><span>Zabiegi: 9:00–18:00</span></div></div>
+    </div>
+    <div style="max-width:1200px;margin:34px auto 0;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);font-size:13px;color:rgba(255,255,255,.5)">© 2026 Merdi · Makieta poglądowa</div>
+  </footer>
+</div>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#21332E;color:#fff;padding:14px 22px;border-radius:14px;font-weight:700;font-size:14px;box-shadow:0 20px 40px -18px rgba(0,0,0,.5);z-index:9999;animation:pop .3s ease both">{{ toast }}</div>
+  </sc-if></x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen:'home', menu:false,
+    serviceModal:null, vetModal:null, petModal:null, addPet:false,
+    bStep:1, bService:null, bPet:'bruno', bVet:'kowalska', bPay:'online', bWeek:0, bShowMore:false, bDateLabel:'', bTried:false, bDay:'', bTime:'', bReason:'', bName:'Katarzyna Zielińska', bPhone:'+48 601 234 567',
+    user:null, tab:'przeglad',
+    loginEmail:'', loginPw:'',
+    npImie:'', npGat:'Pies', npRasa:'',
+    uslKat:'Wszystkie',
+    extraVisits:[], extraPets:[],
+    notifDone:false, toast:null, remEmail:true, remSms:true,
+    booked:null,
+  };
+
+  cat = {
+    'Profilaktyka':{bg:'#E7F5EE',ink:'#12876F'},
+    'Diagnostyka':{bg:'#E8F1FB',ink:'#2C6FB5'},
+    'Chirurgia':{bg:'#FDECE4',ink:'#E0653B'},
+    'Specjaliści':{bg:'#EFEAF9',ink:'#7A5AC2'},
+    'Pogotowie 24h':{bg:'#FCE8E4',ink:'#D64545'},
+  };
+
+  services = [
+    {id:'wizyta',kat:'Profilaktyka',nazwa:'Wizyta kontrolna',czas:'30 min',cena:'120 zł',opis:'Kompleksowe badanie ogólne — sprawdzamy kondycję pupila od nosa po ogon.',dlugi:'Podczas wizyty kontrolnej lekarz dokładnie bada Twojego pupila: osłuchuje serce i płuca, sprawdza jamę ustną, uszy, skórę i węzły chłonne, ocenia wagę oraz kondycję. To najlepszy sposób, by wychwycić drobne sygnały, zanim staną się problemem.',wcenie:['Badanie ogólne (osłuchanie, palpacja)','Pomiar temperatury i wagi','Ocena kondycji i zaleceń żywieniowych','Czas na wszystkie Twoje pytania'],przygot:'Zabierz książeczkę zdrowia pupila. Nie musi być na czczo.'},
+    {id:'szczepienie',kat:'Profilaktyka',nazwa:'Szczepienie',czas:'20 min',cena:'od 90 zł',opis:'Ochrona przed groźnymi chorobami — dobierzemy szczepienie do wieku i trybu życia.',dlugi:'Przed każdym szczepieniem wykonujemy krótkie badanie, żeby upewnić się, że pupil jest zdrowy. Dobieramy szczepionkę indywidualnie i ustalamy kalendarz kolejnych dawek, o których będziemy przypominać w Twoim panelu.',wcenie:['Kwalifikacyjne badanie ogólne','Szczepienie dobrane indywidualnie','Wpis do książeczki i kalendarza szczepień','Automatyczne przypomnienie o kolejnej dawce'],przygot:'Pupil powinien być zdrowy i odrobaczony. Zabierz książeczkę zdrowia.'},
+    {id:'bilans',kat:'Profilaktyka',nazwa:'Bilans zdrowia',czas:'45 min',cena:'220 zł',opis:'Pełny przegląd zdrowia — idealny dla seniorów i młodych zwierząt.',dlugi:'Rozszerzone badanie z pakietem podstawowych analiz. Tworzymy pełny obraz zdrowia pupila i plan opieki na najbliższy rok. Szczególnie polecany dla zwierząt powyżej 7. roku życia oraz młodych, rosnących pupili.',wcenie:['Szczegółowe badanie kliniczne','Podstawowy panel badań krwi','Ocena ryzyka chorób wieku','Indywidualny plan profilaktyki'],przygot:'Zalecamy 8h na czczo przed badaniem krwi. Woda jest wskazana.'},
+    {id:'usg',kat:'Diagnostyka',nazwa:'USG jamy brzusznej',czas:'40 min',cena:'180 zł',opis:'Bezbolesne, dokładne badanie narządów wewnętrznych.',dlugi:'USG pozwala bezinwazyjnie ocenić narządy jamy brzusznej — wątrobę, nerki, pęcherz, śledzionę i inne. Badanie jest bezbolesne i nie wymaga znieczulenia. Wynik z opisem otrzymasz od razu do panelu.',wcenie:['Badanie ultrasonograficzne narządów','Opis i interpretacja lekarza','Wynik w formie cyfrowej w panelu','Omówienie dalszych kroków'],przygot:'Pupil na czczo (8–12h). Wskazane wcześniejsze wygolenie brzucha — zrobimy to na miejscu.'},
+    {id:'krew',kat:'Diagnostyka',nazwa:'Badania krwi',czas:'15 min',cena:'od 80 zł',opis:'Morfologia i biochemia — szybka diagnoza z własnego laboratorium.',dlugi:'Pobranie krwi trwa chwilę, a dzięki własnemu laboratorium wyniki podstawowych paneli są gotowe tego samego dnia. Badania krwi to podstawa w diagnostyce i kontroli leczenia.',wcenie:['Pobranie krwi przez doświadczony personel','Wybrany panel (morfologia / biochemia)','Wyniki tego samego dnia w panelu','Konsultacja telefoniczna wyników'],przygot:'Zalecane 8h na czczo. Woda jest dozwolona.'},
+    {id:'kardio',kat:'Diagnostyka',nazwa:'Konsultacja kardiologiczna',czas:'45 min',cena:'260 zł',opis:'Badanie serca z ECHO i EKG u specjalisty kardiologa.',dlugi:'Kompleksowa ocena układu krążenia: badanie kliniczne, echokardiografia (ECHO) oraz w razie potrzeby EKG. Konsultacja szczególnie wskazana przy szmerach, kaszlu, omdleniach czy przed planowanym znieczuleniem.',wcenie:['Badanie kardiologiczne','Echokardiografia (ECHO serca)','EKG w razie wskazań','Plan leczenia i kontroli'],przygot:'Nie wymaga specjalnego przygotowania. Zabierz wcześniejsze wyniki, jeśli je masz.'},
+    {id:'chirurgia',kat:'Chirurgia',nazwa:'Zabieg chirurgiczny',czas:'wg konsultacji',cena:'od 400 zł',opis:'Nowoczesna sala operacyjna i pełne monitorowanie znieczulenia.',dlugi:'Wykonujemy zabiegi tkanek miękkich w warunkach pełnej sterylności. Każdy pacjent jest monitorowany przez cały czas znieczulenia, a po zabiegu otacza go opieka zespołu. Zakres i wycenę ustalamy podczas konsultacji.',wcenie:['Konsultacja kwalifikacyjna','Zabieg w znieczuleniu z monitoringiem','Opieka pooperacyjna i leki','Kontrola i zdjęcie szwów'],przygot:'Pupil na czczo (co najmniej 8h). Szczegóły przekażemy przy kwalifikacji.'},
+    {id:'steryl',kat:'Chirurgia',nazwa:'Sterylizacja / kastracja',czas:'dzień zabiegowy',cena:'od 350 zł',opis:'Bezpieczny zabieg z opieką przed i po. Prowadzimy krok po kroku.',dlugi:'Zabieg wykonujemy rutynowo, z zachowaniem najwyższych standardów bezpieczeństwa. Przed operacją wykonujemy badanie kwalifikacyjne, a po niej otrzymasz jasne zalecenia i kołnierz ochronny. Jesteśmy z Wami na każdym etapie.',wcenie:['Badanie kwalifikacyjne i badanie krwi','Zabieg w pełnym znieczuleniu','Leki przeciwbólowe i kołnierz','Kontrola pozabiegowa'],przygot:'Pupil na czczo od wieczora. Rano tylko woda.'},
+    {id:'stomat',kat:'Chirurgia',nazwa:'Stomatologia',czas:'60 min',cena:'od 300 zł',opis:'Zdrowe zęby to zdrowy pupil — usuwanie kamienia i leczenie.',dlugi:'Choroby zębów są częstą, ale niedocenianą przyczyną bólu u zwierząt. Wykonujemy skaling ultradźwiękowy, ekstrakcje i leczenie w znieczuleniu, dbając o komfort i bezpieczeństwo pacjenta.',wcenie:['Ocena stanu jamy ustnej','Usuwanie kamienia nazębnego (skaling)','Ekstrakcje w razie potrzeby','Zalecenia dot. higieny w domu'],przygot:'Pupil na czczo (8h). Zabieg w znieczuleniu.'},
+    {id:'derma',kat:'Specjaliści',nazwa:'Dermatologia',czas:'40 min',cena:'200 zł',opis:'Świąd, wyłysienia, alergie — dotrzemy do przyczyny.',dlugi:'Problemy skórne potrafią być uciążliwe dla pupila i opiekuna. Nasz dermatolog przeprowadzi wywiad, badanie i niezbędne testy (zeskrobiny, cytologia), by trafnie postawić diagnozę i dobrać skuteczne leczenie.',wcenie:['Szczegółowy wywiad i badanie skóry','Testy diagnostyczne (cytologia, zeskrobiny)','Plan leczenia i pielęgnacji','Kontrola postępów'],przygot:'Nie kąp pupila 48h przed wizytą. Zabierz stosowane dotąd preparaty.'},
+    {id:'nagla',kat:'Pogotowie 24h',nazwa:'Wizyta nagła 24h',czas:'natychmiast',cena:'od 250 zł',opis:'Pomoc o każdej porze — zespół dyżurny czeka gotowy do działania.',dlugi:'W nagłych sytuacjach liczy się każda minuta. Nasz zespół dyżurny jest dostępny całodobowo — przyjmiemy pupila natychmiast, ustabilizujemy jego stan i podejmiemy niezbędne działania. Zadzwoń zanim przyjedziesz, przygotujemy się na Wasze przybycie.',wcenie:['Natychmiastowe przyjęcie','Stabilizacja stanu pacjenta','Dostęp do diagnostyki i sali zabiegowej','Decyzja o dalszym leczeniu'],przygot:'Zadzwoń pod 500 600 700 przed przyjazdem. Zachowaj spokój — pomożemy.'},
+    {id:'hosp',kat:'Pogotowie 24h',nazwa:'Hospitalizacja',czas:'całodobowo',cena:'wycena indywidualna',opis:'Całodobowa opieka i monitoring dla pacjentów wymagających nadzoru.',dlugi:'Pacjenci wymagający intensywnej opieki pozostają pod całodobowym nadzorem zespołu. Zapewniamy kroplówki, leki, monitoring parametrów i regularne aktualizacje dla opiekuna. Możesz odwiedzać swojego pupila.',wcenie:['Całodobowy nadzór zespołu','Leczenie i monitoring parametrów','Regularne aktualizacje dla opiekuna','Możliwość odwiedzin'],przygot:'Zabierz dotychczasową dokumentację i stosowane leki.'},
+  ];
+
+  vets = [
+    {id:'kowalska',imie:'Anna Kowalska',spec:'Internista',ini:'AK',bg:'#E7F5EE',ink:'#12876F',lata:'12 lat',ocena:'4.9',ile:'214',bio:'Kierownik kliniki. Specjalizuje się w chorobach wewnętrznych psów i kotów. Wierzy, że dobra diagnoza zaczyna się od uważnego wysłuchania opiekuna.'},
+    {id:'nowak',imie:'Piotr Nowak',spec:'Chirurg',ini:'PN',bg:'#FDECE4',ink:'#E0653B',lata:'15 lat',ocena:'4.8',ile:'176',bio:'Prowadzi zabiegi tkanek miękkich i ortopedyczne. Spokój i precyzja na sali operacyjnej to jego znak rozpoznawczy.'},
+    {id:'wisniewska',imie:'Maria Wiśniewska',spec:'Kardiolog',ini:'MW',bg:'#E8F1FB',ink:'#2C6FB5',lata:'10 lat',ocena:'5.0',ile:'98',bio:'Ekspertka w echokardiografii. Pomaga pupilom z chorobami serca cieszyć się długim, aktywnym życiem.'},
+    {id:'zajac',imie:'Tomasz Zając',spec:'Dermatolog',ini:'TZ',bg:'#EFEAF9',ink:'#7A5AC2',lata:'8 lat',ocena:'4.9',ile:'132',bio:'Rozwiązuje najtrudniejsze przypadki skórne i alergie. Cierpliwy detektyw z pasją do trudnych zagadek.'},
+  ];
+
+  petsBase = [
+    {id:'bruno',imie:'Bruno',gat:'Pies',rasa:'Labrador retriever',wiek:'4 lata',waga:'28 kg',plec:'Samiec',chip:'616 093 900 123 456',kolor:'Czekoladowy',bg:'#E7F5EE',ink:'#12876F'},
+  ];
+
+  history = [
+    {data:'12 maja 2026',typ:'Szczepienie przeciw wściekliźnie',lek:'Anna Kowalska',kat:'Profilaktyka',notatka:'Stan ogólny bardzo dobry. Kolejna dawka za 12 miesięcy.'},
+    {data:'3 lutego 2026',typ:'Wizyta kontrolna',lek:'Anna Kowalska',kat:'Profilaktyka',notatka:'Lekka nadwaga — zalecono dietę light i więcej ruchu. Kontrola za 3 miesiące.'},
+    {data:'18 listopada 2025',typ:'USG jamy brzusznej',lek:'Maria Wiśniewska',kat:'Diagnostyka',notatka:'Narządy bez zmian. Kontrola profilaktyczna za rok.'},
+    {data:'2 września 2025',typ:'Stomatologia — usunięcie kamienia',lek:'Piotr Nowak',kat:'Chirurgia',notatka:'Zabieg bez powikłań. Zalecono szczotkowanie zębów 2× w tygodniu.'},
+  ];
+
+  upcomingBase = [
+    {data:'24 lipca 2026',godz:'10:30',typ:'Bilans zdrowia',lek:'Anna Kowalska',pet:'Bruno',status:'nadchodząca'},
+  ];
+
+  vaccines = [
+    {nazwa:'Wścieklizna',termin:'12 maja 2027',status:'aktualne',bg:'#E7F5EE',ink:'#12876F'},
+    {nazwa:'Choroby zakaźne (DHPPi)',termin:'8 sierpnia 2026',status:'wkrótce',bg:'#FDF3E0',ink:'#C8871A'},
+    {nazwa:'Ochrona przeciwkleszczowa',termin:'zalecane teraz',status:'przypomnienie',bg:'#FCE8E4',ink:'#D64545'},
+  ];
+
+  meds = [
+    {nazwa:'Bravecto — ochrona przeciwkleszczowa',dawka:'1 tabletka co 12 tygodni',do:'do 20 sierpnia 2026',bg:'#E8F1FB',ink:'#2C6FB5'},
+    {nazwa:'Karma dietetyczna Light',dawka:'220 g dziennie, 2 posiłki',do:'zalecenie stałe',bg:'#E7F5EE',ink:'#12876F'},
+  ];
+
+  docs = [
+    {nazwa:'Wyniki morfologii i biochemii',data:'3 lutego 2026',typ:'PDF · 2 strony'},
+    {nazwa:'Opis badania USG',data:'18 listopada 2025',typ:'PDF · 1 strona'},
+    {nazwa:'Karta szczepień',data:'12 maja 2026',typ:'PDF · 1 strona'},
+    {nazwa:'Zalecenia pozabiegowe',data:'2 września 2025',typ:'PDF · 1 strona'},
+  ];
+
+  opinie = [
+    {tekst:'Bałam się pierwszej wizyty, ale personel wszystko spokojnie wytłumaczył. Bruno wyszedł zadowolony, a ja z jasnym planem.',imie:'Katarzyna Z.',pet:'Bruna',ini:'KZ',bg:'#E7F5EE',ink:'#12876F'},
+    {tekst:'Panel online to strzał w dziesiątkę — wszystkie wyniki i przypomnienia o szczepieniach w jednym miejscu.',imie:'Marek P.',pet:'Filemona',ini:'MP',bg:'#E8F1FB',ink:'#2C6FB5'},
+    {tekst:'Pogotowie 24h uratowało naszego kota w nocy. Ogromna wdzięczność dla całego zespołu dyżurnego.',imie:'Ola i Jan',pet:'Kluski',ini:'OJ',bg:'#EFEAF9',ink:'#7A5AC2'},
+  ];
+
+  days = [
+    {key:'20',dow:'Pon',d:'20',m:'lip',taken:['12:00']},
+    {key:'21',dow:'Wt',d:'21',m:'lip',taken:['9:00','15:00']},
+    {key:'22',dow:'Śr',d:'22',m:'lip',taken:[]},
+    {key:'23',dow:'Czw',d:'23',m:'lip',taken:['10:30','13:30']},
+    {key:'24',dow:'Pt',d:'24',m:'lip',taken:['16:30']},
+    {key:'27',dow:'Pon',d:'27',m:'lip',taken:['9:00']},
+    {key:'28',dow:'Wt',d:'28',m:'lip',taken:[]},
+  ];
+  times = ['9:00','10:30','12:00','13:30','15:00','16:30'];
+
+  chip(kat){ return this.cat[kat] || {bg:'#EEE6D8',ink:'#5F6F69'}; }
+  hash(s){ let h=7; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))%9973; return h; }
+
+  go = (s) => { this.setState({screen:s, menu:false, serviceModal:null, vetModal:null, petModal:null, addPet:false}); window.scrollTo({top:0,behavior:'instant'}); };
+  scrollTo = (id) => { const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); };
+
+  startBooking = (id, vetId) => { const u=this.state.user; this.setState({menu:false, screen:'rezerwacja', bStep:1, bService:id||null, bVet: vetId || this.state.bVet || 'kowalska', bWeek:0, bDay:'', bTime:'', bDateLabel:'', bShowMore:false, bTried:false, booked:null, bName: u?(u.imie+' '+u.nazwisko):'', bPhone: u?u.telefon:''}); window.scrollTo({top:0}); };
+
+  petsAll(){ return [...this.petsBase, ...this.state.extraPets]; }
+  upcomingAll(){ return [...this.state.extraVisits, ...this.upcomingBase]; }
+  showToast(msg){ clearTimeout(this._toastT); this.setState({toast:msg}); this._toastT=setTimeout(()=>this.setState({toast:null}),2600); }
+
+  bookNext = () => { if(this.state.bStep<6) this.setState(s=>({bStep:s.bStep+1})); window.scrollTo({top:0,behavior:'smooth'}); };
+  bookPrev = () => { if(this.state.bStep>1) this.setState(s=>({bStep:s.bStep-1})); window.scrollTo({top:0,behavior:'smooth'}); };
+
+  submitBooking = () => {
+    const s = this.services.find(x=>x.id===this.state.bService);
+    const v = this.vets.find(x=>x.id===this.state.bVet);
+    const day = this.days.find(x=>x.key===this.state.bDay);
+    const pet = this.petsAll().find(x=>x.id===this.state.bPet);
+    const rec = {
+      data: this.state.bDateLabel || 'termin do potwierdzenia',
+      godz: this.state.bTime || '—',
+      typ: s ? s.nazwa : 'Wizyta',
+      lek: v ? v.imie : 'dowolny dostępny',
+      pet: pet ? pet.imie : 'Bruno',
+      platnosc: this.state.bPay==='online' ? 'Zapłacono online' : 'Płatność w klinice',
+      cena: s ? s.cena : '—',
+      status:'nadchodząca',
+      email: (this.state.user && this.state.user.email) || 'k.zielinska@gmail.com',
+      phone: this.state.bPhone || '+48 600 000 000',
+    };
+    this.setState(st=>({ booked:rec, extraVisits:[rec, ...st.extraVisits], bStep:1, notifDone:false }));
+    clearTimeout(this._notifT); this._notifT=setTimeout(()=>this.setState({notifDone:true}),1400);
+    window.scrollTo({top:0});
+  };
+
+  login = () => {
+    const u = { imie:'Katarzyna', nazwisko:'Zielińska', email:this.state.loginEmail||'katarzyna.zielinska@email.pl', telefon:'+48 601 234 567', adres:'ul. Kwiatowa 12/4, 00-950 Warszawa' };
+    this.setState({user:u, screen:'konto', tab:'przeglad', loginTried:false});
+    window.scrollTo({top:0});
+  };
+  loginEmail_ = () => {
+    const ok=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(this.state.loginEmail.trim());
+    if(ok && this.state.loginPw.trim()) this.login();
+    else this.setState({loginTried:true});
+  };
+  logout = () => this.setState({user:null, screen:'home'});
+
+  addPetSave = () => {
+    if(!this.state.npImie.trim()) return;
+    const p = { id:'p'+Date.now(), imie:this.state.npImie, gat:this.state.npGat, rasa:this.state.npRasa||'—', wiek:'—', waga:'—', plec:'—', chip:'—', kolor:'—', bg:'#EFEAF9', ink:'#7A5AC2' };
+    this.setState(st=>({extraPets:[...st.extraPets, p], addPet:false, npImie:'', npRasa:''}));
+  };
+
+  renderVals(){
+    const st = this.state;
+    const withChip = (s) => { const c=this.chip(s.kat); return {...s, chipBg:c.bg, chipInk:c.ink}; };
+    const servicesView = this.services.map(s=>({...withChip(s), open:()=>this.setState({serviceModal:s.id}), book:()=>this.startBooking(s.id)}));
+    const servicesHome = servicesView.filter(s=>['wizyta','szczepienie','usg','stomat','derma','nagla'].includes(s.id));
+
+    const catOrder = ['Profilaktyka','Diagnostyka','Chirurgia','Specjaliści','Pogotowie 24h'];
+    const catDesc = {
+      'Profilaktyka':'Regularna opieka, która zapobiega chorobom i przedłuża życie pupila.',
+      'Diagnostyka':'Nowoczesny sprzęt i własne laboratorium — szybkie i trafne odpowiedzi.',
+      'Chirurgia':'Zabiegi w warunkach pełnej sterylności z monitoringiem znieczulenia.',
+      'Specjaliści':'Wąskie dziedziny dla trudnych przypadków — wiedza tam, gdzie potrzeba.',
+      'Pogotowie 24h':'Jesteśmy gotowi pomóc o każdej porze dnia i nocy.',
+    };
+    const servicesByCat = catOrder
+      .filter(k=> st.uslKat==='Wszystkie' || k===st.uslKat)
+      .map(k=>({
+        key:k, label:k, desc:catDesc[k], ...this.chip(k),
+        items: servicesView.filter(s=>s.kat===k),
+      }));
+    const chipSt = (on,ink,bg)=> on
+      ? `background:${ink};color:#fff;border:1.5px solid ${ink};border-radius:999px;padding:10px 20px;font-family:'Baloo 2';font-weight:600;font-size:14.5px;cursor:pointer;box-shadow:0 12px 24px -16px ${ink}`
+      : `background:#fff;color:#3A4B44;border:1.5px solid #E7DECF;border-radius:999px;padding:10px 20px;font-family:'Baloo 2';font-weight:600;font-size:14.5px;cursor:pointer`;
+    const uslKats = ['Wszystkie',...catOrder].map(k=>{
+      const c = k==='Wszystkie' ? {bg:'#F4F0E7',ink:'#12876F'} : this.chip(k);
+      return {label:k, count: k==='Wszystkie'?this.services.length:servicesView.filter(s=>s.kat===k).length,
+        style:chipSt(st.uslKat===k,c.ink,c.bg), pick:()=>this.setState({uslKat:k})};
+    });
+
+    const vetsView = this.vets.map(v=>({...v, open:()=>this.setState({vetModal:v.id})}));
+
+    // booking derived
+    const bServiceObj = this.services.find(s=>s.id===st.bService);
+    const bVetObj = this.vets.find(v=>v.id===st.bVet);
+    const bDayObj = this.days.find(d=>d.key===st.bDay);
+    const petsAll = this.petsAll();
+    const bPetObj = petsAll.find(p=>p.id===st.bPet);
+
+    const ring = (sel,ink)=> sel
+      ? `background:#fff;border:2px solid ${ink};border-radius:20px;padding:18px;cursor:pointer;box-shadow:0 14px 30px -20px ${ink}99;transition:all .16s`
+      : `background:#fff;border:2px solid #EEE6D8;border-radius:20px;padding:18px;cursor:pointer;transition:all .16s`;
+
+    const bServices = servicesView.map(s=>{ const c=this.chip(s.kat); const sel=s.id===st.bService; return {...s, sel, cardStyle:ring(sel,c.ink), pillStyle: sel ? 'text-align:left;background:#fff;border:2px solid #12876F;border-radius:16px;padding:13px 15px;cursor:pointer;box-shadow:0 10px 22px -16px rgba(18,135,111,.7)' : 'text-align:left;background:#fff;border:2px solid #EEE6D8;border-radius:16px;padding:13px 15px;cursor:pointer', pick:()=>this.setState({bService:s.id, bTried:false}) }; });
+
+    const bVets = [
+      {id:'',imie:'Dowolny dostępny',spec:'Dobierzemy najlepszy termin',ini:'★',bg:'#FDF3E0',ink:'#C8871A'},
+      ...this.vets,
+    ].map(v=>{ const sel=v.id===st.bVet; return {...v, sel, cardStyle:ring(sel,v.ink), pick:()=>this.setState({bVet:v.id}) }; });
+
+    const bPets = petsAll.map(p=>{ const sel=p.id===st.bPet; return {...p, sel, cardStyle:ring(sel,p.ink), pick:()=>this.setState({bPet:p.id, bTried:false}) }; });
+
+    const bDays = this.days.map(d=>{ const sel=d.key===st.bDay; return {...d, sel,
+      dayStyle: sel ? 'flex-shrink:0;text-align:center;padding:12px 8px;border-radius:16px;cursor:pointer;background:#12876F;color:#fff;min-width:64px' : 'flex-shrink:0;text-align:center;padding:12px 8px;border-radius:16px;cursor:pointer;background:#fff;border:1px solid #EEE6D8;color:#21332E;min-width:64px',
+      pick:()=>this.setState({bDay:d.key, bTime:''}) }; });
+
+    const bTimes = this.times.map(t=>{ const taken = bDayObj ? bDayObj.taken.includes(t) : false; const sel=t===st.bTime; return { label:t, taken, sel,
+      timeStyle: taken ? 'padding:14px;border-radius:14px;text-align:center;font-weight:800;background:#F4EEE2;color:#B9AE9B;cursor:not-allowed;border:1px solid #EEE6D8' : sel ? 'padding:14px;border-radius:14px;text-align:center;font-weight:800;background:#12876F;color:#fff;cursor:pointer;border:2px solid #12876F' : 'padding:14px;border-radius:14px;text-align:center;font-weight:800;background:#fff;color:#21332E;cursor:pointer;border:2px solid #EEE6D8',
+      pick: taken ? ()=>{} : ()=>this.setState({bTime:t}) }; });
+
+    const steps = ['Usługa','Pupil','Specjalista','Termin','Dane','Podsumowanie'];
+    const stepsView = steps.map((s,i)=>({ label:s, n:i+1, done:i+1<st.bStep, active:i+1===st.bStep,
+      dotStyle: i+1<st.bStep ? 'width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#12876F;color:#fff;font-weight:800;flex-shrink:0' : i+1===st.bStep ? 'width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#FF7A5A;color:#fff;font-weight:800;flex-shrink:0;box-shadow:0 0 0 5px rgba(255,122,90,.18)' : 'width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid #E7DECE;color:#B9AE9B;font-weight:800;flex-shrink:0',
+      lblStyle: i+1<=st.bStep ? 'font-size:13px;font-weight:800;color:#21332E' : 'font-size:13px;font-weight:800;color:#B9AE9B' }));
+
+    const vBName=st.bName.trim().length>=3;
+    const vBPhone=st.bPhone.replace(/[^\d]/g,'').length>=9;
+    const canNext = st.bStep===1 ? !!st.bService : st.bStep===2 ? !!st.bPet : st.bStep===3 ? true : st.bStep===4 ? (!!st.bDay && !!st.bTime) : st.bStep===5 ? (vBName && vBPhone) : true;
+    const vBad='width:100%;padding:14px 16px;border:1.5px solid #E5715A;border-radius:14px;font-size:15px;background:#FDECE7';
+    const vOk='width:100%;padding:14px 16px;border:1.5px solid #E7DECE;border-radius:14px;font-size:15px;background:#FCFAF5';
+    const vLock='width:100%;padding:14px 16px;border:1.5px solid #DED6C6;border-radius:14px;font-size:15px;background:#EFEBE0;color:#7A857F;cursor:not-allowed';
+    const bLocked=!!st.user;
+    const nextStyle = canNext ? 'display:inline-flex;align-items:center;gap:8px;background:#12876F;color:#fff;border:none;border-radius:999px;padding:15px 30px;font-family:\'Baloo 2\';font-weight:600;font-size:16px;cursor:pointer;box-shadow:0 14px 26px -14px rgba(18,135,111,.8)' : 'display:inline-flex;align-items:center;gap:8px;background:#DCE3DE;color:#9AA69F;border:none;border-radius:999px;padding:15px 30px;font-family:\'Baloo 2\';font-weight:600;font-size:16px;cursor:not-allowed';
+
+    // ── ZnanyLekarz-style kalendarz tygodniowy ──
+    const bookVetObj = this.vets.find(v=>v.id===st.bVet) || this.vets[0];
+    const vetSwitch = this.vets.map(v=>({ ...v, sel:v.id===bookVetObj.id,
+      style: v.id===bookVetObj.id ? "display:inline-flex;align-items:center;gap:6px;background:#12876F;color:#fff;border:1.5px solid #12876F;border-radius:999px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer" : "display:inline-flex;align-items:center;gap:6px;background:#fff;color:#3A4B44;border:1.5px solid #E7DECE;border-radius:999px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer",
+      pick:()=>this.setState({bVet:v.id, bDay:"", bTime:"", bDateLabel:"", bWeek:0, bTried:false}) }));
+    const dowArr=["Pon","Wt","Śr","Czw","Pt","Sob","Ndz"];
+    const monArr=["sty","lut","mar","kwi","maj","cze","lip","sie","wrz","paź","lis","gru"];
+    const monGen=["stycznia","lutego","marca","kwietnia","maja","czerwca","lipca","sierpnia","września","października","listopada","grudnia"];
+    const tfull=["08:00","08:45","09:30","10:15","11:00","11:45","13:00","13:45","14:30","15:15","16:00","16:45","17:30"];
+    const wkStart=new Date(2026,6,20); wkStart.setDate(wkStart.getDate()+st.bWeek*7);
+    const visN=st.bShowMore?99:5;
+    const slotFree="background:#E7F5EE;color:#0E6E58;border:1px solid #CDE9DC;border-radius:10px;padding:9px 2px;text-align:center;font-weight:800;font-size:13px;cursor:pointer;width:100%";
+    const slotSel="background:#12876F;color:#fff;border:1px solid #12876F;border-radius:10px;padding:9px 2px;text-align:center;font-weight:800;font-size:13px;cursor:pointer;width:100%";
+    const calDays=[]; let weekTotal=0;
+    for(let i=0;i<7;i++){
+      const dt=new Date(wkStart); dt.setDate(dt.getDate()+i);
+      const key=dt.getFullYear()+"-"+dt.getMonth()+"-"+dt.getDate();
+      const closed=(i===6);
+      let slots=[];
+      if(!closed) slots=tfull.filter(t=> this.hash(bookVetObj.id+key+t)%10 < (i===5?4:7) );
+      weekTotal+=slots.length;
+      const fullDate=dt.getDate()+" "+monGen[dt.getMonth()]+" 2026";
+      const slotsView=slots.slice(0,visN).map(t=>{ const sel=st.bDay===key&&st.bTime===t; return {label:t, style:sel?slotSel:slotFree, pick:()=>this.setState({bDay:key,bTime:t,bDateLabel:fullDate,bTried:false})}; });
+      const hidden=Math.max(0,slots.length-visN);
+      calDays.push({ key, dow:dowArr[i], dnum:dt.getDate(), mon:monArr[dt.getMonth()], closed,
+        hasSlots:!closed&&slots.length>0, empty:!closed&&slots.length===0,
+        slotsView, hiddenCount:hidden, hiddenNote:hidden>0,
+        colStyle: (st.bDay===key) ? "background:#F3FAF6;border:1px solid #CDE9DC;border-radius:16px;padding:10px 5px" : "border:1px solid transparent;border-radius:16px;padding:10px 5px" });
+    }
+    const cFirst=calDays[0], cLast=calDays[6];
+    const weekLabel=cFirst.dnum+" "+cFirst.mon+" – "+cLast.dnum+" "+cLast.mon;
+    const navBtn=(on)=> on ? "width:40px;height:40px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;color:#21332E;font-size:20px;line-height:1;cursor:pointer" : "width:40px;height:40px;border-radius:12px;border:1.5px solid #F1EBDF;background:#F7F2E9;color:#CFC6B4;font-size:20px;line-height:1;cursor:not-allowed";
+    const canPrev=st.bWeek>0, canNext2=st.bWeek<5;
+    const slotPicked=!!st.bTime, okSvc=!!st.bService, okPet=!!st.bPet;
+    const canConfirm=slotPicked&&okSvc&&okPet&&vBName&&vBPhone;
+    const payOpts=[
+      {key:'online',title:'Płatność online',desc:'Przelewy24, Stripe'},
+      {key:'onsite',title:'Płatność w klinice',desc:'Gotówka lub karta na miejscu'},
+    ].map(o=>{ const sel=st.bPay===o.key; return {...o, sel,
+      style: sel ? "cursor:pointer;background:#fff;border:2px solid #12876F;border-radius:16px;padding:15px;box-shadow:0 10px 22px -16px rgba(18,135,111,.7)" : "cursor:pointer;background:#fff;border:2px solid #EEE6D8;border-radius:16px;padding:15px",
+      dot: sel?'#12876F':'#CFC6B4',
+      dotInner: sel?'width:11px;height:11px;border-radius:50%;background:#12876F':'width:11px;height:11px;border-radius:50%;background:transparent',
+      pick:()=>this.setState({bPay:o.key}) }; });
+    const payOnline=st.bPay==='online';
+    const payLabel=payOnline?'Płatność online':'Płatność w klinice';
+    const confirmLabel=payOnline?'Zapłać i zarezerwuj ✓':'Zarezerwuj wizytę ✓';
+    const payGates=['BLIK','Karta','Przelewy24','Apple Pay','Google Pay'];
+    const okConfirmStyle="display:flex;width:100%;justify-content:center;align-items:center;gap:8px;margin-top:26px;background:#FF7A5A;color:#fff;border:none;border-radius:16px;padding:17px;font-family:'Baloo 2';font-weight:600;font-size:17px;cursor:pointer;box-shadow:0 16px 30px -16px rgba(255,122,90,.9)";
+    const offConfirmStyle="display:flex;width:100%;justify-content:center;align-items:center;gap:8px;margin-top:26px;background:#DCE3DE;color:#9AA69F;border:none;border-radius:16px;padding:17px;font-family:'Baloo 2';font-weight:600;font-size:17px;cursor:not-allowed";
+    const nameTouched=st.bName.trim().length>0, phoneTouched=st.bPhone.trim().length>0;
+    const nameErrLive=!bLocked&&nameTouched&&!vBName, phoneErrLive=!bLocked&&phoneTouched&&!vBPhone;
+
+    // modal objects
+    const smObj = st.serviceModal ? withChip(this.services.find(s=>s.id===st.serviceModal)) : null;
+    const vmObj = st.vetModal ? this.vets.find(v=>v.id===st.vetModal) : null;
+    const pmObj = st.petModal ? petsAll.find(p=>p.id===st.petModal) : null;
+
+    const tabs = [
+      {key:'przeglad',label:'Przegląd'},
+      {key:'zwierzeta',label:'Moje zwierzęta'},
+      {key:'historia',label:'Historia leczenia'},
+      {key:'dokumenty',label:'Wyniki i dokumenty'},
+      {key:'zdrowie',label:'Recepty i szczepienia'},
+      {key:'profil',label:'Profil'},
+    ].map(t=>({...t, active:t.key===st.tab, sel:t.key===st.tab,
+      style: t.key===st.tab ? 'display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:none;background:#12876F;color:#fff;font-weight:800;font-size:14.5px;cursor:pointer' : 'display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:13px 16px;border-radius:14px;border:none;background:transparent;color:#3A4B44;font-weight:700;font-size:14.5px;cursor:pointer',
+      pick:()=>this.setState({tab:t.key}) }));
+
+    return {
+      isHome: st.screen==='home',
+      isUslugi: st.screen==='uslugi',
+      isRezerwacja: st.screen==='rezerwacja' && !st.booked,
+      isConfirm: st.screen==='rezerwacja' && !!st.booked,
+      isLogin: st.screen==='login',
+      isKonto: st.screen==='konto' && !!st.user,
+      user: st.user, notUser: !st.user, bLoggedIn: !!st.user,
+      userInitial: st.user ? (st.user.imie[0]+st.user.nazwisko[0]) : '',
+      goHome:()=>this.go('home'), goUslugi:()=>this.go('uslugi'), goRezerwacja:()=>this.startBooking(null),
+      goKonto:()=>{ if(st.user) this.go('konto'); else this.go('login'); },
+      goLogin:()=>this.go('login'),
+      goZespol:()=>{ this.go('home'); setTimeout(()=>this.scrollTo('zespol-anchor'),60); },
+      startBlank:()=>this.startBooking(null),
+      menuOpen:st.menu, menuClosed:!st.menu, toggleMenu:()=>this.setState(s=>({menu:!s.menu})),
+
+      servicesHome, servicesByCat, uslKats, vetsView, opinie:this.opinie,
+
+      // booking
+      bStep:st.bStep, stepsView,
+      isStep1:st.bStep===1, isStep2:st.bStep===2, isStep3:st.bStep===3, isStep4:st.bStep===4, isStep5:st.bStep===5, isStep6:st.bStep===6,
+      bServices, bVets, bPets, bDays, bTimes,
+      hasDay: !!st.bDay,
+      bServiceObj, bVetObj, bDayObj, bPetObj,
+      bServiceName: bServiceObj ? bServiceObj.nazwa : 'Nie wybrano',
+      bPetName: bPetObj ? bPetObj.imie : 'Nie wybrano',
+      bPrice: bServiceObj ? bServiceObj.cena : '—',
+      bVetName: bookVetObj.imie,
+      bDateLabel: st.bDateLabel || '—',
+      bTimeLabel: st.bTime || '—',
+      notDay: !st.bDay,
+      notStep6: st.bStep!==6,
+      nextDisabled: !canNext,
+      bReason:st.bReason, onReason:(e)=>this.setState({bReason:e.target.value}),
+      bName:st.bName, onName:(e)=>this.setState({bName:e.target.value}),
+      bNameStyle: bLocked ? vLock : (nameErrLive ? vBad : vOk),
+      bPhoneStyle: bLocked ? vLock : (phoneErrLive ? vBad : vOk),
+      bReadOnly: bLocked,
+      bPhone:st.bPhone, onPhone:(e)=>this.setState({bPhone:e.target.value}),
+      next:this.bookNext, prev:this.bookPrev, submit:this.submitBooking,
+      bookVetObj, vetSwitch, calDays, weekLabel,
+      prevWeek: canPrev ? ()=>this.setState(s=>({bWeek:s.bWeek-1})) : ()=>{},
+      nextWeek: canNext2 ? ()=>this.setState(s=>({bWeek:s.bWeek+1})) : ()=>{},
+      prevStyle:navBtn(canPrev), nextStyle2:navBtn(canNext2), prevDisabled:!canPrev, nextDisabled2:!canNext2,
+      moreLabel: st.bShowMore ? "Pokaż mniej godzin" : "Pokaż więcej godzin", toggleMore:()=>this.setState(s=>({bShowMore:!s.bShowMore})),
+      slotPicked, notSlotPicked:!slotPicked,
+      svcErr: false, petErr: false,
+      confirmDisabled:!canConfirm, confirmStyle: canConfirm ? okConfirmStyle : offConfirmStyle,
+      nameErr: nameErrLive, phoneErr: phoneErrLive,
+      payOpts, payOnline, payLabel, payGates, confirmLabel,
+      bPrice2: bServiceObj ? bServiceObj.cena : '—',
+      confirmBooking:()=>{ if(canConfirm) this.submitBooking(); },
+      bookVetFromModal:()=>{ const id=st.vetModal; this.setState({vetModal:null}); this.startBooking(null,id); },
+      canNext, nextStyle,
+      step1Skip:st.bStep>1,
+
+      // confirm
+      booked:st.booked,
+      confirmGoKonto:()=>{ if(st.user){ this.setState({booked:null}); this.go('konto'); } else this.go('login'); },
+      confirmHome:()=>{ this.setState({booked:null}); this.go('home'); },
+
+      // login
+      loginEmail:st.loginEmail, onLoginEmail:(e)=>this.setState({loginEmail:e.target.value}),
+      loginPw:st.loginPw, onLoginPw:(e)=>this.setState({loginPw:e.target.value}),
+      doLogin:this.login,
+      doLoginEmail:this.loginEmail_,
+      loginErr: st.loginTried && !(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(st.loginEmail.trim()) && st.loginPw.trim()) ? (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(st.loginEmail.trim()) ? 'Podaj hasło.' : 'Podaj poprawny adres e-mail i hasło.') : '',
+
+      // modals
+      smObj, closeService:()=>this.setState({serviceModal:null}),
+      bookFromModal:()=>{ const id=st.serviceModal; this.setState({serviceModal:null}); this.startBooking(id); },
+      vmObj, closeVet:()=>this.setState({vetModal:null}),
+      pmObj, closePet:()=>this.setState({petModal:null}),
+      addPet:st.addPet, openAddPet:()=>this.setState({addPet:true}), closeAddPet:()=>this.setState({addPet:false}),
+      npImie:st.npImie, onNpImie:(e)=>this.setState({npImie:e.target.value}),
+      npRasa:st.npRasa, onNpRasa:(e)=>this.setState({npRasa:e.target.value}),
+      savePet:this.addPetSave,
+
+      // account
+      tabs, tab:st.tab,
+      accProfil:st.tab==='profil', accZw:st.tab==='zwierzeta', accHist:st.tab==='historia', accDok:st.tab==='dokumenty', accZdr:st.tab==='zdrowie', accPrzeg:st.tab==='przeglad',
+      petsView: petsAll.map(p=>({...p, open:()=>this.setState({petModal:p.id})})),
+      history:this.history, upcoming:this.upcomingAll().map(u=>({...u,
+        calGoogle:()=>this.showToast('📅 '+u.typ+' — dodano do Google Calendar (makieta)'),
+        calApple:()=>this.showToast('📅 '+u.typ+' — dodano do Apple Calendar (makieta)'),
+        calOutlook:()=>this.showToast('📅 '+u.typ+' — dodano do Outlook (makieta)'),
+      })),
+      notifDone:st.notifDone, notifPending:!st.notifDone, toast:st.toast,
+      remEmail:st.remEmail, remSms:st.remSms,
+      remEmailStyle: (st.remEmail?'display:inline-flex;align-items:center;gap:6px;background:#12876F;color:#fff;border:1.5px solid #12876F':'display:inline-flex;align-items:center;gap:6px;background:#fff;color:#9AA69F;border:1.5px solid #E2D8C8')+';border-radius:999px;padding:9px 16px;font-weight:800;font-size:13px;cursor:pointer',
+      remSmsStyle: (st.remSms?'display:inline-flex;align-items:center;gap:6px;background:#12876F;color:#fff;border:1.5px solid #12876F':'display:inline-flex;align-items:center;gap:6px;background:#fff;color:#9AA69F;border:1.5px solid #E2D8C8')+';border-radius:999px;padding:9px 16px;font-weight:800;font-size:13px;cursor:pointer',
+      toggleRemEmail:()=>{const v=!st.remEmail;this.setState({remEmail:v});this.showToast(v?'✉️ Przypomnienia e-mail włączone':'Przypomnienia e-mail wyłączone');},
+      toggleRemSms:()=>{const v=!st.remSms;this.setState({remSms:v});this.showToast(v?'💬 Przypomnienia SMS włączone':'Przypomnienia SMS wyłączone');},
+      confirmCalGoogle:()=>this.showToast('📅 Wizyta dodana do Google Calendar (makieta)'),
+      confirmCalApple:()=>this.showToast('📅 Wizyta dodana do Apple Calendar (makieta)'),
+      confirmCalOutlook:()=>this.showToast('📅 Wizyta dodana do Outlook (makieta)'), vaccines:this.vaccines, meds:this.meds, docs:this.docs,
+      logout:this.logout,
+      bookFromKonto:()=>this.startBooking(null),
+      upcomingCount: this.upcomingAll().length,
+      petsCount: petsAll.length,
+      stop:(e)=>e.stopPropagation(),
+    };
+  }
+}
+</script>
+</body>
+</html>

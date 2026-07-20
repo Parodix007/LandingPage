@@ -4,11 +4,18 @@ export const site: SiteContent = {
   name: "calm_soft",
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "hello@calmsoft.com",
   eyebrow: "Web · Automation · Core systems · Refactoring",
-  featuredCaseSlug: "enterprise-30-years-in-production",
+  featuredCaseSlugs: [
+    "enterprise-30-years-in-production",
+    "international-automotive-sales-platform",
+    "e-delivery-platform-nationwide",
+  ],
+  featuredDemoSlugs: ["merdi", "healthlab", "vitalab"],
   footerLinks: [
     { label: "Services", href: "/#services" },
-    { label: "Process", href: "/#process" },
     { label: "Case studies", href: "/#cases" },
+    { label: "Demos", href: "/#demo" },
+    { label: "Process", href: "/#process" },
+    { label: "Pricing", href: "/pricing/" },
     { label: "Contact", href: "/#contact" },
   ],
   hero: {
@@ -22,48 +29,9 @@ export const site: SiteContent = {
       h1: "Software your business can lean on.",
       lead: "Web platforms, business automation, core integrations and legacy rescue — one team, a transparent process, honest timelines and support that stays.",
       ctaPrimary: "Start a project",
-      ctaSecondary: "See how we work ›",
-      window: {
-        title: [
-          { tone: "brand", text: "calm" },
-          { tone: "accent", text: "_" },
-          { tone: "brand", text: "soft" },
-          { tone: "muted", text: " · automation.ts" },
-        ],
-        lines: [
-          [
-            { kind: "kw", text: "const" },
-            { kind: "plain", text: " pipeline = " },
-            { kind: "fn", text: "automate" },
-            { kind: "plain", text: "({" },
-          ],
-          [
-            { kind: "plain", text: "  intake: " },
-            { kind: "str", text: "'crm.leads'" },
-            { kind: "plain", text: "," },
-          ],
-          [
-            { kind: "plain", text: "  enrich: [" },
-            { kind: "str", text: "'scoring'" },
-            { kind: "plain", text: ", " },
-            { kind: "str", text: "'routing'" },
-            { kind: "plain", text: "]," },
-          ],
-          [
-            { kind: "plain", text: "  notify: " },
-            { kind: "str", text: "'#sales'" },
-            { kind: "plain", text: "," },
-          ],
-          [{ kind: "plain", text: "});" }],
-          [
-            { kind: "kw", text: "await" },
-            { kind: "plain", text: " pipeline." },
-            { kind: "fn", text: "deploy" },
-            { kind: "plain", text: "();" },
-          ],
-          [{ kind: "ok", text: "✓ Live · 99.98% uptime · 4,120 tasks automated" }],
-        ],
-      },
+      ctaDemos: "Explore demos ›",
+      ctaPricing: "Check pricing ›",
+      demoLabel: "Live demos",
     },
     type: {
       line1: "Complex problems.",
@@ -73,17 +41,43 @@ export const site: SiteContent = {
     },
   },
   sections: {
-    services: { line1: "Four disciplines.", line2: "One accountable partner." },
+    services: {
+      line1: "Four disciplines.",
+      line2: "One accountable partner.",
+      pricingCta: "See transparent pricing ›",
+      pricingPrompt: "Wondering what a project like yours costs?",
+    },
     process: { line1: "From idea to production.", line2: "Calmly, step by step." },
     cases: {
       line1: "Proof, not promises.",
       line2: "Selected work, with the numbers.",
       footnote: "References and technical deep-dives available on request.",
+      seeAllCta: "See all case studies ›",
+      calendly: {
+        prompt: "Prefer to talk your project through?",
+        cta: "Book a free 30-min call ›",
+      },
+    },
+    demos: {
+      line1: "Working software, not slides.",
+      line2: "Click through live demos, end to end.",
+      langChip: "Demo in Polish",
+      cta: "Open the demo ›",
+      footnote: "Fully clickable, front to back — explore each flow the way a real user would.",
+      seeAllCta: "See all demos ›",
+      detailCta: "View details ›",
+      liveCta: "Open the live demo ›",
+      techLegend: "Technologies we can build it in",
+      calendly: {
+        prompt: "Clicked through a demo and want one of your own?",
+        cta: "Book a free 30-min call ›",
+      },
     },
   },
   modals: {
     serviceNote: "A senior engineer replies within 24 hours · NDA on request.",
     caseNote: "References and technical deep-dives on request.",
+    demoNote: "A fully clickable prototype — built to modern best practices, ready to become a real product.",
   },
   contact: {
     heading: "Let's build something that lasts.",
@@ -93,6 +87,11 @@ export const site: SiteContent = {
       "Reply within 24 hours, always from an engineer",
       "EU-based team — on-site across Poland or online",
     ],
+    talk: {
+      title: "Rather talk it through first?",
+      body: "Book a free 30-minute call with a senior engineer — no pitch, just a straight conversation about what you're building.",
+      cta: "Book a free 30-min call ›",
+    },
     form: {
       title: "Project inquiry",
       fields: {
@@ -147,6 +146,30 @@ export const site: SiteContent = {
       },
       finePrint: "A senior engineer replies within 24 hours · NDA on request",
     },
+  },
+  work: {
+    metaTitle: "Case studies — calm_soft",
+    metaDescription:
+      "Every calm_soft case study in one place — legacy rescue, an international automotive platform, public-sector core systems and automation, each with the numbers.",
+    heading: { line1: "Every project,", line2: "with the numbers." },
+    lead: "The full set of case studies behind the highlights on our homepage — real systems, real scale, honest outcomes.",
+    calendly: {
+      prompt: "See something close to your project?",
+      cta: "Book a free 30-min call ›",
+    },
+    startLabel: "Start a project ›",
+  },
+  demosPage: {
+    metaTitle: "Demos — calm_soft",
+    metaDescription:
+      "Five clickable product demos from calm_soft — patient-facing clinic websites and the back-office consoles that run them, each built to modern best practices.",
+    heading: { line1: "Five demos,", line2: "clickable end to end." },
+    lead: "Patient-facing clinic sites and the staff consoles behind them — each a fully clickable prototype, built the way we’d build the real thing.",
+    calendly: {
+      prompt: "Want one of these tailored to your business?",
+      cta: "Book a free 30-min call ›",
+    },
+    startLabel: "Start a project ›",
   },
   notFound: {
     heading: "Nothing to see here.",

@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Service } from "@/content/types";
 import { services } from "@/content/services";
 import { cases, getCaseBySlug } from "@/content/cases";
+import { demos } from "@/content/demos";
 import {
   InquiryProvider,
   useInquiry,
@@ -37,11 +38,12 @@ vi.mock("@/components/sections/ServiceModalContent", () => ({
 
 const SERVICE_ID = services[0].id;
 const CASE_SLUG = services[0].relatedSlugs[0];
+const DEMO_SLUG = demos[0].slug;
 
 // Small test harness exercising the contracts real consumers (CardActions, ModalCta,
 // ContactForm) will use during the fan-out — see SPEC §6.2/§6.3/§6.5.
 function Harness() {
-  const { openServiceModal, openCaseModal } = useModal();
+  const { openServiceModal, openCaseModal, openDemoModal } = useModal();
   const ctaClose = useModalCtaClose();
   const { selectedService } = useInquiry();
   const registerFocus = useRegisterServiceRadioFocus();
@@ -56,6 +58,7 @@ function Harness() {
     <div>
       <button onClick={() => openServiceModal(SERVICE_ID)}>Open service</button>
       <button onClick={() => openCaseModal(CASE_SLUG)}>Open case</button>
+      <button onClick={() => openDemoModal(DEMO_SLUG)}>Open demo</button>
       <button onClick={() => ctaClose(SERVICE_ID)}>CTA close</button>
       <button onClick={() => registerFocus(() => document.getElementById("radio-focus-target")?.focus())}>
         Register focus handler
@@ -69,7 +72,7 @@ function Harness() {
 function renderHarness() {
   render(
     <InquiryProvider>
-      <ModalProvider services={services} cases={cases}>
+      <ModalProvider services={services} cases={cases} demos={demos}>
         <Harness />
       </ModalProvider>
     </InquiryProvider>,
@@ -168,5 +171,24 @@ describe("ModalProvider / InquiryProvider integration (SPEC §14.2)", () => {
     expect(scrollToContact).toHaveBeenCalledTimes(1);
     expect(screen.getByLabelText("radio focus target")).toHaveFocus();
     expect(opener).not.toHaveFocus();
+  });
+
+  it("openDemoModal shows the dialog with the demo's tagline as its accessible name, and Esc returns focus to the opener", async () => {
+    const user = userEvent.setup();
+    renderHarness();
+
+    const opener = screen.getByRole("button", { name: "Open demo" });
+    await user.click(opener);
+
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAccessibleName(demos[0].tagline);
+    expect(document.body.style.overflow).toBe("hidden");
+
+    fireEvent.keyDown(dialog, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(document.body.style.overflow).toBe("");
+    expect(opener).toHaveFocus();
   });
 });

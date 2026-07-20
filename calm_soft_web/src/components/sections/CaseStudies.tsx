@@ -1,10 +1,12 @@
-import { cases, getCaseBySlug } from "@/content/cases";
+import { getCaseBySlug } from "@/content/cases";
 import { site } from "@/content/site";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Chip } from "@/components/ui/Chip";
 import { Watermark } from "@/components/ui/Watermark";
+import { GhostPill } from "@/components/ui/GhostPill";
 import { CardActions } from "@/components/interactive/CardActions";
-import type { Tone } from "@/content/types";
+import { CalendlyCta } from "@/components/interactive/CalendlyCta";
+import type { CaseStudy, Tone } from "@/content/types";
 
 // HANDOFF §6: chip/metric tint follows the case's own tone (a → accent, b → accent2), but
 // card-hover border is always accent regardless of tone (prototype hard-codes `--accent` for
@@ -21,9 +23,14 @@ const HOVER_LIFT =
 // interactivity (opening the case modal) lives in the frozen `CardActions` client leaf. The
 // whole-card click is the stretched "Read the story" pill (SPEC §6.4, zero nested
 // interactives) — no onClick lives on these card divs themselves.
+//
+// 2026-07-20 round2 polish: the homepage now shows only the 3 `site.featuredCaseSlugs` as
+// big wide lead-style cards (story left, metrics right) stacked vertically (resolved by slug, never index — a missing/renamed slug just drops
+// silently instead of crashing the page); the full case index moved to /work/.
 export function CaseStudies() {
-  const featured = getCaseBySlug(site.featuredCaseSlug);
-  const gridCases = cases.filter((c) => c.slug !== site.featuredCaseSlug);
+  const featured = site.featuredCaseSlugs
+    .map((slug) => getCaseBySlug(slug))
+    .filter((c): c is CaseStudy => c !== undefined);
 
   return (
     <section
@@ -37,78 +44,30 @@ export function CaseStudies() {
         line2={site.sections.cases.line2}
       />
 
-      {featured ? (
-        <div
-          className={`card-host relative mt-12 grid grid-cols-1 gap-12 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[44px_48px] min-[900px]:grid-cols-[1.25fr_0.75fr] min-[900px]:items-center ${HOVER_LIFT}`}
-        >
-          {/* Decorative glow + mono watermark — purely presentational, hidden from AT. */}
-          <span
-            aria-hidden="true"
-            className="card-glow -right-40 -top-40 h-[460px] w-[460px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)]"
-          />
-          <span aria-hidden="true" className="absolute right-[34px] top-7">
-            <Watermark />
-          </span>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <Chip tone={TONE_CHIP[featured.tone]}>{featured.tag}</Chip>
-              <span className="text-[13px] text-ink-50">{featured.client}</span>
-            </div>
-            <h3 className="text-[30px] font-bold leading-[1.12] tracking-[-0.02em]">
-              {featured.headline}
-            </h3>
-            <p className="text-[15px] leading-[1.55] text-ink-70">{featured.teaser}</p>
-            <CardActions
-              kind="case-card"
-              caseSlug={featured.slug}
-              readLabel="Read the story ›"
-              ariaLabel={`Read the story: ${featured.client}`}
-            />
-          </div>
-
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-1">
-              <div className="text-[52px] font-bold leading-none tracking-[-0.03em] text-accent">
-                {featured.m1v}
-              </div>
-              <div className="text-[13.5px] text-ink-55">{featured.m1l}</div>
-            </div>
-            {featured.m2v ? (
-              <div className="flex flex-col gap-1">
-                <div className="text-[52px] font-bold leading-none tracking-[-0.03em] text-white">
-                  {featured.m2v}
-                </div>
-                <div className="text-[13.5px] text-ink-55">{featured.m2l}</div>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-
-      <div className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))] gap-4">
-        {gridCases.map((c) => (
+      <div className="mt-12 flex flex-col gap-4">
+        {featured.map((c) => (
           <div
             key={c.slug}
-            className={`card-host relative flex flex-col gap-3 overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-7 ${HOVER_LIFT}`}
+            className={`card-host relative grid grid-cols-1 gap-12 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[44px_48px] min-[900px]:grid-cols-[1.25fr_0.75fr] min-[900px]:items-center ${HOVER_LIFT}`}
           >
+            {/* Decorative glow + mono watermark — purely presentational, hidden from AT. */}
             <span
               aria-hidden="true"
-              className="card-glow -right-[80px] -top-[80px] h-[220px] w-[220px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)]"
+              className="card-glow -right-40 -top-40 h-[460px] w-[460px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)]"
             />
-            <span aria-hidden="true" className="absolute right-[26px] top-6">
+            <span aria-hidden="true" className="absolute right-[34px] top-7">
               <Watermark />
             </span>
 
-            <span className="self-start">
-              <Chip tone={TONE_CHIP[c.tone]}>{c.tag}</Chip>
-            </span>
-            <div className="text-[30px] font-bold leading-none tracking-[-0.03em] text-accent">
-              {c.m1v}
-            </div>
-            <h3 className="text-[16px] font-semibold leading-[1.3]">{c.headline}</h3>
-            <span className="text-[13px] text-ink-50">{c.client}</span>
-            <div className="mt-auto pt-2">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <Chip tone={TONE_CHIP[c.tone]}>{c.tag}</Chip>
+                <span className="text-[13px] text-ink-50">{c.client}</span>
+              </div>
+              <h3 className="text-[30px] font-bold leading-[1.12] tracking-[-0.02em]">
+                {c.headline}
+              </h3>
+              <p className="text-[15px] leading-[1.55] text-ink-70">{c.teaser}</p>
               <CardActions
                 kind="case-card"
                 caseSlug={c.slug}
@@ -116,8 +75,33 @@ export function CaseStudies() {
                 ariaLabel={`Read the story: ${c.client}`}
               />
             </div>
+
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-1">
+                <div className="text-[52px] font-bold leading-none tracking-[-0.03em] text-accent">
+                  {c.m1v}
+                </div>
+                <div className="text-[13.5px] text-ink-55">{c.m1l}</div>
+              </div>
+              {c.m2v ? (
+                <div className="flex flex-col gap-1">
+                  <div className="text-[52px] font-bold leading-none tracking-[-0.03em] text-white">
+                    {c.m2v}
+                  </div>
+                  <div className="text-[13.5px] text-ink-55">{c.m2l}</div>
+                </div>
+              ) : null}
+            </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-10 flex flex-wrap items-center gap-5">
+        <GhostPill tone="accent" size="lg" as="a" href="/work/">
+          {site.sections.cases.seeAllCta}
+        </GhostPill>
+        <p className="m-0 text-[15px] text-ink-70">{site.sections.cases.calendly.prompt}</p>
+        <CalendlyCta variant="filled" label={site.sections.cases.calendly.cta} />
       </div>
 
       <p className="mt-7 text-[13.5px] text-ink-50">{site.sections.cases.footnote}</p>

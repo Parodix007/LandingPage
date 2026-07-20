@@ -1,6 +1,7 @@
 import { site } from "@/content/site";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ContactForm } from "@/components/interactive/ContactForm";
+import { CalendlyCta } from "@/components/interactive/CalendlyCta";
 
 // HANDOFF §8 — server component (SPEC §16 client/server boundary); interactivity lives in
 // the 'use client' ContactForm leaf. Anchor target for nav/footer "/#contact" links and the
@@ -36,7 +37,16 @@ export function Contact() {
             ))}
           </div>
         </div>
-        <ContactForm />
+        <div className="flex flex-col gap-6">
+          <div className="rounded-[var(--radius-card)] border border-border-08 bg-surface p-[28px_30px]">
+            <p className="text-[18px] font-semibold text-ink">{site.contact.talk.title}</p>
+            <p className="mt-2 text-[15px] leading-[1.55] text-ink-70">{site.contact.talk.body}</p>
+            <div className="mt-4">
+              <CalendlyCta variant="filled" label={site.contact.talk.cta} />
+            </div>
+          </div>
+          <ContactForm />
+        </div>
       </div>
     </section>
   );

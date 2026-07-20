@@ -10,18 +10,24 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { CaseStudy, Service, ServiceId } from "@/content/types";
+import type { CaseStudy, Demo, Service, ServiceId } from "@/content/types";
 import { Modal } from "@/components/ui/Modal";
 import { ServiceModalContent } from "@/components/sections/ServiceModalContent";
 import { CaseModalContent } from "@/components/sections/CaseModalContent";
+import { DemoModalContent } from "@/components/sections/DemoModalContent";
 import { useInquiry } from "./InquiryProvider";
 
-type ModalState = { kind: "service"; id: ServiceId } | { kind: "case"; slug: string } | null;
+type ModalState =
+  | { kind: "service"; id: ServiceId }
+  | { kind: "case"; slug: string }
+  | { kind: "demo"; slug: string }
+  | null;
 
 // SPEC §6.2 — BINDING contract, consumed by CardActions (fan-out).
 type ModalContextValue = {
   openServiceModal: (id: ServiceId) => void;
   openCaseModal: (slug: string) => void;
+  openDemoModal: (slug: string) => void;
   closeModals: () => void;
 };
 
@@ -34,10 +40,12 @@ const CtaCloseContext = createContext<(serviceId: ServiceId) => void>(() => {});
 export function ModalProvider({
   services,
   cases,
+  demos,
   children,
 }: {
   services: Service[];
   cases: CaseStudy[];
+  demos: Demo[];
   children: ReactNode;
 }) {
   const [state, setState] = useState<ModalState>(null);
@@ -90,6 +98,18 @@ export function ModalProvider({
     },
     [open, cases],
   );
+  const openDemoModal = useCallback(
+    (slug: string) => {
+      if (!demos.some((d) => d.slug === slug)) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn(`[ModalProvider] openDemoModal: unknown demo slug "${slug}" — ignoring`);
+        }
+        return;
+      }
+      open({ kind: "demo", slug });
+    },
+    [open, demos],
+  );
 
   const closeModals = useCallback(() => {
     setState(null);
@@ -116,19 +136,22 @@ export function ModalProvider({
   );
 
   const modalContextValue = useMemo<ModalContextValue>(
-    () => ({ openServiceModal, openCaseModal, closeModals }),
-    [openServiceModal, openCaseModal, closeModals],
+    () => ({ openServiceModal, openCaseModal, openDemoModal, closeModals }),
+    [openServiceModal, openCaseModal, openDemoModal, closeModals],
   );
 
   const service = state?.kind === "service" ? services.find((s) => s.id === state.id) : undefined;
   const caseStudy = state?.kind === "case" ? cases.find((c) => c.slug === state.slug) : undefined;
+  const demo = state?.kind === "demo" ? demos.find((d) => d.slug === state.slug) : undefined;
 
   // Identifies the currently-rendered content so Modal can pull focus back to × when the
   // content is swapped in place (service→case) while `open` stays true (SPEC §6.3 focus).
   const contentKey = state
     ? state.kind === "service"
       ? `service:${state.id}`
-      : `case:${state.slug}`
+      : state.kind === "case"
+        ? `case:${state.slug}`
+        : `demo:${state.slug}`
     : undefined;
 
   return (
@@ -138,6 +161,7 @@ export function ModalProvider({
         <Modal open={isOpen} onClose={closeModals} labelledBy="modal-headline" contentKey={contentKey}>
           {service && <ServiceModalContent service={service} />}
           {caseStudy && <CaseModalContent caseStudy={caseStudy} />}
+          {demo && <DemoModalContent demo={demo} />}
         </Modal>
       </CtaCloseContext.Provider>
     </ModalContext.Provider>

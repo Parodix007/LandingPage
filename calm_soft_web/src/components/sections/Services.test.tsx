@@ -3,6 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { services } from "@/content/services";
 import { cases } from "@/content/cases";
+import { demos } from "@/content/demos";
 import { InquiryProvider } from "@/components/providers/InquiryProvider";
 import { ModalProvider } from "@/components/providers/ModalProvider";
 import { Services } from "./Services";
@@ -12,7 +13,7 @@ vi.mock("@/lib/scroll", () => ({ scrollToContact: vi.fn() }));
 function renderServices() {
   return render(
     <InquiryProvider>
-      <ModalProvider services={services} cases={cases}>
+      <ModalProvider services={services} cases={cases} demos={demos}>
         <Services />
       </ModalProvider>
     </InquiryProvider>,

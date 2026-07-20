@@ -1,11 +1,14 @@
 import { FilledPill } from "@/components/ui/FilledPill";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { site } from "@/content/site";
-import type { HeroCodeToken, HeroTitleSegment } from "@/content/types";
+import { getDemoBySlug } from "@/content/demos";
 import { HERO_VARIANT } from "@/lib/config";
+import { HeroDemoSlider } from "@/components/interactive/HeroDemoSlider";
+import type { Demo } from "@/content/types";
 
 // HANDOFF §2 / SPEC §6.8: 3 hero variants, single switch = HERO_VARIANT (lib/config.ts).
-// Server component, no id (Hero is not an anchor target). All copy from site.hero/site.eyebrow.
+// Server component. Carries id="top" as the header wordmark's scroll target (Nav.tsx links
+// to /#top). All copy from site.hero/site.eyebrow.
 
 // site.hero.aurora.h1 carries a literal "\n" for its two-line break — render it as <br/>
 // rather than relying on CSS wrapping (SPEC content contract).
@@ -26,66 +29,21 @@ function HeroEyebrow() {
   );
 }
 
-// kind→color mapping for the fake-code window tokens (HANDOFF §2 "code" variant).
-const TOKEN_COLOR: Record<HeroCodeToken["kind"], string> = {
-  kw: "text-[color:var(--color-syntax-kw)]",
-  fn: "text-[color:var(--color-syntax-fn)]",
-  str: "text-[color:var(--color-syntax-str)]",
-  ok: "text-accent",
-  plain: "text-ink-72",
-};
-
-// mockup title bar: brand text white+semibold, the "_" accent green, the filename faded.
-const TITLE_TONE: Record<HeroTitleSegment["tone"], string> = {
-  brand: "font-semibold text-ink",
-  accent: "font-semibold text-accent",
-  muted: "text-ink-deco-45",
-};
-
-function HeroCodeWindow() {
-  const { window: win } = site.hero.code;
-  return (
-    <div
-      aria-hidden="true"
-      className="w-full justify-self-center animate-[floatY_7s_ease-in-out_infinite] overflow-hidden rounded-2xl border border-border-10 bg-[rgba(28,28,30,0.9)] shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_60px_color-mix(in_oklch,var(--color-accent)_12%,transparent)]"
-    >
-      <div className="flex items-center gap-2 border-b border-border-10 px-5 py-3.5">
-        <span className="h-[11px] w-[11px] rounded-full bg-[#ff5f57]" />
-        <span className="h-[11px] w-[11px] rounded-full bg-[#febc2e]" />
-        <span className="h-[11px] w-[11px] rounded-full bg-[#28c840]" />
-        <span className="ml-2 font-mono text-[12.5px]">
-          {win.title.map((seg, i) => (
-            <span key={i} className={TITLE_TONE[seg.tone]}>
-              {seg.text}
-            </span>
-          ))}
-        </span>
-      </div>
-      <div className="whitespace-pre px-6 py-5 font-mono text-[13.5px] leading-[1.75]">
-        {win.lines.map((line, i) => (
-          <div key={i}>
-            {line.map((token, j) => (
-              <span key={j} className={TOKEN_COLOR[token.kind]}>
-                {token.text}
-              </span>
-            ))}
-          </div>
-        ))}
-        <span className="mt-1 inline-block h-4 w-2 animate-[blink_1.1s_step-end_infinite] bg-accent" />
-      </div>
-    </div>
-  );
-}
-
 function HeroCodeVariant() {
   const { code } = site.hero;
+  // Hero slider shows only the 3 `site.featuredDemoSlugs` (resolved by slug, never index — a
+  // missing/renamed slug just drops silently), mirroring Demos.tsx's homepage curation; the
+  // full 5-demo index lives at /demos/.
+  const heroDemos = site.featuredDemoSlugs
+    .map((slug) => getDemoBySlug(slug))
+    .filter((d): d is Demo => d !== undefined);
   return (
     <div className="relative w-full">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_75%_50%,color-mix(in_oklch,var(--color-accent)_14%,transparent)_0%,transparent_70%)]"
       />
-      <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 items-center gap-16 px-6 py-[100px] min-[900px]:grid-cols-[1.1fr_1fr]">
+      <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 items-start gap-16 px-6 py-[100px] min-[900px]:grid-cols-[1.1fr_1fr]">
         <div>
           <HeroEyebrow />
           <h1 className="mt-5 text-[clamp(44px,5.5vw,72px)] font-bold leading-[1.05] tracking-[-0.03em]">
@@ -96,12 +54,21 @@ function HeroCodeVariant() {
             <FilledPill size="lg" as="a" href="/#contact">
               {code.ctaPrimary}
             </FilledPill>
-            <GhostPill tone="accent" size="lg" as="a" href="/#process">
-              {code.ctaSecondary}
+            <GhostPill tone="accent" size="lg" as="a" href="/#demo">
+              {code.ctaDemos}
+            </GhostPill>
+            <GhostPill tone="accent" size="lg" as="a" href="/pricing/">
+              {code.ctaPricing}
             </GhostPill>
           </div>
         </div>
-        <HeroCodeWindow />
+        <HeroDemoSlider
+          demos={heroDemos}
+          label={code.demoLabel}
+          openLabel={site.sections.demos.cta}
+          langChip={site.sections.demos.langChip}
+          detailLabel={site.sections.demos.detailCta}
+        />
       </div>
     </div>
   );
@@ -164,7 +131,7 @@ function HeroTypeVariant() {
 
 export function Hero() {
   return (
-    <section aria-label="Hero" className="flex min-h-[88vh] w-full items-center">
+    <section id="top" aria-label="Hero" className="flex min-h-[88vh] w-full items-center">
       {HERO_VARIANT === "code" ? <HeroCodeVariant /> : null}
       {HERO_VARIANT === "aurora" ? <HeroAuroraVariant /> : null}
       {HERO_VARIANT === "type" ? <HeroTypeVariant /> : null}
