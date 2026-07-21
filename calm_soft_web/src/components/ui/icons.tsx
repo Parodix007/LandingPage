@@ -37,3 +37,16 @@ export function CloseIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+// Warning triangle + exclamation (SPEC 2026-07-21 desktop-only-demo-note-design "Warning
+// treatment"). Decorative only — WarningNote's sentence carries the meaning — so it stays
+// aria-hidden like every other icon here. Geometrically centered in the 24×24 box.
+export function WarningIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...ICON_BASE} {...props}>
+      <path d="M12 3.5 22 20H2L12 3.5Z" strokeLinejoin="round" />
+      <path d="M12 10v4" />
+      <circle cx="12" cy="17" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}

@@ -2,6 +2,7 @@ import type { Demo } from "@/content/types";
 import { site } from "@/content/site";
 import { Chip } from "@/components/ui/Chip";
 import { TechStack } from "@/components/ui/TechStack";
+import { WarningNote } from "@/components/ui/WarningNote";
 
 // HANDOFF (2026-07-20 demo-detail-modal design doc) — renders inside the shared Modal shell
 // (frozen `Modal`, SPEC §6.2-6.3), mirroring CaseModalContent's skeleton. No hooks here, so no
@@ -72,7 +73,15 @@ export function DemoModalContent({ demo }: { demo: Demo }) {
         >
           {site.sections.demos.liveCta}
         </a>
-        <span className="text-[12.5px] text-ink-50">{site.modals.demoNote}</span>
+        {/* Desktop-only staff panels (HealthLab, Merdi Panel) stack a second line, styled as a
+            warning, under the best-practices note — see docs/superpowers/specs/
+            2026-07-21-desktop-only-demo-note-design.md ("Warning treatment" revision).
+            site.modals.demoNote keeps its existing 12.5px muted styling — the warning is
+            intentionally the louder of the two. */}
+        <div className="flex flex-col gap-1.5 text-[12.5px] text-ink-50">
+          <span>{site.modals.demoNote}</span>
+          {demo.desktopOnly && <WarningNote>{site.sections.demos.desktopNote}</WarningNote>}
+        </div>
       </div>
     </div>
   );

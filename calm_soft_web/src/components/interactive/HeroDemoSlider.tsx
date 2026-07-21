@@ -3,6 +3,7 @@
 import type { Demo } from "@/content/types";
 import { Watermark } from "@/components/ui/Watermark";
 import { Chip } from "@/components/ui/Chip";
+import { WarningNote } from "@/components/ui/WarningNote";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { useModal } from "@/components/providers/ModalProvider";
@@ -14,6 +15,7 @@ export type HeroDemoSliderProps = {
   openLabel: string;
   langChip: string;
   detailLabel: string;
+  desktopNote: string;
 };
 
 // Mirrors ProcessCarousel.tsx's ARROW_BASE exactly (SPEC §6.6 / CLAUDE.md carousel pattern).
@@ -44,7 +46,14 @@ const OPEN_LINK =
 // the live mockup stays one click away. Off-screen slides must be keyboard-inert — both the
 // "View details" button and the "Open the demo" link get tabIndex={-1} on inactive slides, in
 // addition to the slide's aria-hidden.
-export function HeroDemoSlider({ demos, label, openLabel, langChip, detailLabel }: HeroDemoSliderProps) {
+export function HeroDemoSlider({
+  demos,
+  label,
+  openLabel,
+  langChip,
+  detailLabel,
+  desktopNote,
+}: HeroDemoSliderProps) {
   const { step, next, prev, goTo } = useCarousel(demos.length, 0);
   const { openDemoModal } = useModal();
   const last = demos.length - 1;
@@ -151,7 +160,16 @@ export function HeroDemoSlider({ demos, label, openLabel, langChip, detailLabel 
                     </a>
                   </span>
                 </div>
-                <span className="relative z-10 text-[13px] text-ink-50">{langChip}</span>
+                {/* Desktop-only staff panels (HealthLab, Merdi Panel) get a second line, styled
+                    as a warning, stacked under the language chip — see docs/superpowers/specs/
+                    2026-07-21-desktop-only-demo-note-design.md ("Warning treatment" revision).
+                    WarningNote sets its own text-warn colour directly on its <p>, so the
+                    wrapper's muted text-ink-50 (kept for the langChip span) never wins the
+                    cascade for it. */}
+                <div className="relative z-10 flex flex-col gap-1 text-[13px] text-ink-50">
+                  <span>{langChip}</span>
+                  {d.desktopOnly && <WarningNote>{desktopNote}</WarningNote>}
+                </div>
               </div>
             );
           })}

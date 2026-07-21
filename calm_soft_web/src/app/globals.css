@@ -7,6 +7,9 @@
   --color-accent: #7ce38b;
   --color-accent2: #b9f0c4;
   --color-error: #ff8a80;
+  /* ostrzeżenie (bursztyn) — celowo ODDZIELNE od --color-error, które oznacza wyłącznie
+     błąd walidacji formularza; kontrast ~12:1 na --color-surface (WCAG AA) */
+  --color-warn: #ffc46b;
   --color-ink: #f5f5f7;
   /* alphy tekstu: 0.35/0.45 z handoffu PODNIESIONE do 0.5 dla tekstu czytanego */
   --color-ink-85: rgba(245, 245, 247, 0.85);

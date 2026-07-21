@@ -12,6 +12,7 @@ const LABEL = "Live demos";
 const OPEN_LABEL = "Open the demo ›";
 const LANG_CHIP = "Demo in Polish";
 const DETAIL_LABEL = "View details ›";
+const DESKTOP_NOTE = "A back-office panel — built for desktop, not adapted for mobile.";
 
 function getTrack(container: HTMLElement) {
   const track = container.querySelector('[data-testid="hero-demo-track"]') as HTMLElement | null;
@@ -29,6 +30,7 @@ function renderSlider() {
           openLabel={OPEN_LABEL}
           langChip={LANG_CHIP}
           detailLabel={DETAIL_LABEL}
+          desktopNote={DESKTOP_NOTE}
         />
       </ModalProvider>
     </InquiryProvider>,
@@ -160,6 +162,15 @@ describe("HeroDemoSlider", () => {
     await user.click(screen.getByRole("button", { name: `View ${demos[0].name} details` }));
 
     expect(await screen.findByRole("dialog")).toHaveAccessibleName(demos[0].tagline);
+  });
+
+  it("renders the desktop-only note on slides whose demo is desktopOnly, alongside the language chip", () => {
+    renderSlider();
+
+    const desktopOnlyCount = demos.filter((d) => d.desktopOnly).length;
+    expect(desktopOnlyCount).toBeGreaterThan(0);
+    expect(screen.getAllByText(DESKTOP_NOTE, { exact: true })).toHaveLength(desktopOnlyCount);
+    expect(screen.getAllByText(LANG_CHIP)).toHaveLength(demos.length);
   });
 
   it("keeps only the active slide's details trigger focusable (no tabIndex vs tabIndex=-1)", () => {

@@ -26,6 +26,11 @@ input::placeholder{color:rgba(26,31,36,.4)}
   .pv-greenbar{display:none!important}
   .pv-burger{display:inline-flex!important}
 }
+html,body{overflow-x:clip}
+@media (max-width:560px){
+  [style*="minmax(300px"]{grid-template-columns:1fr!important}
+  [style*="min-width: 300px"],[style*="min-width: 290px"]{min-width:0!important}
+}
 </style>
 </helmet>
 

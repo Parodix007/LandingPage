@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { demos } from "@/content/demos";
+import { demos, getDemoBySlug } from "@/content/demos";
 import { site } from "@/content/site";
 import { DemoModalContent } from "./DemoModalContent";
 
@@ -47,5 +47,18 @@ describe("DemoModalContent (2026-07-20 demo-detail-modal-and-demos-subpage desig
     render(<DemoModalContent demo={demos[0]} />);
 
     expect(screen.getByText(site.modals.demoNote)).toBeInTheDocument();
+  });
+
+  it("shows the desktop-only note for a desktopOnly demo (HealthLab)", () => {
+    const healthlab = getDemoBySlug("healthlab")!;
+    render(<DemoModalContent demo={healthlab} />);
+
+    expect(screen.getByText(site.sections.demos.desktopNote)).toBeInTheDocument();
+  });
+
+  it("hides the desktop-only note for a responsive demo (Merdi)", () => {
+    render(<DemoModalContent demo={demos[0]} />);
+
+    expect(screen.queryByText(site.sections.demos.desktopNote)).not.toBeInTheDocument();
   });
 });

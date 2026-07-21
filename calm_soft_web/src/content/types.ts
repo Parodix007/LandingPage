@@ -49,6 +49,7 @@ export type Demo = {
   shot: string; // /demo-shots/<slug>.webp — zrzut makiety (lazy <img> na kartach + w modalu)
   shotAlt: string; // tekst alternatywny zrzutu
   href: string; // root-relative /demo/<slug>/index.html — otwierany w nowej karcie
+  desktopOnly?: boolean; // panel back-office, tylko desktop — brak layoutu mobile (opcjonalne: 3 responsywne dema zostają nietknięte)
 };
 
 // /pricing/ page content (2026-07-20 pricing/Calendly/reorder design doc). Discriminated union
@@ -143,6 +144,7 @@ export type SiteContent = {
     demos: {
       line1: string; line2: string; langChip: string; cta: string; footnote: string;
       seeAllCta: string; detailCta: string; liveCta: string; techLegend: string;
+      desktopNote: string;
       calendly: { prompt: string; cta: string };
     };
   };

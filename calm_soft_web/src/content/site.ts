@@ -68,6 +68,7 @@ export const site: SiteContent = {
       detailCta: "View details ›",
       liveCta: "Open the live demo ›",
       techLegend: "Technologies we can build it in",
+      desktopNote: "A back-office panel — built for desktop, not adapted for mobile.",
       calendly: {
         prompt: "Clicked through a demo and want one of your own?",
         cta: "Book a free 30-min call ›",

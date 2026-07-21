@@ -7,6 +7,7 @@ import { InquiryProvider } from "@/components/providers/InquiryProvider";
 import { ModalProvider } from "@/components/providers/ModalProvider";
 import { Chip } from "@/components/ui/Chip";
 import { Watermark } from "@/components/ui/Watermark";
+import { WarningNote } from "@/components/ui/WarningNote";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
 import { CardActions } from "@/components/interactive/CardActions";
@@ -89,6 +90,10 @@ export default function DemosPage() {
                   </div>
                   <h3 className="text-[22px] font-bold leading-[1.2] tracking-[-0.02em]">{d.name}</h3>
                   <p className="text-[14.5px] leading-[1.55] text-ink-70">{d.description}</p>
+                  {/* Desktop-only staff panels (HealthLab, Merdi Panel) get a warning caveat
+                      before the external "Open the demo" link — see docs/superpowers/specs/
+                      2026-07-21-desktop-only-demo-note-design.md ("Warning treatment" revision). */}
+                  {d.desktopOnly && <WarningNote>{site.sections.demos.desktopNote}</WarningNote>}
                 </div>
 
                 {/* Whole-card click = View details (stretched via CardActions). The external

@@ -68,6 +68,7 @@ function HeroCodeVariant() {
           openLabel={site.sections.demos.cta}
           langChip={site.sections.demos.langChip}
           detailLabel={site.sections.demos.detailCta}
+          desktopNote={site.sections.demos.desktopNote}
         />
       </div>
     </div>

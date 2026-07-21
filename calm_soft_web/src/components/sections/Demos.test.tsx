@@ -73,4 +73,10 @@ describe("Demos (2026-07-20 demo-detail-modal-and-demos-subpage design doc)", ()
     const link = screen.getByRole("link", { name: site.sections.demos.seeAllCta });
     expect(link).toHaveAttribute("href", "/demos/");
   });
+
+  it("shows the desktop-only note once, for the featured HealthLab card only", () => {
+    renderSection();
+
+    expect(screen.getAllByText(site.sections.demos.desktopNote)).toHaveLength(1);
+  });
 });

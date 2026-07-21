@@ -85,6 +85,7 @@ export const demos: Demo[] = [
     shot: "/demo-shots/healthlab.webp",
     shotAlt: "The HealthLab laboratory back-office console",
     href: "/demo/healthlab/index.html",
+    desktopOnly: true,
   },
   {
     slug: "merdi-panel",
@@ -105,6 +106,7 @@ export const demos: Demo[] = [
     shot: "/demo-shots/merdi-panel.webp",
     shotAlt: "The Merdi veterinary-clinic staff panel",
     href: "/demo/merdi-panel/index.html",
+    desktopOnly: true,
   },
 ];
 

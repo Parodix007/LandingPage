@@ -79,6 +79,13 @@ describe("content completeness (SPEC §5.3)", () => {
   it("sekcja demos ma niepusty techLegend", () => {
     expect(site.sections.demos.techLegend.trim().length).toBeGreaterThan(0);
   });
+  it("desktopOnly jest ustawione dokładnie dla healthlab i merdi-panel, desktopNote jest niepuste", () => {
+    expect(demos.filter((d) => d.desktopOnly).map((d) => d.slug)).toEqual([
+      "healthlab",
+      "merdi-panel",
+    ]);
+    expect(site.sections.demos.desktopNote.trim().length).toBeGreaterThan(0);
+  });
   it("każde demo ma zcommitowane assety pod public/demo/<slug>/ (verbatim, niedotykane)", () => {
     for (const d of demos) {
       const dir = join(process.cwd(), "public", "demo", d.slug);
