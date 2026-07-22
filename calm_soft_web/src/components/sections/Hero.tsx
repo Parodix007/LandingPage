@@ -43,7 +43,7 @@ function HeroCodeVariant() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_75%_50%,color-mix(in_oklch,var(--color-accent)_14%,transparent)_0%,transparent_70%)]"
       />
-      <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 items-start gap-16 px-6 py-[100px] min-[900px]:grid-cols-[1.1fr_1fr]">
+      <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-start gap-16 px-6 py-[100px] min-[900px]:grid-cols-[1fr_1.15fr]">
         <div>
           <HeroEyebrow />
           <h1 className="mt-5 text-[clamp(44px,5.5vw,72px)] font-bold leading-[1.05] tracking-[-0.03em]">
@@ -65,9 +65,11 @@ function HeroCodeVariant() {
         <HeroDemoSlider
           demos={heroDemos}
           label={code.demoLabel}
-          openLabel={site.sections.demos.cta}
           langChip={site.sections.demos.langChip}
-          detailLabel={site.sections.demos.detailCta}
+          flowsLabel={site.sections.demos.flowsLegend}
+          techLegend={site.sections.demos.techLegend}
+          liveCta={site.sections.demos.liveCta}
+          demoNote={site.modals.demoNote}
           desktopNote={site.sections.demos.desktopNote}
         />
       </div>

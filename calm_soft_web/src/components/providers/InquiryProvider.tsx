@@ -6,18 +6,18 @@ import {
   useContext,
   useMemo,
   useRef,
-  useState,
   type ReactNode,
 } from "react";
-import type { ServiceId } from "@/content/types";
 import { scrollToContact } from "@/lib/scroll";
 
 // SPEC §6.2 — BINDING contract, consumed by CardActions/ModalCta/ContactForm (fan-out).
+// Slimmed for the contact-form simplification: the form no longer carries a service picker, so
+// there is no selection state left here — just the scroll + focus primitives a modal CTA (or
+// the services-slider tile CTA, docs/superpowers/specs/2026-07-22-services-slider-design.md)
+// needs to hand off to the contact form.
 type InquiryContextValue = {
-  selectedService: ServiceId | null;
-  selectService: (id: ServiceId | null) => void;
   requestContactScroll: () => void;
-  focusSelectedServiceRadio: () => void;
+  focusContactField: () => void;
 };
 
 const InquiryContext = createContext<InquiryContextValue | null>(null);
@@ -26,26 +26,23 @@ const InquiryContext = createContext<InquiryContextValue | null>(null);
 const RegisterFocusContext = createContext<(fn: (() => void) | null) => void>(() => {});
 
 export function InquiryProvider({ children }: { children: ReactNode }) {
-  const [selectedService, setSelectedService] = useState<ServiceId | null>(null);
   const focusHandler = useRef<(() => void) | null>(null);
 
-  const selectService = useCallback((id: ServiceId | null) => setSelectedService(id), []);
   const requestContactScroll = useCallback(() => scrollToContact(), []);
-  const focusSelectedServiceRadio = useCallback(() => focusHandler.current?.(), []);
-  const registerServiceRadioFocus = useCallback((fn: (() => void) | null) => {
+  const focusContactField = useCallback(() => focusHandler.current?.(), []);
+  const registerContactFocus = useCallback((fn: (() => void) | null) => {
     focusHandler.current = fn;
   }, []);
 
-  // Callbacks are already stable (useCallback with empty deps); memo keyed on the only
-  // reactive field so the context identity changes only when the selection does — parity
-  // with ModalProvider, honouring the "avoid needless rerenders" intent (SPEC §6.2).
+  // Callbacks are already stable (useCallback with empty deps), so this memo's identity never
+  // changes across renders.
   const value = useMemo<InquiryContextValue>(
-    () => ({ selectedService, selectService, requestContactScroll, focusSelectedServiceRadio }),
-    [selectedService, selectService, requestContactScroll, focusSelectedServiceRadio],
+    () => ({ requestContactScroll, focusContactField }),
+    [requestContactScroll, focusContactField],
   );
 
   return (
-    <RegisterFocusContext.Provider value={registerServiceRadioFocus}>
+    <RegisterFocusContext.Provider value={registerContactFocus}>
       <InquiryContext.Provider value={value}>{children}</InquiryContext.Provider>
     </RegisterFocusContext.Provider>
   );
@@ -57,10 +54,10 @@ export function useInquiry(): InquiryContextValue {
   return ctx;
 }
 
-// ContactForm registers its radio-focus handler here (SPEC §6.2); ModalRoot's CTA path
-// calls it (via focusSelectedServiceRadio) after the scroll to #contact. Expected to run
+// ContactForm registers a handler here that focuses its name input (SPEC §6.2); ModalRoot's
+// CTA path calls it (via focusContactField) after the scroll to #contact. Expected to run
 // inside InquiryProvider; the no-op default registrar is intentional so a consumer mounted
 // without the provider degrades safely instead of throwing.
-export function useRegisterServiceRadioFocus(): (fn: (() => void) | null) => void {
+export function useRegisterContactFocus(): (fn: (() => void) | null) => void {
   return useContext(RegisterFocusContext);
 }

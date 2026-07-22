@@ -9,7 +9,7 @@
 <title>New project inquiry — calm_soft</title>
 </head>
 <body style="margin:0; padding:0; background-color:#000000;">
-<div style="display:none; max-height:0; overflow:hidden; mso-hide:all;">{{name}} · {{service}} · {{meeting}}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
+<div style="display:none; max-height:0; overflow:hidden; mso-hide:all;">{{name}} · {{email}}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#000000;">
   <tr>
     <td align="center" style="padding:36px 12px;">
@@ -29,7 +29,7 @@
 
         <!-- Title -->
         <tr>
-          <td style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.02em; line-height:26px; color:#f5f5f7; padding-bottom:6px;">New project inquiry &mdash; {{service}}.</td>
+          <td style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:22px; font-weight:700; letter-spacing:-0.02em; line-height:26px; color:#f5f5f7; padding-bottom:6px;">New project inquiry.</td>
         </tr>
         <tr>
           <td style="font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace; font-size:12px; color:#7c7c7e; padding-bottom:18px;">{{submittedAt}} &middot; {{source}}</td>
@@ -47,45 +47,6 @@
               <tr>
                 <td style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; color:#8e8e90; padding-top:9px;">Email</td>
                 <td align="right" style="padding-top:9px;"><a href="mailto:{{email}}" style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; font-weight:600; color:#7ce38b; text-decoration:none;">{{email}}</a></td>
-              </tr>
-{{#if company}}
-              <tr>
-                <td style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; color:#8e8e90; padding-top:9px;">Company</td>
-                <td align="right" style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; font-weight:600; color:#f5f5f7; padding-top:9px;">{{company}}</td>
-              </tr>
-{{/if}}
-{{#if phone}}
-              <tr>
-                <td style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; color:#8e8e90; padding-top:9px;">Phone</td>
-                <td align="right" style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; font-weight:600; color:#f5f5f7; padding-top:9px;">{{phone}}</td>
-              </tr>
-{{/if}}
-            </table>
-          </td>
-        </tr>
-
-        <tr><td style="height:14px; line-height:14px; font-size:0;">&nbsp;</td></tr>
-
-        <!-- Request card -->
-        <tr>
-          <td style="background-color:#101012; border:1px solid #232326; border-radius:20px; padding:22px 26px;">
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-              <tr><td colspan="2" style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:#7ce38b; font-weight:600; padding-bottom:10px;">Request</td></tr>
-              <tr>
-                <td style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; color:#8e8e90;">Service</td>
-                <td align="right"><span style="display:inline-block; font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:12px; font-weight:500; padding:5px 12px; border-radius:980px; background-color:#203024; border:1px solid #335339; color:#f5f5f7;">{{service}}</span></td>
-              </tr>
-              <tr>
-                <td style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; color:#8e8e90; padding-top:9px;">First meeting</td>
-                <td align="right" style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; font-weight:600; color:#f5f5f7; padding-top:9px;">{{meeting}}</td>
-              </tr>
-              <tr>
-                <td style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; color:#8e8e90; padding-top:9px;">Discover workshop</td>
-                <td align="right" style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; font-weight:600; padding-top:9px; color:{{#if discoverWorkshop}}#7ce38b{{else}}#8e8e90{{/if}};">{{#if discoverWorkshop}}&#10003; Yes{{else}}&mdash; No{{/if}}</td>
-              </tr>
-              <tr>
-                <td style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; color:#8e8e90; padding-top:9px;">Maintenance handover</td>
-                <td align="right" style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:13px; font-weight:600; padding-top:9px; color:{{#if maintenanceHandover}}#7ce38b{{else}}#8e8e90{{/if}};">{{#if maintenanceHandover}}&#10003; Yes{{else}}&mdash; No{{/if}}</td>
               </tr>
             </table>
           </td>

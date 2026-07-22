@@ -7,6 +7,9 @@ import { cleanup } from "@testing-library/react";
 // odpala — bez tego elementy z kolejnych `it()` w tym samym pliku kumulują się w jsdom.
 afterEach(() => {
   cleanup();
+  // lib/consent.ts persists to localStorage (jsdom implements it) — clear it so one test's
+  // stored consent decision can never leak into the next (e.g. ConsentBanner.test.tsx).
+  window.localStorage.clear();
 });
 
 // Stuby czysto defensywne (SPEC §14.1) — jsdom nie implementuje tych API.

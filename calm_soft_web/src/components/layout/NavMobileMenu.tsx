@@ -9,7 +9,7 @@ export type NavLink = { href: string; label: string };
 // SPEC §6.7 — own design (the mockup has no mobile nav). Client leaf: hamburger + a
 // full-width panel dropped below the bar, same nav tokens. No scroll-lock (the panel does
 // not cover the page) and no focus trap (it stays naturally reachable under the button).
-export function NavMobileMenu({ links }: { links: NavLink[] }) {
+export function NavMobileMenu({ links, ctaLabel }: { links: NavLink[]; ctaLabel: string }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -72,7 +72,7 @@ export function NavMobileMenu({ links }: { links: NavLink[] }) {
           ))}
           <div className="mt-2 self-start">
             <FilledPill as="a" href="/#contact" size="md" onClick={() => setOpen(false)}>
-              Start a project
+              {ctaLabel}
             </FilledPill>
           </div>
         </nav>

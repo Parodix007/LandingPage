@@ -17,7 +17,7 @@ export type ProcessCarouselProps = {
 const ARROW_BASE =
   "hit-44 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border-20 text-ink transition-colors duration-[250ms] hover:border-accent hover:bg-white/[0.05]";
 
-// Mono pill dots — labels use the visible step.number ("00".."03") so the accessible name
+// Mono pill dots — labels use the visible step.number ("00".."04") so the accessible name
 // contains the on-screen text (WCAG 2.5.3 Label in Name, Level A: a voice-control user saying
 // the number can activate it). goTo still keys off the raw 0-based index, which equals the
 // number, so "Go to step 03" jumps to the 4th/last slide.
@@ -31,9 +31,9 @@ const DOT_INACTIVE = "border-white/[0.16] text-ink-55";
 // unit-tested `useCarousel` hook; this component owns only markup + wiring. Track transform
 // is an inline style computed from `step`, assertable in jsdom via `style.transform`.
 export function ProcessCarousel({ steps }: ProcessCarouselProps) {
-  // Default to "01 Design" — the billed "00 Discover" pre-step stays reachable via ‹ / the 00
-  // dot (clampStep protects the <2-step edge).
-  const { step, next, prev, goTo } = useCarousel(steps.length, 1);
+  // Default to "00 Rozmowa" — the free intro call is the entry point of the process
+  // (2026-07-22 pl-copy handoff: "ProcessCarousel: domyślny krok = 00").
+  const { step, next, prev, goTo } = useCarousel(steps.length, 0);
   const last = steps.length - 1;
   const { line1, line2 } = site.sections.process;
 
@@ -44,7 +44,7 @@ export function ProcessCarousel({ steps }: ProcessCarouselProps) {
         <div className="flex shrink-0 items-center gap-3">
           <button
             type="button"
-            aria-label="Previous step"
+            aria-label="Poprzedni krok"
             aria-disabled={step === 0}
             onClick={prev}
             className={`${ARROW_BASE} ${PILL_FOCUS} ${step === 0 ? "opacity-[0.35]" : ""}`}
@@ -53,7 +53,7 @@ export function ProcessCarousel({ steps }: ProcessCarouselProps) {
           </button>
           <button
             type="button"
-            aria-label="Next step"
+            aria-label="Następny krok"
             aria-disabled={step === last}
             onClick={next}
             className={`${ARROW_BASE} ${PILL_FOCUS} ${step === last ? "opacity-[0.35]" : ""}`}
@@ -77,7 +77,7 @@ export function ProcessCarousel({ steps }: ProcessCarouselProps) {
               key={s.number}
               role="group"
               aria-roledescription="slide"
-              aria-label={`Step ${i + 1} of ${steps.length}`}
+              aria-label={`Krok ${i + 1} z ${steps.length}`}
               aria-hidden={i === step ? undefined : true}
               className="card-host relative grid min-h-[320px] flex-[0_0_100%] grid-cols-1 gap-8 overflow-hidden rounded-[var(--radius-card)] bg-surface p-8 min-[900px]:grid-cols-[0.9fr_1.1fr] min-[900px]:gap-14 min-[900px]:p-16"
             >
@@ -119,7 +119,7 @@ export function ProcessCarousel({ steps }: ProcessCarouselProps) {
             <button
               key={s.number}
               type="button"
-              aria-label={`Go to step ${s.number}`}
+              aria-label={`Przejdź do kroku ${s.number}`}
               aria-current={active ? "true" : undefined}
               onClick={() => goTo(i)}
               className={`${DOT_BASE} ${PILL_FOCUS} ${active ? DOT_ACTIVE : DOT_INACTIVE}`}

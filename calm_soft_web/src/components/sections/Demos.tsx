@@ -6,6 +6,7 @@ import { Watermark } from "@/components/ui/Watermark";
 import { WarningNote } from "@/components/ui/WarningNote";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
+import { DemoLogo } from "@/components/ui/DemoLogo";
 import { CardActions } from "@/components/interactive/CardActions";
 import { CalendlyCta } from "@/components/interactive/CalendlyCta";
 import type { Demo } from "@/content/types";
@@ -13,11 +14,17 @@ import type { Demo } from "@/content/types";
 const HOVER_LIFT =
   "transition-[transform,border-color] duration-[350ms] hover:-translate-y-1 hover:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)] focus-within:-translate-y-1 focus-within:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)]";
 
+// Shared "chip" treatment for the per-demo language note (2026-07-22 pl-copy handoff §6) —
+// mirrors DemoModalContent's local constant (ui/ is frozen, so no new shared primitive).
+const LANG_CHIP_CLASS =
+  "inline-flex items-center rounded-[var(--radius-pill)] border border-border-10 bg-white/[0.06] px-[13px] py-[6px] text-[12.5px] text-ink-70";
+
 // Server component (SPEC §16 client/server boundary) — the section renders static content;
 // interactivity (opening the demo detail modal) lives in the frozen `CardActions` client leaf.
 // Whole-card click = the stretched "View details" pill (CardActions kind="demo-card"); the
 // external "Open the demo ›" link is a raised sibling (relative z-10) above the stretched
-// hit-area, exactly like the service-card start/learn split — no nested interactives.
+// hit-area — no nested interactives (mirrors the case-card pattern; the retired service-card
+// start/learn split used the same sibling-CTA precedent).
 //
 // 2026-07-20 demos-v2: the homepage now shows only the 3 `site.featuredDemoSlugs` as bigger
 // cards with a screenshot (resolved by slug, never index — a missing/renamed slug just drops
@@ -70,8 +77,17 @@ export function Demos() {
 
               <div className="flex flex-wrap items-center gap-2.5">
                 <Chip tone="accent">{d.tag}</Chip>
+                {d.uiLang === "en" && (
+                  <span className={LANG_CHIP_CLASS}>{site.sections.demos.langChip}</span>
+                )}
               </div>
-              <h3 className="text-[22px] font-bold leading-[1.2] tracking-[-0.02em]">{d.name}</h3>
+              <h3 className="text-[22px] font-bold leading-[1.2] tracking-[-0.02em]">
+                {d.logoId ? (
+                  <DemoLogo logo={d.logoId} instanceId="card" className="h-7 w-auto" />
+                ) : (
+                  d.name
+                )}
+              </h3>
               <p className="text-[14.5px] leading-[1.55] text-ink-70">{d.description}</p>
               {/* Desktop-only staff panels (HealthLab, Merdi Panel) get a warning caveat before
                   the external "Open the demo" link — see docs/superpowers/specs/
@@ -81,20 +97,20 @@ export function Demos() {
 
             {/* Whole-card click = View details (stretched via CardActions). The external "Open
                 the demo" link is a sibling raised above the stretched hit-area (relative
-                z-10), exactly like the service-card start/learn split. */}
+                z-10) — same sibling-CTA pattern as the case card. */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-7 pb-7 pt-4">
               <CardActions
                 kind="demo-card"
                 demoSlug={d.slug}
                 readLabel={site.sections.demos.detailCta}
-                ariaLabel={`View ${d.name} details`}
+                ariaLabel={`Zobacz szczegóły: ${d.name}`}
               />
               <span className="relative z-10">
                 <a
                   href={d.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`Open the demo: ${d.name}`}
+                  aria-label={`Otwórz demo: ${d.name}`}
                   className={`inline-flex w-fit rounded-[var(--radius-pill)] ${PILL_FOCUS}`}
                 >
                   <span className="relative z-[1] inline-flex items-center justify-center rounded-[var(--radius-pill)] border border-transparent px-4 py-2 text-[14.5px] font-medium leading-none text-accent transition-[all] duration-[250ms] hover:border-[color-mix(in_oklch,var(--color-accent)_40%,transparent)] hover:bg-[color-mix(in_oklch,var(--color-accent)_16%,transparent)] hover:text-white">

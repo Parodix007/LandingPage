@@ -8,7 +8,7 @@ import type { Config } from './config.js';
 import type { FormTokenService } from './security/form-token.js';
 import type { TurnstileVerifier } from './security/turnstile.js';
 import type { SendBudget } from './security/send-budget.js';
-import type { Submission } from './mailer/mailer.js';
+import type { Submission, DetailsSubmission } from './mailer/mailer.js';
 import { contactRoutes } from './routes/contact.js';
 import { healthRoutes } from './routes/health.js';
 
@@ -16,6 +16,7 @@ export interface AppDeps {
   config: Config; logger?: Logger;
   formToken: FormTokenService; turnstile: TurnstileVerifier; sendBudget: SendBudget;
   sendMail: (s: Submission) => Promise<void>;
+  sendDetailsMail: (s: DetailsSubmission) => Promise<void>;
   readiness: () => Promise<{ ok: boolean }>;
 }
 
@@ -78,6 +79,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     allowedOrigins: config.CORS_ORIGINS,
     formToken: deps.formToken, turnstile: deps.turnstile,
     sendBudget: deps.sendBudget, sendMail: deps.sendMail,
+    sendDetailsMail: deps.sendDetailsMail,
   });
   return app;
 }

@@ -1,148 +1,152 @@
 import type { CaseStudy } from "./types";
 
-// Wersja bezpieczna prawnie (sanityzacja NDA + uczciwa atrybucja), zgodna z ustaleniami:
-// liczby skali zostają, usunięte identyfikatory (nazwa programu, ETSI/eIDAS, "largest",
-// dokładny wiek systemu), atrybucja "our team contributed to / responsible for our part".
+// Pierwszoosobowa wersja z uczciwą atrybucją (2026-07-22 handoff pl-copy): zero "my"/"nasz
+// zespół" tam, gdzie pracowałem sam; tam, gdzie praca była zespołowa (automotive, e-Doręczenia,
+// legacy modernisation) — jawne "pracowałem w zespole…"/"współtworzyłem…", nigdy zawyżona rola.
+// Tylko zweryfikowane liczby z tabeli marketingu (patrz handoff §Zasady globalne) — bez lat
+// doświadczenia, bez wartości, których nie da się obronić na rozmowie z klientem.
 export const cases: CaseStudy[] = [
   {
-    slug: "enterprise-30-years-in-production",
-    serviceId: "refactor",
-    tone: "a",
-    tag: "Refactor & rescue",
-    client: "Enterprise · decades in production",
-    headline: "A decades-old business-critical system, reborn as a modern web platform.",
-    teaser:
-      "A business-critical system serving up to 200,000 users — moved off legacy technology onto a modern web stack, with no business downtime.",
-    m1v: "<1 yr",
-    m1l: "core migration delivered",
-    m2v: "200k",
-    m2l: "users on the platform",
-    challenge:
-      "A core system had spent decades in production on now-legacy technology. It worked — but it locked the business into aging tooling, made maintenance and hiring harder every year, and its dated interface was becoming an obstacle to winning new customers. With up to 200,000 users depending on it, a big-bang rewrite was off the table.",
-    approach:
-      "Working as part of the delivery team, we contributed to the technical direction of the migration to a modern web stack — target architecture, security standards and performance benchmarks — planned so the business kept running on the existing system while the new platform took shape.",
-    results:
-      "Users gained a modern experience the old technology could not deliver, maintenance became easier and cheaper, and the platform opened up to modern integrations — with the core migration delivered in under a year.",
-    tags: ["Legacy modernization", "4GL → modern web stack", "Architecture", "Up to 200k users"],
-  },
-  {
-    slug: "international-automotive-sales-platform",
+    slug: "public-sector-poland",
     serviceId: "web",
     tone: "a",
-    tag: "Web solutions",
-    client: "Global automotive manufacturer · US & Europe",
-    headline: "A global automotive brand's sales platform, delivered across the US and Europe.",
+    tag: "Sektor publiczny",
+    client: "Platforma dla sektora publicznego · 20 administracji miejskich",
+    headline: "Dwadzieścia miast, jedna platforma — i legacy, którego nikt nie chciał dotykać.",
     teaser:
-      "An international engineering team building the online sales platform for one of the world's largest automotive brands — serving hundreds of thousands of users across the US and Europe.",
-    m1v: "US + EU",
-    m1l: "markets served",
-    m2v: "100k+",
-    m2l: "users on the platform",
+      "Platforma, na której pracownicy 20 administracji miejskich codziennie załatwiają swoje sprawy — a pod spodem zbudowana od zera integracja z systemem kadrowo-płacowym, która wcześniej nie istniała.",
+    m1v: "20",
+    m1l: "administracji miejskich",
+    m2v: "~20 tys.",
+    m2l: "użytkowników",
     challenge:
-      "Selling vehicles at global scale is not one sales process — it is dozens. Every market brings its own language, regulations, pricing rules and dealer structures, and the brand experience has to stay consistent across all of them. On top of that, the European rollout of a new vehicle line came with a fixed launch date — the kind of deadline that does not move for a world-recognized brand.",
+      "Administracja publiczna działa na dokumentach — i zaskakująco wiele z nich dotyczy jej samej: wnioski urlopowe, nadgodziny, paski płacowe, obieg pism między wydziałami. Platforma daje pracownikom administracji, od urzędnika po kierownictwo miasta, jedno miejsce do załatwiania tych spraw. Naprawdę trudne były dwie rzeczy: pod spodem pracuje kadrowo-płacowe źródło prawdy o godzinach, nieobecnościach i wypłatach — system zbudowany w innej epoce, z którym nic współczesnego nie miało rozmawiać — a do tego żadne dwa miasta nie są takie same i jedna baza kodu musi zachowywać się jak inny produkt w każdym wdrożeniu.",
     approach:
-      "Working as part of an international team of engineers, we contributed as full-stack developers and integration engineers — building platform features end to end and the integrations that tie the sales journey to the surrounding systems — engineered for the US and European markets with the reliability and brand consistency a global automotive brand demands. Cross-border collaboration across time zones was the daily rhythm, not the exception.",
+      "Przejąłem platformę jako działający system produkcyjny i jestem dziś jej jedynym architektem — każda zmiana dzieje się pod ludźmi, którzy nie mogą sobie pozwolić na przestój. Dwie rzeczy zbudowałem w całości, od architektury po wdrożenie: nowy, znacznie prostszy mechanizm zarządzania funkcjami per miasto — konfiguracja kolejnej administracji przestała wymagać wiedzy eksperckiej — oraz zupełnie nową integrację z legacy systemem kadrowo-płacowym. Java, Angular i Oracle.",
     results:
-      "We took part in rolling out the platform for a new vehicle line to the European market — and delivered it within the planned timeline. Today the platform serves hundreds of thousands of users across the US and Europe, holding one consistent brand experience across languages and regulations.",
-    tags: ["International project", "Automotive", "Full-stack & integrations", "US & EU rollout"],
-  },
-  {
-    slug: "public-sector-eu",
-    serviceId: "core",
-    tone: "b",
-    tag: "Core systems",
-    client: "Regulated public-sector programme",
-    headline: "Legally binding electronic delivery, built to comply.",
-    teaser:
-      "A secure electronic-delivery platform where every message carries legal weight — engineered for regulatory compliance and nationwide scale.",
-    m1v: "50k/h",
-    m1l: "users engineered for",
-    challenge:
-      "Electronic delivery is communication with legal consequences: every message must be secure, verifiable and compliant with the applicable regulations. The platform needed an integration layer connecting national and cross-border systems — each with its own protocols and standards — without a single weak link.",
-    approach:
-      "Our team engineered part of the integration platform as reactive, asynchronous services built for scale, integrating with external systems under strict security and regulatory-compliance requirements. Compliance shaped the architecture from day one — not as a checklist at the end.",
-    results:
-      "The integration layer was engineered and verified to handle 50,000 users per hour — nationwide-scale infrastructure ready to grow. Backend-to-backend engineering where correctness is non-negotiable: systems that have no screen, yet everything depends on them.",
-    tags: ["Distributed systems", "Regulatory compliance", "Reactive services", "System integrations"],
+      "Produkcja w 20 administracjach miejskich, około 20 tysięcy osób używających platformy w codziennej pracy. Integracja kadrowo-płacowa weszła do oferty handlowej produktu — praca, która generuje przychód, nie tylko możliwości. Jedno z wymagań klienta poprowadziłem od pomysłu po projekt graficzny — zostało przyjęte, opłacone i dobrze odebrane.",
+    tags: ["Sektor publiczny", "Integracja legacy", "Java · Angular · Oracle", "Jedyny architekt"],
   },
   {
     slug: "e-delivery-platform-nationwide",
     serviceId: "core",
     tone: "b",
-    tag: "Core systems",
-    client: "Regulated document platform",
-    headline: "2.5M files moved. Zero lost.",
+    tag: "Systemy centralne",
+    client: "Regulowana platforma dokumentowa",
+    headline: "2,5 miliona plików przeniesionych. Zero utraconych.",
     teaser:
-      "A live, regulated platform outgrew its NFS file storage — we migrated 2.5 million legally significant files to S3-compatible object storage with zero data loss.",
-    m1v: "2.5M",
-    m1l: "files per migration session",
+      "Regulowana platforma dokumentowa musiała zejść z NFS na storage obiektowy. Zbudowałem narzędzia migracyjne z checkpointami i ciągłą weryfikacją integralności — ~2,5 mln plików we wznawialnych sesjach, finał w jeden weekend.",
+    m1v: "~2,5 mln",
+    m1l: "plików, we wznawialnych sesjach",
     m2v: "0",
-    m2l: "files lost",
+    m2l: "utraconych plików",
     challenge:
-      "A live, regulated document platform had outgrown its NFS file storage. Hundreds of gigabytes across millions of files made storage increasingly hard to operate and scale — and because the service processes documents with legal weight, losing a single file was simply not in the vocabulary.",
+      "Platforma dokumentowa trzymająca około 2,5 miliona plików (~500 GB) na klasycznym NFS potrzebowała przejść na storage obiektowy: właściwe wersjonowanie, prostszy cykl życia i warstwa, którą da się utrzymywać, a nie tylko przeżywać. W środowisku regulowanym utracony dokument to nie bug, tylko incydent z konsekwencjami poza inżynierią — a przy tej skali naiwne podejście zawodzi: proces, który umiera przy 80% bez wiedzy, co już przeszło, jest gorszy niż nierozpoczęty.",
     approach:
-      "We engineered the migration to S3-compatible object storage (MinIO) with data integrity verified at every step, and tuned the pipeline to a throughput of up to 2.5 million files per session — so the switch fit inside a single weekend maintenance window instead of dragging risk out over weeks.",
+      "Ten projekt prowadziłem w całości — architektura i implementacja były po mojej stronie. Prawdziwą pracą nie było kopiowanie, tylko maszyneria wokół niego: silnik transferu, mechanizm checkpointów i wznowień oraz warstwa monitoringu i kontroli, dzięki której proces dało się w każdej chwili zatrzymać, obejrzeć i bezpiecznie kontynuować. Z NFS na obiektowy MinIO — z założeniem, że migrację uruchamia się wielokrotnie i bezpiecznie, a nie raz i nieodwracalnie.",
     results:
-      "Zero data loss, one weekend of planned downtime, and a storage layer dramatically easier to operate — translating directly into lower running costs and clean horizontal scaling.",
-    tags: ["Data migration", "MinIO · S3", "Zero-loss", "Weekend cutover"],
+      "Około 2,5 miliona plików zmigrowanych bez ani jednej straty — a „zero strat\" nie jest tu deklaracją: sumy kontrolne i metryki rekoncyliacji były wbudowane w proces, więc każda sesja dowodziła, co przeniosła. Migracja działa w sesjach — można ją startować, pauzować i wznawiać — a finałowy przebieg produkcyjny zamknął się w jeden weekend.",
+    tags: ["Migracja danych", "NFS → MinIO/S3", "Sumy kontrolne", "Finał w jeden weekend"],
   },
   {
-    slug: "public-sector-poland",
-    serviceId: "web",
-    tone: "a",
-    tag: "Web solutions",
-    client: "Large public-sector deployments",
-    headline: "The platform behind large city administrations.",
+    slug: "localhost-academy",
+    serviceId: "automation",
+    tone: "b",
+    tag: "Automatyzacja",
+    client: "Localhost Academy · szkoła programowania (mentoring 1:1)",
+    headline: "Localhost Academy: 150 uczniów, zero zespołu operacyjnego.",
     teaser:
-      "Software that citizens and officials depend on daily — hardened for high availability and the demanding requirements large public-sector clients sign off on.",
-    m1v: "10+",
-    m1l: "major city deployments",
-    m2v: "100k",
-    m2l: "users per deployment",
+      "Szkoła ucząca programowania w modelu mentoringu 1:1 prowadziła całą operację ręcznie. Zaprojektowałem automatyzacje na narzędziach, które szkoła już znała — dziś korzysta z nich 150–200 osób dziennie, przeważnie ich nie zauważając.",
+    m1v: "150",
+    m1l: "uczniów w modelu 1:1",
+    m2v: "150–200",
+    m2l: "użytkowników dziennie",
     challenge:
-      "Software for large administrations lives under permanent pressure: people depend on it daily, regulations change constantly, and every deployment brings demanding functional and technical requirements. Stability is not a feature — it is the baseline.",
+      "Localhost Academy uczy programowania przez mentoring jeden na jeden — dbałość o każdego ucznia jest produktem i jednocześnie ograniczeniem, bo sama z siebie się nie skaluje. Szkoła prowadziła operacje ręcznie: płatności, komunikację między zarządem a uczniami, przypomnienia o zadaniach, notatki przed i po każdej lekcji, onboarding nowych osób. Przy obietnicy „nikt nie wypada z radaru\" administracyjne potknięcie to nie niedogodność, tylko wada produktu — a operacje ręczne mają twardy sufit.",
     approach:
-      "Our team was responsible for our part of the platform's quality and development: high availability, strict security, and integrations across back-office modules — including hardening the application to meet the requirements large public-sector clients demand before they sign.",
+      "Uczyłem w tej szkole i prowadziłem jej wewnętrzne IT jako CTO. Oczywistą odpowiedzią — w szkole pełnej programistów — byłby dedykowany software. I byłaby to zła odpowiedź: organizacja tej wielkości nie uniesie kosztu jego utrzymania. Zamiast tego zaprojektowałem architekturę automatyzacji na narzędziach, które zespół już rozumiał — Make do orkiestracji, Airtable i Notion jako struktura, Discord do komunikacji, ekosystem Google do kalendarza i poczty. Wdrożenie poprowadziłem, kierując dwójką inżynierów — część zbudowałem sam.",
     results:
-      "Application stability measurably improved, and meeting those demanding requirements directly contributed to winning new clients — with the platform running across 10+ major city deployments, each serving up to 100,000 users.",
-    tags: ["Public sector", "Enterprise web platform", "High availability"],
+      "Ze zautomatyzowanych procesów korzysta dziś 150–200 osób dziennie — uczniowie, kadra i zarząd — w większości ich nie zauważając, i właśnie o to chodzi. Zdolność operacyjna szkoły przestała zależeć od liczby godzin, które ludzie mogą poświęcić na administrację, a przypomnienie zmienia się bez otwierania edytora kodu — na narzędziach, które szkoła sama posiada i rozumie.",
+    tags: ["Automatyzacja procesów", "Make · Airtable · Notion", "CTO wewnętrznego IT", "EdTech"],
+  },
+  {
+    slug: "enterprise-30-years-in-production",
+    serviceId: "refactor",
+    tone: "a",
+    tag: "Refactor & rescue",
+    client: "Enterprise · dekady w produkcji",
+    headline: "System sprzed dekad, odrodzony jako nowoczesna platforma webowa.",
+    teaser:
+      "Krytyczny biznesowo system obsługujący ~20 tys. użytkowników — przeniesiony z technologii legacy na nowoczesny stack webowy, bez nieplanowanych przestojów.",
+    m1v: "<1 rok",
+    m1l: "dostarczona migracja rdzenia",
+    m2v: "~20 tys.",
+    m2l: "użytkowników platformy",
+    challenge:
+      "Rdzeń systemu spędził dekady w produkcji na technologii, która dziś jest legacy. Działał — ale wiązał biznes ze starzejącym się narzędziem, z roku na rok utrudniał utrzymanie i rekrutację, a przestarzały interfejs zaczynał przeszkadzać w zdobywaniu klientów. Przy ~20 tysiącach użytkowników zależnych od systemu rewrite w stylu big-bang nie wchodził w grę.",
+    approach:
+      "Pracując w zespole dostarczającym, współtworzyłem kierunek techniczny migracji na nowoczesny stack webowy — architekturę docelową, standardy bezpieczeństwa i benchmarki wydajności — zaplanowanej tak, by biznes cały czas działał na istniejącym systemie, podczas gdy powstawała nowa platforma.",
+    results:
+      "Użytkownicy dostali nowoczesne doświadczenie, którego stara technologia nie była w stanie dać, utrzymanie stało się prostsze i tańsze, a platforma otworzyła się na współczesne integracje — z migracją rdzenia dostarczoną w niecały rok i bez nieplanowanych przestojów.",
+    tags: ["Modernizacja legacy", "4GL → nowoczesny stack", "Architektura", "~20 tys. użytkowników"],
+  },
+  {
+    slug: "public-sector-eu",
+    serviceId: "core",
+    tone: "b",
+    tag: "Systemy centralne",
+    client: "Regulowany program sektora publicznego",
+    headline: "Prawnie wiążące doręczenia elektroniczne, zbudowane pod zgodność.",
+    teaser:
+      "Platforma bezpiecznych doręczeń elektronicznych, w której każda wiadomość ma wagę prawną — inżynieria pod zgodność regulacyjną i ogólnokrajową skalę.",
+    m1v: "50 tys./h",
+    m1l: "użytkowników — zweryfikowana przepustowość",
+    challenge:
+      "Doręczenia elektroniczne to komunikacja z konsekwencjami prawnymi: każda wiadomość musi być bezpieczna, weryfikowalna i zgodna z regulacjami. Platforma potrzebowała warstwy integracyjnej łączącej systemy krajowe i transgraniczne — każdy z własnymi protokołami i standardami — bez jednego słabego ogniwa.",
+    approach:
+      "Współtworzyłem część platformy integracyjnej jako reaktywne, asynchroniczne usługi budowane pod skalę, integrujące się z systemami zewnętrznymi w rygorze bezpieczeństwa i zgodności regulacyjnej. Compliance kształtował architekturę od pierwszego dnia — nie jako checklista na końcu.",
+    results:
+      "Warstwa integracyjna zaprojektowana i zweryfikowana na 50 tysięcy użytkowników na godzinę — infrastruktura ogólnokrajowej skali, gotowa rosnąć. Inżynieria backend-to-backend: systemy bez ekranu, w których nie ma miejsca na „prawie działa\".",
+    tags: ["Systemy rozproszone", "Zgodność regulacyjna", "Usługi reaktywne", "Integracje"],
   },
   {
     slug: "software-delivery-org-50-people",
     serviceId: "automation",
     tone: "b",
-    tag: "Automation",
-    client: "Software delivery organization",
-    headline: "AI adoption that stuck — culture, not hype.",
+    tag: "Automatyzacja",
+    client: "Organizacja wytwarzająca oprogramowanie",
+    headline: "Wdrożenie AI, które naprawdę się przyjęło — kultura, nie hype.",
     teaser:
-      "Making AI genuinely useful across development, testing and operations in a mid-sized delivery organization — without compromising quality or control.",
-    m1v: "org-wide",
-    m1l: "AI-assisted workflows",
+      "AI naprawdę użyteczne w developmencie, testach i operacjach — wdrożone w ~100-osobowym dziale bez kompromisów w jakości i kontroli.",
+    m1v: "~100 osób",
+    m1l: "dział pracujący z AI na co dzień",
     challenge:
-      "AI tooling fails in delivery organizations for a predictable reason: tools get bought, guidelines get written, and six months later nobody uses them. The goal was to make AI genuinely useful across development, testing and business operations — without compromising quality or control.",
+      "Narzędzia AI zawodzą w firmach wytwarzających oprogramowanie z przewidywalnego powodu: kupuje się licencje, spisuje wytyczne, a pół roku później nikt z nich nie korzysta. Cel: AI naprawdę użyteczne w developmencie, testach i operacjach biznesowych — bez kompromisów w jakości i kontroli.",
     approach:
-      "We built the rollout of AI tooling around custom workflows designed for how the organization actually works — tool selection, safety guardrails, hands-on enablement, and embedding AI into the existing engineering culture: repetitive work off people's plates, humans firmly in the loop for decisions and quality.",
+      "Wdrożenie zbudowałem wokół dedykowanych przepływów dopasowanych do tego, jak organizacja naprawdę pracuje — dobór narzędzi, bariery bezpieczeństwa, warsztaty praktyczne i wpięcie AI w istniejącą kulturę inżynierską: powtarzalna robota schodzi z ludzi, decyzje i jakość zostają w ich rękach.",
     results:
-      "AI became part of the daily workflow across engineering, testing and business roles — adopted because it fit the culture, not because it was mandated. Routine work in code, tests and processes is now automated while the team keeps full control over what ships.",
-    tags: ["AI workflows", "Custom workflows", "Enablement", "Human-in-the-loop"],
+      "W ~100-osobowym dziale AI stało się częścią codziennej pracy inżynierów, testerów i ról biznesowych — przyjęło się, bo pasowało do kultury, a nie dlatego, że było nakazane. Rutynowa praca w kodzie, testach i procesach jest zautomatyzowana, a zespół w pełni kontroluje to, co trafia na produkcję.",
+    tags: ["Przepływy AI", "Dedykowane workflow", "Warsztaty", "Human-in-the-loop"],
   },
   {
-    slug: "premium-online-school-edtech",
-    serviceId: "automation",
-    tone: "b",
-    tag: "Automation",
-    client: "Premium online school · EdTech",
-    headline: "A premium school's invisible machinery, automated.",
-    teaser: "",
-    m1v: "150",
-    m1l: "students, one calm back office",
+    slug: "international-automotive-sales-platform",
+    serviceId: "web",
+    tone: "a",
+    tag: "Rozwiązania webowe",
+    client: "Globalny producent samochodów · USA i Europa",
+    headline: "Ogólnoeuropejska premiera auta z datą, która nie mogła się przesunąć.",
+    teaser:
+      "Data premiery ogłoszona publicznie na długo, zanim ktokolwiek zapytał inżynierię o wykonalność. Warstwa backend-for-frontend między enterprise'owym CMS-em a nowoczesnym frontem — dostarczona na czas.",
+    m1v: "USA + UE",
+    m1l: "obsłużone rynki",
     challenge:
-      "A private premium school serving up to 150 students was running its operations by hand: payments, management–student communication, homework reminders, pre- and post-lesson notes, onboarding of new students. At a premium price point every dropped ball is visible — and manual operations do not scale without hiring.",
+      "Nowy model miał trafić do sprzedaży w całej Europie w sztywnym, publicznie ogłoszonym terminie — ustalonym przez marketing, prasę i sieci dealerskie na długo przed pytaniem o wykonalność. Treści żyły w enterprise'owym CMS-ie zbudowanym dla zespołów redakcyjnych, nie dla nowoczesnego frontu — a zespół był rozproszony między Polską, Wielką Brytanią i USA, więc każda decyzja projektowa musiała przetrwać przekazanie na koniec dnia pracy.",
     approach:
-      "We designed and delivered an online back-office system together with automations spanning the school's core processes: payment handling, structured communication between management and students, automatic task reminders, lesson notes before and after each session, and a smooth onboarding path for new students.",
+      "Pracowałem jako inżynier w międzynarodowym zespole nad warstwą pośrednią: backend-for-frontend przekształcającym dane CMS-a dokładnie w to, czego potrzebował interfejs — bez spowalniania czegokolwiek i bez zmuszania zespołów contentowych do zmiany sposobu pracy. Nest.js, React i Adobe Experience Manager.",
     results:
-      "Administrative processes that used to depend on someone remembering now run themselves. The school operates its premium service with less manual overhead, fewer misses, and an operational backbone that can grow with the student base.",
-    tags: ["Process automation", "Back-office system", "Payments & communication", "EdTech"],
+      "Dostarczone zgodnie z harmonogramem: platforma działała na rynkach europejskich w dniu premiery i wytrzymała ruch tego dnia.",
+    tags: ["Projekt międzynarodowy", "Automotive", "Nest.js · React · AEM"],
+    archived: true,
   },
 ];
 

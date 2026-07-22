@@ -40,7 +40,7 @@ function PriceRow({ price }: { price: PricePoint }) {
   if (price.kind === "from") {
     return (
       <div className="mt-[6px] flex flex-wrap items-baseline gap-2">
-        <span className="text-[13px] uppercase tracking-[0.08em] text-ink-50">from</span>
+        <span className="text-[13px] uppercase tracking-[0.08em] text-ink-50">od</span>
         <span className="text-[28px] font-bold tracking-[-0.02em] text-ink">{price.amount}</span>
         {price.unit ? <span className="text-[15px] text-ink-50">{price.unit}</span> : null}
       </div>

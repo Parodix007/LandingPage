@@ -1,15 +1,16 @@
 import { FilledPill } from "@/components/ui/FilledPill";
+import { site } from "@/content/site";
 import { NavMobileMenu, type NavLink } from "./NavMobileMenu";
 
 // Nav lives outside the providers in layout.tsx — its CTA is a plain anchor to /#contact
 // (SPEC §6.1). Structural nav labels/hrefs are not part of the content model (site.ts only
 // carries footerLinks, per SPEC §5.2) so they're declared here.
 const NAV_LINKS: NavLink[] = [
-  { href: "/#services", label: "Services" },
-  { href: "/#cases", label: "Case studies" },
-  { href: "/#demo", label: "Demos" },
-  { href: "/#process", label: "Process" },
-  { href: "/pricing/", label: "Pricing" },
+  { href: "/#services", label: "Usługi" },
+  { href: "/#cases", label: "Realizacje" },
+  { href: "/#demo", label: "Dema" },
+  { href: "/#process", label: "Proces" },
+  { href: "/pricing/", label: "Cennik" },
 ];
 
 export function Nav() {
@@ -21,7 +22,7 @@ export function Nav() {
             (the reported bug) — see impl-spec-followup.md §1. */}
         <a
           href="/#top"
-          aria-label="calm_soft — back to top"
+          aria-label="calm_soft — wróć na górę"
           className="font-mono text-[26px] font-semibold tracking-[-0.02em] text-ink"
         >
           calm
@@ -35,10 +36,10 @@ export function Nav() {
             </a>
           ))}
           <FilledPill size="nav" as="a" href="/#contact">
-            Start a project
+            {site.navCta}
           </FilledPill>
         </div>
-        <NavMobileMenu links={NAV_LINKS} />
+        <NavMobileMenu links={NAV_LINKS} ctaLabel={site.navCta} />
       </div>
     </div>
   );

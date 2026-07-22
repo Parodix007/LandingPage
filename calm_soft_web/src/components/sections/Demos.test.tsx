@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { services } from "@/content/services";
 import { cases } from "@/content/cases";
 import { demos, getDemoBySlug } from "@/content/demos";
 import { site } from "@/content/site";
@@ -13,7 +12,7 @@ vi.mock("@/lib/scroll", () => ({ scrollToContact: vi.fn() }));
 function renderSection() {
   render(
     <InquiryProvider>
-      <ModalProvider services={services} cases={cases} demos={demos}>
+      <ModalProvider cases={cases} demos={demos}>
         <Demos />
       </ModalProvider>
     </InquiryProvider>,
@@ -31,17 +30,19 @@ describe("Demos (2026-07-20 demo-detail-modal-and-demos-subpage design doc)", ()
     expect(site.featuredDemoSlugs).toHaveLength(3);
     for (const slug of site.featuredDemoSlugs) {
       const d = getDemoBySlug(slug)!;
-      expect(screen.getByText(d.name)).toBeInTheDocument();
+      // getByRole (not getByText): logoId demos (cadence, airlift) render a <DemoLogo> svg
+      // instead of the literal name text — its role="img" aria-label still folds into the
+      // heading's computed accessible name, so this assertion holds either way.
+      expect(screen.getByRole("heading", { name: d.name })).toBeInTheDocument();
     }
   });
 
   it("does not render a non-featured demo on the homepage", () => {
     renderSection();
 
-    const nonFeatured = demos.find((d) => !site.featuredDemoSlugs.includes(d.slug));
-    expect(nonFeatured).toBeDefined();
-    expect(nonFeatured!.name).toBe("Primavita");
-    expect(screen.queryByText(nonFeatured!.name)).not.toBeInTheDocument();
+    const nonFeatured = getDemoBySlug("primavita")!;
+    expect(site.featuredDemoSlugs).not.toContain(nonFeatured.slug);
+    expect(screen.queryByText(nonFeatured.name)).not.toBeInTheDocument();
   });
 
   it("each featured card exposes a 'View details' control", () => {
@@ -50,7 +51,7 @@ describe("Demos (2026-07-20 demo-detail-modal-and-demos-subpage design doc)", ()
     for (const slug of site.featuredDemoSlugs) {
       const d = getDemoBySlug(slug)!;
       expect(
-        screen.getByRole("button", { name: `View ${d.name} details` }),
+        screen.getByRole("button", { name: `Zobacz szczegóły: ${d.name}` }),
       ).toBeInTheDocument();
     }
   });
@@ -60,7 +61,7 @@ describe("Demos (2026-07-20 demo-detail-modal-and-demos-subpage design doc)", ()
 
     for (const slug of site.featuredDemoSlugs) {
       const d = getDemoBySlug(slug)!;
-      const link = screen.getByRole("link", { name: `Open the demo: ${d.name}` });
+      const link = screen.getByRole("link", { name: `Otwórz demo: ${d.name}` });
       expect(link).toHaveAttribute("href", d.href);
       expect(link).toHaveAttribute("target", "_blank");
       expect(link.getAttribute("rel")).toContain("noopener");
@@ -78,5 +79,22 @@ describe("Demos (2026-07-20 demo-detail-modal-and-demos-subpage design doc)", ()
     renderSection();
 
     expect(screen.getAllByText(site.sections.demos.desktopNote)).toHaveLength(1);
+  });
+
+  it("shows the language chip only for featured demos with uiLang 'en' (cadence, airlift), not healthlab", () => {
+    renderSection();
+
+    const enFeatured = site.featuredDemoSlugs
+      .map((slug) => getDemoBySlug(slug)!)
+      .filter((d) => d.uiLang === "en");
+    expect(enFeatured).toHaveLength(2);
+    expect(screen.getAllByText(site.sections.demos.langChip)).toHaveLength(enFeatured.length);
+  });
+
+  it("renders the DemoLogo brand mark for featured demos with a logoId (cadence, airlift)", () => {
+    renderSection();
+
+    expect(screen.getByRole("img", { name: "Cadence" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "AIRLIFT" })).toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-import type { ServiceId } from "@/content/types";
+import type { AreaId, BudgetId } from "@/content/types";
 
 // SPEC (frontend-integration.md §3): payload sent to POST /api/contact — additionalProperties
 // is false server-side, so this type must carry EXACTLY these fields (formToken and
@@ -6,14 +6,21 @@ import type { ServiceId } from "@/content/types";
 export type InquiryFields = {
   name: string;
   email: string;
-  company?: string;
-  phone?: string;
-  service: ServiceId;
-  meeting: "online" | "onsite";
-  discover: boolean;
-  handover: boolean;
   message: string;
   website: string; // honeypot — the REAL bound value from the form ("" for humans)
+};
+
+// Step 2 (optional qualifying details, additionalProperties:false on POST /api/contact/details):
+// name/email are echoed from the already-submitted step-1 state; area/budget/phone are optional
+// and MUST be omitted from the JSON body entirely when unset (undefined drops in
+// JSON.stringify) — never send them explicitly as null.
+export type InquiryDetailsFields = {
+  name: string;
+  email: string;
+  area?: AreaId;
+  budget?: BudgetId;
+  phone?: string;
+  website: string; // honeypot — same convention as InquiryFields
 };
 
 export class InquiryError extends Error {
@@ -49,24 +56,30 @@ async function extractServerMessage(res: Response): Promise<string | undefined> 
 }
 
 /**
- * Two-step submit against calm_soft_api: GET a one-time formToken, then POST the payload with
- * both the formToken and the caller-supplied turnstileToken. A single AbortController + 10s
- * timeout spans BOTH requests. Env is read at CALL time (never module scope) so the deployed
- * bundle always reflects the current build-time value and tests can stub it per case.
+ * Shared two-step transport against calm_soft_api: GET a one-time formToken, then POST `fields`
+ * (plus the formToken and caller-supplied turnstileToken) to `path`. A single AbortController +
+ * 10s timeout spans BOTH requests. Env is read at CALL time (never module scope) so the deployed
+ * bundle always reflects the current build-time value and tests can stub it per case. Used by
+ * both submitInquiry (/api/contact) and submitInquiryDetails (/api/contact/details) — identical
+ * semantics, only the path and payload shape differ.
  */
-export async function submitInquiry(fields: InquiryFields, turnstileToken: string): Promise<void> {
+async function submitOnce(
+  path: string,
+  fields: InquiryFields | InquiryDetailsFields,
+  turnstileToken: string,
+): Promise<void> {
   const base = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   if (!base) {
-    // Mock is NEVER a silent fallback here — the mock short-circuit lives in
-    // submitWithRetry(), before this function is ever reached on the real path.
+    // Mock is NEVER a silent fallback here — the mock short-circuit lives in the *WithRetry
+    // wrappers, before this function is ever reached on the real path.
     throw new InquiryError("Inquiry endpoint not configured and mock not explicitly enabled");
   }
 
   // Normalize base+path joining: strip a single trailing slash from the configured origin.
   const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
   const tokenUrl = `${normalizedBase}/api/contact/token`;
-  const postUrl = `${normalizedBase}/api/contact`;
+  const postUrl = `${normalizedBase}${path}`;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -125,16 +138,24 @@ export async function submitInquiry(fields: InquiryFields, turnstileToken: strin
   }
 }
 
+/** Single-attempt POST /api/contact. */
+export async function submitInquiry(fields: InquiryFields, turnstileToken: string): Promise<void> {
+  return submitOnce("/api/contact", fields, turnstileToken);
+}
+
+/** Single-attempt POST /api/contact/details (step 2, optional qualifying details). */
+export async function submitInquiryDetails(
+  fields: InquiryDetailsFields,
+  turnstileToken: string,
+): Promise<void> {
+  return submitOnce("/api/contact/details", fields, turnstileToken);
+}
+
 /**
  * Mock short-circuits BEFORE executeTurnstile is ever called — the mock path never touches
- * Turnstile or the network. On the real path, retries EXACTLY once and ONLY on a 403, minting a
- * fresh Turnstile token AND a fresh formToken (submitInquiry's own GET) for the retry attempt.
- * A second 403 propagates as an error; any other status/error never retries.
+ * Turnstile or the network.
  */
-export async function submitWithRetry(
-  fields: InquiryFields,
-  executeTurnstile: () => Promise<string>,
-): Promise<void> {
+async function mockOrRun(run: () => Promise<void>): Promise<void> {
   const mock = process.env.NEXT_PUBLIC_INQUIRY_MOCK;
   if (mock === "1" || mock === "fail") {
     await delay(MOCK_DELAY_MS);
@@ -143,16 +164,47 @@ export async function submitWithRetry(
     }
     return;
   }
+  return run();
+}
 
+/**
+ * On the real path, retries EXACTLY once and ONLY on a 403, minting a fresh Turnstile token AND
+ * a fresh formToken (the retried `attempt`'s own GET) for the retry. A second 403 propagates as
+ * an error; any other status/error never retries.
+ */
+async function attemptWithRetry(
+  attempt: (turnstileToken: string) => Promise<void>,
+  executeTurnstile: () => Promise<string>,
+): Promise<void> {
   const turnstileToken = await executeTurnstile();
   try {
-    await submitInquiry(fields, turnstileToken);
+    await attempt(turnstileToken);
   } catch (e) {
     if (e instanceof InquiryError && e.status === 403) {
       const retryTurnstileToken = await executeTurnstile();
-      await submitInquiry(fields, retryTurnstileToken);
+      await attempt(retryTurnstileToken);
     } else {
       throw e;
     }
   }
+}
+
+/** Step 1: POST /api/contact, with the mock short-circuit + 403-retry-once semantics. */
+export async function submitWithRetry(
+  fields: InquiryFields,
+  executeTurnstile: () => Promise<string>,
+): Promise<void> {
+  return mockOrRun(() =>
+    attemptWithRetry((token) => submitInquiry(fields, token), executeTurnstile),
+  );
+}
+
+/** Step 2: POST /api/contact/details, identical mock/retry/abort semantics as submitWithRetry. */
+export async function submitDetailsWithRetry(
+  fields: InquiryDetailsFields,
+  executeTurnstile: () => Promise<string>,
+): Promise<void> {
+  return mockOrRun(() =>
+    attemptWithRetry((token) => submitInquiryDetails(fields, token), executeTurnstile),
+  );
 }

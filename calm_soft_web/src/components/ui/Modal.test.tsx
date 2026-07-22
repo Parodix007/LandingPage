@@ -34,7 +34,7 @@ describe("Modal", () => {
 
   it("focuses the close button on open", () => {
     renderModal(true);
-    expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Zamknij" })).toHaveFocus();
   });
 
   it("calls onClose on Escape", () => {
@@ -68,7 +68,7 @@ describe("Modal", () => {
   it("calls onClose when the × close button is clicked", async () => {
     const user = userEvent.setup();
     const onClose = renderModal(true);
-    await user.click(screen.getByRole("button", { name: "Close" }));
+    await user.click(screen.getByRole("button", { name: "Zamknij" }));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -77,12 +77,12 @@ describe("Modal", () => {
     const last = screen.getByRole("link", { name: "Last link" });
     last.focus();
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab" });
-    expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Zamknij" })).toHaveFocus();
   });
 
   it("wraps Shift+Tab from the first focusable element to the last", () => {
     renderModal(true);
-    const closeButton = screen.getByRole("button", { name: "Close" });
+    const closeButton = screen.getByRole("button", { name: "Zamknij" });
     closeButton.focus();
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab", shiftKey: true });
     const last = screen.getByRole("link", { name: "Last link" });

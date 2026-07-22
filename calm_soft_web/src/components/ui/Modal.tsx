@@ -8,8 +8,10 @@ export type ModalProps = {
   onClose: () => void;
   labelledBy: string;
   children: ReactNode;
-  // Changes when the modal's content is swapped in place (service → case, Task 5). The
-  // keydown handler is a React onKeyDown on the overlay div, so if the swap trigger lived
+  // Changes when the modal's content is swapped in place (historically service → case, Task 5;
+  // that trigger retired with the service modal — docs/superpowers/specs/2026-07-22-services-
+  // slider-design.md — the mechanism itself stays, regression-tested via providers.test.tsx).
+  // The keydown handler is a React onKeyDown on the overlay div, so if the swap trigger lived
   // inside the old content and unmounts, focus would fall to <body> (an ancestor of the
   // overlay) and Esc/Tab-trap keydowns would never reach the handler again. Including this
   // in the focus effect deps pulls focus back to × on every swap, keeping focus inside the
@@ -67,7 +69,7 @@ export function Modal({ open, onClose, labelledBy, children, contentKey }: Modal
         <button
           ref={closeRef}
           type="button"
-          aria-label="Close"
+          aria-label="Zamknij"
           onClick={onClose}
           className={`hit-44 ${PILL_FOCUS} absolute right-6 top-5 flex h-9 w-9 items-center justify-center rounded-full border border-border-20 text-ink-70 transition-colors duration-[250ms] hover:border-accent hover:text-white`}
         >

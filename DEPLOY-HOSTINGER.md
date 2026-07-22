@@ -29,13 +29,20 @@ re-leak the new password on the next boot). The web bundle (`calm_soft_web_out.z
   no `[DIAG]`, no outbox. **Commit the source before/at deploy so HEAD matches what's live.**
 - `_deploy/calm_soft_api_deploy.zip` — **STALE, do not upload** (prebuilt `dist/` from the outbox era).
 
+**[2026-07-22 — contact v2: BOTH bundles above are stale again.]** The working tree carries the 3-field-form +
+`POST /api/contact/details` rework (see the 2026-07-22 addendum at the end of this file). Required order:
+commit → rebuild `calm_soft_api_src.zip` (§2-ALT) → deploy **API first** → rebuild + redeploy the front
+(`NEXT_PUBLIC_GA_ID` baked in) → after a few days of cache rotation, the v2.1 cleanup deploy. Do not upload the
+2026-07-09 bundles.
+
 ---
 
 ## 1) Frontend — static site → `public_html`
 
 Baked into this build (build-time env, inlined — changing any of these requires a rebuild):
 `NEXT_PUBLIC_API_BASE_URL=https://api.calmsoft.pro`, `NEXT_PUBLIC_SITE_URL=https://calmsoft.pro`,
-`NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAADyHDjAP-riXdsY9`, `NEXT_PUBLIC_CONTACT_EMAIL=team@calmsoft.pro`.
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAADyHDjAP-riXdsY9`, `NEXT_PUBLIC_CONTACT_EMAIL=team@calmsoft.pro`,
+`NEXT_PUBLIC_GA_ID=G-ZJR3EJ2Q6F`.
 
 Steps:
 1. In hPanel, make sure **calmsoft.pro** points at this hosting and `www` resolves to the same site.
@@ -52,6 +59,7 @@ To rebuild later (e.g. env or copy change), on a Node 22 machine in `calm_soft_w
 $env:NEXT_PUBLIC_API_BASE_URL="https://api.calmsoft.pro"
 $env:NEXT_PUBLIC_SITE_URL="https://calmsoft.pro"
 $env:NEXT_PUBLIC_TURNSTILE_SITE_KEY="0x4AAAAAADyHDjAP-riXdsY9"
+$env:NEXT_PUBLIC_GA_ID="G-ZJR3EJ2Q6F"
 npm ci ; npm run build      # prebuild env-guard → next build → postbuild writes out/.htaccess
 ```
 Then re-zip and re-upload `out/`. Never weaken `scripts/assert-env.mjs` or add `.env*` files to force a build.
@@ -84,8 +92,8 @@ Steps (hPanel — you confirmed your plan has **Subdomains** + **Node.js Web App
    this file. The API now sends the internal notification email synchronously inside the request instead.
 
 **No code change anywhere:** the stack stays Next.js static + Fastify. The API sits at the subdomain root and
-its routes already begin with `/api`, so `POST /api/contact`, `GET /api/contact/token`, `/health`, `/ready` all
-work verbatim; the browser calls them cross-origin from `calmsoft.pro`, which the API's existing `CORS_ORIGINS`
+its routes already begin with `/api`, so `POST /api/contact`, `POST /api/contact/details`,
+`GET /api/contact/token`, `/health`, `/ready` all work verbatim; the browser calls them cross-origin from `calmsoft.pro`, which the API's existing `CORS_ORIGINS`
 already allows.
 
 **Passenger note (important):** Passenger routes traffic through its own socket, but the app's env validation
@@ -109,10 +117,13 @@ some Linux extractors flatten (`src\app.ts` → no `src/` → `tsc` fails):
 # from calm_soft_api/ (git repo root is the parent LandingPage; source must be committed)
 git archive --format=zip -o ../_deploy/calm_soft_api_src.zip HEAD -- \
   src scripts package.json package-lock.json tsconfig.json .nvmrc
-# verify: unzip -l shows src/app.ts (forward slash), 24 entries (was 27 pre-outbox-removal), no .env/data/dist/node_modules/test
+# verify: unzip -l shows src/app.ts (forward slash), 26 entries (24 pre-v2 + 2 inquiry-details templates), no .env/data/dist/node_modules/test
 ```
-Contents: all of `src/` (incl. **both** `src/emails/*.hbs`), `scripts/copy-templates.mjs`, `package.json`,
-`package-lock.json`, `tsconfig.json`, `.nvmrc`. Fallback for uncommitted changes: 7-Zip or Git-Bash `zip -r`.
+Contents: all of `src/` (incl. **all four** `src/emails/*.hbs` — `inquiry-internal.*` and the `inquiry-details.*`
+pair added 2026-07-22), `scripts/copy-templates.mjs`, `package.json`, `package-lock.json`, `tsconfig.json`,
+`.nvmrc`. **`git archive` packages `HEAD`, not the working tree — the v2 changes (incl. the brand-new, until-now
+untracked `src/emails/inquiry-details.hbs/.txt.hbs`) reach the zip only AFTER they are committed.** Fallback for
+uncommitted changes: 7-Zip or Git-Bash `zip -r`.
 
 **Build settings.** In practice this panel exposes **only the Build command (`npm run build`)** — it runs an
 implicit **production-only** install first (devDeps pruned → `sh: tsc: command not found`), then your Build
@@ -147,7 +158,8 @@ error **[Superseded — 2026-07-09: `node:sqlite` is no longer used, so there is
 logs the bound port and `GET /health` → 200 with **no 502** (port alignment — the likeliest first-boot failure);
 (3) `GET /ready` → 200; (4) ~~outbox DB created and surviving a redeploy~~ **[Superseded — 2026-07-09]** submit
 one live form and confirm the internal notification email arrives (see the addendum — this is now the only
-end-to-end proof that sending works). Then run the §4 go-live checks.
+end-to-end proof that sending works); since 2026-07-22 also complete step 2 (area/budget/phone) and confirm the
+second `Inquiry details — {name} ({email})` mail arrives. Then run the §4 go-live checks.
 
 ---
 
@@ -194,14 +206,16 @@ lost. See the addendum near the end of this file.
   does **not** change (i.e. `TRUST_PROXY_HOPS` is correct) — every IP-keyed control depends on this.
 - **Secrets not served** (from api.calmsoft.pro): `GET /.env` → 404. ~~`GET /data/outbox.db` → 404.~~
   **[Superseded — 2026-07-09]** the outbox no longer exists, so there is no `data/outbox.db` to check.
-- **Origin gate:** a `POST /api/contact` with no/disallowed `Origin` (or wrong `Content-Type`) → 403/415.
+- **Origin gate:** a `POST /api/contact` — and, since 2026-07-22, a `POST /api/contact/details` — with
+  no/disallowed `Origin` (or wrong `Content-Type`) → 403/415.
 - **Health vs ready:** point uptime monitoring at `GET /ready` (runs a live `transporter.verify()` **per probe**,
   bounded by the transport timeouts — a boot-time flag would always lose the race on lsnode's
-  cold-process-per-request lifecycle), not `GET /health`. Alert on `503`s from `POST /api/contact` and on
+  cold-process-per-request lifecycle), not `GET /health`. Alert on `503`s from both contact POSTs and on
   `mail send failed` log lines — via a channel **other than** Hostinger SMTP. (The in-memory send-cap counter
   resets per boot on lsnode; a cap-approach alert cannot fire outside a sustained flood.)
 - **End-to-end (REQUIRED, not optional):** submit the live form once → confirm the internal notification email
-  actually arrives at `MAIL_TEAM_TO`. ~~and the row in the outbox flips to `sent`.~~ **[Superseded — 2026-07-09]**
+  actually arrives at `MAIL_TEAM_TO`; since 2026-07-22 also complete step 2 → confirm the second
+  `Inquiry details — {name} ({email})` mail. ~~and the row in the outbox flips to `sent`.~~ **[Superseded — 2026-07-09]**
   there is no outbox row anymore — this live-submission test is now the *only* proof that mail delivery works, since
   the send happens synchronously in the request with no durable trail. See the addendum below for why this became
   mandatory.
@@ -267,3 +281,35 @@ never arrive before the process was killed, so submissions were accepted but the
 internal notification email arrives at `MAIL_TEAM_TO` is now a **required** step, not optional — with no outbox
 left to inspect afterward, a live send is the only way to prove delivery actually works. See the updated §4
 go-live checklist above.
+
+---
+
+## Addendum — 2026-07-22: contact v2 — 3-field form + `POST /api/contact/details`
+
+The landing moved to a **3-field form** (name / e-mail / message) with an optional post-success **step 2**
+(area / budget / phone). The API changed in lockstep: `POST /api/contact` slimmed to
+`{name, email, message, website, formToken, turnstileToken}` with the legacy 9-field keys transitionally
+tolerated-and-ignored, plus a new `POST /api/contact/details` endpoint (same security chain, own 5/15-min
+rate bucket, no DB — correlation via the step-2 mail subject). Contract of record:
+[calm_soft_api/docs/integration/frontend-integration.md](calm_soft_api/docs/integration/frontend-integration.md);
+rationale: `calm_soft_web/docs/superpowers/specs/2026-07-22-pl-first-person-rework-design.md` §6.
+
+**Rollout order (matters):**
+1. **Commit everything first.** The whole v2 change set sits in the working tree, and the two new
+   `src/emails/inquiry-details.hbs/.txt.hbs` templates are **untracked** until committed — the §2-ALT
+   `git archive HEAD` command would silently omit them. Then rebuild `_deploy/calm_soft_api_src.zip` (§2-ALT;
+   expect **26 entries**) and the web bundle.
+2. **API v2 first** (hPanel: rebuild + restart). Fully backward compatible — the old 9-field payload still
+   validates (legacy keys tolerated and ignored), so cached front bundles hit no `400` window.
+3. **Then the front** (new build with the 3-field form; `NEXT_PUBLIC_GA_ID=G-ZJR3EJ2Q6F` is baked in at build
+   time — §1; front-only, the API is untouched by it).
+4. **After a few days** (static-front caches rotated): **API v2.1 cleanup deploy** — remove the transitional
+   legacy keys from the `/api/contact` schema and the legacy-tolerance test. This is the only open code follow-up.
+
+**Not in this rollout:** no new API env vars, no migrations (no DB), no CORS or rate-limit changes; `/health`
+and `/ready` unchanged. The `SMTP_PASS` rotation (2026-07-09 item above) still applies if not yet done.
+
+**Post-deploy smoke (extends §4):** `GET /api/contact/token` → `POST /api/contact` with a minimal v2 payload →
+`200` + `New inquiry — {name}` mail; then `POST /api/contact/details` (fresh formToken + fresh Turnstile) →
+`200` + a second `Inquiry details — {name} ({email})` mail; for the transitional window, an old full 9-field
+payload → also `200` (one mail, legacy fields absent from it).

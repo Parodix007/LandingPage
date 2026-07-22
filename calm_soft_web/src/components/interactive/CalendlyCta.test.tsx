@@ -4,11 +4,19 @@ import userEvent from "@testing-library/user-event";
 import { CalendlyCta } from "./CalendlyCta";
 import { openCalendlyPopup } from "@/lib/calendly";
 import { CALENDLY_URL } from "@/lib/config";
+import { track, EVENT_CALENDLY } from "@/lib/analytics";
 
 // SPEC (2026-07-20 reorder doc) — CalendlyCta tests mock the whole lib/calendly module;
 // calendly.ts has its own unit tests for the loader/popup behavior.
 vi.mock("@/lib/calendly", () => ({
   openCalendlyPopup: vi.fn(),
+}));
+
+// 2026-07-22 GA4 addendum — mocks the whole lib/analytics module; analytics.ts has its own
+// unit tests for the real track()/gtag delegation.
+vi.mock("@/lib/analytics", () => ({
+  track: vi.fn(),
+  EVENT_CALENDLY: "calendly_open",
 }));
 
 const mockedOpenCalendlyPopup = vi.mocked(openCalendlyPopup);
@@ -40,6 +48,16 @@ describe("CalendlyCta", () => {
 
     expect(mockedOpenCalendlyPopup).toHaveBeenCalledTimes(1);
     expect(mockedOpenCalendlyPopup).toHaveBeenCalledWith(CALENDLY_URL);
+  });
+
+  it("fires EVENT_CALENDLY on click (2026-07-22 GA4 addendum)", async () => {
+    mockedOpenCalendlyPopup.mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<CalendlyCta variant="filled" label="Book a call" />);
+
+    await user.click(screen.getByRole("link", { name: "Book a call" }));
+
+    expect(track).toHaveBeenCalledWith(EVENT_CALENDLY);
   });
 
   it("falls back to window.open when the popup loader rejects", async () => {

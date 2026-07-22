@@ -9,7 +9,7 @@ const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
 };
 
 // HANDOFF §7 — renders inside the shared Modal shell (frozen `Modal`, SPEC §6.2-6.3). No
-// hooks here, so no 'use client' (mirrors the ServiceModalContent skeleton) — it is still
+// hooks here, so no 'use client' (mirrors DemoModalContent's no-hook skeleton) — it is still
 // rendered fine from within the 'use client' ModalProvider tree. Binding contract: the
 // element with id="modal-headline" is Modal's aria-labelledby target.
 export function CaseModalContent({ caseStudy }: { caseStudy: CaseStudy }) {
@@ -48,19 +48,19 @@ export function CaseModalContent({ caseStudy }: { caseStudy: CaseStudy }) {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,250px),1fr))] items-start gap-[clamp(16px,2.5vw,30px)]">
         <div className="flex flex-col gap-2">
           <div className="text-[13px] font-semibold uppercase tracking-[0.12em] text-accent">
-            Challenge
+            Wyzwanie
           </div>
           <p className="text-[14px] leading-[1.55] text-ink-70">{caseStudy.challenge}</p>
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-[13px] font-semibold uppercase tracking-[0.12em] text-accent">
-            Approach
+            Podejście
           </div>
           <p className="text-[14px] leading-[1.55] text-ink-70">{caseStudy.approach}</p>
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-[13px] font-semibold uppercase tracking-[0.12em] text-accent">
-            Results
+            Rezultaty
           </div>
           <p className="text-[14px] leading-[1.55] text-ink-70">{caseStudy.results}</p>
         </div>
@@ -78,7 +78,7 @@ export function CaseModalContent({ caseStudy }: { caseStudy: CaseStudy }) {
       </div>
 
       <div className="mt-1 flex flex-wrap items-center gap-[18px] border-t border-border-08 pt-[22px]">
-        <ModalCta serviceId={caseStudy.serviceId} label="Start a similar project ›" />
+        <ModalCta label="Zacznij podobny projekt ›" />
         <span className="text-[12.5px] text-ink-50">{site.modals.caseNote}</span>
       </div>
     </div>

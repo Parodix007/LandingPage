@@ -2,16 +2,14 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { demos } from "@/content/demos";
-import { InquiryProvider } from "@/components/providers/InquiryProvider";
-import { ModalProvider } from "@/components/providers/ModalProvider";
-import { services } from "@/content/services";
-import { cases } from "@/content/cases";
 import { HeroDemoSlider } from "./HeroDemoSlider";
 
 const LABEL = "Live demos";
-const OPEN_LABEL = "Open the demo ›";
 const LANG_CHIP = "Demo in Polish";
-const DETAIL_LABEL = "View details ›";
+const FLOWS_LABEL = "Key flows";
+const TECH_LEGEND = "Technologies I could build this in";
+const LIVE_CTA = "Open the live demo ›";
+const DEMO_NOTE = "A fully clickable prototype — built to best practices, ready to become a real product.";
 const DESKTOP_NOTE = "A back-office panel — built for desktop, not adapted for mobile.";
 
 function getTrack(container: HTMLElement) {
@@ -20,41 +18,32 @@ function getTrack(container: HTMLElement) {
   return track;
 }
 
+// 2026-07-23 hero-demo-detail-slider design: the component no longer opens the demo modal (the
+// modal is untouched but reached from the Demos section/`/demos/` instead), so it no longer
+// needs useModal/useInquiry — render it bare, no providers.
 function renderSlider() {
   return render(
-    <InquiryProvider>
-      <ModalProvider services={services} cases={cases} demos={demos}>
-        <HeroDemoSlider
-          demos={demos}
-          label={LABEL}
-          openLabel={OPEN_LABEL}
-          langChip={LANG_CHIP}
-          detailLabel={DETAIL_LABEL}
-          desktopNote={DESKTOP_NOTE}
-        />
-      </ModalProvider>
-    </InquiryProvider>,
+    <HeroDemoSlider
+      demos={demos}
+      label={LABEL}
+      langChip={LANG_CHIP}
+      flowsLabel={FLOWS_LABEL}
+      techLegend={TECH_LEGEND}
+      liveCta={LIVE_CTA}
+      demoNote={DEMO_NOTE}
+      desktopNote={DESKTOP_NOTE}
+    />,
   );
 }
 
-// Links inside inactive slides sit under aria-hidden="true" — *ByRole excludes them from the
-// accessibility tree by default, so every lookup here that may target an inactive slide's link
-// passes `{ hidden: true }` to see the full DOM regardless of step.
-function getOpenLink(name: string) {
-  return screen.getByRole("link", { name: `Open the demo: ${name}`, hidden: true });
+// Live links inside inactive slides sit under aria-hidden="true" — *ByRole excludes them from
+// the accessibility tree by default, so every lookup here that may target an inactive slide's
+// link passes `{ hidden: true }` to see the full DOM regardless of step.
+function getLiveLinks() {
+  return screen.getAllByRole("link", { name: LIVE_CTA, hidden: true });
 }
 
 describe("HeroDemoSlider", () => {
-  it("renders all three demo names", () => {
-    renderSlider();
-    for (const d of demos) {
-      // Dot buttons also render the demo name as their own text (see DOT_BASE comment in
-      // HeroDemoSlider.tsx), so scope to the slide heading specifically. Two of the three
-      // headings sit in aria-hidden inactive slides at step 0, hence `hidden: true`.
-      expect(screen.getByRole("heading", { name: d.name, hidden: true })).toBeInTheDocument();
-    }
-  });
-
   it("renders the track at step 0 initially", () => {
     const { container } = renderSlider();
     expect(getTrack(container).style.transform).toBe("translateX(calc(0 * (-100% - 18px)))");
@@ -64,7 +53,7 @@ describe("HeroDemoSlider", () => {
     const user = userEvent.setup();
     const { container } = renderSlider();
 
-    await user.click(screen.getByRole("button", { name: "Next demo" }));
+    await user.click(screen.getByRole("button", { name: "Następne demo" }));
 
     expect(getTrack(container).style.transform).toBe("translateX(calc(1 * (-100% - 18px)))");
   });
@@ -72,22 +61,22 @@ describe("HeroDemoSlider", () => {
   it("retreats the track transform when Previous demo is clicked", async () => {
     const user = userEvent.setup();
     const { container } = renderSlider();
-    const nextButton = screen.getByRole("button", { name: "Next demo" });
+    const nextButton = screen.getByRole("button", { name: "Następne demo" });
 
     await user.click(nextButton);
     await user.click(nextButton);
-    await user.click(screen.getByRole("button", { name: "Previous demo" }));
+    await user.click(screen.getByRole("button", { name: "Poprzednie demo" }));
 
     expect(getTrack(container).style.transform).toBe("translateX(calc(1 * (-100% - 18px)))");
   });
 
   it("marks Previous demo aria-disabled at step 0, and Next demo is not disabled initially", () => {
     renderSlider();
-    expect(screen.getByRole("button", { name: "Previous demo" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: "Poprzednie demo" })).toHaveAttribute(
       "aria-disabled",
       "true",
     );
-    expect(screen.getByRole("button", { name: "Next demo" })).not.toHaveAttribute(
+    expect(screen.getByRole("button", { name: "Następne demo" })).not.toHaveAttribute(
       "aria-disabled",
       "true",
     );
@@ -96,7 +85,7 @@ describe("HeroDemoSlider", () => {
   it("marks Next demo aria-disabled at the last slide and clicking it again is a no-op", async () => {
     const user = userEvent.setup();
     const { container } = renderSlider();
-    const nextButton = screen.getByRole("button", { name: "Next demo" });
+    const nextButton = screen.getByRole("button", { name: "Następne demo" });
 
     for (let i = 0; i < demos.length - 1; i += 1) {
       await user.click(nextButton);
@@ -118,7 +107,7 @@ describe("HeroDemoSlider", () => {
     const user = userEvent.setup();
     const { container } = renderSlider();
     const target = demos[2];
-    const dot = screen.getByRole("button", { name: `Go to ${target.name}` });
+    const dot = screen.getByRole("button", { name: `Przejdź do: ${target.name}` });
 
     await user.click(dot);
 
@@ -126,68 +115,116 @@ describe("HeroDemoSlider", () => {
     expect(dot).toHaveAttribute("aria-current", "true");
   });
 
-  it("keeps only the active slide's open link focusable (no tabIndex vs tabIndex=-1)", async () => {
+  it("renders every demo's dot with its visible name (aria-hidden slides included)", () => {
+    renderSlider();
+    for (const d of demos) {
+      expect(screen.getByRole("button", { name: `Przejdź do: ${d.name}` })).toBeInTheDocument();
+    }
+  });
+
+  it("renders the tagline as plain (non-heading) text for every demo — heading-order fix", () => {
+    renderSlider();
+    for (const d of demos) {
+      expect(screen.getByText(d.tagline)).toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", { name: d.tagline, hidden: true }),
+      ).not.toBeInTheDocument();
+    }
+  });
+
+  it("renders the detail paragraph for every demo", () => {
+    renderSlider();
+    for (const d of demos) {
+      expect(screen.getByText(d.detail)).toBeInTheDocument();
+    }
+  });
+
+  it("renders every key-flow feature pill of the first demo", () => {
+    renderSlider();
+    for (const feature of demos[0].features) {
+      expect(screen.getByText(feature)).toBeInTheDocument();
+    }
+  });
+
+  it("renders flowsLabel and techLegend once per slide", () => {
+    renderSlider();
+    expect(screen.getAllByText(FLOWS_LABEL, { exact: true })).toHaveLength(demos.length);
+    expect(screen.getAllByText(TECH_LEGEND, { exact: true })).toHaveLength(demos.length);
+  });
+
+  it("renders the shared technology-stack row on every slide", () => {
+    renderSlider();
+    expect(screen.getAllByRole("img", { name: "React", hidden: true })).toHaveLength(demos.length);
+  });
+
+  it("renders an alt-labelled screenshot for every demo", () => {
+    renderSlider();
+    for (const d of demos) {
+      expect(screen.getByAltText(d.shotAlt)).toBeInTheDocument();
+    }
+  });
+
+  it("renders a live-demo link per slide pointing at /demo/<slug>/index.html, opening in a new tab", () => {
+    renderSlider();
+    const links = getLiveLinks();
+    expect(links).toHaveLength(demos.length);
+    for (const d of demos) {
+      const link = links.find((l) => l.getAttribute("href") === d.href);
+      expect(link).toBeDefined();
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    }
+  });
+
+  it("keeps only the active slide's live link focusable (no tabIndex vs tabIndex=-1), shifting after next", async () => {
     const user = userEvent.setup();
     renderSlider();
 
-    const link0 = getOpenLink(demos[0].name);
-    const link1 = getOpenLink(demos[1].name);
-    const link2 = getOpenLink(demos[2].name);
+    const links = getLiveLinks();
+    const link0 = links.find((l) => l.getAttribute("href") === demos[0].href)!;
+    const link1 = links.find((l) => l.getAttribute("href") === demos[1].href)!;
+    const link2 = links.find((l) => l.getAttribute("href") === demos[2].href)!;
 
     expect(link0).not.toHaveAttribute("tabIndex");
     expect(link1).toHaveAttribute("tabIndex", "-1");
     expect(link2).toHaveAttribute("tabIndex", "-1");
 
-    await user.click(screen.getByRole("button", { name: "Next demo" }));
+    await user.click(screen.getByRole("button", { name: "Następne demo" }));
 
     expect(link0).toHaveAttribute("tabIndex", "-1");
     expect(link1).not.toHaveAttribute("tabIndex");
     expect(link2).toHaveAttribute("tabIndex", "-1");
   });
 
-  it("every open link points at /demo/<slug>/index.html and opens in a new tab", () => {
-    renderSlider();
-    for (const d of demos) {
-      const link = getOpenLink(d.name);
-      expect(link).toHaveAttribute("href", `/demo/${d.slug}/index.html`);
-      expect(link).toHaveAttribute("target", "_blank");
-      expect(link).toHaveAttribute("rel", "noopener noreferrer");
-    }
-  });
-
-  it("opens the demo detail modal when the active slide's View details trigger is clicked", async () => {
-    const user = userEvent.setup();
-    renderSlider();
-
-    await user.click(screen.getByRole("button", { name: `View ${demos[0].name} details` }));
-
-    expect(await screen.findByRole("dialog")).toHaveAccessibleName(demos[0].tagline);
-  });
-
-  it("renders the desktop-only note on slides whose demo is desktopOnly, alongside the language chip", () => {
+  it("renders the desktop-only note on slides whose demo is desktopOnly", () => {
     renderSlider();
 
     const desktopOnlyCount = demos.filter((d) => d.desktopOnly).length;
     expect(desktopOnlyCount).toBeGreaterThan(0);
     expect(screen.getAllByText(DESKTOP_NOTE, { exact: true })).toHaveLength(desktopOnlyCount);
-    expect(screen.getAllByText(LANG_CHIP)).toHaveLength(demos.length);
   });
 
-  it("keeps only the active slide's details trigger focusable (no tabIndex vs tabIndex=-1)", () => {
+  it("renders the demo best-practices note once per slide", () => {
+    renderSlider();
+    expect(screen.getAllByText(DEMO_NOTE, { exact: true })).toHaveLength(demos.length);
+  });
+
+  it("renders the language chip only for slides whose demo has uiLang 'en' (2026-07-22 pl-copy handoff §6)", () => {
     renderSlider();
 
-    const trigger0 = screen.getByRole("button", { name: `View ${demos[0].name} details` });
-    const trigger1 = screen.getByRole("button", {
-      name: `View ${demos[1].name} details`,
-      hidden: true,
-    });
-    const trigger2 = screen.getByRole("button", {
-      name: `View ${demos[2].name} details`,
-      hidden: true,
-    });
+    const enCount = demos.filter((d) => d.uiLang === "en").length;
+    const plCount = demos.filter((d) => d.uiLang === "pl").length;
+    expect(enCount).toBeGreaterThan(0);
+    expect(plCount).toBeGreaterThan(0);
+    expect(screen.getAllByText(LANG_CHIP, { exact: true })).toHaveLength(enCount);
+  });
 
-    expect(trigger0).not.toHaveAttribute("tabIndex");
-    expect(trigger1).toHaveAttribute("tabIndex", "-1");
-    expect(trigger2).toHaveAttribute("tabIndex", "-1");
+  it("renders the DemoLogo brand mark for demos with a logoId (cadence, airlift)", () => {
+    renderSlider();
+
+    // Both cadence and airlift are off-screen (aria-hidden) at step 0 — the initial active
+    // slide is demos[0] (Merdi) — so both lookups need `hidden: true` to see the full DOM.
+    expect(screen.getByRole("img", { name: "Cadence", hidden: true })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "AIRLIFT", hidden: true })).toBeInTheDocument();
   });
 });

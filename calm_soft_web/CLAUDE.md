@@ -10,6 +10,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - The mockup is binding **visually only** — architectural decisions live in the spec
   (`docs/superpowers/specs/2026-07-08-calm-soft-landing-design.md`), which is the source of
   truth for contracts, priority rules, and Definition of Done. Read it before implementing.
+  The 2026-07-22 rework spec (`docs/superpowers/specs/2026-07-22-pl-first-person-rework-design.md`)
+  OVERRIDES it where they conflict: Polish-only first-person copy, 3-field form + optional
+  details step, slimmed InquiryContext/ModalContext, 7 demos, 5 process steps, section order.
+  The 2026-07-22 services-slider spec (`docs/superpowers/specs/2026-07-22-services-slider-
+  design.md`) further OVERRIDES the rework spec's ModalContext contract (`openServiceModal`
+  and the "service" modal kind are removed — only `openCaseModal`/`openDemoModal`/
+  `closeModals` remain) and the Services section layout (one-tile-per-view slider, not a 2×2
+  card grid + service modal).
 - **Priority rules**: WCAG AA beats mockup fidelity (corrected alpha tokens in spec §11);
   "pixel-perfect" applies to desktop only — mobile follows spec §7.
 - Keep the site lightweight: no webfonts (system font stack), no content images, no state
@@ -35,9 +43,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Single-page marketing/lead-gen landing for **calm_soft**, a Polish software house. Dark theme
-only, green accent (`#7ce38b` / mint `#b9f0c4`), English copy (`<html lang="en">`). Every CTA
-funnels into the project-inquiry form at `#contact`.
+Single-page marketing/lead-gen landing for **calm_soft** — one senior Polish engineer (the
+site speaks in the **first person singular**, never "we/our team"; positioning per the
+2026-07 marketing docs). Dark theme only, green accent (`#7ce38b` / mint `#b9f0c4`),
+**Polish copy only** (`<html lang="pl">`, no EN version, no i18n infrastructure — a
+deliberate owner decision; don't add partial i18n). Only marketing-verified numbers may
+appear in copy (see the 2026-07-22 spec §1). Every CTA funnels into the project-inquiry
+form at `#contact`. Homepage section order: Hero → Services → Case studies → Demos →
+Process → Contact.
 
 Visual source of truth (outside this repo — content/tokens must be extracted into the repo
 before component work; agents consume repo files only):
@@ -89,8 +102,8 @@ guard rejects a value with path/query/trailing slash; `lib/inquiry.ts` appends
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (public Cloudflare Turnstile site key, not a secret; required
 whenever `NEXT_PUBLIC_API_BASE_URL` is set), `NEXT_PUBLIC_INQUIRY_MOCK` (`1`|`fail`),
 `NEXT_PUBLIC_SITE_URL` (origin for metadataBase/canonical/OG — required for prod builds),
-`NEXT_PUBLIC_ANALYTICS_SRC` + `NEXT_PUBLIC_ANALYTICS_DOMAIN` (cookieless analytics; script
-renders only when both set).
+`NEXT_PUBLIC_GA_ID` (public GA4 Measurement ID, not a secret; empty = GA fully off — no gtag
+script, no CSP origins, no consent banner).
 
 ## Architecture
 
@@ -100,14 +113,22 @@ renders only when both set).
   studies have stable `slug`s; services reference them via `relatedSlugs` (never array
   indices). `site.featuredCaseSlugs: string[]` (not a single slug) drives the 3-up featured
   cards on the homepage CaseStudies section — resolved via `getCaseBySlug`, filtering out any
-  that fail to resolve rather than crashing. Demos work the same way: 5 total in `demos.ts`,
-  `site.featuredDemoSlugs: string[]` resolves 3 of them via `getDemoBySlug` for the homepage
-  `Demos` section and `HeroDemoSlider`; the full 5 render at `/demos/`.
+  that fail to resolve rather than crashing. Demos work the same way: **7 total** in `demos.ts`
+  (5 Polish-UI clinic demos + `cadence`/`airlift`, whose UI is English — `Demo.uiLang` drives a
+  per-demo "Interfejs po angielsku" chip, and `Demo.logoId` swaps the card/slide/modal name for
+  the `ui/DemoLogo` brand lockup); `site.featuredDemoSlugs` = `cadence, airlift, healthlab`
+  resolves 3 via `getDemoBySlug` for the homepage `Demos` section and `HeroDemoSlider`; the
+  full 7 render at `/demos/`. `cases.ts` has 7 entries; the automotive case carries
+  `archived: true` and renders only in `/work/`'s bottom "Archiwum" block.
+- **`site.navCta`**: the single "Zacznij projekt" label shared by `Nav.tsx`'s desktop CTA and
+  `NavMobileMenu.tsx`'s panel CTA (2026-07-23 hero-demo-detail-slider design, CTA-consistency
+  sub-feature) — neither component hardcodes its own CTA string; `Nav.tsx` reads `site.navCta`
+  and passes it down to `NavMobileMenu` as a `ctaLabel` prop.
 - **Card watermark**: the dim `calm_soft` mono `Watermark` (top-right, `aria-hidden`) appears
-  on every card type — case, demo, service and pricing cards all carry it (round 2 polish added
-  it to service + pricing cards, which previously lacked it).
-- **`/pricing/` subpage** (`src/app/pricing/page.tsx`, server component, no providers): full
-  English translation of the owner's Polish pricing draft, content in `src/content/pricing.ts`
+  on every card type — case and demo cards, the `ServicesSlider` tiles, and pricing cards all
+  carry it (round 2 polish added it to service + pricing cards, which previously lacked it).
+- **`/pricing/` subpage** (`src/app/pricing/page.tsx`, server component, no providers): the
+  owner's Polish pricing draft (first-person pass), content in `src/content/pricing.ts`
   typed by `PricingPage`/`PricingGroup`/`PricingCard`/`PricePoint` (types.ts) — reuses
   Services.tsx's exact card shell so the page is visually part of the same site. Own `metadata`
   (title/description/canonical `/pricing/`/OpenGraph), `metadataBase` inherited from
@@ -126,7 +147,7 @@ renders only when both set).
   Reached via CaseStudies' "See all case studies ›" link and the sitemap — deliberately **not**
   added to the top nav. See docs/superpowers/specs/
   2026-07-20-work-page-and-round2-polish-design.md.
-- **`/demos/` subpage** (`src/app/demos/page.tsx`, server component): the full 5-demo index (all
+- **`/demos/` subpage** (`src/app/demos/page.tsx`, server component): the full 7-demo index (all
   `demos`, bigger cards with a screenshot — the same card markup as the homepage `Demos.tsx`
   section, intentionally duplicated the same way `/work/` duplicates CaseStudies' case-card
   markup). Wraps its content in `InquiryProvider` + `ModalProvider` (`demos` prop) so its "View
@@ -137,35 +158,53 @@ renders only when both set).
   `site.footerLinks` — reached via the nav, the homepage section's "See all demos ›" link, the
   footer, and the sitemap. See docs/superpowers/specs/
   2026-07-20-demo-detail-modal-and-demos-subpage-design.md.
-- **Demo detail modal**: a third `ModalProvider` kind (`kind:"demo"` + `openDemoModal(slug)` +
-  a required `demos` prop) alongside service/case, opened from `CardActions kind="demo-card"`
-  (`demoSlug`/`readLabel`/`ariaLabel`) exactly like the case-card flow. `DemoModalContent`
+- **Demo detail modal**: a second `ModalProvider` kind (`kind:"demo"` + `openDemoModal(slug)` +
+  a required `demos` prop) alongside case, opened from `CardActions kind="demo-card"`
+  (`demoSlug`/`readLabel`/`ariaLabel`) exactly like the case-card flow — reachable ONLY from the
+  homepage `Demos` section's and `/demos/`'s "View details ›" cards (2026-07-23 hero-demo-
+  detail-slider design retired the hero's own modal trigger; the hero slider now shows the full
+  detail inline instead, see the Hero variants bullet below). `DemoModalContent`
   (`src/components/sections/DemoModalContent.tsx`, no hooks → no `'use client'`, like
   `CaseModalContent`) renders the tag, `tagline` as `h2#modal-headline`, the demo's screenshot,
-  the `detail` paragraph, a "Key flows" `features` list, a shared **Technologies** row
-  (`site.sections.demos.techLegend` + `<TechStack/>`), the `demoNote` best-practices line, and a
-  footer with a plain external `<a target="_blank" rel="noopener noreferrer">` to the live demo
-  — no `ModalCta` (demos map to no `ServiceId`). `TechStack` (`src/components/ui/TechStack.tsx`)
-  is a fixed, shared icon row — Angular, React, Next.js, Nest.js, Fastify, Spring Boot, MySQL,
-  PostgreSQL — as inline monochrome `currentColor` SVGs (no content images, no external
-  requests), matching the `ui/icons` convention.
+  the `detail` paragraph, a "Key flows" `features` list (label = `site.sections.demos.
+  flowsLegend`, not hardcoded), a shared **Technologies** row (`site.sections.demos.techLegend`
+  + `<TechStack/>`), the `demoNote` best-practices line, and a footer with a plain external
+  `<a target="_blank" rel="noopener noreferrer">` to the live demo — no `ModalCta` (demos map to
+  no `ServiceId`). `TechStack` (`src/components/ui/TechStack.tsx`) is a fixed, shared icon row —
+  Angular, React, Next.js, Nest.js, Fastify, Spring Boot, MySQL, PostgreSQL — as inline
+  monochrome `currentColor` SVGs (no content images, no external requests), matching the
+  `ui/icons` convention. Fits `Modal`'s `max-h-[92vh] overflow-y-auto` without a visible
+  scrollbar at typical desktop viewports (1280×800+, worst case cadence/airlift — their longer
+  feature-pill text wraps "Key flows" to a second row, costing more height than a `desktopOnly`
+  demo's extra `WarningNote` line): the screenshot is capped budget-based, not a flat viewport
+  fraction (`max-h-[clamp(120px,calc(92vh-620px),420px)] object-cover object-top`, cropped from
+  the top — the 1440×900 image was the actual culprit; measured live against `Modal` at
+  1280×800, this leaves ~50px of margin) and the wrapper gap/footer padding use tighter
+  viewport-relative `clamp()`s (`gap-[clamp(8px,1.6vh,20px)]` /
+  `pt-[clamp(10px,1.5vh,20px)]`) instead of fixed px; `Modal.tsx` itself is untouched, its
+  overflow-y-auto stays the safety net.
 - **Client/server boundary is leaf-level**: sections (Hero, Services, CaseStudies, Demos,
   Process, Contact) and Nav/Footer are server components. `'use client'` only on:
-  `NavMobileMenu`, `CardActions`, `ProcessCarousel`, `HeroDemoSlider`, `ContactForm`,
-  `CalendlyCta`, and providers. Providers (`InquiryProvider`, `ModalProvider`+`ModalRoot`) are
-  dedicated `'use client'` files taking server-rendered sections as `children` — `page.tsx`
-  stays a server component (never put `'use client'` on it).
-- **State contracts** (binding signatures in spec §6.2): `InquiryContext`
-  (`selectedService`, `selectService()`, `requestContactScroll()`,
-  `focusSelectedServiceRadio()`) and `ModalContext`
-  (`openServiceModal(id)`, `openCaseModal(slug)`, `openDemoModal(slug)`, `closeModals()`).
-  `ModalRoot` owns all three modal kinds' state and renders ONE `Modal` instance with swapped
-  content — scroll-lock and focus trap persist across service↔case↔demo switches. Focus
-  returns to the original opener on Esc/backdrop/× close; closing via a CTA instead moves focus
-  to the selected service radio in the form (`preventScroll` — never fight the scroll to
-  `#contact`).
-- **`public/demo/<slug>/`**: verbatim third-party-style clinic-website mockups for the five demo
-  slugs (`merdi`, `vitalab`, `primavita`, `healthlab`, `merdi-panel`; never lint/refactor/modify),
+  `NavMobileMenu`, `CardActions`, `ProcessCarousel`, `HeroDemoSlider`, `ServicesSlider`,
+  `ContactForm`, `CalendlyCta`, and providers. Providers (`InquiryProvider`,
+  `ModalProvider`+`ModalRoot`) are dedicated `'use client'` files taking server-rendered
+  sections as `children` — `page.tsx` stays a server component (never put `'use client'` on it).
+- **State contracts** (binding signatures in the 2026-07-22 spec §6, superseding spec §6.2;
+  `ModalContext` further amended by the 2026-07-22 services-slider spec, which removed
+  `openServiceModal` and the "service" modal kind): `InquiryContext` =
+  `{ requestContactScroll(), focusContactField() }` + the `useRegisterContactFocus` registrar
+  (ContactForm registers a name-field focus handler); `ModalContext` (`openCaseModal(slug)`,
+  `openDemoModal(slug)`, `closeModals()`) with the CTA close flow `ctaClose()` taking NO
+  service argument and `ModalCta` taking only `{label}`. There is no service picker
+  anywhere — the case-modal CTA and the `ServicesSlider` tile CTA just scroll to `#contact`
+  and focus the name field. `ModalRoot` owns both remaining modal kinds' state and renders ONE
+  `Modal` instance with swapped content — scroll-lock and focus trap persist across a
+  case↔demo switch. Focus returns to the original opener on Esc/backdrop/× close; closing via
+  a CTA instead moves focus to the form's name field (`preventScroll` — never fight the scroll
+  to `#contact`).
+- **`public/demo/<slug>/`**: verbatim third-party-style mockups for the seven demo slugs
+  (`merdi`, `vitalab`, `primavita`, `healthlab`, `merdi-panel`, `cadence`, `airlift`; never
+  lint/refactor/modify),
   served as-is at `/demo/<slug>/`; cards/copy live in `src/content/demos.ts` — `href`s point at
   `/demo/<slug>/index.html` explicitly (dev-parity: `next dev` serves `public/` by exact
   file-path match only and has no directory-index fallback for a trailing-slash folder URL;
@@ -175,18 +214,33 @@ renders only when both set).
   `public/demo-shots/<slug>.webp` screenshot, rendered on its card (homepage + `/demos/`) and in
   its detail modal.
 - **Backend boundary**: `src/lib/inquiry.ts` + `src/lib/turnstile.ts` — a 3-step secured
-  submit, not a single POST. `submitInquiry(fields, turnstileToken)` does `GET
-  {NEXT_PUBLIC_API_BASE_URL}/api/contact/token` (one-time `formToken`) then `POST
-  {NEXT_PUBLIC_API_BASE_URL}/api/contact` with `{...fields, formToken, turnstileToken}`
-  (`InquiryFields` has no `elapsedMs`; `service` is non-null); env is read at call time inside
-  one 10 s `AbortController` spanning both requests. `submitWithRetry(fields,
-  executeTurnstile)` retries exactly once, only on HTTP 403, with both tokens refreshed.
+  submit, not a single POST. Step 1: `InquiryFields` = `{name, email, message, website}`
+  (honeypot `website` always `""`); `submitWithRetry` does `GET
+  {NEXT_PUBLIC_API_BASE_URL}/api/contact/token` (one-time `formToken`) then `POST /api/contact`
+  with `{...fields, formToken, turnstileToken}` — env read at call time inside one 10 s
+  `AbortController` spanning both requests, retry exactly once on HTTP 403 with BOTH tokens
+  refreshed. Step 2 (optional post-success details): `InquiryDetailsFields` =
+  `{name, email, area?, budget?, phone?, website}` (`AreaId`/`BudgetId` from content/types;
+  absent optionals are OMITTED from the JSON) via `submitDetailsWithRetry` →
+  `POST /api/contact/details`, identical token/Turnstile/retry/mock semantics; name+email are
+  echoed from step-1 state as the no-DB correlation key. Both backend schemas are
+  `additionalProperties: false` — FE and API field sets move in lockstep (the API temporarily
+  tolerates legacy keys from cached bundles; cleanup deploy removes them).
   2xx = success; any other status/network/timeout throws `InquiryError({ status?,
   serverMessage? })` — `serverMessage` is parsed from the response body when present, else a
   generic fallback is shown; retry/no-retry is decided on status only, never on body content.
   `src/lib/turnstile.ts` (client-only) owns the Cloudflare Turnstile widget: `loadTurnstile()`
   injects the script at form mount in every mode (including mock), `executeTurnstile()`
-  resets before each execute and resolves via the widget callback. Real backend is a separate
+  resets before each execute and resolves via the widget callback. The production sitekey is a
+  **Managed** widget (not Invisible) — `loadTurnstile()` takes an optional `host` element and
+  the widget renders into `ContactForm`'s always-mounted host div with `appearance:
+  "interaction-only"` + `theme: "dark"`, so it stays invisible unless Cloudflare demands
+  interaction, in which case the checkbox appears right there in the form (shared by step-1 and
+  step-2 submits, since the host stays mounted across the panel swap). `execution: "execute"`
+  (no auto-run at render time or after reset()) prevents an "already executing" collision with
+  our explicit execute() call; `before-interactive-callback` suspends the 20s load-guard timeout
+  while the user solves an interactive challenge, and `timeout-callback` rejects one they
+  ignore. Real backend is a separate
   app (`calm_soft_api`); integration touches only these two files. CORS, the Origin gate,
   formToken signing/TTL, Turnstile `siteverify`, honeypot evaluation, and per-IP rate limits
   are all server-side.
@@ -208,14 +262,31 @@ renders only when both set).
   `@next/next/no-html-link-for-pages` on a literal internal href) — targeting `id="top"` on
   `Hero`'s root `<section>`.
 - **Hero variants**: `aurora` | `code` | `type`, single source: constant in `src/lib/config.ts`
-  (`code` is default). All CSS animations respect `prefers-reduced-motion`. The live `code`
-  variant renders the interactive `HeroDemoSlider` fed the 3 `site.featuredDemoSlugs` (not all
-  5 — same curation as the homepage `Demos` section, resolved via `getDemoBySlug`), manual
-  arrows/dots, in place of the retired code window, plus a three-CTA row (Start a project /
-  Explore demos → `/#demo` / Check pricing → `/pricing/`).
-- **Forms are native inputs** styled as cards (radio/checkbox/fieldset), status messages in
-  `role="status"` live regions; tests address controls via `getByRole`/`getByLabelText` —
-  that is the contract between form and test work.
+  (`code` is default; its copy is marketing "option D" — the brand-name play). All CSS
+  animations respect `prefers-reduced-motion`. The live `code` variant's grid is
+  `max-w-[1400px]` / `min-[900px]:grid-cols-[1fr_1.15fr]` (widened from 1200px/1.1fr-1fr —
+  2026-07-23 hero-demo-detail-slider design — the slider column gets more room) and renders the
+  interactive `HeroDemoSlider` fed the 3 `site.featuredDemoSlugs` (not all 7 — same curation as
+  the homepage `Demos` section, resolved via `getDemoBySlug`), manual arrows/dots, in place of
+  the retired code window, plus a three-CTA row (Zacznij projekt / Zobacz dema → `/#demo` /
+  Sprawdź cennik → `/pricing/`). Each slider tile now carries the FULL demo detail inline —
+  everything `DemoModalContent` shows (chip row + language chip, brand lockup, `tagline` as a
+  bold non-heading `<p>`, screenshot, `detail` paragraph, key-flows pill list, the shared
+  Technologies row, and a footer with the external live-demo link + best-practices/desktop-only
+  note) — transplanted the same way `ServicesSlider` transplanted the retired
+  `ServiceModalContent`. The "Zobacz szczegóły" modal-opening trigger is GONE from the hero
+  tiles (`HeroDemoSlider` no longer imports `useModal`); the demo detail modal itself is
+  untouched and still reachable from the Demos section/`/demos/` (see the Demo detail modal
+  bullet above). `tagline` is deliberately a `<p>`, not a heading — a hero-h1 → tile-h3 jump was
+  the site's one failing Lighthouse a11y audit (heading-order), and a bold paragraph reproduces
+  the modal's heading styling without adding a heading to the document outline. See docs/
+  superpowers/specs/2026-07-23-hero-demo-detail-slider-design.md.
+- **Forms are native inputs** styled as cards (radio/fieldset), status messages in
+  `role="status"` live regions; tests address controls via `getByRole`/`getByLabelText` with
+  labels imported from `src/content/site.ts` — that is the contract between form and test
+  work. The form is 3 fields (name/email/message) + an optional post-success details step
+  (area/budget/phone radio-cards + input) rendered inside the success panel; "Wyślij kolejne
+  zapytanie ›" resets to a fresh step-1 form.
 
 ## Testing policy
 
@@ -227,13 +298,14 @@ unit-tested — `page.tsx`/`layout.tsx` (RSC) are verified by `npm run build` + 
 checks. `ContactForm` tests mock the whole `lib/inquiry` module and the Turnstile executor;
 `inquiry.ts` has its own unit tests for both API and mock branches, and `turnstile.ts` has its
 own tests against a stubbed `window.turnstile` (the real widget isn't jsdom-testable — build +
-preview smoke covers that). Required cases: spec §14.2 (exact payload key set with no stray
-field, status map incl. retry-exactly-once-on-403, double-submit = one execute + one GET + one
-POST, modal focus/lock across service→case switch, per-field validation messages — each
-invalid field shows its own message wired via `aria-invalid` + `aria-describedby`, email/phone
-validated by regex (email distinguishes empty vs malformed; phone optional, format-checked only
-when non-empty and still omitted from the payload when blank), focus moves to the first invalid
-field on failed submit).
+preview smoke covers that). Required cases: spec §14.2 as amended by the 2026-07-22 spec §6-7
+(exact payload key set with no stray field — step 1 AND step 2, status map incl.
+retry-exactly-once-on-403 on both endpoints, double-submit = one execute + one GET + one POST
+per step, modal focus/lock across service→case switch, per-field validation messages — each
+invalid field shows its own message wired via `aria-invalid` + `aria-describedby`, email
+regex distinguishes empty vs malformed, focus moves to the first invalid field on failed
+submit; phone now lives in step 2 — format-checked only when non-empty, omitted from the
+details payload when blank; step-2 skip and all-empty submit make zero network calls).
 
 ## AI delivery model
 
@@ -247,8 +319,8 @@ field on failed submit).
   composition with section skeletons, integration tests) → then parallel section
   implementation against the integration contracts (spec §16).
 - During fan-out, a section agent writes only its own section + tests — including its modal
-  content (`ServiceModalContent` → Services agent, `CaseModalContent` → CaseStudies agent,
-  `DemoModalContent` → Demos agent);
+  content (`ServicesSlider` → Services agent — no modal, the tile itself carries the former
+  modal content; `CaseModalContent` → CaseStudies agent; `DemoModalContent` → Demos agent);
   `ui/`, `providers/`, `lib/`, `content/`, `app/`, and `interactive/CardActions` are frozen —
   changes there go through the orchestrator.
 - Visual review (909×540 + 1280×800 vs `screenshots/`) and the Lighthouse measurement

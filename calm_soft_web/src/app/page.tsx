@@ -1,4 +1,3 @@
-import { services } from "@/content/services";
 import { cases } from "@/content/cases";
 import { demos } from "@/content/demos";
 import { InquiryProvider } from "@/components/providers/InquiryProvider";
@@ -15,7 +14,7 @@ import { Contact } from "@/components/sections/Contact";
 export default function Page() {
   return (
     <InquiryProvider>
-      <ModalProvider services={services} cases={cases} demos={demos}>
+      <ModalProvider cases={cases} demos={demos}>
         <Hero />
         <Services />
         <CaseStudies />

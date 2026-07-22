@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0b0e13}
+a{color:#4da3ff;text-decoration:none} a:hover{color:#7dbcff;text-decoration:underline}
+@keyframes mcPulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes mcStripe{0%{background-position:0 0}100%{background-position:28px 0}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#243040;border-radius:4px}::-webkit-scrollbar-track{background:transparent}
+input::placeholder{color:#435160}
+@media print{body *{visibility:hidden}.print-paper,.print-paper *{visibility:visible}.print-paper{position:absolute;left:0;top:0;width:100%;max-width:none;box-shadow:none;border-radius:0}}
+@media (max-width:760px){
+.alRoot{height:auto!important;overflow:visible!important;min-height:100vh}
+.alTabs{display:none!important}
+.alBurger{display:flex!important}
+body{overflow-x:hidden}
+.alView{flex:none!important;overflow:visible!important;height:auto!important}
+.alKpi{grid-template-columns:repeat(2,1fr)!important}
+.alMid{grid-template-columns:1fr!important;overflow:visible!important;flex:none!important}
+.alSess{height:260px!important}
+.alWork{height:230px!important}
+.alLog{flex:none!important;height:340px!important}
+.alStream{flex:none!important;height:55vh!important}
+.al1col{grid-template-columns:1fr!important}
+.alXS{overflow-x:auto}
+.alXS>div{min-width:640px}
+}
+</style>
+</helmet>
+<div class="alRoot" style="height:100vh;box-sizing:border-box;overflow:hidden;background:#0b0e13;color:#d7e0e9;font-family:'Source Sans 3',sans-serif;font-size:14px;display:flex;flex-direction:column">
+
+  <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;padding:6px 16px;min-height:52px;box-sizing:border-box;background:#0e1319;border-bottom:1px solid #1c2530;flex:none">
+    <div style="display:flex;align-items:center;gap:10px;flex:none">
+      <svg width="34" height="23" viewBox="0 0 54 36" style="flex:none">
+        <rect x="4" y="8" width="14" height="5" rx="1" fill="#435160"></rect>
+        <rect x="4" y="15.5" width="14" height="5" rx="1" fill="#435160"></rect>
+        <rect x="4" y="23" width="14" height="5" rx="1" fill="#435160"></rect>
+        <path d="M22,18 L28,18 M26,14.5 L30,18 L26,21.5" stroke="#6b7a89" stroke-width="2.2" fill="none"></path>
+        <rect x="34" y="8" width="14" height="5" rx="1" fill="#3fd68c"></rect>
+        <rect x="34" y="15.5" width="14" height="5" rx="1" fill="#3fd68c"></rect>
+        <rect x="34" y="23" width="14" height="5" rx="1" fill="#3fd68c"></rect>
+        <circle cx="47" cy="7" r="6" fill="#0e1319" stroke="#3fd68c" stroke-width="2"></circle>
+        <path d="M44.5,7 L46.3,8.8 L49.7,5.2" stroke="#3fd68c" stroke-width="2" fill="none"></path>
+      </svg>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;letter-spacing:2px">AIRLIFT</div>
+        <div style="font-size:10px;color:#6b7a89;letter-spacing:.4px">heavy data · safe landing</div>
+      </div>
+    </div>
+    <div class="alTabs" style="display:flex;gap:2px;flex:1;justify-content:center">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+        <div onClick="{{ t.go }}" style="{{ t.style }}" style-hover="color:#d7e0e9">{{ t.label }}</div>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex:none">
+      <div class="alBurger" onClick="{{ menuToggle }}" style="display:none;width:36px;height:36px;border-radius:6px;border:1px solid #243040;background:#0e1319;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;flex:none">
+        <div style="width:15px;height:2px;background:#9fb0c0"></div>
+        <div style="width:15px;height:2px;background:#9fb0c0"></div>
+        <div style="width:15px;height:2px;background:#9fb0c0"></div>
+      </div>
+      <div style="display:flex;border:1px solid #1c2530;border-radius:4px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.5px">
+        <div onClick="{{ setLive }}" style="{{ liveBtnStyle }}" style-hover="color:#d7e0e9">LIVE RUN</div>
+        <div onClick="{{ setComplete }}" style="{{ completeBtnStyle }}" style-hover="color:#d7e0e9">POST-RUN</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;padding:4px 10px;border:1px solid {{ statusColor }};border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:{{ statusColor }}">
+        <div style="width:7px;height:7px;border-radius:50%;background:{{ statusColor }};animation:{{ dotAnim }}"></div>
+        {{ statusLabel }}
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b7a89">{{ clock }}</div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:4px 24px;padding:5px 16px;background:#0c1016;border-bottom:1px solid #161e28;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#6b7a89;flex:none">
+    <div>RUN <span style="color:#a9b7c4">S-007 · final production run</span></div>
+    <div>SOURCE <span style="color:#a9b7c4">nfs://filer01:/export/documents</span></div>
+    <div>TARGET <span style="color:#a9b7c4">s3://docs-prod/documents (versioned)</span></div>
+    <div>STARTED <span style="color:#a9b7c4">Fri Jul 17 21:58 UTC</span></div>
+    <div>{{ elapsedLabel }} <span style="color:#a9b7c4">{{ elapsed }}</span></div>
+    <div>WORKERS <span style="color:#a9b7c4">{{ workersLabel }}</span></div>
+  </div>
+
+  <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="Overview" class="alView" style="padding:10px 16px 12px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;overflow:hidden">
+    <div class="alKpi" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;flex:none">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
+        <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:7px 11px;box-sizing:border-box">
+          <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.label }}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;color:{{ k.color }};line-height:1.1">{{ k.value }}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#435160;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.sub }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:9px 14px;flex:none;box-sizing:border-box">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700">MIGRATION PROGRESS</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#a9b7c4">{{ doneFmt }} <span style="color:#435160">/ 2,487,556 files</span> · <span style="color:#3fd68c;font-weight:600">{{ pct }}%</span></div>
+      </div>
+      <div style="height:13px;background:#0b0e13;border:1px solid #1c2530;border-radius:3px;overflow:hidden;position:relative">
+        <div style="{{ progBarStyle }}"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6b7a89">
+        <div>{{ gbDone }} GB / 497.8 GB transferred</div>
+        <div>last checkpoint {{ lastCpId }} · {{ lastCpAgo }}</div>
+      </div>
+    </div>
+
+    <div class="alMid" style="display:grid;grid-template-columns:1.1fr 1fr 1.2fr 1.5fr;gap:10px;flex:1 1 0;min-height:96px;overflow:hidden">
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:10px 14px;min-height:0;overflow-y:auto;overflow-x:hidden;box-sizing:border-box">
+        <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:9px">RUN CONTROL · S-007</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div onClick="{{ startRun }}" style="{{ startBtnStyle }}" style-hover="filter:brightness(1.15)">{{ startBtnLabel }}</div>
+          <div onClick="{{ reqStop }}" style="{{ stopBtnStyle }}" style-hover="filter:brightness(1.15)">■ STOP RUN</div>
+        </div>
+        <div style="margin-top:9px;padding:7px 10px;background:#0b0e13;border:1px solid #1c2530;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b7a89;line-height:1.5">{{ controlNote }}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:10px 14px;min-height:0;overflow-y:auto;overflow-x:hidden;box-sizing:border-box">
+        <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:3px">INTEGRITY · CONTINUOUS</div>
+        <sc-for list="{{ integrity }}" as="i" hint-placeholder-count="4">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #161e28;padding-bottom:5px">
+            <span style="color:#8a97a5;font-size:11.5px">{{ i.label }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:{{ i.color }}">{{ i.value }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:10px 14px;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;box-sizing:border-box" class="alWork">
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:7px;flex:none">
+          <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700">WORKERS</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#435160;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ workersSummary }}</div>
+        </div>
+        <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:4px;align-content:start">
+          <sc-for list="{{ workerCells }}" as="w" hint-placeholder-count="24">
+            <div onClick="{{ w.click }}" style="{{ w.style }}" style-hover="border-color:#4da3ff" title="{{ w.title }}"><span style="width:6px;height:6px;border-radius:50%;background:{{ w.dot }};flex:none;animation:{{ w.anim }}"></span>{{ w.id }}</div>
+          </sc-for>
+        </div>
+        <div style="flex:none;margin-top:6px;font-size:10px;color:#435160;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">click a worker for details</div>
+      </div>
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:10px 14px;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;box-sizing:border-box" class="alSess">
+        <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+          <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700">SESSION HISTORY</div>
+          <div onClick="{{ goSessions }}" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4da3ff;cursor:pointer" style-hover="text-decoration:underline">DETAILS →</div>
+        </div>
+        <div style="flex:1;min-height:0;min-width:0;overflow-y:auto;overflow-x:hidden">
+          <sc-for list="{{ sessions }}" as="s" hint-placeholder-count="7">
+            <div style="display:grid;grid-template-columns:46px minmax(56px,1fr) minmax(40px,80px) 64px;gap:6px;align-items:center;padding:3.5px 4px;border-bottom:1px solid #121924;font-family:'JetBrains Mono',monospace;font-size:11px;background:{{ s.bg }}">
+              <div style="color:#a9b7c4">{{ s.id }}</div>
+              <div style="font-family:'Source Sans 3',sans-serif;font-size:12px;color:#d7e0e9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.label }}</div>
+              <div style="color:#6b7a89;text-align:right;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.files }}</div>
+              <div style="color:{{ s.statusColor }};font-weight:600;font-size:9.5px;text-align:right;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.status }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ showEventLog }}" hint-placeholder-val="{{ true }}">
+    <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:10px 14px;flex:2 1 0;min-height:110px;display:flex;flex-direction:column;box-sizing:border-box" class="alLog">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:7px;flex:none">
+        <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700">FLIGHT RECORDER · {{ logStreamLabel }}</div>
+        <div style="flex:1"></div>
+        <div onClick="{{ goLogs }}" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4da3ff;cursor:pointer;border:1px solid #1c2530;border-radius:3px;padding:3px 8px" style-hover="border-color:#4da3ff">FILTER & SEARCH →</div>
+        <div onClick="{{ downloadAll }}" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#a9b7c4;cursor:pointer;border:1px solid #243040;border-radius:3px;padding:3px 8px" style-hover="border-color:#3fd68c;color:#3fd68c">⇩ DOWNLOAD .log</div>
+      </div>
+      <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.85">
+        <sc-for list="{{ log }}" as="l" hint-placeholder-count="12">
+          <div style="display:flex;gap:10px"><span style="color:#435160;flex:none">{{ l.t }}</span><span style="color:{{ l.color }};flex:none;width:52px">{{ l.lvl }}</span><span style="color:#a9b7c4;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ l.msg }}</span></div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isLogs }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Logs" class="alView" style="padding:12px 16px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;overflow:hidden">
+    <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:10px 14px;display:flex;flex-direction:column;gap:8px;flex:none">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;width:44px;flex:none">LEVEL</div>
+        <sc-for list="{{ levelChips }}" as="lc" hint-placeholder-count="8">
+          <div onClick="{{ lc.click }}" style="{{ lc.style }}" style-hover="color:#d7e0e9">{{ lc.label }}</div>
+        </sc-for>
+        <div style="flex:1"></div>
+        <div onClick="{{ downloadFiltered }}" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#a9b7c4;cursor:pointer;border:1px solid #243040;border-radius:3px;padding:4px 10px;white-space:nowrap" style-hover="border-color:#3fd68c;color:#3fd68c">⇩ DOWNLOAD FILTERED (.log)</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;width:44px;flex:none">DAY</div>
+        <sc-for list="{{ dayChips }}" as="dc" hint-placeholder-count="4">
+          <div onClick="{{ dc.click }}" style="{{ dc.style }}" style-hover="color:#d7e0e9">{{ dc.label }}</div>
+        </sc-for>
+        <input value="{{ fQ }}" onChange="{{ setQ }}" placeholder="filter by phrase — e.g. checksum, CP-000412, filer01" style="flex:1;min-width:220px;background:#0b0e13;border:1px solid #243040;border-radius:3px;padding:6px 10px;color:#d7e0e9;font-family:'JetBrains Mono',monospace;font-size:11.5px;outline:none">
+      </div>
+    </div>
+    <div class="alStream" style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:10px 14px;flex:1;min-height:0;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;flex:none">
+        <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700">FLIGHT RECORDER · newest first</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#435160">{{ logCount }}</div>
+      </div>
+      <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.7">
+        <sc-for list="{{ filteredLogs }}" as="f" hint-placeholder-count="20">
+          <div style="display:flex;gap:10px;padding:2.5px 0;border-bottom:1px solid #0f141b">
+            <span style="color:#435160;flex:none;width:46px">{{ f.d }}</span>
+            <span style="color:#435160;flex:none;width:64px">{{ f.t }}</span>
+            <span style="color:{{ f.color }};flex:none;width:48px;font-weight:600">{{ f.lvl }}</span>
+            <span style="color:#a9b7c4;flex:1;min-width:0">{{ f.msg }}</span>
+          </div>
+        </sc-for>
+        <sc-if value="{{ logsEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:44px 20px;text-align:center;color:#435160;font-family:'Source Sans 3',sans-serif;font-size:12.5px;line-height:1.6">0 lines match the current filter.<br>Try another level, day or phrase — e.g. a worker id like <span style="color:#4da3ff">w-13</span>.</div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isWorkers }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Workers" class="alView" style="padding:12px 16px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;overflow:hidden">
+    <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:12px 16px;flex:none;display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;box-sizing:border-box">
+      <div style="min-width:150px">
+        <div style="font-size:10.5px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:3px">SELECTED WORKER</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:{{ selW.color }}">{{ selW.id }} · {{ selW.status }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#6b7a89;margin-top:3px;max-width:420px">{{ selW.path }}</div>
+      </div>
+      <sc-for list="{{ selWFacts }}" as="wf" hint-placeholder-count="6">
+        <div style="min-width:96px;max-width:260px">
+          <div style="font-size:10px;letter-spacing:.6px;color:#6b7a89">{{ wf.k }}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#a9b7c4;margin-top:2px;line-height:1.45">{{ wf.v }}</div>
+        </div>
+      </sc-for>
+      <div style="flex:1"></div>
+      <div onClick="{{ selWLogs }}" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4da3ff;cursor:pointer;border:1px solid #243040;border-radius:3px;padding:5px 10px;white-space:nowrap" style-hover="border-color:#4da3ff">OPEN LOG STREAM →</div>
+    </div>
+    <div class="alStream alXS" style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:10px 14px;flex:1;min-height:0;display:flex;flex-direction:column;box-sizing:border-box">
+      <div style="display:grid;grid-template-columns:48px 76px minmax(120px,1.6fr) 100px 100px 84px 64px 56px 52px;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b7a89;letter-spacing:.5px;padding:0 8px 8px;border-bottom:1px solid #1c2530;flex:none">
+        <div>ID</div><div>STATUS</div><div>MIGRATION PATH</div><div>STARTED</div><div>FINISHED</div><div style="text-align:right">FILES</div><div style="text-align:right">DATA</div><div style="text-align:right">RETRIES</div><div></div>
+      </div>
+      <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden">
+        <sc-for list="{{ workerRows }}" as="wr" hint-placeholder-count="24">
+          <div onClick="{{ wr.select }}" style="{{ wr.rowStyle }}" style-hover="background:rgba(77,163,255,0.05)">
+            <div style="color:#a9b7c4">{{ wr.id }}</div>
+            <div style="color:{{ wr.color }};font-weight:600;font-size:10px">{{ wr.status }}</div>
+            <div style="color:#6b7a89;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ wr.path }}</div>
+            <div style="color:#6b7a89;white-space:nowrap">{{ wr.started }}</div>
+            <div style="color:#6b7a89;white-space:nowrap">{{ wr.finished }}</div>
+            <div style="color:#a9b7c4;text-align:right">{{ wr.files }}</div>
+            <div style="color:#6b7a89;text-align:right">{{ wr.data }}</div>
+            <div style="color:#6b7a89;text-align:right">{{ wr.retries }}</div>
+            <div onClick="{{ wr.logs }}" style="color:#4da3ff;cursor:pointer;font-size:10px;text-align:right;white-space:nowrap" style-hover="text-decoration:underline">LOGS →</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isSessions }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Sessions" class="alView" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;flex:1;min-height:0;overflow-y:auto">
+    <div class="alXS" style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:12px 16px;flex:none">
+      <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:10px">SESSION HISTORY · the migration runs in sessions — start, pause, resume, repeat safely</div>
+      <div style="display:grid;grid-template-columns:70px 1.6fr 1fr .7fr .9fr .7fr .8fr .9fr 80px;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b7a89;letter-spacing:.5px;padding:0 8px 8px;border-bottom:1px solid #1c2530">
+        <div>ID</div><div>LABEL</div><div>STARTED</div><div>DURATION</div><div>FILES</div><div>DATA</div><div>CHECKPOINTS</div><div>STATUS</div><div></div>
+      </div>
+      <sc-for list="{{ sessions }}" as="s" hint-placeholder-count="7">
+        <div style="display:grid;grid-template-columns:70px 1.6fr 1fr .7fr .9fr .7fr .8fr .9fr 80px;gap:8px;align-items:center;padding:9px 8px;border-bottom:1px solid #121924;font-family:'JetBrains Mono',monospace;font-size:12px;background:{{ s.bg }}">
+          <div style="color:#a9b7c4">{{ s.id }}</div>
+          <div style="font-family:'Source Sans 3',sans-serif;color:#d7e0e9">{{ s.label }}</div>
+          <div style="color:#6b7a89">{{ s.started }}</div>
+          <div style="color:#6b7a89">{{ s.dur }}</div>
+          <div style="color:#a9b7c4">{{ s.files }}</div>
+          <div style="color:#6b7a89">{{ s.data }}</div>
+          <div style="color:#6b7a89">{{ s.cps }}</div>
+          <div style="color:{{ s.statusColor }};font-weight:600;font-size:10px">{{ s.status }}</div>
+          <div onClick="{{ s.openSummary }}" style="color:#4da3ff;cursor:pointer;font-size:10px;white-space:nowrap;font-family:'JetBrains Mono',monospace" style-hover="text-decoration:underline">SUMMARY →</div>
+        </div>
+      </sc-for>
+    </div>
+    <div class="al1col" style="display:grid;grid-template-columns:3fr 2fr;gap:12px">
+      <div class="alXS" style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:12px 16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700">CHECKPOINTS · S-007 (latest first)</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#435160">{{ cpTotal }} written this run</div>
+        </div>
+        <sc-for list="{{ checkpoints }}" as="c" hint-placeholder-count="6">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #121924;font-family:'JetBrains Mono',monospace;font-size:12px">
+            <span style="color:#3fd68c;flex:none">✓</span>
+            <span style="color:#a9b7c4;flex:none;width:80px">{{ c.id }}</span>
+            <span style="color:#6b7a89;flex:none;width:70px">{{ c.time }}</span>
+            <span style="color:#6b7a89;flex:none;white-space:nowrap">offset {{ c.offset }}</span>
+            <span style="color:#435160;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">manifest sha256:{{ c.hash }}…</span>
+            <div onClick="{{ c.resume }}" style="{{ c.resumeStyle }}" style-hover="border-color:#3fd68c;color:#3fd68c">RESUME HERE</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:12px 16px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700">HOW RESUME WORKS</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:12px;color:#8a97a5;line-height:1.55">
+          <div style="display:flex;gap:10px"><span style="font-family:'JetBrains Mono',monospace;color:#3fd68c;flex:none">01</span>A checkpoint is written every ~5,000 files: transfer offset + manifest hash of everything confirmed so far.</div>
+          <div style="display:flex;gap:10px"><span style="font-family:'JetBrains Mono',monospace;color:#3fd68c;flex:none">02</span>On resume, the engine re-validates the last manifest against the target bucket before moving a single new file.</div>
+          <div style="display:flex;gap:10px"><span style="font-family:'JetBrains Mono',monospace;color:#3fd68c;flex:none">03</span>Transfer restarts from the confirmed offset — never from zero. A crash costs minutes, not the run.</div>
+        </div>
+        <div style="margin-top:auto;padding:10px;background:#0b0e13;border:1px solid #1c2530;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#6b7a89">{{ resumeNote }}</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isReconcile }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Reconciliation" class="alView" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;flex:1;min-height:0;overflow-y:auto">
+    <div style="background:{{ verdictBg }};border:1px solid {{ verdictBorder }};border-radius:4px;padding:16px 20px;display:flex;align-items:center;gap:18px;flex:none">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:30px;color:{{ verdictColor }}">{{ verdictMark }}</div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;letter-spacing:.5px;color:{{ verdictColor }}">{{ verdictTitle }}</div>
+        <div style="font-size:12px;color:#8a97a5;margin-top:3px">{{ verdictSub }}</div>
+      </div>
+      <div style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:#6b7a89">Zero loss is measured, not asserted — every run proves what it moved.</div>
+    </div>
+    <div class="al1col" style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:0;align-items:stretch;flex:none">
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:14px 16px">
+        <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:8px">SOURCE · NFS INVENTORY</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600">2,487,556</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#435160;margin-top:4px">files · manifest frozen Fri 21:55 UTC</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:18px;color:{{ eqColor1 }}">{{ eq1 }}</div>
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:14px 16px">
+        <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:8px">TRANSFERRED · CONFIRMED WRITES</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;color:#3fd68c">{{ doneFmt }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#435160;margin-top:4px">{{ gbDone }} GB · verify-after-write enforced</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:18px;color:{{ eqColor2 }}">{{ eq2 }}</div>
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:14px 16px">
+        <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:8px">TARGET · S3 OBJECT COUNT</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600">{{ targetCount }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#435160;margin-top:4px">s3://docs-prod/documents · versioning on</div>
+      </div>
+    </div>
+    <div class="al1col" style="display:grid;grid-template-columns:2fr 3fr;gap:12px">
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:12px 16px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700">VERIFICATION METRICS</div>
+        <sc-for list="{{ reconMetrics }}" as="m" hint-placeholder-count="6">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #161e28;padding-bottom:7px">
+            <span style="color:#8a97a5;font-size:12px">{{ m.label }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:{{ m.color }}">{{ m.value }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:12px 16px;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700">DISCREPANCIES</div>
+          <div onClick="{{ noop }}" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4da3ff;cursor:pointer;border:1px solid #1c2530;border-radius:3px;padding:3px 8px" style-hover="border-color:#4da3ff">EXPORT RECONCILIATION REPORT</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b7a89;letter-spacing:.5px;padding:0 8px 8px;border-bottom:1px solid #1c2530">
+          <div>OBJECT KEY</div><div>TYPE</div><div>SOURCE SHA-256</div><div>TARGET SHA-256</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:28px 0">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:26px;color:#3fd68c;font-weight:700">0</div>
+          <div style="font-size:12px;color:#6b7a89">No mismatches, no missing objects, no orphans. Nothing to show.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isControl }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Control" class="alView" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;flex:1;min-height:0;overflow-y:auto">
+    <div class="al1col" style="display:grid;grid-template-columns:2fr 3fr;gap:12px">
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:9px">
+        <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:4px">SAFETY INTERLOCKS</div>
+        <sc-for list="{{ interlocks }}" as="il" hint-placeholder-count="4">
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #161e28;padding-bottom:8px">
+            <div>
+              <div style="font-size:12px;color:#d7e0e9">{{ il.label }}</div>
+              <div style="font-size:11px;color:#435160">{{ il.sub }}</div>
+            </div>
+            <div onClick="{{ il.toggle }}" style="{{ il.trackStyle }}"><div style="{{ il.knobStyle }}"></div></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:16px">
+      <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:12px">RUN CONFIGURATION · read-only while a session exists</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px 24px">
+        <sc-for list="{{ config }}" as="cf" hint-placeholder-count="8">
+          <div style="border-left:2px solid #1c2530;padding-left:10px">
+            <div style="font-size:10.5px;letter-spacing:.6px;color:#6b7a89">{{ cf.k }}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#a9b7c4;margin-top:2px">{{ cf.v }}</div>
+          </div>
+        </sc-for>
+      </div>
+      </div>
+    </div>
+    <div style="background:#10151c;border:1px solid #1c2530;border-radius:4px;padding:16px">
+      <div style="font-size:11px;letter-spacing:.8px;color:#9fb0c0;font-weight:700;margin-bottom:12px">NOTIFICATIONS · operator alerting</div>
+      <div class="al1col" style="display:grid;grid-template-columns:1fr 1fr;gap:14px 20px">
+        <sc-for list="{{ notifChannels }}" as="nc" hint-placeholder-count="2">
+          <div style="display:flex;align-items:center;gap:12px;border:1px solid #1c2530;border-radius:4px;padding:10px 12px;background:#0b0e13">
+            <div onClick="{{ nc.toggle }}" style="{{ nc.trackStyle }}"><div style="{{ nc.knobStyle }}"></div></div>
+            <div style="width:44px;flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:#d7e0e9">{{ nc.label }}</div>
+            <input value="{{ nc.value }}" onChange="{{ nc.setValue }}" style="{{ nc.inputStyle }}">
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <div style="font-size:10px;letter-spacing:.6px;color:#6b7a89;margin-right:4px">NOTIFY ON</div>
+        <sc-for list="{{ notifEvents }}" as="ne" hint-placeholder-count="5">
+          <div onClick="{{ ne.click }}" style="{{ ne.style }}" style-hover="color:#d7e0e9">{{ ne.label }}</div>
+        </sc-for>
+        <div style="flex:1"></div>
+        <div onClick="{{ sendTest }}" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#a9b7c4;cursor:pointer;border:1px solid #243040;border-radius:3px;padding:4px 10px;white-space:nowrap" style-hover="border-color:#3fd68c;color:#3fd68c">SEND TEST NOTIFICATION</div>
+      </div>
+      <div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#3fd68c">{{ nTestMsg }}</div>
+    </div>
+    <div style="font-size:11px;color:#435160;padding:0 2px">Run control (start / stop) lives on the Overview screen. Every control action is journaled to the audit log with operator identity and the active checkpoint. Stop is always safe: the engine drains in-flight writes, flushes a checkpoint, and exits clean.</div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ menuClose }}" style="position:fixed;inset:0;background:rgba(4,6,9,0.6);z-index:90">
+    <div onClick="{{ stopProp }}" style="position:absolute;top:60px;left:10px;right:10px;background:#10151c;border:1px solid #2a3644;border-radius:8px;box-shadow:0 20px 50px rgba(0,0,0,0.5);padding:8px;display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ menuItems }}" as="mi" hint-placeholder-count="6">
+        <div onClick="{{ mi.go }}" style="{{ mi.style }}" style-hover="background:#1a2a3a">{{ mi.label }}</div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ showSummary }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(4,6,9,.78);display:flex;align-items:center;justify-content:center;z-index:60;padding:20px;box-sizing:border-box">
+    <div style="display:flex;flex-direction:column;gap:10px;max-height:100%;min-height:0">
+      <div style="display:flex;gap:10px;justify-content:flex-end;flex:none">
+        <div onClick="{{ printSummary }}" style="padding:7px 14px;background:#173327;border:1px solid #3fd68c;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:#3fd68c;cursor:pointer" style-hover="filter:brightness(1.2)">🖨 PRINT / SAVE AS PDF</div>
+        <div onClick="{{ closeSummary }}" style="padding:7px 14px;border:1px solid #2a3644;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#a9b7c4;cursor:pointer" style-hover="border-color:#6b7a89">CLOSE</div>
+      </div>
+      <div class="print-paper" style="width:640px;max-width:92vw;background:#ffffff;color:#22303c;border-radius:3px;padding:40px 46px;overflow-y:auto;min-height:0;font-family:'Source Sans 3',sans-serif;box-shadow:0 24px 60px rgba(0,0,0,.55);box-sizing:border-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:2px solid #22303c">
+          <div style="display:flex;align-items:center;gap:8px">
+            <svg width="26" height="17" viewBox="0 0 54 36" style="flex:none">
+              <rect x="4" y="8" width="14" height="5" rx="1" fill="#8a97a5"></rect>
+              <rect x="4" y="15.5" width="14" height="5" rx="1" fill="#8a97a5"></rect>
+              <rect x="4" y="23" width="14" height="5" rx="1" fill="#8a97a5"></rect>
+              <path d="M22,18 L28,18 M26,14.5 L30,18 L26,21.5" stroke="#5c6b78" stroke-width="2.2" fill="none"></path>
+              <rect x="34" y="8" width="14" height="5" rx="1" fill="#1e7a52"></rect>
+              <rect x="34" y="15.5" width="14" height="5" rx="1" fill="#1e7a52"></rect>
+              <rect x="34" y="23" width="14" height="5" rx="1" fill="#1e7a52"></rect>
+              <circle cx="47" cy="7" r="6" fill="#ffffff" stroke="#1e7a52" stroke-width="2"></circle>
+              <path d="M44.5,7 L46.3,8.8 L49.7,5.2" stroke="#1e7a52" stroke-width="2" fill="none"></path>
+            </svg>
+            <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:2px">AIRLIFT</div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;color:#5c6b78">MIGRATION SESSION SUMMARY</div>
+        </div>
+        <div style="margin:18px 0 4px;font-size:21px;font-weight:700;line-height:1.25">{{ sumId }} — {{ sumLabel }}</div>
+        <div style="font-size:12px;color:#5c6b78;margin-bottom:18px">NFS → S3 storage migration · regulated document platform</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;margin-bottom:20px">
+          <sc-for list="{{ sumFacts }}" as="sf" hint-placeholder-count="12">
+            <div style="border-bottom:1px solid #e3e8ec;padding-bottom:6px;display:flex;justify-content:space-between;gap:12px">
+              <span style="font-size:10.5px;letter-spacing:.6px;color:#5c6b78;flex:none">{{ sf.k }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#22303c;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sf.v }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border:1.5px solid {{ sumResultColor }};border-radius:4px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:22px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:{{ sumResultColor }}">{{ sumResultMark }}</div>
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;letter-spacing:.5px;color:{{ sumResultColor }}">{{ sumResult }}</div>
+            <div style="font-size:11px;color:#5c6b78;margin-top:2px">Checksums and reconciliation metrics are instrumented into the process — this result is measured, not asserted.</div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#8a97a5;border-top:1px solid #e3e8ec;padding-top:10px;display:flex;justify-content:space-between;gap:12px">
+          <span>Generated by AIRLIFT console · Wed Jul 22 2026 · operator j.kowalski</span>
+          <span style="font-family:'JetBrains Mono',monospace">manifest sha256:9f3a71c2…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ confirmStop }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(4,6,9,.72);display:flex;align-items:center;justify-content:center;z-index:50">
+    <div style="width:420px;max-width:92vw;box-sizing:border-box;background:#10151c;border:1px solid #2a3644;border-radius:6px;padding:22px">
+      <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;color:#ff5c5c;letter-spacing:.5px">STOP RUN S-007?</div>
+      <div style="font-size:12.5px;color:#8a97a5;line-height:1.6;margin:10px 0 18px">In-flight writes will drain, a final checkpoint will be flushed, and the session will close cleanly. You can resume later from checkpoint {{ lastCpId }} — no progress is lost.</div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <div onClick="{{ cancelStop }}" style="padding:8px 16px;border:1px solid #2a3644;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#a9b7c4;cursor:pointer" style-hover="border-color:#6b7a89">CANCEL</div>
+        <div onClick="{{ doStop }}" style="padding:8px 16px;background:#5c1d22;border:1px solid #ff5c5c;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#ff8f8f;cursor:pointer" style-hover="filter:brightness(1.2)">STOP &amp; CHECKPOINT</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startMode&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;live&quot;, &quot;complete&quot;], &quot;default&quot;: &quot;live&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Behavior&quot;}, &quot;simSpeed&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;min&quot;: 0, &quot;max&quot;: 5, &quot;step&quot;: 0.5, &quot;default&quot;: 1, &quot;unit&quot;: &quot;x&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Behavior&quot;}, &quot;showEventLog&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { view: 'overview', mode: null, paused: false, stopped: false, confirmStop: false,
+    done: 2014382, log: null, dry: false, throttle: false, tick: 0,
+    fLevel: 'ALL', fDay: 'ALL', fQ: '', selWorker: 'w-01', sumSess: null,
+    nEmailOn: true, nSmsOn: false, nEmail: 'ops@docs-platform.internal', nSms: '+48 600 100 200',
+    nEv: { complete: true, stopped: true, error: true, ckptfail: false }, nTest: false };
+  TOTAL = 2487556; TOTAL_GB = 497.8;
+  LVL_COLORS = { INFO: '#8a97a5', DEBUG: '#435160', CKPT: '#4da3ff', VRFY: '#3fd68c', RETR: '#ffb648', WARN: '#ffb648', ERROR: '#ff5c5c', DONE: '#3fd68c', CTRL: '#c792ea' };
+
+  fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  now() { const d = new Date(); return d.toISOString().slice(11, 19); }
+
+  componentDidMount() {
+    const speed = this.props.simSpeed ?? 1;
+    this.timer = setInterval(() => {
+      const live = (this.state.mode ?? (this.props.startMode ?? 'live')) === 'live';
+      const running = live && !this.state.paused && !this.state.stopped;
+      this.setState(s => {
+        const next = { tick: s.tick + 1 };
+        if (running) {
+          next.done = s.done + Math.round((8 + Math.random() * 4) * speed);
+          if (s.tick % 6 === 0) {
+            const msgs = [
+              ['INFO', 'w-' + String(1 + Math.floor(Math.random() * 24)).padStart(2, '0') + ' · batch ' + this.fmt(3800 + Math.random() * 200) + ' objects confirmed · verify-after-write OK'],
+              ['CKPT', 'checkpoint flushed · offset ' + this.fmt(next.done) + ' · manifest updated'],
+              ['VRFY', 'reconciler: ' + this.fmt(4700 + Math.random() * 400) + ' checksums matched · 0 mismatches'],
+              ['DEBUG', 'worker w-' + String(1 + Math.floor(Math.random() * 24)).padStart(2, '0') + ' rotated NFS handle · no stall'],
+              ['RETR', 'w-' + String(1 + Math.floor(Math.random() * 24)).padStart(2, '0') + ' · transient S3 503 on 1 object · retried · checksum verified']
+            ];
+            const m = msgs[Math.floor(Math.random() * msgs.length)];
+            next.log = [{ d: 'Jul 19', t: this.now(), lvl: m[0], msg: m[1] }].concat(s.log || this.baseLog()).slice(0, 60);
+          }
+        }
+        return next;
+      });
+    }, 600);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+
+  baseLog() {
+    return [
+      { d: 'Jul 19', t: '06:22:41', lvl: 'CKPT', msg: 'CP-000412 flushed · offset 2,013,952 · manifest sha256:9f3a71c2' },
+      { d: 'Jul 19', t: '06:22:12', lvl: 'VRFY', msg: 'reconciler: 5,120 checksums matched · 0 mismatches' },
+      { d: 'Jul 19', t: '06:21:47', lvl: 'INFO', msg: 'w-04 · batch 3,912 objects confirmed · verify-after-write OK' },
+      { d: 'Jul 19', t: '06:20:58', lvl: 'RETR', msg: 'w-21 · transient S3 503 on 1 object · retried · checksum verified' },
+      { d: 'Jul 19', t: '06:19:33', lvl: 'DEBUG', msg: 'lifecycle tags applied to 4,096 objects (class: regulated-doc)' },
+      { d: 'Jul 19', t: '06:17:35', lvl: 'CKPT', msg: 'CP-000411 flushed · offset 2,009,216 · manifest sha256:e07bd4a9' },
+      { d: 'Jul 19', t: '06:16:02', lvl: 'VRFY', msg: 'manifest diff vs source inventory: clean' },
+      { d: 'Jul 19', t: '06:14:50', lvl: 'INFO', msg: 'throughput steady at 19.6 files/s · 3.9 MB/s' }
+    ];
+  }
+  completeLog() {
+    return [
+      { d: 'Jul 19', t: '12:12:04', lvl: 'DONE', msg: 'session S-007 closed · 2,487,556 / 2,487,556 objects · zero loss' },
+      { d: 'Jul 19', t: '12:11:58', lvl: 'VRFY', msg: 'final reconciliation PASSED · 0 mismatches · 0 missing · 0 orphans' },
+      { d: 'Jul 19', t: '12:09:12', lvl: 'VRFY', msg: 'full manifest diff: source inventory == target bucket' },
+      { d: 'Jul 19', t: '12:01:47', lvl: 'CKPT', msg: 'CP-000509 flushed (final) · offset 2,487,556' },
+      { d: 'Jul 19', t: '11:58:20', lvl: 'INFO', msg: 'last batch confirmed · verify-after-write OK' },
+      { d: 'Jul 19', t: '11:40:03', lvl: 'INFO', msg: 'tail phase: 24 workers draining remaining shards' },
+      { d: 'Jul 19', t: '09:14:33', lvl: 'VRFY', msg: 'reconciler trailing at 99.2% of confirmed writes' }
+    ];
+  }
+  archive() {
+    if (this._arch) return this._arch;
+    const out = [];
+    const hx = i => (((i + 7) * 2654435761 % 4294967296) >>> 0).toString(16).padStart(8, '0').slice(0, 8);
+    const pad = n => String(n).padStart(2, '0');
+    const hours = [];
+    for (let h = 22; h <= 23; h++) hours.push(['Jul 17', h]);
+    for (let h = 0; h <= 23; h++) hours.push(['Jul 18', h]);
+    for (let h = 0; h <= 5; h++) hours.push(['Jul 19', h]);
+    let cp = 1, off = 18400;
+    hours.forEach(([d, h], i) => {
+      const t = m => pad(h) + ':' + pad(m) + ':' + pad((i * 17 + m) % 60);
+      const wk = n => 'w-' + pad((i * n) % 24 + 1);
+      out.push({ d, t: t(4), lvl: 'INFO', msg: wk(5) + ' · batch ' + this.fmt(3700 + (i * 137) % 500) + ' objects confirmed · verify-after-write OK' });
+      out.push({ d, t: t(11), lvl: 'DEBUG', msg: wk(7) + ' · NFS readdir page ' + (140 + i * 3) + ' (512 entries) · 0 stale handles' });
+      off += 61000 + (i * 997) % 9000; cp += 13;
+      out.push({ d, t: t(22), lvl: 'CKPT', msg: 'CP-' + String(cp).padStart(6, '0') + ' flushed · offset ' + this.fmt(Math.min(off, this.TOTAL)) + ' · manifest sha256:' + hx(i) });
+      out.push({ d, t: t(37), lvl: 'VRFY', msg: 'reconciler: ' + this.fmt(58000 + (i * 431) % 4000) + ' checksums matched · 0 mismatches' });
+      if (i % 5 === 2) out.push({ d, t: t(46), lvl: 'RETR', msg: wk(3) + ' · transient S3 503 on ' + (1 + i % 3) + ' object(s) · retried · checksum verified' });
+      if (i % 9 === 4) out.push({ d, t: t(52), lvl: 'WARN', msg: 'w-13 · NFS latency spike ' + (240 + (i * 53) % 200) + 'ms on filer01 · adaptive throttle engaged' });
+      if (d === 'Jul 18' && h === 14) {
+        out.push({ d, t: '14:02:51', lvl: 'ERROR', msg: 'w-13 · NFS read timeout ×5 · worker halted · in-flight batch rolled back' });
+        out.push({ d, t: '14:03:27', lvl: 'CTRL', msg: 'supervisor restarted w-13 · resumed from batch boundary · 0 objects lost' });
+      }
+      if (i % 6 === 1) out.push({ d, t: t(58), lvl: 'DEBUG', msg: 'S3 multipart pool: 24/24 slots busy · queue depth ' + (3 + (i * 7) % 9) });
+    });
+    out.push({ d: 'Jul 17', t: '21:58:14', lvl: 'DEBUG', msg: 'S3 multipart pool initialised · 24/24 slots · endpoint s3.internal:9000' });
+    out.push({ d: 'Jul 17', t: '21:58:11', lvl: 'CTRL', msg: 'session S-007 started by operator · 24 workers · batch 512' });
+    out.push({ d: 'Jul 17', t: '21:55:02', lvl: 'INFO', msg: 'source inventory frozen · 2,487,556 files · manifest sha256:' + hx(99) });
+    this._arch = out.slice(3).reverse().concat(out.slice(-3));
+    return this._arch;
+  }
+  allLogs(live) {
+    const head = live ? (this.state.log || this.baseLog()) : this.completeLog();
+    return head.concat(this.archive());
+  }
+  dl(lines, name) {
+    const txt = lines.map(l => '[2026 ' + l.d + ' ' + l.t + ' UTC] ' + (l.lvl + '      ').slice(0, 6) + l.msg).join('\n');
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(new Blob([txt], { type: 'text/plain' }));
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 500);
+  }
+
+  renderVals() {
+    const mode = this.state.mode ?? (this.props.startMode ?? 'live');
+    const live = mode === 'live';
+    const done = live ? this.state.done : this.TOTAL;
+    const pct = (done / this.TOTAL * 100);
+    const stopped = this.state.stopped, paused = false;
+    const running = live && !paused && !stopped;
+    const GREEN = '#3fd68c', AMBER = '#ffb648', BLUE = '#4da3ff', RED = '#ff5c5c', DIM = '#6b7a89', TXT = '#d7e0e9';
+    const mono = "'JetBrains Mono',monospace";
+    const set = (o) => () => this.setState(o);
+
+    const tabBase = 'padding:14px 14px 12px;white-space:nowrap;font-family:' + mono + ';font-size:12px;letter-spacing:1px;cursor:pointer;border-bottom-width:2px;border-bottom-style:solid;';
+    const tabDefs = [['overview', 'OVERVIEW'], ['logs', 'LOGS'], ['workers', 'WORKERS'], ['sessions', 'SESSIONS'], ['reconcile', 'RECONCILIATION'], ['control', 'CONTROL']];
+    const tabs = tabDefs.map(([v, label]) => ({
+      label, go: set({ view: v, menuOpen: false }),
+      style: tabBase + (this.state.view === v ? 'color:#d7e0e9;border-bottom-color:' + GREEN : 'color:#6b7a89;border-bottom-color:transparent')
+    }));
+    const menuItems = tabDefs.map(([v, label]) => ({
+      label, go: set({ view: v, menuOpen: false }),
+      style: 'padding:14px 16px;border-radius:6px;font-family:' + mono + ';font-size:13px;letter-spacing:1px;cursor:pointer;' + (this.state.view === v ? 'background:#1a2a3a;color:#d7e0e9' : 'color:#8a97a5')
+    }));
+
+    const segBase = 'padding:6px 12px;white-space:nowrap;cursor:pointer;';
+    const status = !live ? ['COMPLETE', GREEN, 'none'] : stopped ? ['STOPPED', RED, 'none'] : ['RUNNING', GREEN, 'mcPulse 1.6s infinite'];
+
+    const remaining = this.TOTAL - done;
+    const etaH = remaining / (19.6 * 3600);
+    const eta = Math.floor(etaH) + 'h ' + String(Math.round((etaH % 1) * 60)).padStart(2, '0') + 'm';
+    const gbDone = (done / this.TOTAL * this.TOTAL_GB).toFixed(1);
+
+    const kpis = live ? [
+      { label: 'FILES MIGRATED', value: this.fmt(done), sub: 'of 2,487,556 · ' + pct.toFixed(1) + '%', color: TXT },
+      { label: 'DATA TRANSFERRED', value: gbDone + ' GB', sub: 'of 497.8 GB', color: TXT },
+      { label: 'ETA', value: running ? eta : '—', sub: running ? 'window closes Sun 24:00' : 'run stopped', color: TXT },
+      { label: 'ERRORS (UNRESOLVED)', value: '0', sub: '137 transient retries · all resolved', color: GREEN },
+      { label: 'CHECKSUM MISMATCHES', value: '0', sub: this.fmt(done - 5268) + ' verified so far', color: GREEN }
+    ] : [
+      { label: 'FILES MIGRATED', value: '2,487,556', sub: 'of 2,487,556 · 100%', color: GREEN },
+      { label: 'DATA TRANSFERRED', value: '497.8 GB', sub: 'of 497.8 GB', color: GREEN },
+      { label: 'TOTAL ELAPSED', value: '38h 14m', sub: 'Fri 21:58 → Sun 12:12 UTC', color: TXT },
+      { label: 'FILES LOST', value: '0', sub: 'proven by reconciliation', color: GREEN },
+      { label: 'CHECKSUM MISMATCHES', value: '0', sub: '2,487,556 verified', color: GREEN }
+    ];
+
+    const integrity = live ? [
+      { label: 'Checksums verified', value: this.fmt(done - 5268), color: GREEN },
+      { label: 'Mismatches', value: '0', color: GREEN },
+      { label: 'Verify lag behind transfer', value: '5,268 obj', color: DIM },
+      { label: 'Manifest diffs (hourly)', value: 'clean × 32', color: GREEN }
+    ] : [
+      { label: 'Checksums verified', value: '2,487,556', color: GREEN },
+      { label: 'Mismatches', value: '0', color: GREEN },
+      { label: 'Missing on target', value: '0', color: GREEN },
+      { label: 'Final manifest diff', value: 'CLEAN', color: GREEN }
+    ];
+
+    const S = (id, label, started, dur, files, data, cps, st, color, bg) => ({ id, label, started, dur, files, data, cps, status: st, statusColor: color, bg: bg || 'transparent' });
+    const finalRow = live
+      ? S('S-007', 'Final production run', 'Jul 17 21:58', this.elapsedStr(), this.fmt(done), gbDone + ' GB', String(this.cpCount(done)), status[0], status[1], 'rgba(63,214,140,0.05)')
+      : S('S-007', 'Final production run', 'Jul 17 21:58', '38h 14m', '2,487,556', '497.8 GB', '509', 'COMPLETED', GREEN, 'rgba(63,214,140,0.05)');
+    const sessions = [finalRow,
+      S('S-006', 'Delta sync — changes since rehearsal', 'Jul 10 20:00', '2h 05m', '41,730', '8.6 GB', '9', 'COMPLETED', BLUE),
+      S('S-005', 'Full rehearsal → staging bucket', 'Jun 27 21:00', '39h 50m', '2,445,826', '489.2 GB', '498', 'COMPLETED', BLUE),
+      S('S-004', 'Full dry-run (inventory only, no writes)', 'Jun 20 09:00', '6h 40m', '2,441,102', '—', '—', 'COMPLETED', BLUE),
+      S('S-003', 'Pilot — batch B (archive shard)', 'Jun 13 10:30', '5h 12m', '312,450', '61.4 GB', '63', 'COMPLETED', BLUE),
+      S('S-002', 'Pilot — batch A (active shard)', 'Jun 06 10:00', '3h 06m', '148,220', '29.6 GB', '30', 'COMPLETED', BLUE),
+      S('S-001', 'Dry run — 10k sample, tooling validation', 'May 30 14:00', '0h 38m', '10,000', '2.1 GB', '2', 'COMPLETED', BLUE)
+    ].map(s => ({ ...s, openSummary: set({ sumSess: s.id }) }));
+
+    const sumS = sessions.find(s => s.id === this.state.sumSess);
+    const sumFin = sumS ? (sumS.status === 'RUNNING' ? '— (in progress)' : sumS.status === 'STOPPED' ? '— (stopped, resumable)' : (sumS.id === 'S-007' ? 'Jul 19 12:12 UTC' : 'closed after ' + sumS.dur)) : '';
+    const sumFacts = sumS ? [
+      { k: 'SESSION', v: sumS.id }, { k: 'OPERATOR', v: 'j.kowalski' },
+      { k: 'STARTED', v: sumS.started + ' UTC' }, { k: 'FINISHED', v: sumFin },
+      { k: 'DURATION', v: sumS.dur }, { k: 'FILES MIGRATED', v: sumS.files },
+      { k: 'DATA TRANSFERRED', v: sumS.data }, { k: 'CHECKPOINTS WRITTEN', v: sumS.cps },
+      { k: 'CHECKSUM MISMATCHES', v: '0' }, { k: 'FILES LOST', v: '0' },
+      { k: 'SOURCE', v: 'nfs://filer01:/export/documents' }, { k: 'TARGET', v: 's3://docs-prod/documents' }
+    ] : [];
+    const sumResult = sumS ? (sumS.status === 'RUNNING' ? 'IN PROGRESS — VERIFICATION TRAILING TRANSFER' : sumS.status === 'STOPPED' ? 'STOPPED — RESUMABLE FROM LAST CHECKPOINT' : 'PASSED — ZERO LOSS VERIFIED') : '';
+    const sumResultColor = sumS ? (sumS.status === 'RUNNING' ? '#1c5aa0' : sumS.status === 'STOPPED' ? '#9a6b1a' : '#1e7a52') : '#1e7a52';
+    const sumResultMark = sumS ? (sumS.status === 'RUNNING' ? '◷' : sumS.status === 'STOPPED' ? '■' : '✓') : '✓';
+
+    const notifChannels = [
+      { label: 'EMAIL', on: this.state.nEmailOn, toggle: set(s => ({ nEmailOn: !s.nEmailOn })), value: this.state.nEmail, setValue: (e) => this.setState({ nEmail: e.target.value }) },
+      { label: 'SMS', on: this.state.nSmsOn, toggle: set(s => ({ nSmsOn: !s.nSmsOn })), value: this.state.nSms, setValue: (e) => this.setState({ nSms: e.target.value }) }
+    ].map(c => ({ ...c,
+      trackStyle: 'width:34px;height:18px;border-radius:9px;flex:none;position:relative;cursor:pointer;transition:background .15s;background:' + (c.on ? GREEN : '#243040'),
+      knobStyle: 'width:14px;height:14px;border-radius:50%;background:#0b0e13;position:absolute;top:2px;transition:left .15s;left:' + (c.on ? '18px' : '2px'),
+      inputStyle: 'flex:1;min-width:120px;background:#10151c;border:1px solid #243040;border-radius:3px;padding:5px 9px;font-family:' + mono + ';font-size:11.5px;outline:none;color:' + (c.on ? '#d7e0e9' : '#435160')
+    }));
+    const notifEvents = [['complete', 'run completed'], ['stopped', 'run stopped'], ['error', 'worker error'], ['mismatch', 'checksum mismatch (always on)'], ['ckptfail', 'checkpoint failure']].map(([k, label]) => {
+      const locked = k === 'mismatch';
+      const on = locked ? true : !!this.state.nEv[k];
+      return { label: (on ? '✓ ' : '') + label,
+        click: locked ? (() => {}) : (() => this.setState(s => ({ nEv: { ...s.nEv, [k]: !s.nEv[k] }, nTest: false }))),
+        style: 'padding:4px 10px;border-radius:3px;font-family:' + mono + ';font-size:10.5px;white-space:nowrap;cursor:' + (locked ? 'default' : 'pointer') + ';border:1px solid ' + (on ? '#1e7a52' : '#243040') + ';' + (on ? 'background:rgba(63,214,140,0.08);color:#3fd68c' : 'color:#6b7a89') };
+    });
+
+    const canResume = live && (paused || stopped);
+    const cpN = live ? this.cpCount(done) : 509;
+    const checkpoints = Array.from({ length: 6 }, (_, i) => {
+      const n = cpN - i;
+      const off = live ? done - 5268 - i * 4736 : this.TOTAL - i * 4736;
+      const hashes = ['9f3a71c2', 'e07bd4a9', '4b8823fe', 'c15e90d7', '77a2c4b1', '2d9f6e08'];
+      return {
+        id: 'CP-' + String(n).padStart(6, '0'),
+        time: live ? this.cpTime(i) : ['12:01:47', '11:56:40', '11:51:33', '11:46:29', '11:41:20', '11:36:14'][i],
+        offset: this.fmt(Math.max(off, 0)),
+        hash: hashes[i],
+        resume: canResume && i === 0 ? set({ paused: false, stopped: false }) : (() => {}),
+        resumeStyle: 'flex:none;white-space:nowrap;padding:3px 9px;border:1px solid #243040;border-radius:3px;font-size:10px;letter-spacing:.5px;' +
+          (canResume && i === 0 ? 'color:#a9b7c4;cursor:pointer' : 'color:#2a3644;cursor:default')
+      };
+    });
+
+    const reconMetrics = live ? [
+      { label: 'Objects verified (SHA-256)', value: this.fmt(done - 5268), color: GREEN },
+      { label: 'Checksum mismatches', value: '0', color: GREEN },
+      { label: 'Missing on target', value: '0', color: GREEN },
+      { label: 'Orphans on target', value: '0', color: GREEN },
+      { label: 'Transient retries (auto-resolved)', value: '137', color: DIM },
+      { label: 'Hourly manifest diffs', value: '32 / 32 clean', color: GREEN }
+    ] : [
+      { label: 'Objects verified (SHA-256)', value: '2,487,556 / 2,487,556', color: GREEN },
+      { label: 'Checksum mismatches', value: '0', color: GREEN },
+      { label: 'Missing on target', value: '0', color: GREEN },
+      { label: 'Orphans on target', value: '0', color: GREEN },
+      { label: 'Transient retries (auto-resolved)', value: '163', color: DIM },
+      { label: 'Final full-manifest diff', value: 'PASSED', color: GREEN }
+    ];
+
+    const logColor = l => ({ ...l, color: this.LVL_COLORS[l.lvl] || DIM });
+    const all = this.allLogs(live);
+    const fL = this.state.fLevel, fD = this.state.fDay, fQ = this.state.fQ.trim().toLowerCase();
+    const filtered = all.filter(l =>
+      (fL === 'ALL' || l.lvl === fL) &&
+      (fD === 'ALL' || l.d === fD) &&
+      (!fQ || l.msg.toLowerCase().includes(fQ) || l.lvl.toLowerCase().includes(fQ)));
+    const chip = (label, on, click) => ({
+      label, click,
+      style: 'padding:4px 10px;border-radius:3px;font-family:' + mono + ';font-size:10.5px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;border:1px solid ' + (on ? '#31445c' : '#243040') + ';' + (on ? 'background:#1a2a3a;color:#d7e0e9' : 'color:#6b7a89')
+    });
+    const levelChips = ['ALL', 'INFO', 'DEBUG', 'CKPT', 'VRFY', 'RETR', 'WARN', 'ERROR', 'CTRL'].map(lv => chip(lv, fL === lv, set({ fLevel: lv })));
+    const dayChips = ['ALL', 'Jul 17', 'Jul 18', 'Jul 19'].map(dd => chip(dd.toUpperCase(), fD === dd, set({ fDay: dd })));
+
+    const workerCells = Array.from({ length: 24 }, (_, i) => {
+      const id = 'w-' + String(i + 1).padStart(2, '0');
+      let st = 'ACTIVE', dot = GREEN, anim = 'mcPulse 1.6s infinite';
+      if (!live) { st = 'FINISHED'; dot = BLUE; anim = 'none'; }
+      else if (i === 12) { st = 'ERROR'; dot = RED; anim = 'mcPulse 1.2s infinite'; }
+      else if (i === 7) { st = 'FINISHED'; dot = BLUE; anim = 'none'; }
+      else if (!running) { st = 'HELD'; dot = AMBER; anim = 'none'; }
+      const col = st === 'ERROR' ? RED : st === 'FINISHED' ? BLUE : st === 'HELD' ? AMBER : '#a9b7c4';
+      return { id, title: id + ' · ' + st, dot, anim,
+        click: set({ view: 'workers', selWorker: id }),
+        style: 'display:flex;align-items:center;gap:5px;padding:3px 6px;border:1px solid #1c2530;border-radius:3px;font-family:' + mono + ';font-size:10px;cursor:pointer;min-width:0;color:' + col };
+    });
+    const workersSummary = !live ? '24 fin' : (running ? '22 act · 1 err' : '22 held · 1 err');
+
+    const p2 = n => String(n).padStart(2, '0');
+    const wdetails = Array.from({ length: 24 }, (_, i) => {
+      const id = 'w-' + p2(i + 1);
+      const shard = 'shard-' + p2(i + 1);
+      const started = 'Jul 17 21:58:' + p2(10 + i);
+      let st = 'ACTIVE', col = GREEN, fin = '—', evt = 'nominal · transferring ' + shard;
+      const files = Math.max(Math.floor((live ? done : this.TOTAL) / 24 + ((i * 7919) % 9000) - 4500), 0);
+      let retries = (i * 13) % 7;
+      if (!live) { st = 'FINISHED'; col = BLUE; fin = 'Jul 19 11:' + p2((i * 129) % 60) + ':' + p2((i * 47) % 60); evt = 'shard verified · handle released'; }
+      else if (i === 12) { st = 'ERROR'; col = RED; retries = 5; evt = 'NFS read timeout ×5 (Jul 18 14:02) · restarted by supervisor · recovering'; }
+      else if (i === 7) { st = 'FINISHED'; col = BLUE; fin = 'Jul 19 05:12:44'; evt = 'shard drained · checksums clean'; }
+      else if (!running) { st = 'HELD'; col = AMBER; evt = 'held by operator stop · checkpoint flushed'; }
+      return { id, status: st, color: col, started, finished: fin, evt,
+        files: this.fmt(files), data: (files * 2 / 10000).toFixed(1) + ' GB', retries: String(retries),
+        path: 'nfs://filer01:/export/documents/' + shard + ' → s3://docs-prod/documents/' + shard };
+    });
+    const selW = wdetails.find(w => w.id === this.state.selWorker) || wdetails[0];
+    const wRowGrid = 'display:grid;grid-template-columns:48px 76px minmax(120px,1.6fr) 100px 100px 84px 64px 56px 52px;gap:8px;align-items:center;padding:6px 8px;border-bottom:1px solid #121924;font-family:' + mono + ';font-size:11px;cursor:pointer;';
+    const workerRows = wdetails.map(w => ({ ...w,
+      select: set({ selWorker: w.id }),
+      logs: set({ view: 'logs', fQ: w.id, fLevel: 'ALL', fDay: 'ALL' }),
+      rowStyle: wRowGrid + (w.id === selW.id ? 'background:rgba(63,214,140,0.06)' : '')
+    }));
+    const selWFacts = [
+      { k: 'STARTED', v: selW.started }, { k: 'FINISHED', v: selW.finished },
+      { k: 'FILES MOVED', v: selW.files }, { k: 'DATA', v: selW.data },
+      { k: 'RETRIES', v: selW.retries }, { k: 'LAST EVENT', v: selW.evt }
+    ];
+
+    const btn = (bg, border, color, enabled) => 'flex:1;text-align:center;padding:9px 8px;border-radius:4px;font-family:' + mono + ';font-size:11px;font-weight:600;letter-spacing:.6px;white-space:nowrap;background:' + bg + ';border:1px solid ' + border + ';color:' + color + ';' + (enabled ? 'cursor:pointer' : 'cursor:default;opacity:.35');
+    const interlockRow = (label, sub, on, toggle, locked) => ({
+      label, sub, toggle: locked ? (() => {}) : toggle,
+      trackStyle: 'width:34px;height:18px;border-radius:9px;flex:none;position:relative;transition:background .15s;background:' + (on ? GREEN : '#243040') + ';' + (locked ? 'opacity:.5;cursor:default' : 'cursor:pointer'),
+      knobStyle: 'width:14px;height:14px;border-radius:50%;background:#0b0e13;position:absolute;top:2px;transition:left .15s;left:' + (on ? '18px' : '2px')
+    });
+
+    return {
+      tabs, menuItems, menuOpen: !!this.state.menuOpen,
+      menuToggle: set(s => ({ menuOpen: !s.menuOpen })),
+      menuClose: set({ menuOpen: false }),
+      stopProp: (e) => e.stopPropagation(),
+      setLive: set({ mode: 'live' }), setComplete: set({ mode: 'complete', confirmStop: false }),
+      liveBtnStyle: segBase + (live ? 'background:#1a2a3a;color:#d7e0e9' : 'color:#435160'),
+      completeBtnStyle: segBase + (!live ? 'background:#173327;color:#d7e0e9' : 'color:#435160'),
+      statusLabel: status[0], statusColor: status[1], dotAnim: status[2],
+      clock: (live ? 'Sun Jul 19 · ' : 'archived · ') + this.now() + ' UTC',
+      elapsedLabel: live ? 'ELAPSED' : 'TOTAL', elapsed: live ? this.elapsedStr() : '38h 14m (finished Sun 12:12)',
+      workersLabel: running ? '24 / 24 active' : (live ? '0 / 24 (stopped)' : 'released'),
+      isOverview: this.state.view === 'overview', isLogs: this.state.view === 'logs',
+      isSessions: this.state.view === 'sessions', isWorkers: this.state.view === 'workers',
+      selW, selWFacts, workerRows,
+      selWLogs: set({ view: 'logs', fQ: selW.id, fLevel: 'ALL', fDay: 'ALL' }),
+      isReconcile: this.state.view === 'reconcile', isControl: this.state.view === 'control',
+      goLogs: set({ view: 'logs' }), goSessions: set({ view: 'sessions' }),
+      showEventLog: this.props.showEventLog ?? true,
+      kpis, doneFmt: this.fmt(done), pct: pct.toFixed(1), gbDone,
+      progBarStyle: 'height:100%;width:' + pct.toFixed(2) + '%;background:linear-gradient(90deg,#1e7a52,#3fd68c);' +
+        (running ? 'background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 7px,transparent 7px 14px),linear-gradient(90deg,#1e7a52,#3fd68c);animation:mcStripe 1s linear infinite' : ''),
+      lastCpId: checkpoints[0].id, lastCpAgo: running ? 'moments ago' : (live ? 'flushed on stop' : 'final'),
+      log: (live ? (this.state.log || this.baseLog()) : this.completeLog()).map(logColor),
+      logStreamLabel: running ? 'streaming' : (live ? 'held' : 'archived'),
+      filteredLogs: filtered.slice(0, 250).map(logColor),
+      logCount: this.fmt(filtered.length) + ' / ' + this.fmt(all.length) + ' lines',
+      logsEmpty: filtered.length === 0,
+      fQ: this.state.fQ, setQ: (e) => this.setState({ fQ: e.target.value }),
+      levelChips, dayChips, workerCells, workersSummary,
+      downloadAll: () => this.dl(all, 'airlift-S-007-flight.log'),
+      downloadFiltered: () => this.dl(filtered, 'airlift-S-007-filtered.log'),
+      integrity, sessions, checkpoints, cpTotal: String(cpN),
+      resumeNote: canResume ? '▶ run is stopped — resume re-validates the CP manifest first' : (live ? 'resume available whenever the run is stopped' : 'session closed — checkpoints retained for audit'),
+      verdictMark: !live ? '✓' : '◷', verdictColor: !live ? GREEN : BLUE,
+      verdictBg: !live ? 'rgba(63,214,140,0.07)' : 'rgba(77,163,255,0.06)',
+      verdictBorder: !live ? '#1e7a52' : '#1c3a5a',
+      verdictTitle: !live ? 'RECONCILIATION PASSED — ZERO LOSS PROVEN' : 'VERIFICATION TRAILING TRANSFER — NO DISCREPANCIES',
+      verdictSub: !live ? '2,487,556 of 2,487,556 objects verified · 0 lost · 0 corrupted · 0 orphaned' : 'reconciler runs behind the transfer; every confirmed write is checksum-verified before it counts',
+      eq1: live ? '≥' : '=', eq2: '=', eqColor1: live ? DIM : GREEN, eqColor2: GREEN,
+      targetCount: live ? this.fmt(done) : '2,487,556',
+      reconMetrics, noop: () => {},
+      startRun: (live && stopped) ? set({ stopped: false, paused: false }) : (() => {}),
+      startBtnLabel: stopped ? '▶ START · RESUME ' + checkpoints[0].id : '▶ START RUN',
+      startBtnStyle: btn('#173327', GREEN, GREEN, live && stopped),
+      reqStop: (live && !stopped) ? set({ confirmStop: true }) : (() => {}),
+      stopBtnStyle: btn('#241114', '#5c2a2f', '#ff8f8f', live && !stopped),
+      controlNote: !live ? 'No active session. S-007 completed Sun 12:12 UTC.'
+        : stopped ? 'S-007 stopped by operator. Final checkpoint ' + checkpoints[0].id + ' flushed. START re-validates the manifest and resumes from it — no progress lost.'
+        : 'S-007 running. STOP at any time — the engine drains in-flight writes and flushes a checkpoint before exiting clean.',
+      showSummary: !!sumS, sumFacts, sumResult, sumResultColor, sumResultMark,
+      sumId: sumS ? sumS.id : '', sumLabel: sumS ? sumS.label : '',
+      closeSummary: set({ sumSess: null }),
+      printSummary: () => window.print(),
+      notifChannels, notifEvents,
+      sendTest: () => this.setState({ nTest: true }),
+      nTestMsg: this.state.nTest ? '✓ test notification queued to enabled channels' : '',
+      confirmStop: this.state.confirmStop,
+      cancelStop: set({ confirmStop: false }),
+      doStop: set({ confirmStop: false, stopped: true, paused: false }),
+      interlocks: [
+        interlockRow('Verify after write', 'SHA-256 re-read from target before an object counts as moved', true, () => {}, true),
+        interlockRow('Source is read-only', 'engine holds no delete or write credentials on NFS', true, () => {}, true),
+        interlockRow('Dry-run mode', 'plan and inventory only — no writes to target', this.state.dry, set(s => ({ dry: !s.dry })), false),
+        interlockRow('Bandwidth throttle', 'cap at 2.5 MB/s during business hours', this.state.throttle, set(s => ({ throttle: !s.throttle })), false)
+      ],
+      config: [
+        { k: 'SOURCE', v: 'nfs://filer01:/export/documents' },
+        { k: 'TARGET', v: 's3://docs-prod/documents' },
+        { k: 'OBJECT VERSIONING', v: 'enabled' },
+        { k: 'CHECKSUM', v: 'SHA-256' },
+        { k: 'WORKERS', v: '24' },
+        { k: 'BATCH SIZE', v: '512 objects' },
+        { k: 'CHECKPOINT EVERY', v: '~5,000 files' },
+        { k: 'RETRY POLICY', v: '5× exponential backoff' }
+      ]
+    };
+  }
+
+  cpCount(done) { return Math.floor(done / 4886); }
+  cpTime(i) { const times = ['06:22:41', '06:17:35', '06:12:28', '06:07:22', '06:02:15', '05:57:09']; return times[i]; }
+  elapsedStr() { return '32h ' + String(26 + Math.floor(this.state.tick / 100)).padStart(2, '0') + 'm'; }
+}
+</script>
+</body>
+</html>

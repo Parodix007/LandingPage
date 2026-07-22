@@ -82,7 +82,7 @@ export function GhostPill({
   // must stay static so ::after is positioned against .card-host, not the button.)
   // w-fit shrink-wraps the button to the visible span so a flex-COLUMN parent's `align-items:
   // stretch` can't stretch it full-width (which would overhang the focus ring past the pill);
-  // it's a no-op where the button already shrink-wraps (grid cards, service-card row), and the
+  // it's a no-op where the button already shrink-wraps (grid cards), and the
   // whole-card click is unaffected because .pill-stretched::after is anchored to .card-host,
   // not the button box.
   const buttonClassName = `w-fit pill-stretched inline-flex rounded-[var(--radius-pill)] ${PILL_FOCUS}`;

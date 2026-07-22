@@ -8,72 +8,92 @@ function renderExplorer() {
   return render(<PricingExplorer groups={pricing.groups} filters={pricing.filters} />);
 }
 
-describe("PricingExplorer", () => {
+const TOTAL = pricing.groups.reduce((n, g) => n + g.cards.length, 0);
+
+const startGroup = pricing.groups.find((g) => g.eyebrow === "Zacznij bez ryzyka")!;
+const automationGroup = pricing.groups.find((g) => g.eyebrow === "Automatyzacja")!;
+const coreGroup = pricing.groups.find((g) => g.eyebrow === "Systemy centralne i integracje")!;
+const refactorGroup = pricing.groups.find((g) => g.eyebrow === "Refactor & rescue")!;
+const maintenanceGroup = pricing.groups.find((g) => g.eyebrow === "Utrzymanie po wdrożeniu")!;
+
+const highTier = pricing.filters.tiers.find((t) => t.id === "high")!;
+
+describe("PricingExplorer (2026-07-22 pl-copy handoff)", () => {
   it("renders every card initially with a full result count", () => {
     renderExplorer();
 
-    expect(screen.getByText("18 / 18 shown")).toBeInTheDocument();
-    expect(screen.getByText("Intro call (30 min)")).toBeInTheDocument();
     expect(
-      screen.getByText("B2B integrations / distributed systems / event-driven"),
+      screen.getByText(`${TOTAL} / ${TOTAL} ${pricing.filters.countLabel}`),
     ).toBeInTheDocument();
-    expect(screen.getByText("Legacy system modernization / migration")).toBeInTheDocument();
+    expect(screen.getByText(startGroup.cards[0].title)).toBeInTheDocument();
+    expect(screen.getByText(coreGroup.cards[0].title)).toBeInTheDocument();
+    expect(screen.getByText(refactorGroup.cards[1].title)).toBeInTheDocument();
   });
 
   it("filters cards down to the selected category", async () => {
     const user = userEvent.setup();
     renderExplorer();
 
-    await user.click(screen.getByRole("button", { name: /Automation/ }));
+    await user.click(screen.getByRole("button", { name: new RegExp(automationGroup.eyebrow) }));
 
-    expect(screen.getByText("Simple automation")).toBeInTheDocument();
-    expect(screen.queryByText("Intro call (30 min)")).not.toBeInTheDocument();
+    expect(screen.getByText(automationGroup.cards[0].title)).toBeInTheDocument();
+    expect(screen.queryByText(startGroup.cards[0].title)).not.toBeInTheDocument();
   });
 
   it("filters cards down to the selected price tier", async () => {
     const user = userEvent.setup();
     renderExplorer();
 
-    // Anchor on the trailing "+" — "PLN 5–15k" also contains the substring "15k".
-    await user.click(screen.getByRole("button", { name: /15k\+/ }));
+    await user.click(screen.getByRole("button", { name: highTier.label }));
 
-    expect(screen.getByText("Legacy system modernization / migration")).toBeInTheDocument();
-    expect(screen.getByText("Advanced automation / AI system")).toBeInTheDocument();
-    expect(screen.queryByText("Intro call (30 min)")).not.toBeInTheDocument();
+    // Modernizacja / migracja systemu legacy (24 000 zł) and Zaawansowany system automatyzacji
+    // / AI (18 000 zł) both fall in the "high" (15k+) tier.
+    expect(screen.getByText(refactorGroup.cards[1].title)).toBeInTheDocument();
+    expect(screen.getByText(automationGroup.cards[2].title)).toBeInTheDocument();
+    expect(screen.queryByText(startGroup.cards[0].title)).not.toBeInTheDocument();
   });
 
   it("combines category and price tier filters with AND semantics", async () => {
     const user = userEvent.setup();
     renderExplorer();
 
-    await user.click(screen.getByRole("button", { name: /Automation/ }));
-    await user.click(screen.getByRole("button", { name: /15k\+/ }));
+    await user.click(screen.getByRole("button", { name: new RegExp(automationGroup.eyebrow) }));
+    await user.click(screen.getByRole("button", { name: highTier.label }));
 
-    expect(screen.getByText("Advanced automation / AI system")).toBeInTheDocument();
-    expect(screen.queryByText("Simple automation")).not.toBeInTheDocument();
+    expect(screen.getByText(automationGroup.cards[2].title)).toBeInTheDocument();
+    expect(screen.queryByText(automationGroup.cards[0].title)).not.toBeInTheDocument();
   });
 
   it("clear all resets the filters and brings hidden cards back", async () => {
     const user = userEvent.setup();
     renderExplorer();
 
-    await user.click(screen.getByRole("button", { name: /Automation/ }));
-    expect(screen.queryByText("Intro call (30 min)")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: new RegExp(automationGroup.eyebrow) }));
+    expect(screen.queryByText(startGroup.cards[0].title)).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /clear all/i }));
+    await user.click(screen.getByRole("button", { name: pricing.filters.clearLabel }));
 
-    expect(screen.getByText("Intro call (30 min)")).toBeInTheDocument();
-    expect(screen.getByText("18 / 18 shown")).toBeInTheDocument();
+    expect(screen.getByText(startGroup.cards[0].title)).toBeInTheDocument();
+    expect(
+      screen.getByText(`${TOTAL} / ${TOTAL} ${pricing.filters.countLabel}`),
+    ).toBeInTheDocument();
   });
 
   it("shows the empty state when the combined filters match no card", async () => {
     const user = userEvent.setup();
     renderExplorer();
 
-    // Post-launch maintenance has no card priced at PLN 15k+.
-    await user.click(screen.getByRole("button", { name: /Post-launch/ }));
-    await user.click(screen.getByRole("button", { name: /15k\+/ }));
+    // Maintenance ("Utrzymanie po wdrożeniu") has no card priced at the "high" (15k+) tier.
+    await user.click(screen.getByRole("button", { name: new RegExp(maintenanceGroup.eyebrow) }));
+    await user.click(screen.getByRole("button", { name: highTier.label }));
 
     expect(screen.getByText(pricing.filters.emptyTitle)).toBeInTheDocument();
+  });
+
+  it('renders "od" (not "from") as the price-point chrome word', () => {
+    renderExplorer();
+
+    expect(screen.getAllByText("od").length).toBeGreaterThan(0);
+    expect(screen.queryByText("from")).not.toBeInTheDocument();
   });
 });

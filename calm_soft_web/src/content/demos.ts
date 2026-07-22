@@ -1,112 +1,163 @@
 import type { Demo } from "./types";
 
-// Approved marketing copy for the five clickable clinic mockups shipped as static assets under
-// public/demo/<slug>/ (never modified — verbatim-assets contract, see docs/superpowers/specs/
-// 2026-07-20-demo-section-design.md). Screenshots live at /demo-shots/<slug>.webp. Order: the
-// three patient-facing sites first, then the two staff consoles. Featured 3 (homepage) come from
-// site.featuredDemoSlugs, resolved via getDemoBySlug (never index).
+// Zatwierdzone copy dla siedmiu klikalnych makiet pod public/demo/<slug>/ (pięć klinik —
+// nietykane, verbatim-assets contract, patrz docs/superpowers/specs/
+// 2026-07-20-demo-section-design.md — plus dwie nowe marki własne, cadence i airlift).
+// Zrzuty ekranu w /demo-shots/<slug>.webp. Kolejność: merdi zostaje pierwszy (test modala
+// używa demos[0]), potem pozostała czwórka klinik, na końcu cadence i airlift. Wyróżniona
+// trójka (homepage) pochodzi z site.featuredDemoSlugs, rozwiązywana przez getDemoBySlug
+// (nigdy przez indeks).
 export const demos: Demo[] = [
   {
     slug: "merdi",
     name: "Merdi",
-    tag: "Veterinary clinic",
+    tag: "Klinika weterynaryjna",
     description:
-      "The whole clinic, made pet-owner-friendly: services with upfront pricing, the team, a five-step visit booking and an account with a health profile for every pet.",
-    tagline: "Veterinary care that understands pet owners.",
+      "Cała klinika przyjazna opiekunom zwierząt: usługi z cenami podanymi z góry, zespół, umawianie wizyty w pięciu krokach i konto z profilem zdrowia każdego pupila.",
+    tagline: "Weterynaria, która rozumie opiekunów zwierząt.",
     detail:
-      "Merdi puts a modern face on a veterinary practice: transparent service pricing, a warm team page, and a five-step booking flow that turns “call during opening hours” into a 30-second task. Every client gets an account with a health profile for each pet — history, visits and reminders in one place.",
+      "Merdi to klinika weterynaryjna w nowoczesnym wydaniu: przejrzysty cennik usług, ciepła strona zespołu i pięciokrokowe umawianie wizyt, które zamienia „dzwoń w godzinach otwarcia\" w zadanie na 30 sekund. Każdy klient dostaje konto z profilem zdrowia dla każdego pupila — historia, wizyty i przypomnienia w jednym miejscu.",
     features: [
-      "Services with upfront pricing",
-      "Meet-the-team page",
-      "Five-step visit booking",
-      "Client account",
-      "A profile for every pet",
+      "Usługi z cenami z góry",
+      "Strona zespołu",
+      "Umawianie wizyty w 5 krokach",
+      "Konto klienta",
+      "Profil każdego pupila",
     ],
     shot: "/demo-shots/merdi.webp",
-    shotAlt: "The Merdi veterinary-clinic website, home page",
+    shotAlt: "Strona kliniki weterynaryjnej Merdi — strona główna",
     href: "/demo/merdi/index.html",
+    uiLang: "pl",
   },
   {
     slug: "vitalab",
     name: "VitaLab",
-    tag: "Clinic + laboratory",
+    tag: "Klinika + laboratorium",
     description:
-      "A clinic and its own lab in one place: order lab tests in five steps, book doctor visits, compare tests and packages, find collection points and track it all from a patient account.",
-    tagline: "Lab tests and doctor visits, one calm flow.",
+      "Klinika i własne laboratorium w jednym: badania zamówisz w pięciu krokach, umówisz lekarza, porównasz badania i pakiety, znajdziesz punkt pobrań — a wszystko śledzisz z konta pacjenta.",
+    tagline: "Badania i wizyty lekarskie w jednym spokojnym przepływie.",
     detail:
-      "VitaLab merges two journeys most clinics keep apart: booking a doctor and ordering lab work. Patients choose tests or bundled packages in five guided steps, pick a collection point, book visits, and follow results from one account — while the clinic keeps a single source of truth.",
+      "VitaLab łączy dwie ścieżki, które większość klinik trzyma osobno: umawianie lekarza i zamawianie badań. Pacjent wybiera badania lub pakiety w pięciu prowadzonych krokach, wskazuje punkt pobrań, umawia wizyty i śledzi wyniki z jednego konta — a klinika ma jedno źródło prawdy.",
     features: [
-      "Five-step lab-test ordering",
-      "Five-step visit booking",
-      "Test & package details",
-      "Collection-point finder",
-      "Patient account with results",
+      "Zamawianie badań w 5 krokach",
+      "Umawianie wizyt w 5 krokach",
+      "Szczegóły badań i pakietów",
+      "Wyszukiwarka punktów pobrań",
+      "Konto pacjenta z wynikami",
     ],
     shot: "/demo-shots/vitalab.webp",
-    shotAlt: "The VitaLab clinic-and-laboratory website, home page",
+    shotAlt: "Strona kliniki i laboratorium VitaLab — strona główna",
     href: "/demo/vitalab/index.html",
+    uiLang: "pl",
   },
   {
     slug: "primavita",
     name: "Primavita",
-    tag: "Medical clinic",
+    tag: "Klinika medyczna",
     description:
-      "A private medical clinic online: search 36 doctors across 12 specialties, scan a transparent price list, pick a care package and book in five steps — results waiting in the patient panel.",
-    tagline: "Book a specialist without calling or waiting.",
+      "Prywatna klinika medyczna online: wyszukiwarka 36 lekarzy w 12 specjalizacjach, przejrzysty cennik, pakiety opieki i umawianie w pięciu krokach — wyniki czekają w panelu pacjenta.",
+    tagline: "Umów specjalistę bez dzwonienia i czekania.",
     detail:
-      "Primavita is the private-clinic experience patients actually want: a searchable directory of 36 doctors across 12 specialties, an at-a-glance price list, care packages, and a five-step booking flow that skips the phone queue. After the visit, results and history live in a clean patient panel.",
+      "Primavita to doświadczenie prywatnej kliniki, jakiego pacjenci naprawdę chcą: przeszukiwalny katalog 36 lekarzy w 12 specjalizacjach, czytelny cennik, pakiety opieki i pięciokrokowe umawianie z pominięciem kolejki telefonicznej. Po wizycie wyniki i historia trafiają do przejrzystego panelu pacjenta.",
     features: [
-      "36 doctors, 12 specialties",
-      "Searchable price list",
-      "Care packages",
-      "Five-step booking",
-      "Patient panel with results",
+      "36 lekarzy, 12 specjalizacji",
+      "Przeszukiwalny cennik",
+      "Pakiety opieki",
+      "Umawianie w 5 krokach",
+      "Panel pacjenta z wynikami",
     ],
     shot: "/demo-shots/primavita.webp",
-    shotAlt: "The Primavita medical-clinic website, home page",
+    shotAlt: "Strona kliniki medycznej Primavita — strona główna",
     href: "/demo/primavita/index.html",
+    uiLang: "pl",
   },
   {
     slug: "healthlab",
     name: "HealthLab",
-    tag: "Lab back-office",
+    tag: "Zaplecze laboratorium",
     description:
-      "The console a diagnostic lab runs on: manage patients, take in test orders, enter and release results, and move every sample through one clear workflow — no spreadsheets.",
-    tagline: "The back office that runs the lab.",
+      "Konsola, na której działa laboratorium diagnostyczne: pacjenci, przyjmowanie zleceń, wprowadzanie i wydawanie wyników oraz jeden czytelny obieg każdej próbki — bez arkuszy.",
+    tagline: "Zaplecze, które prowadzi laboratorium.",
     detail:
-      "HealthLab is the staff side of a diagnostic lab: one console for patient records, incoming test orders, results entry and controlled release. It replaces the spreadsheet-and-email choreography with a single workflow, so technicians and managers always know what’s pending, what’s ready, and what’s been sent.",
+      "HealthLab to laboratorium diagnostyczne od strony personelu: jedna konsola do kartotek pacjentów, przychodzących zleceń, wprowadzania wyników i kontrolowanego ich wydawania. Zastępuje żonglowanie arkuszami i mailami jednym obiegiem, więc technicy i kierownicy zawsze wiedzą, co czeka, co jest gotowe i co zostało wysłane.",
     features: [
-      "Patient management",
-      "Test-order intake",
-      "Results entry & release",
-      "Sample workflow",
-      "Staff dashboard",
+      "Zarządzanie pacjentami",
+      "Przyjmowanie zleceń badań",
+      "Wprowadzanie i wydawanie wyników",
+      "Obieg próbki",
+      "Pulpit personelu",
     ],
     shot: "/demo-shots/healthlab.webp",
-    shotAlt: "The HealthLab laboratory back-office console",
+    shotAlt: "Konsola zaplecza laboratorium HealthLab",
     href: "/demo/healthlab/index.html",
     desktopOnly: true,
+    uiLang: "pl",
   },
   {
     slug: "merdi-panel",
     name: "Merdi Panel",
-    tag: "Vet staff panel",
+    tag: "Panel personelu wet.",
     description:
-      "The team’s side of Merdi: an appointment calendar, daily schedule and staff rota, patient and pet records, and fast booking — everything the front desk and vets need in one panel.",
-    tagline: "Run the whole clinic day from one calendar.",
+      "Strona zespołu Merdi: kalendarz wizyt, plan dnia i grafik, kartoteki klientów i pupili oraz szybkie umawianie — wszystko, czego potrzebuje recepcja i lekarze, w jednym panelu.",
+    tagline: "Cały dzień kliniki z jednego kalendarza.",
     detail:
-      "Behind Merdi’s friendly booking page sits the panel the staff live in: a shared appointment calendar, daily schedule and rota, and quick access to patient and pet records. Reception books and reschedules in seconds; vets see their day at a glance — no double-bookings, no paper diary.",
+      "Za przyjazną stroną Merdi siedzi panel, w którym żyje personel: wspólny kalendarz wizyt, plan dnia i grafik oraz szybki dostęp do kartotek klientów i pupili. Recepcja umawia i przekłada wizyty w sekundy; lekarze widzą swój dzień jednym rzutem oka — bez podwójnych rezerwacji i papierowego zeszytu.",
     features: [
-      "Appointment calendar",
-      "Daily schedule & rota",
-      "Patient & pet records",
-      "Booking & rescheduling",
-      "Front-desk dashboard",
+      "Kalendarz wizyt",
+      "Plan dnia i grafik",
+      "Kartoteki klientów i pupili",
+      "Umawianie i przekładanie",
+      "Pulpit recepcji",
     ],
     shot: "/demo-shots/merdi-panel.webp",
-    shotAlt: "The Merdi veterinary-clinic staff panel",
+    shotAlt: "Panel personelu kliniki weterynaryjnej Merdi",
     href: "/demo/merdi-panel/index.html",
     desktopOnly: true,
+    uiLang: "pl",
+  },
+  {
+    slug: "cadence",
+    name: "Cadence",
+    tag: "Platforma automatyzacji",
+    description:
+      "Panel, z którego zarządzasz automatyzacjami firmy: przepływy odczytujące faktury z maili, cotygodniowe podsumowania, alerty awarii i pełna historia uruchomień — wszystko w jednym miejscu.",
+    tagline: "Automatyzacje firmy pod kontrolą, w jednym panelu.",
+    detail:
+      "Cadence pokazuje, jak może wyglądać centrum dowodzenia automatyzacjami: lista przepływów ze statusami i filtrami, podgląd ostatnich wyników — odczytana faktura z załącznika, wysłane podsumowanie, szkic odpowiedzi na maila — historia uruchomień oraz kanały alertów na wypadek, gdyby automatyzacja zawiodła. Dokładnie ten rodzaj pracy, który opisuję w usłudze Automatyzacja — tu w formie klikalnego produktu.",
+    features: [
+      "Lista automatyzacji ze statusami i filtrami",
+      "Podgląd wyników uruchomień (np. odczyt faktur)",
+      "Historia uruchomień",
+      "Alerty awarii na wybrane kanały",
+      "Konfiguracja i test powiadomień",
+    ],
+    shot: "/demo-shots/cadence.webp",
+    shotAlt: "Panel platformy automatyzacji Cadence — lista przepływów",
+    href: "/demo/cadence/index.html",
+    uiLang: "en",
+    logoId: "cadence",
+  },
+  {
+    slug: "airlift",
+    name: "AIRLIFT",
+    tag: "Konsola migracji danych",
+    description:
+      "Konsola operatora dużej migracji plików: postęp sesji na żywo, checkpointy i wznowienia, podgląd workerów, ciągła weryfikacja integralności i pełny dziennik zdarzeń.",
+    tagline: "Ciężkie dane, bezpieczne lądowanie.",
+    detail:
+      "AIRLIFT to interfejs, jakiego potrzebuje migracja milionów plików: pasek postępu sesji produkcyjnej, kontrola uruchomienia — start, pauza, wznowienie — checkpointy z możliwością powrotu do dowolnego punktu, ciągła weryfikacja sum kontrolnych, podgląd workerów i przeszukiwalny „flight recorder\" z logami. Zbudowany na motywach prawdziwej migracji ~2,5 mln plików opisanej w moich case studies.",
+    features: [
+      "Postęp migracji i kontrola sesji (start / pauza / wznowienie)",
+      "Checkpointy i wznawianie od dowolnego punktu",
+      "Ciągła weryfikacja integralności (sumy kontrolne)",
+      "Podgląd i szczegóły workerów",
+      "Przeszukiwalny dziennik zdarzeń (flight recorder)",
+    ],
+    shot: "/demo-shots/airlift.webp",
+    shotAlt: "Konsola migracji danych AIRLIFT — postęp sesji produkcyjnej",
+    href: "/demo/airlift/index.html",
+    uiLang: "en",
+    logoId: "airlift",
   },
 ];
 

@@ -1,7 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { services } from "@/content/services";
 import { cases, getCaseBySlug } from "@/content/cases";
 import { demos } from "@/content/demos";
 import { site } from "@/content/site";
@@ -14,7 +13,7 @@ vi.mock("@/lib/scroll", () => ({ scrollToContact: vi.fn() }));
 function renderSection() {
   render(
     <InquiryProvider>
-      <ModalProvider services={services} cases={cases} demos={demos}>
+      <ModalProvider cases={cases} demos={demos}>
         <CaseStudies />
       </ModalProvider>
     </InquiryProvider>,
@@ -51,13 +50,21 @@ describe("CaseStudies (HANDOFF §6/§7, SPEC §14.2, 2026-07-20 round2 polish)",
     expect(link).toHaveAttribute("href", "/work/");
   });
 
+  it("renders the two sections.cases.intro lines above the case grid", () => {
+    renderSection();
+
+    for (const line of site.sections.cases.intro) {
+      expect(screen.getByText(line)).toBeInTheDocument();
+    }
+  });
+
   it("clicking a featured card's 'Read the story' opens a dialog showing that case's headline", async () => {
     const user = userEvent.setup();
     renderSection();
 
     const featured = getCaseBySlug(site.featuredCaseSlugs[0])!;
     await user.click(
-      screen.getByRole("button", { name: `Read the story: ${featured.client}` }),
+      screen.getByRole("button", { name: `Przeczytaj historię: ${featured.client}` }),
     );
 
     const dialog = screen.getByRole("dialog");
@@ -73,14 +80,14 @@ describe("CaseStudies (HANDOFF §6/§7, SPEC §14.2, 2026-07-20 round2 polish)",
 
     const featured = getCaseBySlug(site.featuredCaseSlugs[0])!;
     await user.click(
-      screen.getByRole("button", { name: `Read the story: ${featured.client}` }),
+      screen.getByRole("button", { name: `Przeczytaj historię: ${featured.client}` }),
     );
 
     expect(screen.getByText(featured.challenge)).toBeInTheDocument();
     expect(screen.getByText(featured.approach)).toBeInTheDocument();
     expect(screen.getByText(featured.results)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Start a similar project ›" }),
+      screen.getByRole("button", { name: "Zacznij podobny projekt ›" }),
     ).toBeInTheDocument();
     expect(screen.getByText(site.modals.caseNote)).toBeInTheDocument();
   });

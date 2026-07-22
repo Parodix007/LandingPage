@@ -40,6 +40,7 @@ async function main() {
     turnstile: createTurnstileVerifier({ secret: config.TURNSTILE_SECRET }),
     sendBudget: createSendBudget({ hourlyCap: config.SMTP_SEND_CAP_HOURLY, dailyCap: config.SMTP_SEND_CAP_DAILY }),
     sendMail: (s) => mailer.sendInternal(s),
+    sendDetailsMail: (s) => mailer.sendDetails(s),
     // On-demand SMTP check, not a boot-time flag: on lsnode every probe is a cold process,
     // so a fire-and-forget verify() would ALWAYS lose the race and /ready would sit at 503.
     // verify() is bounded by the transport timeouts above (~5s typical failure detection).

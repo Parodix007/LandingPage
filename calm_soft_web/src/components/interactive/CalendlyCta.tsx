@@ -4,6 +4,7 @@ import type { MouseEvent } from "react";
 import { CALENDLY_URL } from "@/lib/config";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
 import { openCalendlyPopup } from "@/lib/calendly";
+import { track, EVENT_CALENDLY } from "@/lib/analytics";
 
 export type CalendlyCtaVariant = "filled" | "link";
 
@@ -31,6 +32,7 @@ const LINK_CLASSES = `${PILL_FOCUS} rounded-[var(--radius-input)] text-[17px] fo
 export function CalendlyCta({ label, variant, ariaLabel }: CalendlyCtaProps) {
   function handleClick(e: MouseEvent<HTMLAnchorElement>) {
     e.preventDefault();
+    track(EVENT_CALENDLY);
     openCalendlyPopup(CALENDLY_URL).catch(() => {
       window.open(CALENDLY_URL, "_blank", "noopener");
     });

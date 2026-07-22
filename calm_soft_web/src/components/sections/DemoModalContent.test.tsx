@@ -61,4 +61,31 @@ describe("DemoModalContent (2026-07-20 demo-detail-modal-and-demos-subpage desig
 
     expect(screen.queryByText(site.sections.demos.desktopNote)).not.toBeInTheDocument();
   });
+
+  it("shows the language chip for an uiLang 'en' demo (cadence)", () => {
+    const cadence = getDemoBySlug("cadence")!;
+    render(<DemoModalContent demo={cadence} />);
+
+    expect(screen.getByText(site.sections.demos.langChip)).toBeInTheDocument();
+  });
+
+  it("hides the language chip for an uiLang 'pl' demo (Merdi)", () => {
+    render(<DemoModalContent demo={demos[0]} />);
+
+    expect(screen.queryByText(site.sections.demos.langChip)).not.toBeInTheDocument();
+  });
+
+  it("renders the DemoLogo brand mark for a demo with a logoId (cadence)", () => {
+    const cadence = getDemoBySlug("cadence")!;
+    render(<DemoModalContent demo={cadence} />);
+
+    expect(screen.getByRole("img", { name: "Cadence" })).toBeInTheDocument();
+  });
+
+  it("does not render a DemoLogo for a demo without a logoId (Merdi)", () => {
+    render(<DemoModalContent demo={demos[0]} />);
+
+    expect(screen.queryByRole("img", { name: "Cadence" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: "AIRLIFT" })).not.toBeInTheDocument();
+  });
 });

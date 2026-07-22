@@ -2,15 +2,25 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { site } from "@/content/site";
+import type { AreaId, BudgetId } from "@/content/types";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
-import { useInquiry, useRegisterServiceRadioFocus } from "@/components/providers/InquiryProvider";
-import { submitWithRetry, InquiryError, type InquiryFields } from "@/lib/inquiry";
+import { useRegisterContactFocus } from "@/components/providers/InquiryProvider";
+import {
+  submitWithRetry,
+  submitDetailsWithRetry,
+  InquiryError,
+  type InquiryFields,
+  type InquiryDetailsFields,
+} from "@/lib/inquiry";
 import { loadTurnstile, executeTurnstile, teardownTurnstile } from "@/lib/turnstile";
+import { track, EVENT_LEAD, EVENT_LEAD_DETAILS } from "@/lib/analytics";
 
 type Status = "idle" | "submitting" | "success" | "error";
-type Meeting = "online" | "onsite";
-type Tone = "accent" | "accent2";
+// Step-2 (optional qualifying details) phases: "form" = interactive (may carry a stale
+// `detailsError` from a previous failed attempt), "submitting" = in flight, "done"/"skipped"
+// are the two terminal, non-interactive states (SPEC: details.done is never shown on skip).
+type DetailsPhase = "form" | "submitting" | "done" | "skipped";
 
 const form = site.contact.form;
 
@@ -20,98 +30,119 @@ const EMAIL_RE = /^[^\s@<>,]+@[^\s@<>,]+\.[^\s@<>,]+$/;
 // 7–25 total. Literal space (not \s) so CR/LF can't slip through. Validated ONLY when non-empty.
 const PHONE_RE = /^(?=(?:\D*\d){7})[+0-9 ().-]{7,25}$/;
 
-type FieldKey = "name" | "email" | "phone" | "service" | "message";
-const NO_FIELD_ERRORS: Record<FieldKey, string | null> = {
-  name: null, email: null, phone: null, service: null, message: null,
-};
+type FieldKey = "name" | "email" | "message";
+const NO_FIELD_ERRORS: Record<FieldKey, string | null> = { name: null, email: null, message: null };
 
-// Custom card-styled radio/checkbox labels can't rely on the sr-only input's own focus ring
-// (it's visually clipped) — `focus-within` on the wrapping <label> (an ANCESTOR of the input,
-// same pattern as Services.tsx's `focus-within` card-hover border) surfaces a visible indicator instead
-// (SPEC §11.2: every interactive control needs one).
+// Custom card-styled radio labels can't rely on the sr-only input's own focus ring (it's
+// visually clipped) — `focus-within` on the wrapping <label> (an ANCESTOR of the input) surfaces
+// a visible indicator instead (SPEC §11.2: every interactive control needs one).
 const FOCUS_WITHIN_RING =
   "focus-within:outline focus-within:outline-2 focus-within:outline-[color:var(--color-accent)] focus-within:outline-offset-2";
 
 const INPUT_CLASSES =
   "w-full rounded-[var(--radius-input)] border bg-white/[0.05] p-[13px_15px] text-[15px] text-ink placeholder:text-ink-50 transition-[border-color] duration-300 focus:border-accent focus:outline-none";
 
-// Tone-based lookups keep every class name a complete literal string (Tailwind's JIT scans
-// source text — interpolating fragments of a utility name into a template string, e.g.
-// `bg-[...${cssVar}...]`, would never be picked up). Mirrors Services.tsx's TONE_* records.
-const TOGGLE_CHECKED_CLASSES: Record<Tone, string> = {
-  accent:
-    "border-[color-mix(in_oklch,var(--color-accent)_45%,transparent)] bg-[color-mix(in_oklch,var(--color-accent)_10%,transparent)]",
-  accent2:
-    "border-[color-mix(in_oklch,var(--color-accent2)_45%,transparent)] bg-[color-mix(in_oklch,var(--color-accent2)_10%,transparent)]",
-};
-const TOGGLE_MARK_CLASSES: Record<Tone, string> = {
-  accent: "bg-accent",
-  accent2: "bg-accent2",
-};
-const TOGGLE_BADGE_CLASSES: Record<Tone, string> = {
-  accent: "bg-[color-mix(in_oklch,var(--color-accent)_20%,transparent)] text-accent",
-  accent2: "bg-[color-mix(in_oklch,var(--color-accent2)_20%,transparent)] text-accent2",
-};
-
-const SERVICE_SELECTED_CLASSES =
+const RADIO_SELECTED_CLASSES =
   "border-[color-mix(in_oklch,var(--color-accent)_55%,transparent)] bg-[color-mix(in_oklch,var(--color-accent)_16%,transparent)]";
-const SERVICE_IDLE_CLASSES = "border-border-10 bg-white/[0.04] hover:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)]";
+const RADIO_IDLE_CLASSES =
+  "border-border-10 bg-white/[0.04] hover:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)]";
 
-const MEETING_SELECTED_CLASSES =
-  "border-[color-mix(in_oklch,var(--color-accent)_55%,transparent)] bg-[color-mix(in_oklch,var(--color-accent)_16%,transparent)] text-ink";
-const MEETING_IDLE_CLASSES = "border-border-12 bg-white/[0.04] text-ink-60 hover:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)]";
+type RadioOption<T extends string> = { id: T; label: string };
 
-type ToggleCardProps = {
-  tone: Tone;
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-  sub: string;
-  badge: string;
-};
-
-// Local to this file (not a new interactive/ leaf) — the two toggle rows are identical apart
-// from tone/copy/checked state.
-function ToggleCard({ tone, checked, onChange, label, sub, badge }: ToggleCardProps) {
+// Shared radio-card group for the step-2 qualifying questions (area / budget) — same visual
+// pattern the old service picker used, generic over the option id union so it serves both
+// AreaId and BudgetId without duplication.
+function RadioCardGroup<T extends string>({
+  legend,
+  name,
+  options,
+  selected,
+  onChange,
+}: {
+  legend: string;
+  name: string;
+  options: RadioOption<T>[];
+  selected: T | null;
+  onChange: (id: T) => void;
+}) {
   return (
-    <label
-      className={`flex cursor-pointer items-start gap-4 rounded-[var(--radius-mini)] border p-[20px_22px] transition-[all] duration-300 ${FOCUS_WITHIN_RING} ${
-        checked ? TOGGLE_CHECKED_CLASSES[tone] : "border-border-10 bg-white/[0.03] hover:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)]"
-      }`}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        aria-label={label}
-        className="sr-only"
-      />
-      <span
-        aria-hidden="true"
-        className={`mt-[2px] flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-full border text-[14px] text-black transition-[all] duration-300 ${
-          checked ? `border-transparent ${TOGGLE_MARK_CLASSES[tone]}` : "border-[color:rgba(255,255,255,0.25)] bg-transparent"
-        }`}
-      >
-        {checked ? "✓" : ""}
-      </span>
-      <span className="flex flex-col gap-[6px]">
-        <span className="flex flex-wrap items-center gap-[10px]">
-          <span className="text-[15px] font-semibold text-ink">{label}</span>
-          <span
-            className={`rounded-[var(--radius-pill)] px-[10px] py-1 text-[12px] font-semibold uppercase tracking-[0.08em] ${TOGGLE_BADGE_CLASSES[tone]}`}
-          >
-            {badge}
-          </span>
-        </span>
-        <span className="text-[12.5px] leading-[1.5] text-ink-60">{sub}</span>
-      </span>
-    </label>
+    <fieldset className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0">
+      <legend className="p-0 text-[13px] font-semibold uppercase tracking-[0.12em] text-ink-50">
+        {legend}
+      </legend>
+      <div className="grid grid-cols-2 gap-[10px] min-[480px]:grid-cols-3">
+        {options.map((opt) => {
+          const isSelected = selected === opt.id;
+          return (
+            <label
+              key={opt.id}
+              className={`flex cursor-pointer items-center justify-center rounded-[var(--radius-picker)] border p-[12px] text-center text-[13.5px] font-medium leading-snug transition-[all] duration-300 ${FOCUS_WITHIN_RING} ${
+                isSelected ? RADIO_SELECTED_CLASSES : RADIO_IDLE_CLASSES
+              }`}
+            >
+              <input
+                type="radio"
+                name={name}
+                value={opt.id}
+                checked={isSelected}
+                onChange={() => onChange(opt.id)}
+                aria-label={opt.label}
+                className="sr-only"
+              />
+              <span className="text-ink">{opt.label}</span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }
 
-function SuccessPanel({ onReset }: { onReset: () => void }) {
+type SuccessPanelProps = {
+  area: AreaId | null;
+  budget: BudgetId | null;
+  phone: string;
+  phoneError: string | null;
+  phoneRef: React.RefObject<HTMLInputElement | null>;
+  detailsWebsite: string;
+  detailsPhase: DetailsPhase;
+  detailsError: string | null;
+  onAreaChange: (id: AreaId) => void;
+  onBudgetChange: (id: BudgetId) => void;
+  onPhoneChange: (value: string) => void;
+  onDetailsWebsiteChange: (value: string) => void;
+  onDetailsSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  onSkip: () => void;
+  onReset: () => void;
+};
+
+// Step 2 lives inside the same success panel as the step-1 confirmation (SPEC): heading +
+// paragraph are permanent; the qualifying fieldset/phone/submit/skip block collapses once the
+// user either skips or the details POST succeeds, leaving just the heading, the terminal
+// message (if any), and the "send another" link.
+function SuccessPanel({
+  area,
+  budget,
+  phone,
+  phoneError,
+  phoneRef,
+  detailsWebsite,
+  detailsPhase,
+  detailsError,
+  onAreaChange,
+  onBudgetChange,
+  onPhoneChange,
+  onDetailsWebsiteChange,
+  onDetailsSubmit,
+  onSkip,
+  onReset,
+}: SuccessPanelProps) {
+  const details = form.success.details;
+  const showQualifying = detailsPhase === "form" || detailsPhase === "submitting";
+  const submitting = detailsPhase === "submitting";
+
   return (
-    <div className="flex flex-col items-center gap-4 px-6 py-[70px] text-center">
+    <div className="flex flex-col items-center gap-6 px-6 py-[60px] text-center">
       <span
         aria-hidden="true"
         className="flex h-16 w-16 items-center justify-center rounded-full border border-accent bg-[color-mix(in_oklch,var(--color-accent)_22%,transparent)] text-[26px] text-accent"
@@ -126,6 +157,102 @@ function SuccessPanel({ onReset }: { onReset: () => void }) {
           {form.success.paragraph}
         </p>
       </div>
+
+      {showQualifying && (
+        <form
+          onSubmit={onDetailsSubmit}
+          noValidate
+          className="flex w-full max-w-[420px] flex-col gap-5 text-left"
+        >
+          <RadioCardGroup
+            legend={details.areaLegend}
+            name="cf-area"
+            options={details.areaOptions}
+            selected={area}
+            onChange={onAreaChange}
+          />
+          <RadioCardGroup
+            legend={details.budgetLegend}
+            name="cf-budget"
+            options={details.budgetOptions}
+            selected={budget}
+            onChange={onBudgetChange}
+          />
+          <div className="flex flex-col gap-2">
+            <label htmlFor="cf-phone" className="text-[13px] font-medium text-ink-60">
+              {details.phoneLabel}
+            </label>
+            <input
+              id="cf-phone"
+              ref={phoneRef}
+              type="tel"
+              value={phone}
+              onChange={(e) => onPhoneChange(e.target.value)}
+              aria-invalid={phoneError ? true : undefined}
+              aria-describedby={phoneError ? "cf-phone-error" : undefined}
+              className={`${INPUT_CLASSES} ${
+                phoneError ? "border-[color:var(--color-error-border)]" : "border-border-12"
+              }`}
+            />
+            {phoneError && (
+              <p id="cf-phone-error" className="m-0 text-[12px] text-error">
+                {phoneError}
+              </p>
+            )}
+          </div>
+
+          {/* Honeypot — mirrors the step-1 field below (same aria-hidden/off-viewport/
+              tabIndex=-1 treatment): "" = human, populated ⇒ backend fake-200s step 2 too. */}
+          <div
+            aria-hidden="true"
+            style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}
+          >
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={detailsWebsite}
+              onChange={(e) => onDetailsWebsiteChange(e.target.value)}
+            />
+          </div>
+
+          <div role="status" aria-live="polite">
+            {detailsError && (
+              <p className="m-0 text-center text-[13px] text-error">{detailsError}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-3 min-[420px]:flex-row">
+            <button
+              type="submit"
+              disabled={submitting}
+              className={`flex-1 rounded-[var(--radius-pill)] bg-accent p-[13px] text-[15px] font-semibold text-black transition-[filter] duration-[250ms] hover:brightness-[1.15] disabled:cursor-not-allowed disabled:opacity-70 ${PILL_FOCUS}`}
+            >
+              {submitting ? details.submitting : details.submit}
+            </button>
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={onSkip}
+              className={`rounded-[var(--radius-pill)] px-4 py-[13px] text-[13px] text-ink-50 underline-offset-2 transition-colors duration-300 hover:text-ink-70 hover:underline disabled:cursor-not-allowed disabled:opacity-70 ${PILL_FOCUS}`}
+            >
+              {details.skip}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {detailsPhase === "done" && (
+        <p
+          role="status"
+          aria-live="polite"
+          className="m-0 max-w-[380px] text-[14px] leading-[1.5] text-ink-70"
+        >
+          {details.done}
+        </p>
+      )}
+
       <GhostPill tone="accent" size="sm" onClick={onReset}>
         {form.success.again}
       </GhostPill>
@@ -137,66 +264,60 @@ function SuccessPanel({ onReset }: { onReset: () => void }) {
 }
 
 export function ContactForm() {
-  const { selectedService, selectService } = useInquiry();
-  const register = useRegisterServiceRadioFocus();
+  const register = useRegisterContactFocus();
 
   const [status, setStatus] = useState<Status>("idle");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [company, setCompany] = useState("");
-  const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
-  const [discover, setDiscover] = useState(true);
-  const [handover, setHandover] = useState(true);
-  const [meeting, setMeeting] = useState<Meeting>("online");
   const [website, setWebsite] = useState("");
   const [errors, setErrors] = useState<Record<FieldKey, string | null>>(NO_FIELD_ERRORS);
   const [errorMessage, setErrorMessage] = useState(form.submitError);
 
-  // Clears a stale service validation error when a service becomes selected via an external
-  // CTA (InquiryProvider.selectService(), e.g. the Services-card/modal "Start with this
-  // service" actions) — mirrors the direct-radio onChange behavior below. This is the
-  // documented "adjusting state when a prop changes" idiom (React: storing information from
-  // previous renders) rather than a useEffect, so the update happens during render instead of
-  // in a post-commit effect (react-hooks/set-state-in-effect).
-  const [prevSelectedService, setPrevSelectedService] = useState(selectedService);
-  if (selectedService !== prevSelectedService) {
-    setPrevSelectedService(selectedService);
-    if (selectedService !== null) {
-      setErrors((p) => ({ ...p, service: null }));
-    }
-  }
+  const [area, setArea] = useState<AreaId | null>(null);
+  const [budget, setBudget] = useState<BudgetId | null>(null);
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [detailsWebsite, setDetailsWebsite] = useState("");
+  const [detailsPhase, setDetailsPhase] = useState<DetailsPhase>("form");
+  const [detailsError, setDetailsError] = useState<string | null>(null);
 
-  // Synchronous double-submit guard: React state updates aren't guaranteed to have flushed
-  // between two rapid clicks, but this ref is read/written immediately inside the handler.
+  // Synchronous double-submit guards: React state updates aren't guaranteed to have flushed
+  // between two rapid clicks, but these refs are read/written immediately inside the handlers.
   const submittingRef = useRef(false);
-  const selectedRadioRef = useRef<HTMLInputElement | null>(null);
+  const detailsSubmittingRef = useRef(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
-  const phoneRef = useRef<HTMLInputElement>(null);
-  const firstServiceRadioRef = useRef<HTMLInputElement>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const turnstileHostRef = useRef<HTMLDivElement>(null);
 
-  // Turnstile loads at mount — literally per SPEC §8.2, including dev/mock builds (the
-  // invisible widget renders only when a site key is configured; executeTurnstile() is only
-  // ever invoked on the real submit path, inside submitWithRetry).
+  // Turnstile loads at mount — literally per SPEC §8.2, including dev/mock builds (the widget
+  // renders only when a site key is configured, into turnstileHostRef so a Managed sitekey's
+  // interaction-only challenge has somewhere visible to appear; executeTurnstile() is only ever
+  // invoked on the real submit paths, inside submitWithRetry/submitDetailsWithRetry).
   useEffect(() => {
-    loadTurnstile();
+    loadTurnstile(turnstileHostRef.current ?? undefined);
     return () => teardownTurnstile();
   }, []);
 
+  // ModalProvider's CTA-close path scrolls to #contact then calls this to focus the name field.
   useEffect(() => {
-    register(() => selectedRadioRef.current?.focus({ preventScroll: true }));
+    register(() => nameRef.current?.focus({ preventScroll: true }));
     return () => register(null);
   }, [register]);
 
   function focusFirstInvalid(errs: Record<FieldKey, string | null>) {
     const order: [FieldKey, React.RefObject<HTMLElement | null>][] = [
-      ["name", nameRef], ["email", emailRef], ["phone", phoneRef],
-      ["service", firstServiceRadioRef], ["message", messageRef],
+      ["name", nameRef],
+      ["email", emailRef],
+      ["message", messageRef],
     ];
     for (const [key, ref] of order) {
-      if (errs[key]) { ref.current?.focus(); return; }
+      if (errs[key]) {
+        ref.current?.focus();
+        return;
+      }
     }
   }
 
@@ -205,7 +326,6 @@ export function ContactForm() {
     if (submittingRef.current) return;
 
     const em = email.trim();
-    const ph = phone.trim();
     const next: Record<FieldKey, string | null> = {
       name: name.trim() ? null : form.fieldErrors.name,
       email: !em
@@ -213,36 +333,23 @@ export function ContactForm() {
         : !EMAIL_RE.test(em)
           ? form.fieldErrors.emailInvalid
           : null,
-      phone: ph && !PHONE_RE.test(ph) ? form.fieldErrors.phoneInvalid : null,
-      service: selectedService === null ? form.fieldErrors.service : null,
       message: message.trim() ? null : form.fieldErrors.message,
     };
     setErrors(next);
     if (Object.values(next).some(Boolean)) {
-      // Drop any stale submit error so the live region only ever holds the submit-error
-      // OR per-field errors, never both (SPEC §14.2 / handoff §8).
+      // Drop any stale submit error so the live region only ever holds the submit-error OR
+      // per-field errors, never both (SPEC §14.2 / handoff §8).
       if (status === "error") setStatus("idle");
       focusFirstInvalid(next);
       return;
     }
-
-    // Guaranteed non-null by the service check above; a local const gives TypeScript (and
-    // readers) an explicit narrowing point instead of a scattered non-null assertion.
-    const service = selectedService;
-    if (service === null) return;
 
     submittingRef.current = true;
     setStatus("submitting");
 
     const fields: InquiryFields = {
       name: name.trim(),
-      email: email.trim(),
-      company: company || undefined,
-      phone: phone || undefined,
-      service,
-      meeting,
-      discover,
-      handover,
+      email: em,
       message,
       website,
     };
@@ -250,6 +357,7 @@ export function ContactForm() {
     try {
       await submitWithRetry(fields, executeTurnstile);
       setStatus("success");
+      track(EVENT_LEAD);
     } catch (err) {
       // InquiryError is the documented rejection type (SPEC §8.1); any other throw still
       // lands on the same user-facing error state, but is flagged in dev as unexpected.
@@ -263,158 +371,158 @@ export function ContactForm() {
     }
   }
 
+  async function handleDetailsSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (detailsSubmittingRef.current) return;
+
+    const ph = phone.trim();
+    if (ph && !PHONE_RE.test(ph)) {
+      setPhoneError(form.success.details.phoneInvalid);
+      phoneRef.current?.focus();
+      return;
+    }
+    setPhoneError(null);
+
+    // All three qualifying fields empty ⇒ treat as skip, no network call (SPEC).
+    if (area === null && budget === null && ph === "") {
+      setDetailsPhase("skipped");
+      return;
+    }
+
+    detailsSubmittingRef.current = true;
+    setDetailsError(null);
+    setDetailsPhase("submitting");
+
+    const detailsFields: InquiryDetailsFields = {
+      name: name.trim(),
+      email: email.trim(),
+      area: area ?? undefined,
+      budget: budget ?? undefined,
+      phone: ph || undefined,
+      website: detailsWebsite,
+    };
+
+    try {
+      await submitDetailsWithRetry(detailsFields, executeTurnstile);
+      setDetailsPhase("done");
+      track(EVENT_LEAD_DETAILS);
+    } catch (err) {
+      if (process.env.NODE_ENV !== "production" && !(err instanceof InquiryError)) {
+        console.warn("[ContactForm] submitDetailsWithRetry rejected with a non-InquiryError:", err);
+      }
+      setDetailsError(form.success.details.error);
+      // Stays interactive — the fields keep their values, a retry is just a second submit.
+      setDetailsPhase("form");
+    } finally {
+      detailsSubmittingRef.current = false;
+    }
+  }
+
+  function handleSkip() {
+    setDetailsPhase("skipped");
+  }
+
+  // "Send another" fully resets to a fresh step-1 form — nothing is carried over.
   function reset() {
     setStatus("idle");
+    setName("");
+    setEmail("");
+    setMessage("");
+    setWebsite("");
+    setErrors(NO_FIELD_ERRORS);
+    setErrorMessage(form.submitError);
+    setArea(null);
+    setBudget(null);
+    setPhone("");
+    setPhoneError(null);
+    setDetailsWebsite("");
+    setDetailsError(null);
+    setDetailsPhase("form");
   }
 
   return (
     <div className="rounded-[var(--radius-card)] border border-border-08 bg-surface p-6 min-[560px]:p-10">
       {status === "success" ? (
-        <SuccessPanel onReset={reset} />
+        <SuccessPanel
+          area={area}
+          budget={budget}
+          phone={phone}
+          phoneError={phoneError}
+          phoneRef={phoneRef}
+          detailsWebsite={detailsWebsite}
+          detailsPhase={detailsPhase}
+          detailsError={detailsError}
+          onAreaChange={setArea}
+          onBudgetChange={setBudget}
+          onPhoneChange={(value) => {
+            setPhone(value);
+            setPhoneError(null);
+          }}
+          onDetailsWebsiteChange={setDetailsWebsite}
+          onDetailsSubmit={handleDetailsSubmit}
+          onSkip={handleSkip}
+          onReset={reset}
+        />
       ) : (
         <>
-          <div className="mb-7 flex items-center justify-between">
-            <span className="font-mono text-[24px] font-semibold tracking-[-0.02em] text-ink">
-              calm<span className="text-accent">_</span>soft
-            </span>
-            <span className="text-[12.5px] font-medium uppercase tracking-[0.08em] text-ink-50">
-              {form.title}
-            </span>
+          <div className="mb-7 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[24px] font-semibold tracking-[-0.02em] text-ink">
+                calm<span className="text-accent">_</span>soft
+              </span>
+              <span className="text-[12.5px] font-medium uppercase tracking-[0.08em] text-ink-50">
+                {form.title}
+              </span>
+            </div>
+            <p className="m-0 text-[14px] leading-[1.5] text-ink-60">{form.intro}</p>
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[26px]">
-            <div className="grid grid-cols-1 gap-[14px] min-[560px]:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="cf-name" className="text-[13px] font-medium text-ink-60">
-                  {form.fields.name}
-                </label>
-                <input
-                  id="cf-name"
-                  ref={nameRef}
-                  type="text"
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    setErrors((p) => ({ ...p, name: null }));
-                  }}
-                  aria-invalid={errors.name ? true : undefined}
-                  aria-describedby={errors.name ? "cf-name-error" : undefined}
-                  className={`${INPUT_CLASSES} ${
-                    errors.name ? "border-[color:var(--color-error-border)]" : "border-border-12"
-                  }`}
-                />
-                {errors.name && (
-                  <p id="cf-name-error" className="m-0 text-[12px] text-error">{errors.name}</p>
-                )}
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="cf-email" className="text-[13px] font-medium text-ink-60">
-                  {form.fields.email}
-                </label>
-                <input
-                  id="cf-email"
-                  ref={emailRef}
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setErrors((p) => ({ ...p, email: null }));
-                  }}
-                  aria-invalid={errors.email ? true : undefined}
-                  aria-describedby={errors.email ? "cf-email-error" : undefined}
-                  className={`${INPUT_CLASSES} ${
-                    errors.email ? "border-[color:var(--color-error-border)]" : "border-border-12"
-                  }`}
-                />
-                {errors.email && (
-                  <p id="cf-email-error" className="m-0 text-[12px] text-error">{errors.email}</p>
-                )}
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="cf-company" className="text-[13px] font-medium text-ink-60">
-                  {form.fields.company}
-                </label>
-                <input
-                  id="cf-company"
-                  type="text"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  className={`${INPUT_CLASSES} border-border-12`}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="cf-phone" className="text-[13px] font-medium text-ink-60">
-                  {form.fields.phone}
-                </label>
-                <input
-                  id="cf-phone"
-                  ref={phoneRef}
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => {
-                    setPhone(e.target.value);
-                    setErrors((p) => ({ ...p, phone: null }));
-                  }}
-                  aria-invalid={errors.phone ? true : undefined}
-                  aria-describedby={errors.phone ? "cf-phone-error" : undefined}
-                  className={`${INPUT_CLASSES} ${
-                    errors.phone ? "border-[color:var(--color-error-border)]" : "border-border-12"
-                  }`}
-                />
-                {errors.phone && (
-                  <p id="cf-phone-error" className="m-0 text-[12px] text-error">{errors.phone}</p>
-                )}
-              </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="cf-name" className="text-[13px] font-medium text-ink-60">
+                {form.fields.name}
+              </label>
+              <input
+                id="cf-name"
+                ref={nameRef}
+                type="text"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setErrors((p) => ({ ...p, name: null }));
+                }}
+                aria-invalid={errors.name ? true : undefined}
+                aria-describedby={errors.name ? "cf-name-error" : undefined}
+                className={`${INPUT_CLASSES} ${
+                  errors.name ? "border-[color:var(--color-error-border)]" : "border-border-12"
+                }`}
+              />
+              {errors.name && (
+                <p id="cf-name-error" className="m-0 text-[12px] text-error">{errors.name}</p>
+              )}
             </div>
 
-            <div className="flex flex-col gap-2 min-w-0">
-              <fieldset
-                aria-invalid={errors.service ? true : undefined}
-                aria-describedby={errors.service ? "cf-service-error" : undefined}
-                className={`m-0 flex min-w-0 flex-col gap-3 rounded-[var(--radius-mini)] border p-0 transition-[border-color] duration-300 ${
-                  errors.service ? "border-[color:var(--color-error-border)]" : "border-transparent"
+            <div className="flex flex-col gap-2">
+              <label htmlFor="cf-email" className="text-[13px] font-medium text-ink-60">
+                {form.fields.email}
+              </label>
+              <input
+                id="cf-email"
+                ref={emailRef}
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrors((p) => ({ ...p, email: null }));
+                }}
+                aria-invalid={errors.email ? true : undefined}
+                aria-describedby={errors.email ? "cf-email-error" : undefined}
+                className={`${INPUT_CLASSES} ${
+                  errors.email ? "border-[color:var(--color-error-border)]" : "border-border-12"
                 }`}
-              >
-                <legend className="p-0 text-[13px] font-semibold uppercase tracking-[0.12em] text-ink-50">
-                  {form.servicePicker.legend}
-                </legend>
-                <div className="grid grid-cols-2 gap-[10px]">
-                  {form.servicePicker.options.map((opt, i) => {
-                    const selected = selectedService === opt.id;
-                    return (
-                      <label
-                        key={opt.id}
-                        className={`flex cursor-pointer flex-col gap-1 rounded-[var(--radius-picker)] border p-[16px_18px] transition-[all] duration-300 ${FOCUS_WITHIN_RING} ${
-                          selected ? SERVICE_SELECTED_CLASSES : SERVICE_IDLE_CLASSES
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="service"
-                          value={opt.id}
-                          checked={selected}
-                          onChange={() => {
-                            selectService(opt.id);
-                            setErrors((p) => ({ ...p, service: null }));
-                          }}
-                          aria-label={opt.label}
-                          aria-invalid={i === 0 && errors.service ? true : undefined}
-                          aria-describedby={i === 0 && errors.service ? "cf-service-error" : undefined}
-                          className="sr-only"
-                          ref={(el) => {
-                            if (selected) selectedRadioRef.current = el;
-                            if (i === 0) firstServiceRadioRef.current = el;
-                          }}
-                        />
-                        <span className="text-[15px] font-semibold text-ink">{opt.label}</span>
-                        <span className="text-[12.5px] text-ink-55">{opt.sub}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </fieldset>
-              {errors.service && (
-                <p id="cf-service-error" className="m-0 text-[12px] text-error">{errors.service}</p>
+              />
+              {errors.email && (
+                <p id="cf-email-error" className="m-0 text-[12px] text-error">{errors.email}</p>
               )}
             </div>
 
@@ -425,6 +533,8 @@ export function ContactForm() {
               <textarea
                 id="cf-message"
                 ref={messageRef}
+                rows={3}
+                placeholder={form.messagePlaceholder}
                 value={message}
                 onChange={(e) => {
                   setMessage(e.target.value);
@@ -432,7 +542,7 @@ export function ContactForm() {
                 }}
                 aria-invalid={errors.message ? true : undefined}
                 aria-describedby={errors.message ? "cf-message-error" : undefined}
-                className={`${INPUT_CLASSES} min-h-[110px] resize-y ${
+                className={`${INPUT_CLASSES} resize-y ${
                   errors.message ? "border-[color:var(--color-error-border)]" : "border-border-12"
                 }`}
               />
@@ -440,63 +550,6 @@ export function ContactForm() {
                 <p id="cf-message-error" className="m-0 text-[12px] text-error">{errors.message}</p>
               )}
             </div>
-
-            <fieldset className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0">
-              <legend className="p-0 text-[13px] font-semibold uppercase tracking-[0.12em] text-ink-50">
-                {form.toggles.legend}
-              </legend>
-              <ToggleCard
-                tone="accent"
-                checked={discover}
-                onChange={() => setDiscover((v) => !v)}
-                label={form.toggles.discover.label}
-                sub={form.toggles.discover.sub}
-                badge={form.toggles.discover.badge}
-              />
-              <ToggleCard
-                tone="accent2"
-                checked={handover}
-                onChange={() => setHandover((v) => !v)}
-                label={form.toggles.handover.label}
-                sub={form.toggles.handover.sub}
-                badge={form.toggles.handover.badge}
-              />
-            </fieldset>
-
-            <fieldset className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0">
-              <legend className="p-0 text-[13px] font-semibold uppercase tracking-[0.12em] text-ink-50">
-                {form.meeting.legend}
-              </legend>
-              <div className="flex gap-[10px]">
-                {(
-                  [
-                    { value: "online" as const, label: form.meeting.online },
-                    { value: "onsite" as const, label: form.meeting.onsite },
-                  ]
-                ).map(({ value, label }) => {
-                  const selected = meeting === value;
-                  return (
-                    <label
-                      key={value}
-                      className={`flex-1 cursor-pointer rounded-[var(--radius-picker)] border p-[13px] text-center text-[14.5px] font-medium transition-[all] duration-300 ${FOCUS_WITHIN_RING} ${
-                        selected ? MEETING_SELECTED_CLASSES : MEETING_IDLE_CLASSES
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="meeting"
-                        value={value}
-                        checked={selected}
-                        onChange={() => setMeeting(value)}
-                        aria-label={label}
-                        className="sr-only"
-                      />
-                      {label}
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
 
             {/* Honeypot — aria-hidden container, positioned off-screen (NOT display:none, which
                 bots detect more readily); "" = human, populated ⇒ backend silently rejects. */}
@@ -532,6 +585,10 @@ export function ContactForm() {
           </form>
         </>
       )}
+      {/* Turnstile interaction host — zero-height/invisible except when Cloudflare demands an
+          interactive challenge. Always mounted (outside the success/idle split) so step-1 and
+          step-2 submits share the same live widget instance across the panel swap. */}
+      <div ref={turnstileHostRef} className="flex justify-center" />
     </div>
   );
 }

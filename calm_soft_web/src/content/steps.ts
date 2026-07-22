@@ -3,27 +3,34 @@ import type { ProcessStep } from "./types";
 export const steps: ProcessStep[] = [
   {
     number: "00",
-    title: "Discover",
-    badge: "Billed separately",
+    title: "Rozmowa",
+    badge: "Bezpłatna · 30 minut",
     description:
-      "One room, one goal. A brainstorming workshop built on Domain-Driven Design, where we map your domain, its events and its users together — and define what the product should actually do before anyone writes code.",
+      "Szczera rozmowa o tym, co budujesz, ile powinno to kosztować i czy jestem właściwą osobą do tej pracy. Bez pitchu. Jeśli odpowiedź brzmi „nie\" — powiem Ci to wprost i wskażę lepszy adres.",
   },
   {
     number: "01",
-    title: "Design",
+    title: "Discover",
+    badge: "Opcjonalny · płatny osobno",
     description:
-      "The findings become a roadmap: an MVP-first plan of what ships now, what waits and why. Agile by design — sized in increments you can see, measure and re-prioritise.",
+      "Ustrukturyzowany warsztat oparty na Domain-Driven Design: mapujemy Twoją domenę, jej zdarzenia i użytkowników — i definiujemy, co produkt naprawdę ma robić, zanim powstanie kod. Zwraca się w unikniętych poprawkach. Przy mniejszych projektach śmiało go pomiń.",
   },
   {
     number: "02",
-    title: "Build",
+    title: "Plan",
     description:
-      "We build exactly what we agreed in the workshops — iteration by iteration, with a working demo at the end of each. The roadmap turns into product, not into status reports.",
+      "Wnioski zamieniają się w roadmapę: plan MVP-first — co wychodzi teraz, co czeka i dlaczego. Pocięty na przyrosty, które widzisz, mierzysz i możesz przestawiać w kolejności.",
   },
   {
     number: "03",
-    title: "Handover",
+    title: "Budowa",
     description:
-      "The project closes on your terms: take the product and full ownership, or continue with a maintenance and growth agreement. It ends with a handshake, never a lock-in.",
+      "Buduję dokładnie to, co ustaliliśmy, iteracja po iteracji — na końcu każdej jest coś działającego do obejrzenia. Roadmapa zamienia się w produkt, nie w raporty statusowe.",
+  },
+  {
+    number: "04",
+    title: "Przekazanie",
+    description:
+      "Projekt kończy się na Twoich warunkach: przejmujesz produkt i pełną własność albo kontynuujemy w modelu utrzymania i rozwoju. Kończy się uściskiem dłoni — nigdy vendor lock-inem.",
   },
 ];

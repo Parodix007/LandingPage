@@ -3,7 +3,7 @@ import { pricing } from "@/content/pricing";
 import { CalendlyCta } from "@/components/interactive/CalendlyCta";
 import { PricingExplorer } from "@/components/interactive/PricingExplorer";
 
-const title = "Pricing — calm_soft";
+const title = "Cennik — calm_soft";
 const description = pricing.lead;
 
 // metadataBase is inherited from layout.tsx — do not redeclare it here.

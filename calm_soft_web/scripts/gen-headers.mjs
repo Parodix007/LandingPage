@@ -20,8 +20,7 @@ if (!existsSync(outDir)) {
 }
 
 const api = process.env.NEXT_PUBLIC_API_BASE_URL;
-const analyticsSrc = process.env.NEXT_PUBLIC_ANALYTICS_SRC;
-const analyticsDomain = process.env.NEXT_PUBLIC_ANALYTICS_DOMAIN;
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 let apiOrigin = "";
 if (api) {
@@ -35,33 +34,29 @@ if (api) {
   }
 }
 
-// Analytics script only ever renders when BOTH vars are set (src/lib/analytics.ts) — mirror
-// that condition here so CSP never allows an origin the page doesn't actually load from.
-let analyticsOrigin = "";
-if (analyticsSrc && analyticsDomain) {
-  try {
-    analyticsOrigin = new URL(analyticsSrc).origin;
-  } catch {
-    console.error(
-      `[gen-headers] NEXT_PUBLIC_ANALYTICS_SRC=${JSON.stringify(analyticsSrc)} nie jest ` +
-        "poprawnym URL-em — pomijam w CSP."
-    );
-  }
-}
-
-const analyticsSuffix = analyticsOrigin ? ` ${analyticsOrigin}` : "";
 const apiSuffix = apiOrigin ? ` ${apiOrigin}` : "";
+
+// GA4 (gtag.js) origins — added ONLY to this main CSP block (never /demo/'s), and only when
+// NEXT_PUBLIC_GA_ID is actually set (mirrors layout.tsx's gaId gate, so CSP never allows an
+// origin the page doesn't load from). script-src needs the loader script's origin; connect-src
+// needs both the loader's origin (gtag.js itself makes a config-fetch request there) and the
+// Measurement Protocol collect domains; img-src covers GA's no-JS/blocked-fetch image fallback.
+const gaScriptSuffix = gaId ? " https://www.googletagmanager.com" : "";
+const gaConnectSuffix = gaId
+  ? " https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com"
+  : "";
+const gaImgSuffix = gaId ? " https://www.googletagmanager.com https://*.google-analytics.com" : "";
 
 // Calendly popup widget (lazy-loaded on click — CalendlyCta/lib/calendly.ts): script/style/img
 // origins for the injected widget assets, frame-src for the popup iframe itself (served from
 // calendly.com, not assets.calendly.com).
 const csp =
   "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; " +
-  "img-src 'self' data: https://assets.calendly.com; " +
+  `img-src 'self' data: https://assets.calendly.com${gaImgSuffix}; ` +
   "style-src 'self' 'unsafe-inline' https://assets.calendly.com; " +
-  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://assets.calendly.com${analyticsSuffix}; ` +
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://assets.calendly.com${gaScriptSuffix}; ` +
   "frame-src https://challenges.cloudflare.com https://calendly.com; " +
-  `connect-src 'self'${apiSuffix}${analyticsSuffix};`;
+  `connect-src 'self'${apiSuffix}${gaConnectSuffix};`;
 
 console.log(`[gen-headers] CSP: ${csp}`);
 

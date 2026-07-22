@@ -1,32 +1,39 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { InquiryFields } from "./inquiry";
+import type { InquiryDetailsFields, InquiryFields } from "./inquiry";
 
 const importInquiry = async () => await import("./inquiry");
 
 const fields: InquiryFields = {
   name: "Jan",
   email: "jan@firma.pl",
-  company: "Acme",
-  phone: "+48 000 000 000",
-  service: "web",
-  meeting: "online",
-  discover: true,
-  handover: true,
   message: "Hi",
   website: "",
 };
 
-const EXPECTED_POST_KEYS = [
-  "company",
-  "discover",
+const detailsFieldsAll: InquiryDetailsFields = {
+  name: "Jan",
+  email: "jan@firma.pl",
+  area: "web",
+  budget: "10-30k",
+  phone: "+48 123 456 789",
+  website: "",
+};
+
+const detailsFieldsMinimal: InquiryDetailsFields = {
+  name: "Jan",
+  email: "jan@firma.pl",
+  website: "",
+};
+
+const EXPECTED_POST_KEYS = ["email", "formToken", "message", "name", "turnstileToken", "website"].sort();
+const EXPECTED_DETAILS_POST_KEYS_MINIMAL = ["email", "formToken", "name", "turnstileToken", "website"].sort();
+const EXPECTED_DETAILS_POST_KEYS_ALL = [
+  "area",
+  "budget",
   "email",
   "formToken",
-  "handover",
-  "meeting",
-  "message",
   "name",
   "phone",
-  "service",
   "turnstileToken",
   "website",
 ].sort();
@@ -35,7 +42,7 @@ function jsonResponse(ok: boolean, status: number, body: unknown) {
   return { ok, status, json: async () => body };
 }
 
-describe("submitInquiry", () => {
+describe("submitInquiry / submitWithRetry (POST /api/contact)", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.unstubAllEnvs();
@@ -71,7 +78,6 @@ describe("submitInquiry", () => {
     expect(Object.keys(parsedBody).sort()).toEqual(EXPECTED_POST_KEYS);
     expect(parsedBody.formToken).toBe("ft");
     expect(parsedBody.turnstileToken).toBe("tok");
-    expect(parsedBody.elapsedMs).toBeUndefined();
   });
 
   it("missing `token` field on GET response: throws InquiryError, POST is never called", async () => {
@@ -234,5 +240,136 @@ describe("submitInquiry", () => {
   it("no API base and no mock: submitInquiry throws InquiryError", async () => {
     const { submitInquiry, InquiryError } = await importInquiry();
     await expect(submitInquiry(fields, "tok")).rejects.toBeInstanceOf(InquiryError);
+  });
+});
+
+describe("submitInquiryDetails / submitDetailsWithRetry (POST /api/contact/details)", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.unstubAllEnvs();
+    vi.useRealTimers();
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("posts to /api/contact/details with the minimal key set when all optionals are absent", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.test");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(true, 200, { token: "ft" }))
+      .mockResolvedValueOnce(jsonResponse(true, 200, { ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { submitInquiryDetails } = await importInquiry();
+    await expect(submitInquiryDetails(detailsFieldsMinimal, "tok")).resolves.toBeUndefined();
+
+    const [postUrl, postInit] = fetchMock.mock.calls[1];
+    expect(postUrl).toBe("https://api.test/api/contact/details");
+    const parsedBody = JSON.parse(postInit.body as string);
+    expect(Object.keys(parsedBody).sort()).toEqual(EXPECTED_DETAILS_POST_KEYS_MINIMAL);
+    expect(parsedBody.area).toBeUndefined();
+    expect(parsedBody.budget).toBeUndefined();
+    expect(parsedBody.phone).toBeUndefined();
+    expect("area" in parsedBody).toBe(false);
+    expect("budget" in parsedBody).toBe(false);
+    expect("phone" in parsedBody).toBe(false);
+  });
+
+  it("posts to /api/contact/details with all optional keys present when set", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.test");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(true, 200, { token: "ft" }))
+      .mockResolvedValueOnce(jsonResponse(true, 200, { ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { submitInquiryDetails } = await importInquiry();
+    await expect(submitInquiryDetails(detailsFieldsAll, "tok")).resolves.toBeUndefined();
+
+    const [, postInit] = fetchMock.mock.calls[1];
+    const parsedBody = JSON.parse(postInit.body as string);
+    expect(Object.keys(parsedBody).sort()).toEqual(EXPECTED_DETAILS_POST_KEYS_ALL);
+    expect(parsedBody.area).toBe("web");
+    expect(parsedBody.budget).toBe("10-30k");
+    expect(parsedBody.phone).toBe("+48 123 456 789");
+  });
+
+  it("submitDetailsWithRetry: POST 403 then 200 — retries exactly once with fresh tokens", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.test");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(true, 200, { token: "ft1" }))
+      .mockResolvedValueOnce(jsonResponse(false, 403, { error: "Verification failed" }))
+      .mockResolvedValueOnce(jsonResponse(true, 200, { token: "ft2" }))
+      .mockResolvedValueOnce(jsonResponse(true, 200, { ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+    const execMock = vi.fn().mockResolvedValueOnce("t1").mockResolvedValueOnce("t2");
+
+    const { submitDetailsWithRetry } = await importInquiry();
+    await expect(submitDetailsWithRetry(detailsFieldsAll, execMock)).resolves.toBeUndefined();
+
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(execMock).toHaveBeenCalledTimes(2);
+    const secondPostBody = JSON.parse(fetchMock.mock.calls[3][1].body as string);
+    expect(secondPostBody.formToken).toBe("ft2");
+    expect(secondPostBody.turnstileToken).toBe("t2");
+  });
+
+  it("submitDetailsWithRetry: POST 403 twice — throws InquiryError(403), no third attempt", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.test");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(true, 200, { token: "ft1" }))
+      .mockResolvedValueOnce(jsonResponse(false, 403, { error: "Verification failed" }))
+      .mockResolvedValueOnce(jsonResponse(true, 200, { token: "ft2" }))
+      .mockResolvedValueOnce(jsonResponse(false, 403, { error: "Verification failed" }));
+    vi.stubGlobal("fetch", fetchMock);
+    const execMock = vi.fn().mockResolvedValueOnce("t1").mockResolvedValueOnce("t2");
+
+    const { submitDetailsWithRetry, InquiryError } = await importInquiry();
+    const err: unknown = await submitDetailsWithRetry(detailsFieldsAll, execMock).catch((e) => e);
+    expect(err).toBeInstanceOf(InquiryError);
+    expect((err as InstanceType<typeof InquiryError>).status).toBe(403);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(execMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("submitDetailsWithRetry mock '1': resolves after MOCK_DELAY_MS without touching Turnstile or fetch", async () => {
+    vi.stubEnv("NEXT_PUBLIC_INQUIRY_MOCK", "1");
+    vi.useFakeTimers();
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const execMock = vi.fn().mockResolvedValue("tok");
+
+    const { submitDetailsWithRetry, MOCK_DELAY_MS } = await importInquiry();
+    const p = submitDetailsWithRetry(detailsFieldsMinimal, execMock);
+    await vi.advanceTimersByTimeAsync(MOCK_DELAY_MS);
+    await expect(p).resolves.toBeUndefined();
+
+    expect(execMock).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("submitDetailsWithRetry mock 'fail': rejects with InquiryError without touching Turnstile or fetch", async () => {
+    vi.stubEnv("NEXT_PUBLIC_INQUIRY_MOCK", "fail");
+    vi.useFakeTimers();
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const execMock = vi.fn().mockResolvedValue("tok");
+
+    const { submitDetailsWithRetry, InquiryError, MOCK_DELAY_MS } = await importInquiry();
+    const p = submitDetailsWithRetry(detailsFieldsMinimal, execMock);
+    p.catch(() => {});
+    await vi.advanceTimersByTimeAsync(MOCK_DELAY_MS);
+    await expect(p).rejects.toBeInstanceOf(InquiryError);
+
+    expect(execMock).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("no API base and no mock: submitInquiryDetails throws InquiryError", async () => {
+    const { submitInquiryDetails, InquiryError } = await importInquiry();
+    await expect(submitInquiryDetails(detailsFieldsMinimal, "tok")).rejects.toBeInstanceOf(InquiryError);
   });
 });

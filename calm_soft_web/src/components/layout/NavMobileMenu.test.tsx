@@ -9,10 +9,12 @@ const LINKS = [
   { href: "/#cases", label: "Case studies" },
 ];
 
+const CTA_LABEL = "Start a project";
+
 describe("NavMobileMenu", () => {
   it("opens the panel and shows the links on hamburger click", async () => {
     const user = userEvent.setup();
-    render(<NavMobileMenu links={LINKS} />);
+    render(<NavMobileMenu links={LINKS} ctaLabel={CTA_LABEL} />);
 
     const button = screen.getByRole("button", { name: "Menu" });
     expect(button).toHaveAttribute("aria-expanded", "false");
@@ -27,7 +29,7 @@ describe("NavMobileMenu", () => {
 
   it("closes the panel when a link is clicked", async () => {
     const user = userEvent.setup();
-    render(<NavMobileMenu links={LINKS} />);
+    render(<NavMobileMenu links={LINKS} ctaLabel={CTA_LABEL} />);
 
     await user.click(screen.getByRole("button", { name: "Menu" }));
     await user.click(screen.getByRole("link", { name: "Process" }));
@@ -37,7 +39,7 @@ describe("NavMobileMenu", () => {
 
   it("closes the panel on Escape and returns focus to the hamburger toggle (FIX 4)", async () => {
     const user = userEvent.setup();
-    render(<NavMobileMenu links={LINKS} />);
+    render(<NavMobileMenu links={LINKS} ctaLabel={CTA_LABEL} />);
 
     const toggle = screen.getByRole("button", { name: "Menu" });
     await user.click(toggle);
@@ -51,7 +53,7 @@ describe("NavMobileMenu", () => {
     const user = userEvent.setup();
     render(
       <div>
-        <NavMobileMenu links={LINKS} />
+        <NavMobileMenu links={LINKS} ctaLabel={CTA_LABEL} />
         <button>Outside</button>
       </div>,
     );

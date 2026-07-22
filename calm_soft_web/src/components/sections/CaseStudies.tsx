@@ -44,6 +44,16 @@ export function CaseStudies() {
         line2={site.sections.cases.line2}
       />
 
+      {/* HANDOFF §1 sections.cases.intro — two lead lines above the case grid, styled like the
+          other sections' lead paragraphs (max-width read line, ink-70 body copy). */}
+      <div className="mt-5 flex max-w-[760px] flex-col gap-3">
+        {site.sections.cases.intro.map((line) => (
+          <p key={line} className="text-[16px] leading-[1.6] text-ink-70">
+            {line}
+          </p>
+        ))}
+      </div>
+
       <div className="mt-12 flex flex-col gap-4">
         {featured.map((c) => (
           <div
@@ -71,8 +81,8 @@ export function CaseStudies() {
               <CardActions
                 kind="case-card"
                 caseSlug={c.slug}
-                readLabel="Read the story ›"
-                ariaLabel={`Read the story: ${c.client}`}
+                readLabel="Przeczytaj historię ›"
+                ariaLabel={`Przeczytaj historię: ${c.client}`}
               />
             </div>
 

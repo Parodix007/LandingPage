@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { services } from "@/content/services";
 import { cases } from "@/content/cases";
 import { demos } from "@/content/demos";
 import { site } from "@/content/site";
@@ -10,11 +9,18 @@ import { Watermark } from "@/components/ui/Watermark";
 import { WarningNote } from "@/components/ui/WarningNote";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
+import { DemoLogo } from "@/components/ui/DemoLogo";
 import { CardActions } from "@/components/interactive/CardActions";
 import { CalendlyCta } from "@/components/interactive/CalendlyCta";
 
 const title = site.demosPage.metaTitle;
 const description = site.demosPage.metaDescription;
+
+// Shared "chip" treatment for the per-demo language note (2026-07-22 pl-copy handoff §6) —
+// mirrors Demos.tsx's / DemoModalContent's local constant (ui/ is frozen, so no new shared
+// primitive).
+const LANG_CHIP_CLASS =
+  "inline-flex items-center rounded-[var(--radius-pill)] border border-border-10 bg-white/[0.06] px-[13px] py-[6px] text-[12.5px] text-ink-70";
 
 // metadataBase is inherited from layout.tsx — do not redeclare it here.
 export const metadata: Metadata = {
@@ -43,7 +49,7 @@ const HOVER_LIFT =
 export default function DemosPage() {
   return (
     <InquiryProvider>
-      <ModalProvider services={services} cases={cases} demos={demos}>
+      <ModalProvider cases={cases} demos={demos}>
         <div className="mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]">
           <header className="mb-4">
             {/* Not SectionHeading (frozen, hardcoded h2) — same visual classes on a real h1,
@@ -87,8 +93,17 @@ export default function DemosPage() {
 
                   <div className="flex flex-wrap items-center gap-2.5">
                     <Chip tone="accent">{d.tag}</Chip>
+                    {d.uiLang === "en" && (
+                      <span className={LANG_CHIP_CLASS}>{site.sections.demos.langChip}</span>
+                    )}
                   </div>
-                  <h3 className="text-[22px] font-bold leading-[1.2] tracking-[-0.02em]">{d.name}</h3>
+                  <h3 className="text-[22px] font-bold leading-[1.2] tracking-[-0.02em]">
+                    {d.logoId ? (
+                      <DemoLogo logo={d.logoId} instanceId="page" className="h-7 w-auto" />
+                    ) : (
+                      d.name
+                    )}
+                  </h3>
                   <p className="text-[14.5px] leading-[1.55] text-ink-70">{d.description}</p>
                   {/* Desktop-only staff panels (HealthLab, Merdi Panel) get a warning caveat
                       before the external "Open the demo" link — see docs/superpowers/specs/
@@ -98,20 +113,20 @@ export default function DemosPage() {
 
                 {/* Whole-card click = View details (stretched via CardActions). The external
                     "Open the demo" link is a sibling raised above the stretched hit-area
-                    (relative z-10), exactly like the service-card start/learn split. */}
+                    (relative z-10) — same sibling-CTA pattern as the case card. */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-7 pb-7 pt-4">
                   <CardActions
                     kind="demo-card"
                     demoSlug={d.slug}
                     readLabel={site.sections.demos.detailCta}
-                    ariaLabel={`View ${d.name} details`}
+                    ariaLabel={`Zobacz szczegóły: ${d.name}`}
                   />
                   <span className="relative z-10">
                     <a
                       href={d.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={`Open the demo: ${d.name}`}
+                      aria-label={`Otwórz demo: ${d.name}`}
                       className={`inline-flex w-fit rounded-[var(--radius-pill)] ${PILL_FOCUS}`}
                     >
                       <span className="relative z-[1] inline-flex items-center justify-center rounded-[var(--radius-pill)] border border-transparent px-4 py-2 text-[14.5px] font-medium leading-none text-accent transition-[all] duration-[250ms] hover:border-[color-mix(in_oklch,var(--color-accent)_40%,transparent)] hover:bg-[color-mix(in_oklch,var(--color-accent)_16%,transparent)] hover:text-white">
