@@ -38,7 +38,15 @@ describe("ConsentBanner", () => {
     await user.click(screen.getByRole("button", { name: consent.accept }));
 
     expect(window.localStorage.getItem(CONSENT_KEY)).toBe("granted");
-    expect(gtag).toHaveBeenCalledWith("consent", "update", { analytics_storage: "granted" });
+    // 2026-07-23 Google Ads conversion hookup — setConsent now drives all 4 Consent Mode
+    // signals from this one decision (see lib/consent.ts); its own unit tests cover the
+    // "denied" case, this component test just checks the wiring still fires gtag correctly.
+    expect(gtag).toHaveBeenCalledWith("consent", "update", {
+      analytics_storage: "granted",
+      ad_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "granted",
+    });
     expect(screen.queryByRole("region", { name: consent.settingsLabel })).not.toBeInTheDocument();
   });
 

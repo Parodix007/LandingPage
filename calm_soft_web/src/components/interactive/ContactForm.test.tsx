@@ -6,7 +6,7 @@ import { site } from "@/content/site";
 import { ContactForm } from "./ContactForm";
 import { submitWithRetry, submitDetailsWithRetry, InquiryError } from "@/lib/inquiry";
 import { loadTurnstile } from "@/lib/turnstile";
-import { track, EVENT_LEAD, EVENT_LEAD_DETAILS } from "@/lib/analytics";
+import { track, EVENT_LEAD, EVENT_LEAD_DETAILS, EVENT_ADS_CONVERSION } from "@/lib/analytics";
 
 // SPEC §14.1 — ContactForm tests mock the whole lib/inquiry + lib/turnstile modules; those
 // libs have their own unit tests for the real API/mock/Turnstile branches.
@@ -36,6 +36,7 @@ vi.mock("@/lib/analytics", () => ({
   track: vi.fn(),
   EVENT_LEAD: "generate_lead",
   EVENT_LEAD_DETAILS: "lead_details_submitted",
+  EVENT_ADS_CONVERSION: "ads_conversion_Przes_anie_formularza_k_1",
   EVENT_CALENDLY: "calendly_open",
 }));
 
@@ -522,6 +523,15 @@ describe("ContactForm analytics hooks (2026-07-22 GA4 addendum)", () => {
     expect(track).toHaveBeenCalledWith(EVENT_LEAD);
   });
 
+  // 2026-07-23 Google Ads conversion hookup: the conversion event fires alongside EVENT_LEAD
+  // on every successful step-1 submit (owner decision — no value/currency params).
+  it("fires EVENT_ADS_CONVERSION on a successful step-1 submit", async () => {
+    const user = userEvent.setup();
+    await completeStep1(user);
+
+    expect(track).toHaveBeenCalledWith(EVENT_ADS_CONVERSION);
+  });
+
   it("does not fire EVENT_LEAD on a failed step-1 submit", async () => {
     vi.mocked(submitWithRetry).mockRejectedValue(new InquiryError("mock failure"));
     const user = userEvent.setup();
@@ -532,6 +542,18 @@ describe("ContactForm analytics hooks (2026-07-22 GA4 addendum)", () => {
     await screen.findByText(form.submitError);
 
     expect(track).not.toHaveBeenCalledWith(EVENT_LEAD);
+  });
+
+  it("does not fire EVENT_ADS_CONVERSION on a failed step-1 submit", async () => {
+    vi.mocked(submitWithRetry).mockRejectedValue(new InquiryError("mock failure"));
+    const user = userEvent.setup();
+    renderForm();
+
+    await fillStep1(user);
+    await user.click(screen.getByRole("button", { name: form.submit }));
+    await screen.findByText(form.submitError);
+
+    expect(track).not.toHaveBeenCalledWith(EVENT_ADS_CONVERSION);
   });
 
   it("fires EVENT_LEAD_DETAILS on a successful step-2 submit", async () => {
@@ -546,6 +568,20 @@ describe("ContactForm analytics hooks (2026-07-22 GA4 addendum)", () => {
     expect(track).toHaveBeenCalledWith(EVENT_LEAD_DETAILS);
   });
 
+  // Same conversion event also fires on a successful step-2 (details) submit — both terminal
+  // success paths count as a completed lead per the owner's 2026-07-23 decision.
+  it("fires EVENT_ADS_CONVERSION on a successful step-2 submit", async () => {
+    vi.mocked(submitDetailsWithRetry).mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    await completeStep1(user);
+
+    await user.click(screen.getByRole("radio", { name: details.areaOptions[0].label }));
+    await user.click(screen.getByRole("button", { name: details.submit }));
+    await screen.findByText(details.done);
+
+    expect(track).toHaveBeenCalledWith(EVENT_ADS_CONVERSION);
+  });
+
   it("does not fire EVENT_LEAD_DETAILS on a failed step-2 submit", async () => {
     vi.mocked(submitDetailsWithRetry).mockRejectedValueOnce(new InquiryError("mock failure"));
     const user = userEvent.setup();
@@ -556,5 +592,20 @@ describe("ContactForm analytics hooks (2026-07-22 GA4 addendum)", () => {
     await screen.findByText(details.error);
 
     expect(track).not.toHaveBeenCalledWith(EVENT_LEAD_DETAILS);
+  });
+
+  it("does not fire EVENT_ADS_CONVERSION on a failed step-2 submit", async () => {
+    vi.mocked(submitDetailsWithRetry).mockRejectedValueOnce(new InquiryError("mock failure"));
+    const user = userEvent.setup();
+    await completeStep1(user);
+    // completeStep1's own success already fired EVENT_ADS_CONVERSION once (step 1) — clear
+    // before the step-2 attempt so this assertion is about step 2's call only.
+    vi.mocked(track).mockClear();
+
+    await user.click(screen.getByRole("radio", { name: details.areaOptions[0].label }));
+    await user.click(screen.getByRole("button", { name: details.submit }));
+    await screen.findByText(details.error);
+
+    expect(track).not.toHaveBeenCalledWith(EVENT_ADS_CONVERSION);
   });
 });

@@ -103,7 +103,15 @@ guard rejects a value with path/query/trailing slash; `lib/inquiry.ts` appends
 whenever `NEXT_PUBLIC_API_BASE_URL` is set), `NEXT_PUBLIC_INQUIRY_MOCK` (`1`|`fail`),
 `NEXT_PUBLIC_SITE_URL` (origin for metadataBase/canonical/OG — required for prod builds),
 `NEXT_PUBLIC_GA_ID` (public GA4 Measurement ID, not a secret; empty = GA fully off — no gtag
-script, no CSP origins, no consent banner).
+script, no CSP origins, no consent banner). The same combined Google tag also carries the
+Google Ads conversion `ads_conversion_Przes_anie_formularza_k_1` (`EVENT_ADS_CONVERSION` in
+`lib/analytics.ts` — name must match Google Ads char-for-char; no separate `AW-` config
+script): fired via `track()` on BOTH successful form submits (step 1 and step 2, owner
+decision 2026-07-23), no value/currency params. The consent banner's single decision drives
+all four Consent Mode v2 signals (`analytics_storage` + `ad_storage`/`ad_user_data`/
+`ad_personalization`), and the GA-gated CSP suffixes in `gen-headers.mjs` include the Ads
+conversion origins (googleadservices/doubleclick/google.com + google.pl, `td.doubleclick.net`
+on frame-src).
 
 ## Architecture
 

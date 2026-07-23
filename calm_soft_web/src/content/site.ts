@@ -190,7 +190,7 @@ export const site: SiteContent = {
     back: "Wróć na stronę główną ›",
   },
   consent: {
-    text: "Używam Google Analytics, żeby wiedzieć, które treści działają. Analityczne cookies włączą się tylko za Twoją zgodą.",
+    text: "Używam Google Analytics i mierzę skuteczność reklam Google Ads, żeby wiedzieć, które treści działają. Te cookies włączą się tylko za Twoją zgodą.",
     accept: "Akceptuję",
     decline: "Odrzucam",
     settingsLabel: "Ustawienia cookies",

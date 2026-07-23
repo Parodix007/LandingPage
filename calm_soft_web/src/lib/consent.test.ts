@@ -34,13 +34,32 @@ describe("setConsent", () => {
     expect(getStoredConsent()).toBe("denied");
   });
 
-  it("calls window.gtag('consent','update', {...}) when gtag is present", () => {
+  it("calls window.gtag('consent','update', {...}) with all 4 signals when granted", () => {
     const gtag = vi.fn();
     window.gtag = gtag;
 
     setConsent("granted");
 
-    expect(gtag).toHaveBeenCalledWith("consent", "update", { analytics_storage: "granted" });
+    expect(gtag).toHaveBeenCalledWith("consent", "update", {
+      analytics_storage: "granted",
+      ad_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "granted",
+    });
+  });
+
+  it("calls window.gtag('consent','update', {...}) with all 4 signals when denied", () => {
+    const gtag = vi.fn();
+    window.gtag = gtag;
+
+    setConsent("denied");
+
+    expect(gtag).toHaveBeenCalledWith("consent", "update", {
+      analytics_storage: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
   });
 
   it("does not throw when window.gtag is absent", () => {

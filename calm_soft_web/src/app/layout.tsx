@@ -60,14 +60,16 @@ export default function RootLayout({
                 defaults every consent signal to denied with a short wait_for_update so gtag.js
                 has a moment to see a real decision before pinging, (3) restores a returning
                 visitor's stored decision from localStorage (cs-consent-v1) before hydration —
-                so ConsentBanner never causes a visible consent "flash" — then (4) configures
-                the tag. 'unsafe-inline' is already required in script-src for this pattern
-                (documented owner-accepted CSP deviation, spec §8.5). */}
+                so ConsentBanner never causes a visible consent "flash"; since the 2026-07-23
+                Google Ads conversion hookup the stored decision drives all four Consent Mode
+                signals (analytics + the three Ads signals), not analytics alone — then (4)
+                configures the tag. 'unsafe-inline' is already required in script-src for this
+                pattern (documented owner-accepted CSP deviation, spec §8.5). */}
             <script
               dangerouslySetInnerHTML={{
                 __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});
-try{var c=localStorage.getItem(${JSON.stringify(CONSENT_KEY)});if(c==='granted'||c==='denied'){gtag('consent','update',{analytics_storage:c});}}catch(e){}
+try{var c=localStorage.getItem(${JSON.stringify(CONSENT_KEY)});if(c==='granted'||c==='denied'){gtag('consent','update',{analytics_storage:c,ad_storage:c,ad_user_data:c,ad_personalization:c});}}catch(e){}
 gtag('js',new Date());
 gtag('config',${JSON.stringify(gaId)});`,
               }}

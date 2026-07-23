@@ -14,7 +14,7 @@ import {
   type InquiryDetailsFields,
 } from "@/lib/inquiry";
 import { loadTurnstile, executeTurnstile, teardownTurnstile } from "@/lib/turnstile";
-import { track, EVENT_LEAD, EVENT_LEAD_DETAILS } from "@/lib/analytics";
+import { track, EVENT_LEAD, EVENT_LEAD_DETAILS, EVENT_ADS_CONVERSION } from "@/lib/analytics";
 
 type Status = "idle" | "submitting" | "success" | "error";
 // Step-2 (optional qualifying details) phases: "form" = interactive (may carry a stale
@@ -358,6 +358,7 @@ export function ContactForm() {
       await submitWithRetry(fields, executeTurnstile);
       setStatus("success");
       track(EVENT_LEAD);
+      track(EVENT_ADS_CONVERSION);
     } catch (err) {
       // InquiryError is the documented rejection type (SPEC §8.1); any other throw still
       // lands on the same user-facing error state, but is flagged in dev as unexpected.
@@ -406,6 +407,7 @@ export function ContactForm() {
       await submitDetailsWithRetry(detailsFields, executeTurnstile);
       setDetailsPhase("done");
       track(EVENT_LEAD_DETAILS);
+      track(EVENT_ADS_CONVERSION);
     } catch (err) {
       if (process.env.NODE_ENV !== "production" && !(err instanceof InquiryError)) {
         console.warn("[ContactForm] submitDetailsWithRetry rejected with a non-InquiryError:", err);

@@ -41,11 +41,26 @@ const apiSuffix = apiOrigin ? ` ${apiOrigin}` : "";
 // origin the page doesn't load from). script-src needs the loader script's origin; connect-src
 // needs both the loader's origin (gtag.js itself makes a config-fetch request there) and the
 // Measurement Protocol collect domains; img-src covers GA's no-JS/blocked-fetch image fallback.
-const gaScriptSuffix = gaId ? " https://www.googletagmanager.com" : "";
-const gaConnectSuffix = gaId
-  ? " https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com"
+//
+// Since 2026-07-23 (Google Ads conversion hookup, EVENT_ADS_CONVERSION routed through this same
+// combined GA4 tag — no separate AW- config/script) these suffixes also cover Google Ads
+// conversion pings (googleadservices.com/googleads.g.doubleclick.net) and google.com/google.pl
+// (ga-audiences remarketing pixel), plus the td.doubleclick.net frame gtag injects when
+// ad_personalization is granted — per Google's tag-platform CSP guidance. Never added to the
+// /demo/ block below.
+const gaScriptSuffix = gaId
+  ? " https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net"
   : "";
-const gaImgSuffix = gaId ? " https://www.googletagmanager.com https://*.google-analytics.com" : "";
+const gaConnectSuffix = gaId
+  ? " https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com" +
+    " https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com" +
+    " https://www.google.pl https://td.doubleclick.net"
+  : "";
+const gaImgSuffix = gaId
+  ? " https://www.googletagmanager.com https://*.google-analytics.com https://www.googleadservices.com" +
+    " https://googleads.g.doubleclick.net https://www.google.com https://www.google.pl"
+  : "";
+const gaFrameSuffix = gaId ? " https://td.doubleclick.net" : "";
 
 // Calendly popup widget (lazy-loaded on click — CalendlyCta/lib/calendly.ts): script/style/img
 // origins for the injected widget assets, frame-src for the popup iframe itself (served from
@@ -55,7 +70,7 @@ const csp =
   `img-src 'self' data: https://assets.calendly.com${gaImgSuffix}; ` +
   "style-src 'self' 'unsafe-inline' https://assets.calendly.com; " +
   `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://assets.calendly.com${gaScriptSuffix}; ` +
-  "frame-src https://challenges.cloudflare.com https://calendly.com; " +
+  `frame-src https://challenges.cloudflare.com https://calendly.com${gaFrameSuffix}; ` +
   `connect-src 'self'${apiSuffix}${gaConnectSuffix};`;
 
 console.log(`[gen-headers] CSP: ${csp}`);
