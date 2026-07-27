@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { demos } from "@/content/demos";
+import { stripEmphasis } from "@/components/ui/RichText";
 import { HeroDemoSlider } from "./HeroDemoSlider";
 
 const LABEL = "Live demos";
@@ -135,7 +136,10 @@ describe("HeroDemoSlider", () => {
   it("renders the detail paragraph for every demo", () => {
     renderSlider();
     for (const d of demos) {
-      expect(screen.getByText(d.detail)).toBeInTheDocument();
+      const plain = stripEmphasis(d.detail);
+      expect(
+        screen.getByText((_, el) => el?.tagName === "P" && el.textContent === plain),
+      ).toBeInTheDocument();
     }
   });
 

@@ -100,10 +100,16 @@ console.log(`[gen-headers] Zapisano ${htaccessPath}`);
 // one subdirectory only (per-directory .htaccess override, Apache/LiteSpeed semantics).
 const demoDir = resolve(outDir, "demo");
 if (existsSync(demoDir)) {
+  // unpkg.com w script-src: runtime dc (support.js) dociąga React/ReactDOM/Babel z unpkg —
+  // bez tego originu makieta renderuje pustą stronę. 'unsafe-eval': ten sam runtime kompiluje
+  // komponent w przeglądarce przez `new Function`/Babel standalone — bez tego tokenu makieta
+  // nie bootuje (EvalError zamiast treści). Oba tokeny to świadome, zatwierdzone przez
+  // właściciela odstępstwo, zawężone wyłącznie do katalogu wiernych makiet — nie wolno ich
+  // przenosić do głównego CSP strony.
   const demoCsp =
     "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; " +
     "img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; " +
+    "font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; " +
     "connect-src 'self';";
 
   const demoHtaccessContent =

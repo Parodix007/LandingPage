@@ -1,83 +1,273 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Instrukcje dla Claude Code (claude.ai/code) pracującego w tym repozytorium.
 
-## What this is
+## Kim jesteś i co robisz
 
-`calm_soft_api` — the contact-form backend for the **calm_soft** software-house landing page (domain **calmsoft.pro**). Two anonymous, public POST endpoints — `POST /api/contact` (step 1: name/e-mail/message) and `POST /api/contact/details` (optional post-success step 2: area/budget/phone, added 2026-07-22) — plus a shared `GET /api/contact/token`. Each POST validates the submission, runs it through the same anti-abuse gates, and hands off an internal notification email to the team. Deliberately **no JWT / no auth** — the security model is built around hardening an anonymous public API without adding user friction.
+Tworzysz back-end dla **https://calmsoft.pro/** — strony wizytówki jednego polskiego
+senior developera, która ma pozyskiwać dla niego klientów. Twoja część to API formularza
+kontaktowego: przyjąć zapytanie od anonimowego odwiedzającego i dostarczyć je właścicielowi
+mailem, nie dając się przy tym zaspamować.
 
-Stack: **Node.js + Fastify 5 + TypeScript (strict)**. Email via **nodemailer** over Hostinger SMTP. Deployed on **Hostinger web-app hosting** behind Hostinger's LiteSpeed proxy — **not** a long-running process: Hostinger's `lsnode` runtime boots the Node process per request and SIGTERMs it roughly 1 second after the response is sent. Nothing may be deferred past the reply (see "Architecture" below). The frontend (`../calm_soft_web`) is hosted separately as static files.
+Dotykasz **wyłącznie** katalogu `calm_soft_api`. Nie wychodzisz poza zakres tego projektu —
+ani do `calm_soft_web`, ani do `_deploy`, ani do katalogu nadrzędnego, ani do konfiguracji
+systemu — chyba że właściciel jawnie na to pozwoli w danej rozmowie. Jeśli zadanie wymaga
+zmiany poza `calm_soft_api`, zatrzymujesz się i pytasz.
 
-The full design rationale — including the adversarial security evaluation that shaped it — lives in [docs/superpowers/specs/2026-07-08-calm-soft-api-design.md](docs/superpowers/specs/2026-07-08-calm-soft-api-design.md). Read it before making architectural changes. **Note:** that spec's durable-outbox/background-worker design is superseded — see the addendum in [docs/superpowers/specs/2026-07-09-hostinger-source-build-deploy-design.md](docs/superpowers/specs/2026-07-09-hostinger-source-build-deploy-design.md) for the 2026-07-09 production finding that removed it.
+## Zasady nadrzędne
 
-## Working principle: AI collaboration model
+- **Zakaz gita zmieniającego stan.** Nigdy `git add`/`commit`/`branch`/`push`/`reset`/`checkout`.
+  Wszystkie operacje gitowe wykonuje właściciel. Read-only (`status`, `log`, `diff`) — wolno.
+  Zadanie kończysz listą zmienionych plików i prośbą o commit.
+- **KISS.** Najprostsze rozwiązanie, które spełnia wymaganie. Nie budujesz warstw abstrakcji
+  „na przyszłość". Dwa endpointy o podobnym kształcie to nie jest powód do generycznego
+  frameworka endpointów.
+- **Reuse-first.** Zanim napiszesz cokolwiek nowego, sprawdzasz, czy to już istnieje:
+  `src/security/` (guardy) → `src/routes/contact.ts` (wspólne `contactPreValidation`
+  i `runAntiAbuseGuards`) → `src/mailer/` (wysyłka i szablony) → `src/config.ts` (env) →
+  `src/logger.ts`. Nowy byt wymaga jednozdaniowego uzasadnienia, dlaczego istniejący
+  nie wystarcza.
+- **Bezpieczeństwo jest funkcją produktu, nie dodatkiem.** To API jest w pełni anonimowe —
+  żadnego JWT, żadnego logowania, zero tarcia dla odwiedzającego. Całe utwardzenie siedzi
+  w warstwach anty-abuse. Każda zmiana, która którąś z nich osłabia, jest zmianą produktu
+  i wymaga zgody właściciela.
+- **Best practices Node.js.** Fastify 5 i Node 22 różnią się od danych treningowych.
+  Przed pisaniem kodu czytasz `node_modules/fastify/docs/` albo dokumentację wtyczki,
+  której dotyczy zmiana. Nie zgadujesz API z pamięci — ten projekt ma już za sobą jeden
+  cichy no-op zgadnięty w ten sposób (`format: "email"` bez `ajv-formats`).
 
-This project uses a **two-model split**, deliberately:
+## Model dostarczania (multi-agent)
 
-- **Analysis, evaluation, design review, and verification → Fable, run as multi-agent dynamic workflows.** Any non-trivial analysis (evaluating a design, reviewing a solution, threat-modeling, comparing approaches, verifying that a change is correct/secure) is done with the **Workflow tool**, using the adversarial patterns: **multi-perspective review → skeptics (adversarial refutation) → judge panel → completeness critics → synthesis**. Do not settle an analysis or verification from a single pass — fan out and adversarially verify. This is how the current security design was produced.
-- **Implementation → Sonnet 5.** Writing and editing code is delegated to Sonnet 5 (e.g. via subagents with `model: 'sonnet'`, or by switching the session model for the build phase).
+- **Orkiestrator** = model aktualnie wybrany w sesji. Analizuje, projektuje, deleguje,
+  integruje i weryfikuje. **Nie pisze kodu produkcyjnego.**
+- **Implementator** = zawsze subagent **Sonnet 5** — `Agent`/`Workflow` z `model: 'sonnet'`.
+  Dostaje brief z jawnym zakresem, listą plików zamrożonych i kontraktem.
+- Analizę adwersarialną (ocena projektu, threat model, weryfikacja zmiany) orkiestrator
+  prowadzi wielotorowo: wiele perspektyw → sceptycy → panel sędziowski → synteza.
+  Nie rozstrzygasz analizy jednym przebiegiem.
+- Trzy skille projektowe pokrywają typowe zlecenia — **zaczynasz od właściwego skilla**,
+  nie od kodu:
 
-Practically: reach for a dynamic workflow whenever the task is *thinking* (analyze/verify/design), and use Sonnet 5 when the task is *building* (scaffold/write/edit). Verify implementation output with a Fable workflow before declaring it done.
+  | Zlecenie | Skill |
+  |---|---|
+  | Popraw / uprość / uporządkuj istniejące rozwiązanie | `/refactor` |
+  | Coś nie działa, zwraca zły kod, mail nie dochodzi | `/debug` |
+  | Dodaj coś, czego jeszcze nie ma | `/nowa-funkcjonalnosc` |
 
-## Architecture (the big picture)
+## Produkt
 
-`buildApp()` in `src/app.ts` is a **testable factory** — it wires plugins and routes and returns a Fastify instance without opening a port. `src/server.ts` only calls `listen()` and installs graceful-shutdown handlers. Tests exercise the app via `app.inject()`, never a real socket.
+Backend formularza kontaktowego. Trzy publiczne, anonimowe endpointy:
 
-`POST /api/contact` validates, passes the anti-abuse gates, then **synchronously awaits the SMTP send** via nodemailer before responding: on success it consumes the form token and responds `200`; on failure it releases the send budget, leaves the form token **unconsumed**, and responds `503` + `Retry-After: 30`. The visitor's retry needs a **fresh Turnstile token** (single-use; the widget re-issues one — the formToken itself stays valid), per the frontend contract in `docs/integration/frontend-integration.md` §4. Transport timeouts are tightened (`connectionTimeout` 5s, `greetingTimeout` 5s, `socketTimeout` 10s, `dnsTimeout` 5s); typical failure detection is ≤5s, but this is **not a hard bound** — `socketTimeout` is a per-inactivity timer, so a degraded-but-alive SMTP session can run past 10s, beyond the frontend's 10s abort; the send may still complete server-side after a client abort, so a manual retry can duplicate the internal mail (accepted).
+| Endpoint | Rola |
+|---|---|
+| `GET /api/contact/token` | wydaje HMAC form token (limit 30 / 15 min / IP) |
+| `POST /api/contact` | krok 1: `name` + `email` + `message` (limit 5 / 15 min / IP) |
+| `POST /api/contact/details` | krok 2, opcjonalny: `area` + `budget` + `phone` (własny limit 5 / 15 min / IP) |
 
-`POST /api/contact/details` (2026-07-22, the optional step-2 qualifier: `area`/`budget` enums + `phone`) runs the **exact same pipeline** through shared helpers in `src/routes/contact.ts` (`contactPreValidation` + `runAntiAbuseGuards` — factored so the two routes can't drift) and has its **own independent 5/15-min rate bucket**. It requires a fresh formToken and a fresh Turnstile token (both single-use; step 1 consumed the previous pair). There is no database — the two submissions correlate only through the step-2 mail subject `Inquiry details — {name} ({email})` (the frontend echoes name+email from step 1). `sendDetailsMail` is threaded through deps alongside `sendMail`; label maps `AREA_LABELS`/`BUDGET_LABELS` translate ids before template render (`inquiry-details.hbs/.txt.hbs`). The step-1 schema transitionally **tolerates-and-ignores** the legacy 9-field keys (`company`/`phone`/`service`/`meeting`/`discover`/`handover`) so old cached front bundles don't hit `400` — to be removed in the v2.1 cleanup deploy.
+Plus `GET /health` (statyczny) i `GET /ready` (żywy `transporter.verify()` na każdą próbkę).
 
-This deliberately **reverses** the original rule that *the request path never awaits SMTP*. A 2026-07-09 production finding showed Hostinger's `lsnode` SIGTERMs the process ~1 second after every HTTP response (observed in prod logs: boot → a POST answered → SIGTERM ~850ms later) — the process is not long-running, it lives only for the duration of a request. The former design — write the submission to a durable **file-based SQLite outbox** (`data/outbox.db`), respond `200`, and let a background **worker** (`src/outbox/worker.ts`) drain `pending` rows on a `setInterval(5000)` — could never actually send: the worker's first tick was scheduled for t+5s but the process was reaped at ~t+1s; there was no startup drain, and the one compensating path that did exist — the SIGTERM handler's final drain (`worker.stop()` → `drainOnce()`) — could not fit a fresh SMTP connect+send inside lsnode's sub-second kill grace (the prod log ends mid-shutdown). So a submission was enqueued, `200` was returned, and the mail silently never sent. The outbox/worker subsystem has been **removed entirely**; `node:sqlite` is no longer used anywhere. Accepted trade-off: a lead is now lost only if SMTP fails *and* the visitor doesn't retry — in exchange, there are no more silent black holes. Full finding: the addendum in [docs/superpowers/specs/2026-07-09-hostinger-source-build-deploy-design.md](docs/superpowers/specs/2026-07-09-hostinger-source-build-deploy-design.md).
+**Czego tu nie ma i nie ma być:** bazy danych, kolejki, JWT, sesji, maila potwierdzającego
+do klienta, retry po stronie serwera. Jedynym efektem udanego zgłoszenia jest mail wewnętrzny
+na `MAIL_TEAM_TO`. Oba kroki korelują się wyłącznie przez temat maila krok-2
+(`Inquiry details — {name} ({email})`), bo front dokleja `name` i `email` z kroku 1.
 
-The anti-abuse gates are layered (cheapest first) and live under `src/security/`. Each is defense-in-depth; **none alone is sufficient**:
-1. **Origin/Referer allowlist + `Content-Type: application/json`** (`origin-guard.ts`) — CORS is *not* an access control (curl ignores it); this server-side check is what actually blocks direct scripts and drive-by CSRF.
-2. **HMAC form token** (`form-token.ts`) — issued by `GET /api/contact/token`, echoed on POST, verified for signature + expiry + one-time use; binds a submission to a real page load.
-3. **Cloudflare Turnstile** (`turnstile.ts`) — invisible mode, mandatory server-side `siteverify`, **fail-closed**. This is the real no-JWT anti-automation tier; the honeypot and per-IP rate limit are courtesy layers only.
-4. **Global outbound-email circuit breaker** (`send-budget.ts`) — a process-wide hourly/daily send cap under Hostinger's SMTP limit; on exceed it returns `200` and stops sending rather than letting a flood get the account suspended.
+## Stack
 
-## Non-obvious constraints (do not regress these)
+Node 22 (`.nvmrc`, `engines: >=22.13.0`), Fastify 5, TypeScript strict (`noUncheckedIndexedAccess`),
+nodemailer 9 (linia 6.x ma niezałatane podatności SMTP/CRLF), Handlebars, pino + pino-pretty,
+Vitest, npm. Hosting: Hostinger web-app za proxy LiteSpeed.
 
-- **`trustProxy` must be a fixed hop count or Hostinger's proxy CIDR — never `true`.** `trustProxy: true` lets an attacker forge `X-Forwarded-For` and get a fresh `request.ip` per request, nullifying every IP-keyed control. This is the linchpin — verify a bogus `X-Forwarded-For` does not change `request.ip` before shipping.
-- **`format: "email"` is a silent no-op in Fastify 5 unless `ajv-formats` is registered** on the Ajv instance. Keep it wired, and keep the `pattern` rejecting CR/LF/`<>`/commas in `email` and `name` (prevents SMTP header/CRLF injection). The `email` `pattern` also enforces a dotted TLD on top of `format:'email'` (which in fast mode does not require one), and `phone` — a `/api/contact/details` field since 2026-07-22 (in `/api/contact` it survives only as an ignored transitional legacy key with no pattern, until v2.1) — uses a dedicated pattern requiring an empty string or 7–15 digits (lenient international). Neither should be reverted to the loose `noCrlfLoose`/no-TLD form.
-- **The submitter address goes only in `Reply-To`, as a structured nodemailer address object.** `From` is always `MAIL_FROM`. Never place user input in address headers (`From`/`To`, or `Reply-To` outside the structured object). The only user data allowed in a header string is `name` (+ `email` for the details mail) in `Subject`, and only through `stripCtrl` (CR/LF/TAB stripped) — keep that strip in place.
-- **No client-confirmation email.** Sending to an unverified attacker-supplied address turns the SMTP account into a mailbomb/backscatter amplifier and gets it blocklisted. Only `MAIL_TEAM_TO` is ever an unconditional recipient. The frontend shows on-page confirmation.
-- **Nothing may be deferred past the response — no `setInterval`, queues, or fire-and-forget work after the reply is sent.** Hostinger's `lsnode` SIGTERMs the process ~1 second after each HTTP response, so anything scheduled to run later (background workers, timers, unawaited promises) will never execute. This is the platform rule that forced the outbox/worker removal above, and why the internal email send is `await`ed synchronously inside the request handler instead of being handed off.
-- **SMTP failure returns `503` + `Retry-After`, not `502`** — Hostinger's proxy emits its own `502` for origin-down, so `502` would be ambiguous during incidents.
-- **Full request body (incl. PII) is logged by design.** Per an explicit product decision, both contact POSTs log the complete incoming body (`/api/contact`: `name`, `email`, `message` + any tolerated legacy keys; `/api/contact/details`: `name`, `email`, `area`, `budget`, `phone`) at `info` in every environment, so application logs now contain personal data (RODO/GDPR: they are a personal-data store subject to retention limits, access control, and erasure). Redaction in `src/logger.ts` (`REDACT_PATHS`) is deliberately narrowed to credential headers only (`authorization`, `cookie`). Do NOT re-add body/PII redaction without a product sign-off. Still strip CR/LF from any free text placed in a log **message string** (structured pino fields are already injection-safe). `LOG_LEVEL` env var (default `info`, validated) controls verbosity; pretty output is gated by the `LOG_PRETTY` env flag (default: on in `development`, off elsewhere so production emits structured NDJSON for log shipping/alerting); `pino-pretty` remains a production dependency so the flag can enable it in any environment. Production **splits by level** via `pino.multistream` (`dedupe`, synchronous JS-level streams): `info/debug/trace` → **stdout** (Hostinger's "Runtime logs" / Info bucket), `warn/error/fatal` → **stderr** (`stderr.log` / Error bucket) — matching Hostinger's dual-sink severity model so the info-level PII audit trail lands in Runtime logs, not the error bucket. Do NOT revert to single-stream all-stderr: that buries every info line (incl. the PII trail) in the Error bucket; the earlier "only JS-level `process.stderr.write` is captured" note was a misdiagnosis (real cause: pino's default async sonic-boom buffer dropped on Hostinger's per-deploy process recycle + reading the wrong sink — **synchronous** writing, not the stderr choice, is what fixed visibility). Keep both streams synchronous.
-- **`.env` lives outside the served docroot.** A deploy check must confirm `GET /.env` returns `404`.
-- **The send-budget circuit breaker's hourly/daily caps are in-memory and per-process.** Because `lsnode` boots a fresh process per request rather than running one long-lived process, the cap effectively resets on every boot instead of persisting across a real hourly/daily window. This is a known, consciously accepted limitation — Cloudflare Turnstile remains the primary anti-automation tier, not the send cap.
-- **Env is validated fail-fast at startup**, and also in CI/pre-boot so a bad `.env` can't cause a restart-loop. The failure log names the missing var but never prints its value.
+**Runtime `lsnode` nie jest procesem długożyjącym.** Hostinger bootuje proces Node per request
+i ubija go SIGTERM-em ~1 s po wysłaniu odpowiedzi. To nie jest szczegół deploymentu — to
+ograniczenie kształtujące całą architekturę (patrz „Niepodważalne ograniczenia").
 
-## Commands
+## Komendy i bramka DoD
 
-> **Node 22 required** (`engines: >=22.13.0`; `.nvmrc` = `22`). `nodemailer` is `^9` (the `6.x` line has unpatched SMTP/CRLF-injection advisories). Keep this section in sync:
+```
+npm run dev          # tsx watch src/server.ts
+npm run typecheck    # tsc --noEmit  — UWAGA: obejmuje tylko src/, NIE test/
+npm test             # vitest run
+npm run build        # npm ci --include=dev && tsc && copy-templates  — PRZEINSTALOWUJE node_modules
+npm start            # node dist/server.js
+npm run audit        # npm audit --omit=dev
+npx vitest run test/plik.test.ts     # pojedynczy plik testowy
+npx vitest run -t "nazwa testu"      # pojedynczy test po nazwie
+```
 
-- Install: `npm ci`
-- Dev (watch): `npm run dev` (e.g. `tsx watch src/server.ts`)
-- Build: `npm run build` (`tsc`) — also **precompiles Handlebars templates** so no template compilation touches request data at runtime
-- Start (prod): `npm start` (`node dist/server.js`)
-- Typecheck: `npm run typecheck` (`tsc --noEmit`)
-- Test (all): `npm test` (Vitest)
-- Test (single file): `npx vitest run test/security-controls.test.ts`
-- Test (single case): `npx vitest run -t "rejects malformed email"`
-- Security audit (CI merge gate): `npm audit --production` (note: `pino-pretty` is now a production dependency, not dev-only)
+**Bramka DoD — każde zadanie kończy się dwoma zielonymi krokami:**
 
-## Testing
+```bash
+npm run typecheck && npm test
+```
 
-Vitest, driven through `app.inject()` — no port, mailer mocked. Treat the tests as **executable specifications of the security controls**, run as a CI merge gate (the `ajv-formats` no-op bug proves these regress silently on dependency bumps). Each control has an assertion: malformed email → `400`, extra property → `400`, `>32 KB` → `413`, filled honeypot → fake `200` with zero send calls, 6th request in window → `429`, disallowed Origin → `403`, missing/invalid HMAC token → `403`, missing/invalid Turnstile → `403`, `\r\nBcc:` payload → exactly one recipient, happy path → exactly one synchronous SMTP send before the `200`, SMTP send failure → `503` + `Retry-After` with the form token left **unconsumed** (a retry with the same token succeeds) and the send budget released.
+Trzy rzeczy, które łatwo przeoczyć:
 
-Since 2026-07-22 the same chain is asserted for **both** POST endpoints. `/api/contact/details` additionally has: bad `area`/`budget` enum → `400`, a phone-pattern matrix (intl / national / empty / non-numeric / too short / too long), and its own independent 429 bucket. `/api/contact` has a deliberately temporary **legacy-tolerance** case (old full 9-field payload → `200`, none of the legacy keys reach the mailer's `Submission`) — it goes away with the v2.1 cleanup deploy. `test/mailer.test.ts` covers `sendDetails`: subject `Inquiry details — {name} ({email})`, id→label mapping via `AREA_LABELS`/`BUDGET_LABELS`, empty optional fields rendering no rows, CRLF stripping. Suite size at v2: 87 tests across 8 files.
+- **`npm run typecheck` nie sprawdza `test/`** — `tsconfig.json` ma `"include": ["src"]`.
+  Błąd typów w teście wyjdzie dopiero na `npm test` (a Vitest transpiluje bez typecheckingu,
+  więc część rozjazdów nie wyjdzie wcale).
+- **Nie ma skryptu `lint`** ani configu ESLint. Bramka to `typecheck` + `test`, i tyle.
+- **`npm run build` robi `npm ci`**, czyli kasuje i odtwarza `node_modules`. To komenda
+  pre-deploy, nie lokalna bramka — nie wołaj jej odruchowo po każdej zmianie.
 
-## Related directories (siblings, separate deploys)
+PowerShell 5.1 nie obsługuje `&&` — uruchamiaj przez narzędzie Bash albo łańcuchem
+`npm run typecheck; if ($?) { npm test }`.
 
-- `../calm_soft_web` — the static landing-page frontend. Must send `Content-Type: application/json`, an allowlisted `Origin`, the HMAC token, and the Turnstile token.
-- `../email_templates_calm_soft` — source of the original Handlebars email templates. `inquiry-internal` came from there (copied into `src/emails/` — templates must ship with the app); `inquiry-details` (2026-07-22) was authored directly in `src/emails/` and has no counterpart there. The `confirmation-client` template is intentionally unused.
-- `../logo_calm_soft` — brand assets (not used by the API).
+## Zmienne środowiskowe
 
-## Deploy checklist (Hostinger)
+Walidowane **fail-fast** przy starcie w `loadConfig` (`src/config.ts`). Brakująca zmienna
+zatrzymuje boot, a komunikat **nazywa zmienną, nigdy nie drukuje jej wartości** — nie zmieniaj
+tego zachowania. W repo **nie ma `.env.example`**; wzorcem jest lista poniżej.
 
-Publish **SPF (incl. Hostinger's send hosts) + DKIM + DMARC** for `calmsoft.pro` before relying on delivery. Use a dedicated, minimally-scoped SMTP account (not the whole-domain mailbox). Point uptime monitoring at `GET /ready` (runs a live `transporter.verify()` **per probe**, bounded by the transport timeouts — a boot-time flag would always lose the race on lsnode's cold-process-per-request lifecycle), not `GET /health` — `/health` stays green even when SMTP is dead. Alert on `503`s from both contact POSTs and on `mail send failed` log lines, via a channel **other than** Hostinger SMTP. (The in-memory send-cap counter resets per boot on lsnode, so a cap-approach alert cannot fire outside a sustained flood.)
+| Zmienna | Znaczenie |
+|---|---|
+| `PORT`, `HOST` | `HOST` opcjonalny, domyślnie `0.0.0.0` |
+| `TRUST_PROXY_HOPS` | liczba hopów proxy, **integer ≥ 1**, wymagana |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | konto SMTP (dedykowane, minimalnie uprawnione) |
+| `MAIL_FROM`, `MAIL_TEAM_TO` | `From` i jedyny bezwarunkowy odbiorca |
+| `CORS_ORIGINS` | lista po przecinku; `CORS_ORIGINS[0]` trafia też do pola `source` maila |
+| `FORM_TOKEN_SECRET` | **min. 32 znaki** |
+| `FORM_TOKEN_TTL_MS` | czas życia form tokenu |
+| `TURNSTILE_SECRET` | sekret Cloudflare Turnstile |
+| `SMTP_SEND_CAP_HOURLY`, `SMTP_SEND_CAP_DAILY` | bezpiecznik wysyłki |
+| `NODE_ENV` | opcjonalny, domyślnie `development` |
+| `LOG_LEVEL` | opcjonalny, domyślnie `info`, walidowany względem poziomów pino |
+| `LOG_PRETTY` | opcjonalny bool, domyślnie on w `development` |
 
-- **Required post-deploy step:** submit the live contact form end-to-end — both steps — and confirm both internal notification emails actually arrive at `MAIL_TEAM_TO` (`New inquiry — {name}`, then `Inquiry details — {name} ({email})`). With the synchronous-send design this is the only way to prove delivery works — there is no outbox left to inspect afterward.
-- **Rotate `SMTP_PASS`.** It was printed in cleartext by a now-removed `[DIAG] rawEnv`/`[DIAG] config` startup log dump and must be treated as leaked into captured logs.
-- **`OUTBOX_DB_PATH` and `OUTBOX_MAX_ATTEMPTS` are no longer read by the app** (config validation no longer references them) — delete them from the hPanel environment-variables panel if still set.
+`.env` leży **poza docrootem**. Deploy check: `GET /.env` musi zwrócić `404`.
+
+## Niepodważalne ograniczenia
+
+Zmiana którejkolwiek z tych rzeczy wymaga jawnej zgody właściciela:
+
+- **Nic po odpowiedzi.** Żadnego `setInterval`, `setTimeout`, kolejek, workerów,
+  niezaawaitowanych promise'ów ani „fire-and-forget" po wysłaniu odpowiedzi. `lsnode` ubija
+  proces ~1 s po odpowiedzi, więc **cokolwiek odroczysz, nie wykona się nigdy** — cicho,
+  bez błędu. Dlatego wysyłka SMTP jest `await`owana synchronicznie w handlerze.
+- **`trustProxy` nigdy `true`** — wyłącznie liczba hopów z `TRUST_PROXY_HOPS`.
+  `true` pozwala podrobić `X-Forwarded-For` i dostać świeże `request.ip` na każdy request,
+  co zeruje każdą kontrolę opartą o IP. Przed deployem sprawdź, że lewy `X-Forwarded-For`
+  **nie** zmienia `request.ip`.
+- **`ajv-formats` musi zostać podpięte** do instancji Ajv — bez tego `format: "email"`
+  jest w Fastify 5 cichym no-opem. Razem z `customOptions: { removeAdditional: false }`,
+  które sprawia, że `additionalProperties: false` **odrzuca** requesty zamiast po cichu
+  obcinać nadmiarowe pola.
+- **Wzorce anty-CRLF na `name` i `email`** (blokada `\r\n`, `<>`, przecinków) zostają;
+  `email` wymaga dodatkowo kropkowanego TLD. Nie wracasz do luźnej formy.
+- **Adres zgłaszającego trafia wyłącznie do `Reply-To`**, jako strukturalny obiekt
+  nodemailera. `From` to zawsze `MAIL_FROM`. Jedyne dane użytkownika dopuszczone w stringu
+  nagłówka to `name` (+ `email` w mailu krok-2) w `Subject`, i tylko przez `stripCtrl`.
+- **Zero maila potwierdzającego do klienta.** Wysyłka na niezweryfikowany adres podany przez
+  atakującego zamienia konto SMTP we wzmacniacz mailbomb/backscatter i kończy się blokadą.
+  Potwierdzenie pokazuje front, na stronie.
+- **Błąd SMTP → `503` + `Retry-After`**, nigdy `502` — proxy Hostingera emituje własne `502`
+  przy padniętym origin, więc `502` byłby nierozróżnialny podczas awarii.
+- **Form token konsumowany dopiero po udanej wysyłce.** `check()` jest niemutujące; przy
+  błędzie SMTP budżet jest zwalniany, a token zostaje **nieskonsumowany**, żeby retry
+  odwiedzającego nie spalił mu tokenu.
+- **Brak oracle'a bramek.** Zły form token i zły Turnstile zwracają **identyczne** `403`.
+  Honeypot i przekroczony budżet zwracają **fałszywe `200`** i nie wysyłają nic.
+  Nie różnicuj tych odpowiedzi „dla czytelności" — to ujawnia, która bramka zadziałała.
+- **Pełne body w logach to świadoma decyzja produktowa.** Oba POST-y logują kompletny body
+  (z PII) na poziomie `info`, w każdym środowisku. `REDACT_PATHS` jest celowo zawężone do
+  nagłówków poświadczeń (`authorization`, `cookie`). **Nie przywracaj redakcji body/PII bez
+  zgody właściciela.** Konsekwencja RODO: logi są zbiorem danych osobowych. Z wolnego tekstu
+  wstawianego do **stringa komunikatu** logu nadal wycinasz CR/LF (pola strukturalne pino
+  są bezpieczne z definicji).
+- **Log split zostaje.** `pino.multistream` z `dedupe`: `info/debug/trace` → **stdout**
+  (Runtime logs Hostingera), `warn/error/fatal` → **stderr** (bucket Error). Oba strumienie
+  **synchroniczne** — asynchroniczny bufor pino gubił linie przy recyklingu procesu.
+  Nie wracaj do jednego strumienia na stderr.
+- **Budżet wysyłki jest in-memory i per-proces.** Na `lsnode` resetuje się przy każdym boocie,
+  więc realnie nie trzyma okna godzinowego ani dobowego. To znana, świadomie zaakceptowana
+  granica — główną warstwą anty-automation jest **Turnstile**, nie ten licznik.
+
+## Architektura (mapa, nie changelog)
+
+- **`src/app.ts`** — `buildApp(deps)` to **testowalna fabryka**: rejestruje wtyczki i trasy,
+  zwraca instancję Fastify **bez otwierania portu**. Wszystkie zależności (mailer, guardy,
+  readiness) wstrzykiwane przez `AppDeps` — dlatego testy jadą przez `app.inject()`.
+  `src/server.ts` robi tylko `listen()` i graceful shutdown.
+- **`src/routes/contact.ts`** — oba POST-y dzielą **`contactPreValidation`** (Origin/Referer
+  + `Content-Type`) i **`runAntiAbuseGuards`**. To celowa faktoryzacja: bramki nie mogą się
+  rozjechać między endpointami. Nowy endpoint przyjmujący dane od odwiedzającego przechodzi
+  przez te same helpery albo ma zapisane uzasadnienie, dlaczego nie.
+- **Warstwy anty-abuse, od najtańszej** — każda to defense-in-depth, **żadna sama nie wystarcza**:
+  1. `security/origin-guard.ts` — allowlist Origin/Referer + `Content-Type: application/json`.
+     CORS **nie jest** kontrolą dostępu (curl go ignoruje) — to ten check realnie blokuje
+     skrypty i drive-by CSRF.
+  2. `security/form-token.ts` — HMAC wydawany przez `GET /api/contact/token`, weryfikowany
+     na podpis, ważność i jednorazowość. Wiąże zgłoszenie z realnym wczytaniem strony.
+  3. `security/turnstile.ts` — Cloudflare Turnstile, tryb niewidoczny, obowiązkowe
+     serwerowe `siteverify`, **fail-closed**. To właściwa warstwa anty-automation.
+  4. `security/send-budget.ts` — procesowy bezpiecznik wysyłki; po przekroczeniu zwraca
+     `200` i przestaje wysyłać, zamiast pozwolić zalewowi zablokować konto SMTP.
+  Kolejność w `runAntiAbuseGuards`: honeypot → form token → Turnstile → budżet.
+- **`src/mailer/mailer.ts`** — `createMailer()` kompiluje szablony Handlebars **raz, przy
+  boocie** (nie per request; build tylko kopiuje `.hbs` do `dist/`). Eksponuje
+  `send` / `sendDetails` / `verify`. `stripCtrl` czyści dane wchodzące do `Subject`.
+  Timeouty transportu są zacieśnione (connection/greeting 5 s, socket 10 s, dns 5 s), ale
+  `socketTimeout` liczy bezczynność — **to nie jest twarda granica**, zdegradowana sesja SMTP
+  może przekroczyć 10 s i abort frontu; wysyłka może się wtedy dokończyć serwerowo, więc
+  ręczny retry potrafi zdublować maila (zaakceptowane).
+- **`src/config.ts`** — jedyne miejsce czytające `process.env`. Nie czytaj env nigdzie indziej.
+- **`src/emails/`** — `inquiry-internal.{hbs,txt.hbs}` (krok 1), `inquiry-details.{hbs,txt.hbs}`
+  (krok 2). Szablony muszą jechać razem z aplikacją, dlatego build je kopiuje.
+- **Schemat krok-1 tolerancyjnie ignoruje legacy klucze** (`company`, `phone`, `service`,
+  `meeting`, `discover`, `handover`), żeby stare cache'owane bundle frontu nie dostawały `400`.
+  Są zadeklarowane, ale **nigdy nieczytane** — `Submission` powstaje wyłącznie z
+  `name`/`email`/`message`. Uwaga: legacy `phone` w kroku 1 ma tylko `maxLength`, **bez wzorca**;
+  wzorzec telefonu obowiązuje wyłącznie w kroku 2. Do usunięcia w porządkach v2.1.
+- **Decyzje projektowe z historii** (dlaczego coś wygląda tak, a nie inaczej) leżą
+  w `docs/superpowers/specs/` — czytaj stamtąd, zamiast rekonstruować intencję z kodu.
+
+## Kontrakt z frontendem
+
+`docs/integration/frontend-integration.md` jest **źródłem prawdy** dla styku FE↔BE:
+sekwencja submitu, kontrakty endpointów, mapa odpowiedź → zachowanie.
+
+Front (`calm_soft_web`) jest **poza Twoim zakresem**. Dlatego każda zmiana kontraktu —
+nowe pole, nowy kod odpowiedzi, zmiana walidacji, zmiana nagłówków — oznacza:
+zaktualizuj ten dokument **i eskaluj do właściciela**, bo ktoś musi zmienić front.
+Nigdy nie zmieniasz kontraktu po cichu: `400` na polu, którego stary bundle wciąż wysyła,
+to zepsuty formularz na produkcji.
+
+Reguła operacyjna z tego kontraktu: retry po `403` wymaga **świeżego tokenu Turnstile**
+(jednorazowy, widget wydaje nowy); sam `formToken` pozostaje ważny.
+
+## Testy
+
+Vitest, sterowany przez `app.inject()` — bez portu, mailer zamockowany. Traktuj testy jak
+**wykonywalną specyfikację kontroli bezpieczeństwa** i bramkę merge'a: błąd no-opa
+`ajv-formats` dowiódł, że te kontrole regresują cicho przy bumpie zależności.
+
+Stan: **87 testów w 8 plikach**. Każda kontrola ma asercję: zły email → `400`, nadmiarowe
+pole → `400`, `>32 KB` → `413`, wypełniony honeypot → fałszywe `200` i zero wysyłek,
+6. request w oknie → `429`, obcy Origin → `403`, brak/zły HMAC → `403`, brak/zły Turnstile
+→ `403`, payload z `\r\nBcc:` → dokładnie jeden odbiorca, happy path → dokładnie jedna
+synchroniczna wysyłka przed `200`, błąd SMTP → `503` + `Retry-After` z **nieskonsumowanym**
+tokenem (retry tym samym tokenem przechodzi) i zwolnionym budżetem.
+
+Ten sam łańcuch jest asertowany dla **obu** POST-ów. `/api/contact/details` ma dodatkowo:
+zły enum `area`/`budget` → `400`, macierz wzorca telefonu (intl / krajowy / pusty / nienumeryczny
+/ za krótki / za długi) i własny bucket `429`. `/api/contact` ma **tymczasowy** test
+tolerancji legacy (stary 9-polowy payload → `200`, żaden legacy klucz nie dociera do mailera) —
+znika razem z porządkami v2.1.
+
+Testów cudzych zadań nie edytujesz, żeby przeszły. Czerwony test to sygnał, nie przeszkoda.
+
+## Deploy (Hostinger)
+
+Opublikuj **SPF (z hostami wysyłkowymi Hostingera) + DKIM + DMARC** dla `calmsoft.pro`, zanim
+zaczniesz polegać na dostarczalności. Używaj dedykowanego, minimalnie uprawnionego konta SMTP.
+
+Monitoring kieruj na **`GET /ready`** (żywy `verify()` na próbkę), **nie** na `/health` —
+`/health` świeci na zielono także wtedy, gdy SMTP jest martwy. Alertuj na `503` z obu POST-ów
+i na linie `mail send failed`, kanałem **innym niż** SMTP Hostingera.
+
+- **Obowiązkowy krok po deployu:** wyślij formularz end-to-end — **oba kroki** — i potwierdź,
+  że oba maile realnie dotarły na `MAIL_TEAM_TO` (`New inquiry — {name}`, potem
+  `Inquiry details — {name} ({email})`). Przy synchronicznej wysyłce to **jedyny** dowód,
+  że dostarczanie działa — nie ma żadnego trwałego zapisu, który dałoby się obejrzeć po fakcie.
+- Sprawdź, że `GET /.env` zwraca `404`.
+- **Zrotuj `SMTP_PASS`** — był drukowany otwartym tekstem przez usunięty już startowy dump
+  diagnostyczny i trzeba go traktować jak wyciekły do zebranych logów.

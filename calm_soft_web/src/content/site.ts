@@ -10,11 +10,11 @@ export const site: SiteContent = {
     "e-delivery-platform-nationwide",
     "localhost-academy",
   ],
-  featuredDemoSlugs: ["cadence", "airlift", "healthlab"],
+  featuredDemoSlugs: ["puls", "cadence", "airlift"],
   footerLinks: [
     { label: "Usługi", href: "/#services" },
     { label: "Realizacje", href: "/#cases" },
-    { label: "Dema", href: "/#demo" },
+    { label: "Rozwiązania", href: "/#demo" },
     { label: "Proces", href: "/#process" },
     { label: "Cennik", href: "/pricing/" },
     { label: "Kontakt", href: "/#contact" },
@@ -30,9 +30,9 @@ export const site: SiteContent = {
       h1: "Spokojna strona oprogramowania.",
       lead: "Systemy klasy enterprise bez enterprise'owej dramy — jasny proces, uczciwe terminy i żadnych niespodzianek w czwartym miesiącu. Od pierwszej rozmowy do produkcji rozmawiasz z inżynierem, który pisze kod — dziś jedynym architektem platformy używanej w dwudziestu administracjach miejskich.",
       ctaPrimary: "Zacznij projekt",
-      ctaDemos: "Zobacz dema ›",
+      ctaDemos: "Zobacz rozwiązania ›",
       ctaPricing: "Sprawdź cennik ›",
-      demoLabel: "Dema na żywo",
+      demoLabel: "Rozwiązania na żywo",
     },
     type: {
       line1: "Złożone problemy.",
@@ -56,6 +56,7 @@ export const site: SiteContent = {
       readCaseCta: "Przeczytaj historię ›",
       cta: "Omówmy taki projekt ›",
       note: "Odpowiadam w ciągu godziny w dni robocze · NDA na życzenie.",
+      solutionsLabel: "Rozwiązania z tego obszaru",
     },
     process: { line1: "Od pomysłu do produkcji.", line2: "Spokojnie, krok po kroku." },
     cases: {
@@ -73,15 +74,12 @@ export const site: SiteContent = {
       },
     },
     demos: {
-      line1: "Działający software, nie slajdy.",
-      line2: "Klikalne dema od początku do końca.",
       langChip: "Interfejs po angielsku",
-      cta: "Otwórz demo ›",
       footnote: "W pełni klikalne — przejdź każdy przepływ tak, jak zrobiłby to prawdziwy użytkownik.",
-      seeAllCta: "Zobacz wszystkie dema ›",
+      seeAllCta: "Zobacz rozwiązania ›",
       detailCta: "Zobacz szczegóły ›",
       liveCta: "Otwórz demo na żywo ›",
-      techLegend: "Technologie, w których mogę to zbudować",
+      techLegend: "Technologię wybierasz Ty",
       flowsLegend: "Kluczowe przepływy",
       desktopNote: "Panel back-office — zbudowany pod desktop, nieadaptowany do mobile.",
       calendly: {
@@ -92,7 +90,7 @@ export const site: SiteContent = {
   },
   modals: {
     caseNote: "Nazwy klientów pomijam tam, gdzie wymaga tego poufność — szczegóły chętnie na rozmowie.",
-    demoNote: "W pełni klikalny prototyp — zbudowany zgodnie z dobrymi praktykami, gotowy stać się prawdziwym produktem.",
+    demoNote: "Przeklikaj każdy ekran. To zakres, który wyceniam — nie działająca jeszcze aplikacja.",
   },
   contact: {
     heading: "Zbudujmy coś, co zostanie.",
@@ -173,11 +171,11 @@ export const site: SiteContent = {
     archiveIntro: "Starsza praca zespołowa — zostaje dla pełnego obrazu, choć dziś moją miarą są projekty, które prowadzę w całości.",
   },
   demosPage: {
-    metaTitle: "Dema — calm_soft",
+    metaTitle: "Rozwiązania — calm_soft",
     metaDescription:
-      "Siedem klikalnych dem calm_soft — strony klinik, konsole personelu oraz narzędzia automatyzacji i migracji danych. Każde zbudowane zgodnie z dobrymi praktykami.",
-    heading: { line1: "Siedem dem,", line2: "klikalnych od A do Z." },
-    lead: "Strony klinik dla pacjentów, konsole personelu za nimi oraz narzędzia automatyzacji i migracji — każde demo w pełni klikalne, zbudowane tak, jak zbudowałbym prawdziwy produkt.",
+      "Pięć rozwiązań calm_soft: integracje ERP, automatyzacje, migracje danych, weterynaria oraz kliniki i laboratoria. Przeklikaj każdy ekran, zanim cokolwiek podpiszesz — zakres ustalony przed wyceną.",
+    heading: { line1: "Kupujesz to,", line2: "co przeklikasz." },
+    lead: "Każde rozwiązanie poniżej możesz przejść ekran po ekranie, tak jak zrobi to Twój klient albo Twój zespół — zanim cokolwiek podpiszesz. Widzisz zakres, przepływy i to, czego nie ma. Potem mówisz, co zmienić.",
     calendly: {
       prompt: "Chcesz takie rozwiązanie skrojone pod swój biznes?",
       cta: "Umów bezpłatną rozmowę (30 min) ›",

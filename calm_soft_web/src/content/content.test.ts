@@ -1,21 +1,22 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { services } from "./services";
+import { services, getServiceForLine } from "./services";
 import { cases, getCaseBySlug } from "./cases";
 import { steps } from "./steps";
 import { demos, getDemoBySlug } from "./demos";
 import { site } from "./site";
 import { pricing } from "./pricing";
+import { solutions, allSolutionLines, getSolutionLineBySlug } from "./solutions";
 import type { AreaId, BudgetId } from "./types";
 
 const AREA_IDS: AreaId[] = ["core", "automation", "rescue", "web", "not-sure"];
 const BUDGET_IDS: BudgetId[] = ["under-10k", "10-30k", "30-80k", "80k-plus", "no-idea"];
 
 describe("content completeness (SPEC §5.3)", () => {
-  it("ma 4 usługi z pełnymi polami, w kolejności core → refactor → automation → web", () => {
+  it("ma 4 usługi z pełnymi polami, w kolejności core → automation → web → refactor", () => {
     expect(services).toHaveLength(4);
-    expect(services.map((s) => s.id)).toEqual(["core", "refactor", "automation", "web"]);
+    expect(services.map((s) => s.id)).toEqual(["core", "automation", "web", "refactor"]);
     for (const s of services) {
       expect(s.fit).toHaveLength(4);
       expect(s.fit.every((f) => f.trim().length > 0)).toBe(true);
@@ -85,15 +86,14 @@ describe("content completeness (SPEC §5.3)", () => {
     expect(site.modals.caseNote.length).toBeGreaterThan(0);
     expect(site.modals.demoNote.length).toBeGreaterThan(0);
   });
-  it("ma 7 demo z unikalnymi slugami i niepustymi polami", () => {
-    expect(demos).toHaveLength(7);
-    expect(new Set(demos.map((d) => d.slug)).size).toBe(7);
+  it("ma 8 demo z unikalnymi slugami i niepustymi polami", () => {
+    expect(demos).toHaveLength(8);
+    expect(new Set(demos.map((d) => d.slug)).size).toBe(8);
     for (const d of demos) {
       expect(d.href).toBe(`/demo/${d.slug}/index.html`);
       expect(d.shot).toBe(`/demo-shots/${d.slug}.webp`);
       expect(d.name.trim().length).toBeGreaterThan(0);
       expect(d.tag.trim().length).toBeGreaterThan(0);
-      expect(d.description.trim().length).toBeGreaterThan(0);
       expect(d.tagline.trim().length).toBeGreaterThan(0);
       expect(d.detail.trim().length).toBeGreaterThan(0);
       expect(d.shotAlt.trim().length).toBeGreaterThan(0);
@@ -108,15 +108,16 @@ describe("content completeness (SPEC §5.3)", () => {
   it("uiLang === 'en' dokładnie dla cadence i airlift", () => {
     expect(demos.filter((d) => d.uiLang === "en").map((d) => d.slug)).toEqual(["cadence", "airlift"]);
   });
-  it("logoId jest ustawione dokładnie dla cadence i airlift", () => {
-    expect(demos.filter((d) => d.logoId).map((d) => d.slug)).toEqual(["cadence", "airlift"]);
+  it("logoId jest ustawione dokładnie dla cadence, airlift i puls", () => {
+    expect(demos.filter((d) => d.logoId).map((d) => d.slug)).toEqual(["cadence", "airlift", "puls"]);
     expect(demos.find((d) => d.slug === "cadence")?.logoId).toBe("cadence");
     expect(demos.find((d) => d.slug === "airlift")?.logoId).toBe("airlift");
+    expect(demos.find((d) => d.slug === "puls")?.logoId).toBe("puls");
   });
   it("featuredDemoSlugs wskazują istniejące dema i zgadzają się z handoffem", () => {
     expect(site.featuredDemoSlugs.length).toBeGreaterThanOrEqual(1);
     for (const slug of site.featuredDemoSlugs) expect(getDemoBySlug(slug)).toBeDefined();
-    expect(site.featuredDemoSlugs).toEqual(["cadence", "airlift", "healthlab"]);
+    expect(site.featuredDemoSlugs).toEqual(["puls", "cadence", "airlift"]);
   });
   it("sekcja demos ma niepusty techLegend i langChip (etykieta chipu dla dem uiLang==='en')", () => {
     expect(site.sections.demos.techLegend.trim().length).toBeGreaterThan(0);
@@ -243,5 +244,139 @@ describe("consent banner content (2026-07-22 GA4 + Consent Mode addendum)", () =
     expect(site.consent.accept.trim().length).toBeGreaterThan(0);
     expect(site.consent.decline.trim().length).toBeGreaterThan(0);
     expect(site.consent.settingsLabel.trim().length).toBeGreaterThan(0);
+  });
+});
+
+describe("solutions content (2026-07-26 solutions restructure design)", () => {
+  it("ma 2 grupy, slugi operacyjne → branzowe w tej kolejności", () => {
+    expect(solutions.groups).toHaveLength(2);
+    expect(solutions.groups.map((g) => g.slug)).toEqual(["operacyjne", "branzowe"]);
+  });
+
+  it("ma 5 linii rozwiązań, slugi w tej kolejności", () => {
+    expect(allSolutionLines).toHaveLength(5);
+    expect(allSolutionLines.map((l) => l.slug)).toEqual([
+      "integracje",
+      "automatyzacje",
+      "migracje",
+      "weterynaria",
+      "kliniki-laboratoria",
+    ]);
+  });
+
+  it("każdy demoSlug w każdym items rozwiązuje się przez getDemoBySlug", () => {
+    for (const line of allSolutionLines) {
+      for (const item of line.items) {
+        expect(getDemoBySlug(item.demoSlug)).toBeDefined();
+      }
+    }
+  });
+
+  it("suma demoSlug po wszystkich liniach pokrywa dokładnie zbiór slugów z demos, każdy dokładnie raz", () => {
+    const allDemoSlugs = allSolutionLines.flatMap((l) => l.items.map((i) => i.demoSlug));
+    expect(allDemoSlugs).toHaveLength(demos.length);
+    expect(new Set(allDemoSlugs).size).toBe(demos.length);
+    expect(new Set(allDemoSlugs)).toEqual(new Set(demos.map((d) => d.slug)));
+  });
+
+  it("leadDemoSlug każdej linii występuje wśród demoSlug jej własnych items", () => {
+    for (const line of allSolutionLines) {
+      expect(line.items.map((i) => i.demoSlug)).toContain(line.leadDemoSlug);
+    }
+  });
+
+  it("proof.caseSlug (tam, gdzie proof istnieje) rozwiązuje się przez getCaseBySlug", () => {
+    for (const line of allSolutionLines) {
+      if (line.proof) {
+        expect(getCaseBySlug(line.proof.caseSlug)).toBeDefined();
+      }
+    }
+  });
+
+  it("getSolutionLineBySlug zwraca linię dla poprawnego sluga i undefined dla nieznanego", () => {
+    expect(getSolutionLineBySlug("weterynaria")?.slug).toBe("weterynaria");
+    expect(getSolutionLineBySlug("nieistniejacy-slug")).toBeUndefined();
+  });
+
+  it("każda linia ma niepuste kluczowe pola oraz niepuste intro/items", () => {
+    for (const line of allSolutionLines) {
+      expect(line.headline.trim().length).toBeGreaterThan(0);
+      expect(line.audience.trim().length).toBeGreaterThan(0);
+      expect(line.homeTitle.trim().length).toBeGreaterThan(0);
+      expect(line.homeTeaser.trim().length).toBeGreaterThan(0);
+      expect(line.kicker.trim().length).toBeGreaterThan(0);
+      expect(line.intro.length).toBeGreaterThanOrEqual(1);
+      expect(line.items.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("solutions.home i solutions.page mają niepuste kluczowe pola, mechanism.body ma 3 elementy", () => {
+    expect(solutions.home.line1.trim().length).toBeGreaterThan(0);
+    expect(solutions.home.line2.trim().length).toBeGreaterThan(0);
+    expect(solutions.home.lead.trim().length).toBeGreaterThan(0);
+    expect(solutions.home.cta.trim().length).toBeGreaterThan(0);
+    expect(solutions.home.tileCta.trim().length).toBeGreaterThan(0);
+    expect(solutions.page.mechanism.heading.trim().length).toBeGreaterThan(0);
+    expect(solutions.page.mechanism.body).toHaveLength(3);
+    expect(solutions.page.paths.heading.trim().length).toBeGreaterThan(0);
+    expect(solutions.page.clickLabel.trim().length).toBeGreaterThan(0);
+    expect(solutions.page.audienceLabel.trim().length).toBeGreaterThan(0);
+  });
+});
+
+describe("services ↔ solutions crosslink (2026-07-26 services-solutions crosslink design)", () => {
+  it("każdy slug w solutionSlugs każdej usługi rozwiązuje się przez getSolutionLineBySlug", () => {
+    for (const s of services) {
+      for (const slug of s.solutionSlugs) {
+        expect(getSolutionLineBySlug(slug)).toBeDefined();
+      }
+    }
+  });
+
+  it("żadna linia rozwiązania nie należy do dwóch usług", () => {
+    const allSlugs = services.flatMap((s) => s.solutionSlugs);
+    expect(new Set(allSlugs).size).toBe(allSlugs.length);
+  });
+
+  it("suma solutionSlugs po wszystkich usługach pokrywa dokładnie zbiór wszystkich pięciu linii, każdą dokładnie raz", () => {
+    const allSlugs = services.flatMap((s) => s.solutionSlugs);
+    expect(allSlugs).toHaveLength(allSolutionLines.length);
+    expect(new Set(allSlugs)).toEqual(new Set(allSolutionLines.map((l) => l.slug)));
+  });
+
+  it("getServiceForLine zwraca dokładnie tę usługę, której solutionSlugs zawiera daną linię", () => {
+    for (const line of allSolutionLines) {
+      const service = getServiceForLine(line.slug);
+      expect(service).toBeDefined();
+      expect(service!.solutionSlugs).toContain(line.slug);
+    }
+  });
+
+  it("site.sections.services.solutionsLabel i solutions.page.serviceLabel są niepuste", () => {
+    expect(site.sections.services.solutionsLabel.trim().length).toBeGreaterThan(0);
+    expect(solutions.page.serviceLabel.trim().length).toBeGreaterThan(0);
+  });
+});
+
+describe("keyword emphasis marker parity (2026-07-27 keyword-emphasis-and-audience-block-design)", () => {
+  // `**` is a paired marker (RichText/stripEmphasis, src/components/ui/RichText.tsx) — an odd
+  // count means a typo (an unclosed or extra `**`) would ship as literal asterisks on the page.
+  // Runs today before any content carries markers — that's the point: it stands guard before the
+  // next step introduces them.
+  const countMarkers = (text: string) => (text.match(/\*\*/g) ?? []).length;
+
+  it("has an even number of ** markers in every intro/audience/item/detail string covered by the convention", () => {
+    for (const line of allSolutionLines) {
+      for (const paragraph of line.intro) {
+        expect(countMarkers(paragraph) % 2).toBe(0);
+      }
+      expect(countMarkers(line.audience) % 2).toBe(0);
+      for (const item of line.items) {
+        expect(countMarkers(item.text) % 2).toBe(0);
+      }
+    }
+    for (const d of demos) {
+      expect(countMarkers(d.detail) % 2).toBe(0);
+    }
   });
 });

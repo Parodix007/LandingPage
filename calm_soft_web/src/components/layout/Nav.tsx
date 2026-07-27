@@ -8,7 +8,7 @@ import { NavMobileMenu, type NavLink } from "./NavMobileMenu";
 const NAV_LINKS: NavLink[] = [
   { href: "/#services", label: "Usługi" },
   { href: "/#cases", label: "Realizacje" },
-  { href: "/#demo", label: "Dema" },
+  { href: "/#demo", label: "Rozwiązania" },
   { href: "/#process", label: "Proces" },
   { href: "/pricing/", label: "Cennik" },
 ];

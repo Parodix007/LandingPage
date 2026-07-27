@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import type { Service, Tone } from "@/content/types";
 import { Chip } from "@/components/ui/Chip";
 import { Watermark } from "@/components/ui/Watermark";
@@ -8,6 +9,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { useModal } from "@/components/providers/ModalProvider";
 import { useInquiry } from "@/components/providers/InquiryProvider";
 import { getCaseBySlug } from "@/content/cases";
+import { getSolutionLineBySlug } from "@/content/solutions";
 import { useCarousel } from "./useCarousel";
 
 export type ServicesSliderProps = {
@@ -21,11 +23,13 @@ export type ServicesSliderProps = {
   readCaseLabel: string;
   ctaLabel: string;
   note: string;
+  solutionsLabel: string;
 };
 
-// HANDOFF §3: cards 1 & 4 (web, refactor → tone "a") glow/hover accent; cards 2 & 3
-// (automation, core → tone "b") glow/hover accent2. Copied verbatim from the retired
-// Services.tsx grid (SPEC §16 — content/tone tables aren't shared UI primitives).
+// HANDOFF §3, tones reassigned by the 2026-07-26 services-solutions crosslink reorder (spec §5):
+// card 1 core (tone "b") and card 4 refactor (tone "a") keep their original glow/hover accent;
+// card 2 automation now carries tone "a" and card 3 web now carries tone "b" — a straight swap
+// that restores the alternating b/a/b/a rhythm the reorder would otherwise have broken.
 const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
   a: "accent",
   b: "accent2",
@@ -91,11 +95,24 @@ export function ServicesSlider({
   readCaseLabel,
   ctaLabel,
   note,
+  solutionsLabel,
 }: ServicesSliderProps) {
   const { step, next, prev, goTo } = useCarousel(services.length, 0);
   const { openCaseModal } = useModal();
   const { requestContactScroll, focusContactField } = useInquiry();
   const last = services.length - 1;
+
+  // Deep-link from a solution line's "To część usługi" back-link (2026-07-26 services-solutions
+  // crosslink design, spec §3): /?usluga=<id>#services opens the matching slide. Reads the query
+  // param in an effect (never during render) so the server-prerendered markup — always slide 0 —
+  // never disagrees with the client's first render. No parameter or no matching id is a no-op;
+  // `useCarousel` itself is untouched.
+  useEffect(() => {
+    const value = new URLSearchParams(window.location.search).get("usluga");
+    if (!value) return;
+    const index = services.findIndex((s) => s.id === value);
+    if (index >= 0) goTo(index);
+  }, [services, goTo]);
 
   const startProject = () => {
     requestContactScroll();
@@ -144,6 +161,9 @@ export function ServicesSlider({
             const relatedCases = s.relatedSlugs
               .map((slug) => getCaseBySlug(slug))
               .filter((c): c is NonNullable<typeof c> => Boolean(c));
+            const relatedLines = s.solutionSlugs
+              .map((slug) => getSolutionLineBySlug(slug))
+              .filter((l): l is NonNullable<typeof l> => Boolean(l));
 
             return (
               <div
@@ -234,6 +254,26 @@ export function ServicesSlider({
                     </div>
                   </div>
                 </div>
+
+                {relatedLines.length > 0 && (
+                  <div className="flex flex-col gap-3">
+                    <p className={SECTION_LABEL}>{solutionsLabel}</p>
+                    <div className="flex flex-wrap gap-3">
+                      {relatedLines.map((line) => (
+                        <a
+                          key={line.slug}
+                          href={`/demos/#${line.slug}`}
+                          tabIndex={active ? undefined : -1}
+                          className={`inline-flex w-fit rounded-[var(--radius-pill)] ${PILL_FOCUS}`}
+                        >
+                          <span className="relative z-[1] inline-flex items-center justify-center rounded-[var(--radius-pill)] border border-transparent px-4 py-2 text-[14.5px] font-medium leading-none text-accent transition-[all] duration-[250ms] hover:border-[color-mix(in_oklch,var(--color-accent)_40%,transparent)] hover:bg-[color-mix(in_oklch,var(--color-accent)_16%,transparent)] hover:text-white">
+                            {line.kicker}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="mt-auto flex flex-wrap items-center gap-[18px] border-t border-border-08 pt-[22px]">
                   <button

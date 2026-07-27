@@ -1,5 +1,9 @@
-import type { Service } from "./types";
+import type { Service, SolutionLineSlug } from "./types";
 
+// Kolejność core → automation → web → refactor oraz tony poniżej to 2026-07-26
+// services-solutions crosslink design (owner-ordered reorder). Ton jest właściwością usługi, nie
+// jej pozycji, więc po zmianie kolejności tony zostały przypisane na nowo, żeby zachować
+// naprzemienny rytm b/a/b/a zamiast b/b/a/a — patrz spec §5.
 export const services: Service[] = [
   {
     id: "core",
@@ -24,6 +28,58 @@ export const services: Service[] = [
     approach:
       "Pracę przy kręgosłupie planuję jak operację: próby na stagingu, testy obciążeniowe, ścieżki rollbacku i okna przełączenia liczone w godzinach — tak, żeby biznes nie zauważył zabiegu.",
     relatedSlugs: ["public-sector-poland", "e-delivery-platform-nationwide", "public-sector-eu"],
+    solutionSlugs: ["integracje", "migracje"],
+  },
+  {
+    id: "automation",
+    tone: "a",
+    tag: "Automatyzacja",
+    headline: "Powtarzalna robota — zdjęta z barków zespołu.",
+    intro:
+      "Każda firma działa na niewidzialnych rutynach — dane przepisywane między systemami, upominanie się o płatności, ten sam mail wysyłany dziesiąty raz. Mapuję te rutyny i automatyzuję je: ostrożnie, przejrzyście, z Twoimi ludźmi przy sterach. A kiedy dedykowany software byłby złą odpowiedzią — powiem Ci to wprost.",
+    fit: [
+      "Twój zespół przepisuje te same dane do dwóch albo trzech systemów",
+      "Koniec miesiąca to nadgodziny, arkusze i błędy, których dało się uniknąć",
+      "Operacje nie urosną bez zatrudniania kolejnych rąk do ręcznej pracy",
+      "Chcesz AI w procesach — bez oddawania kontroli nad jakością",
+    ],
+    deliver: [
+      { n: "Mapowanie procesów i audyt", d: "Najpierw znajduję, którędy naprawdę wyciekają godziny — dopiero potem automatyzuję." },
+      { n: "Integracje systemów", d: "CRM, ERP, poczta i płatności połączone — zamiast przeklejane." },
+      { n: "RPA", d: "Softwarowe roboty do powtarzalnych klików, których nikt nie powinien robić ręcznie." },
+      { n: "Przepływy wspierane AI", d: "LLM-y szkicują rutynową robotę; decyzje podejmują Twoi ludzie." },
+      { n: "Pipeline'y danych i raporty", d: "Raporty, które składają się same, według harmonogramu, z żywych danych." },
+    ],
+    approach:
+      "Zaczynam celowo od małego: mapuję jeden proces, automatyzuję go, mierzę odzyskane godziny — i dopiero wtedy rozszerzam. Bez wielkiej platformy na start i bez sześciu miesięcy wdrożenia przed pierwszym widocznym efektem.",
+    relatedSlugs: ["software-delivery-org-50-people", "localhost-academy"],
+    solutionSlugs: ["automatyzacje"],
+  },
+  {
+    id: "web",
+    tone: "b",
+    tag: "Rozwiązania webowe",
+    headline: "Platformy, portale i produkty — budowane, by skalować.",
+    intro:
+      "Produkty, których naprawdę dotykają Twoi klienci: portale, e-commerce, SaaS i narzędzia wewnętrzne za nimi. Całość prowadzi jedna osoba — projekt, architektura, kod i chmura — więc nic nie ginie między dostawcami.",
+    fit: [
+      "Startujesz z produktem, portalem albo sklepem i chcesz go zbudować od A do Z",
+      "Istniejąca aplikacja niedomaga — wydajność, UX albo tempo zmian",
+      "Wewnętrzne operacje jadą na arkuszach i dobrej woli",
+      "Masz pomysł i projekty graficzne, ale nie masz komu ich dowieźć na produkcję",
+    ],
+    deliver: [
+      { n: "Product discovery i UX", d: "Od warsztatu do klikalnego prototypu — uzgodnione, zanim powstanie kosztowny kod." },
+      { n: "Frontend i backend", d: "Jeden standard kodu: typowany, testowany, przechodzący code review, wdrażany na bieżąco." },
+      { n: "E-commerce i płatności", d: "Od witryny przez checkout po ERP za nim — działające jako jeden przepływ." },
+      { n: "API i integracje", d: "Twoja platforma czysto rozmawiająca z CRM, ERP i systemami partnerów." },
+      { n: "Chmura i DevOps", d: "CI/CD, monitoring i infrastruktura, która skaluje się z realnym ruchem." },
+      { n: "QA wbudowane", d: "Testowanie w każdej iteracji — nie osobna faza na końcu." },
+    ],
+    approach:
+      "Projekty webowe zaczynam od warsztatu Discover i dostarczam w widocznych iteracjach — każda kończy się działającym demo. Patrzysz, jak produkt rośnie, i możesz zmienić kurs, póki zmiana jest tania.",
+    relatedSlugs: ["public-sector-poland", "enterprise-30-years-in-production"],
+    solutionSlugs: ["weterynaria", "kliniki-laboratoria"],
   },
   {
     id: "refactor",
@@ -48,54 +104,12 @@ export const services: Service[] = [
     approach:
       "Rewrite'y wywracają się, bo zaczynają od zera — więc ja zaczynam od tego, co działa: system dalej zarabia, a ja wymieniam go od spodu. Tak system liczący dekady w produkcji stał się nowoczesną platformą webową w niecały rok — bez zatrzymywania biznesu.",
     relatedSlugs: ["enterprise-30-years-in-production", "public-sector-poland"],
-  },
-  {
-    id: "automation",
-    tone: "b",
-    tag: "Automatyzacja",
-    headline: "Powtarzalna robota — zdjęta z barków zespołu.",
-    intro:
-      "Każda firma działa na niewidzialnych rutynach — dane przepisywane między systemami, upominanie się o płatności, ten sam mail wysyłany dziesiąty raz. Mapuję te rutyny i automatyzuję je: ostrożnie, przejrzyście, z Twoimi ludźmi przy sterach. A kiedy dedykowany software byłby złą odpowiedzią — powiem Ci to wprost.",
-    fit: [
-      "Twój zespół przepisuje te same dane do dwóch albo trzech systemów",
-      "Koniec miesiąca to nadgodziny, arkusze i błędy, których dało się uniknąć",
-      "Operacje nie urosną bez zatrudniania kolejnych rąk do ręcznej pracy",
-      "Chcesz AI w procesach — bez oddawania kontroli nad jakością",
-    ],
-    deliver: [
-      { n: "Mapowanie procesów i audyt", d: "Najpierw znajduję, którędy naprawdę wyciekają godziny — dopiero potem automatyzuję." },
-      { n: "Integracje systemów", d: "CRM, ERP, poczta i płatności połączone — zamiast przeklejane." },
-      { n: "RPA", d: "Softwarowe roboty do powtarzalnych klików, których nikt nie powinien robić ręcznie." },
-      { n: "Przepływy wspierane AI", d: "LLM-y szkicują rutynową robotę; decyzje podejmują Twoi ludzie." },
-      { n: "Pipeline'y danych i raporty", d: "Raporty, które składają się same, według harmonogramu, z żywych danych." },
-    ],
-    approach:
-      "Zaczynam celowo od małego: mapuję jeden proces, automatyzuję go, mierzę odzyskane godziny — i dopiero wtedy rozszerzam. Bez wielkiej platformy na start i bez sześciu miesięcy wdrożenia przed pierwszym widocznym efektem.",
-    relatedSlugs: ["software-delivery-org-50-people", "localhost-academy"],
-  },
-  {
-    id: "web",
-    tone: "a",
-    tag: "Rozwiązania webowe",
-    headline: "Platformy, portale i produkty — budowane, by skalować.",
-    intro:
-      "Produkty, których naprawdę dotykają Twoi klienci: portale, e-commerce, SaaS i narzędzia wewnętrzne za nimi. Całość prowadzi jedna osoba — projekt, architektura, kod i chmura — więc nic nie ginie między dostawcami.",
-    fit: [
-      "Startujesz z produktem, portalem albo sklepem i chcesz go zbudować od A do Z",
-      "Istniejąca aplikacja niedomaga — wydajność, UX albo tempo zmian",
-      "Wewnętrzne operacje jadą na arkuszach i dobrej woli",
-      "Masz pomysł i projekty graficzne, ale nie masz komu ich dowieźć na produkcję",
-    ],
-    deliver: [
-      { n: "Product discovery i UX", d: "Od warsztatu do klikalnego prototypu — uzgodnione, zanim powstanie kosztowny kod." },
-      { n: "Frontend i backend", d: "Jeden standard kodu: typowany, testowany, przechodzący code review, wdrażany na bieżąco." },
-      { n: "E-commerce i płatności", d: "Od witryny przez checkout po ERP za nim — działające jako jeden przepływ." },
-      { n: "API i integracje", d: "Twoja platforma czysto rozmawiająca z CRM, ERP i systemami partnerów." },
-      { n: "Chmura i DevOps", d: "CI/CD, monitoring i infrastruktura, która skaluje się z realnym ruchem." },
-      { n: "QA wbudowane", d: "Testowanie w każdej iteracji — nie osobna faza na końcu." },
-    ],
-    approach:
-      "Projekty webowe zaczynam od warsztatu Discover i dostarczam w widocznych iteracjach — każda kończy się działającym demo. Patrzysz, jak produkt rośnie, i możesz zmienić kurs, póki zmiana jest tania.",
-    relatedSlugs: ["public-sector-poland", "enterprise-30-years-in-production"],
+    solutionSlugs: [],
   },
 ];
+
+// Kierunek odwrotny (linia rozwiązania → usługa) jest wyprowadzany ze `services`, nigdy nie
+// duplikowany jako pole na SolutionLine (2026-07-26 services-solutions crosslink design, spec §4).
+export function getServiceForLine(lineSlug: SolutionLineSlug): Service | undefined {
+  return services.find((s) => s.solutionSlugs.includes(lineSlug));
+}

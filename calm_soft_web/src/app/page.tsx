@@ -6,7 +6,7 @@ import { Hero } from "@/components/sections/Hero";
 import { Services } from "@/components/sections/Services";
 import { Process } from "@/components/sections/Process";
 import { CaseStudies } from "@/components/sections/CaseStudies";
-import { Demos } from "@/components/sections/Demos";
+import { Solutions } from "@/components/sections/Solutions";
 import { Contact } from "@/components/sections/Contact";
 
 // SERVER component (SPEC §6.1) — providers are dedicated 'use client' files taking these
@@ -18,7 +18,7 @@ export default function Page() {
         <Hero />
         <Services />
         <CaseStudies />
-        <Demos />
+        <Solutions />
         <Process />
         <Contact />
       </ModalProvider>

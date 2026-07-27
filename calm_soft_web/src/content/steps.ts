@@ -13,7 +13,7 @@ export const steps: ProcessStep[] = [
     title: "Discover",
     badge: "Opcjonalny · płatny osobno",
     description:
-      "Ustrukturyzowany warsztat oparty na Domain-Driven Design: mapujemy Twoją domenę, jej zdarzenia i użytkowników — i definiujemy, co produkt naprawdę ma robić, zanim powstanie kod. Zwraca się w unikniętych poprawkach. Przy mniejszych projektach śmiało go pomiń.",
+      "Ustrukturyzowany warsztat oparty na Domain-Driven Design: mapujemy Twoją domenę, jej zdarzenia i użytkowników — i definiujemy, co produkt naprawdę ma robić, zanim powstanie kod. Zwraca się w unikniętych poprawkach. Przy mniejszych projektach śmiało go pomiń. Przy rozwiązaniach z sekcji Rozwiązania ten krok jest zbędny — makieta jest specyfikacją.",
   },
   {
     number: "02",

@@ -5,7 +5,7 @@ export interface Config {
   HOST: string; PORT: number; TRUST_PROXY_HOPS: number;
   SMTP_HOST: string; SMTP_PORT: number; SMTP_USER: string; SMTP_PASS: string;
   MAIL_FROM: string; MAIL_TEAM_TO: string;
-  CORS_ORIGINS: string[]; SITE_DOMAIN: string;
+  CORS_ORIGINS: string[];
   FORM_TOKEN_SECRET: string; FORM_TOKEN_TTL_MS: number;
   TURNSTILE_SECRET: string;
   SMTP_SEND_CAP_HOURLY: number; SMTP_SEND_CAP_DAILY: number;
@@ -55,7 +55,6 @@ export function loadConfig(env: Env = process.env): Config {
     SMTP_USER: str(env, 'SMTP_USER'), SMTP_PASS: str(env, 'SMTP_PASS'),
     MAIL_FROM: str(env, 'MAIL_FROM'), MAIL_TEAM_TO: str(env, 'MAIL_TEAM_TO'),
     CORS_ORIGINS: str(env, 'CORS_ORIGINS').split(',').map((s) => s.trim()).filter(Boolean),
-    SITE_DOMAIN: str(env, 'SITE_DOMAIN'),
     FORM_TOKEN_SECRET: secret, FORM_TOKEN_TTL_MS: int(env, 'FORM_TOKEN_TTL_MS'),
     TURNSTILE_SECRET: str(env, 'TURNSTILE_SECRET'),
     SMTP_SEND_CAP_HOURLY: int(env, 'SMTP_SEND_CAP_HOURLY'),

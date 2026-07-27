@@ -5,7 +5,7 @@ const base = {
   NODE_ENV: 'test', HOST: '0.0.0.0', PORT: '3000', TRUST_PROXY_HOPS: '1',
   SMTP_HOST: 'smtp', SMTP_PORT: '465', SMTP_USER: 'u', SMTP_PASS: 'p',
   MAIL_FROM: 'a@b', MAIL_TEAM_TO: 't@b',
-  CORS_ORIGINS: 'https://calmsoft.pro, https://www.calmsoft.pro', SITE_DOMAIN: 'calmsoft.pro',
+  CORS_ORIGINS: 'https://calmsoft.pro, https://www.calmsoft.pro',
   FORM_TOKEN_SECRET: 'x'.repeat(32), FORM_TOKEN_TTL_MS: '600000', TURNSTILE_SECRET: 's',
   SMTP_SEND_CAP_HOURLY: '60', SMTP_SEND_CAP_DAILY: '300',
 };

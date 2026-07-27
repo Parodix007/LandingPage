@@ -14,7 +14,7 @@ export function Footer() {
           <span className="text-[12px] text-ink-50">© 2026 · Wszystkie prawa zastrzeżone.</span>
           {gaId ? <CookieSettingsButton /> : null}
         </div>
-        <div className="flex gap-6">
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
           {site.footerLinks.map((link) => (
             <a key={link.href} href={link.href} className="text-[12px] text-ink-50 hover:text-white">
               {link.label}

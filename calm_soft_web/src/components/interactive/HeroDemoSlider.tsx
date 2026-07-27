@@ -7,6 +7,7 @@ import { WarningNote } from "@/components/ui/WarningNote";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
 import { DemoLogo } from "@/components/ui/DemoLogo";
 import { TechStack } from "@/components/ui/TechStack";
+import { RichText } from "@/components/ui/RichText";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { useCarousel } from "./useCarousel";
 
@@ -177,7 +178,9 @@ export function HeroDemoSlider({
                   className="max-h-[min(36vh,380px)] w-full rounded-[var(--radius-grid-card)] border border-border-08 object-cover object-top"
                 />
 
-                <p className="relative text-[15px] leading-[1.6] text-ink-70">{d.detail}</p>
+                <p className="relative text-[15px] leading-[1.6] text-ink-70">
+                  <RichText>{d.detail}</RichText>
+                </p>
 
                 <div className="flex flex-col gap-2">
                   <p className={SECTION_LABEL}>{flowsLabel}</p>

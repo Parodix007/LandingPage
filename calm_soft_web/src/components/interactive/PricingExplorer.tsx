@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import type { PricePoint, PricingCard, PricingGroup, PriceTierId, PricingFilters } from "@/content/types";
 import { Watermark } from "@/components/ui/Watermark";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
+import { CHIP_BASE, CHIP_INACTIVE, FilterChip, FILTER_LEGEND_CLASS } from "@/components/ui/FilterChip";
 
 // Client leaf (SPEC §16 client/server boundary) — owns category + price-tier filter state AND
 // renders the (filtered) pricing groups, so app/pricing/page.tsx stays a server component and
@@ -118,46 +119,6 @@ function priceTierOf(price: PricePoint): PriceTierId {
   return tierFromAmount(n);
 }
 
-// Shared chip vocabulary for both filter fieldsets and the "Clear all" action — reuses the
-// pricing header badge look (pill border/pad) rather than inventing a new control.
-const CHIP_BASE =
-  "inline-flex items-center rounded-[var(--radius-pill)] border px-4 py-2 text-[13.5px] font-medium transition-[color,border-color,background-color] duration-200";
-const CHIP_INACTIVE =
-  "border-border-12 text-ink-70 hover:text-white hover:border-[color-mix(in_oklch,var(--color-accent)_35%,transparent)]";
-const CHIP_ACTIVE: Record<"accent" | "accent2", string> = {
-  accent:
-    "border-[color-mix(in_oklch,var(--color-accent)_60%,transparent)] bg-[color-mix(in_oklch,var(--color-accent)_12%,transparent)] text-ink",
-  accent2:
-    "border-[color-mix(in_oklch,var(--color-accent2)_60%,transparent)] bg-[color-mix(in_oklch,var(--color-accent2)_12%,transparent)] text-ink",
-};
-
-// aria-pressed toggle button — category chips key active styling off the group's own tone;
-// price-tier chips omit `tone` and fall back to the accent active class.
-function FilterChip({
-  pressed,
-  tone = "accent",
-  onClick,
-  children,
-}: {
-  pressed: boolean;
-  tone?: "accent" | "accent2";
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={pressed}
-      onClick={onClick}
-      className={`${CHIP_BASE} ${PILL_FOCUS} ${pressed ? CHIP_ACTIVE[tone] : CHIP_INACTIVE}`}
-    >
-      {children}
-    </button>
-  );
-}
-
-const LEGEND_CLASS = "mb-3 p-0 text-[13px] font-semibold uppercase tracking-[0.12em] text-ink-50";
-
 export function PricingExplorer({ groups, filters }: { groups: PricingGroup[]; filters: PricingFilters }) {
   const [cats, setCats] = useState<Set<string>>(new Set());
   const [tiers, setTiers] = useState<Set<PriceTierId>>(new Set());
@@ -199,7 +160,7 @@ export function PricingExplorer({ groups, filters }: { groups: PricingGroup[]; f
     <div className="mt-14">
       <div className="flex flex-col gap-6">
         <fieldset className="m-0 border-0 p-0">
-          <legend className={LEGEND_CLASS}>{filters.categoryLegend}</legend>
+          <legend className={FILTER_LEGEND_CLASS}>{filters.categoryLegend}</legend>
           <div className="flex flex-wrap gap-[10px]">
             {groups.map((g) => (
               <FilterChip key={g.eyebrow} pressed={cats.has(g.eyebrow)} tone={g.tone} onClick={() => toggleCat(g.eyebrow)}>
@@ -211,7 +172,7 @@ export function PricingExplorer({ groups, filters }: { groups: PricingGroup[]; f
         </fieldset>
 
         <fieldset className="m-0 border-0 p-0">
-          <legend className={LEGEND_CLASS}>{filters.priceLegend}</legend>
+          <legend className={FILTER_LEGEND_CLASS}>{filters.priceLegend}</legend>
           <div className="flex flex-wrap gap-[10px]">
             {filters.tiers.map((t) => (
               <FilterChip key={t.id} pressed={tiers.has(t.id)} onClick={() => toggleTier(t.id)}>

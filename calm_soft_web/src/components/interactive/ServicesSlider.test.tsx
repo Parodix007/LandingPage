@@ -1,14 +1,23 @@
 import { useEffect } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { services } from "@/content/services";
 import { cases, getCaseBySlug } from "@/content/cases";
 import { demos } from "@/content/demos";
+import { getSolutionLineBySlug } from "@/content/solutions";
 import { site } from "@/content/site";
 import { InquiryProvider, useRegisterContactFocus } from "@/components/providers/InquiryProvider";
 import { ModalProvider } from "@/components/providers/ModalProvider";
 import { ServicesSlider } from "./ServicesSlider";
+
+// window.location is overridden in the deep-link test below (jsdom allows a configurable
+// redefinition — same pattern as lib/scroll.test.ts) and restored here so it never leaks into
+// any other test in this file.
+const originalLocation = Object.getOwnPropertyDescriptor(window, "location");
+afterEach(() => {
+  if (originalLocation) Object.defineProperty(window, "location", originalLocation);
+});
 
 vi.mock("@/lib/scroll", () => ({ scrollToContact: vi.fn() }));
 
@@ -48,6 +57,7 @@ function renderSlider() {
           readCaseLabel={LABELS.readCaseCta}
           ctaLabel={LABELS.cta}
           note={LABELS.note}
+          solutionsLabel={LABELS.solutionsLabel}
         />
       </ModalProvider>
     </InquiryProvider>,
@@ -232,5 +242,55 @@ describe("ServicesSlider (docs/superpowers/specs/2026-07-22-services-slider-desi
     for (const slide of slides.slice(1)) {
       expect(slide).toHaveAttribute("aria-hidden", "true");
     }
+  });
+
+  it("renders a solution-line link with the correct href for every service.solutionSlugs entry", () => {
+    renderSlider();
+    for (const s of services) {
+      const lines = s.solutionSlugs
+        .map((slug) => getSolutionLineBySlug(slug))
+        .filter((l): l is NonNullable<typeof l> => Boolean(l));
+      for (const line of lines) {
+        const link = screen.getByRole("link", { name: line.kicker, hidden: true });
+        expect(link).toHaveAttribute("href", `/demos/#${line.slug}`);
+      }
+    }
+  });
+
+  it("does not render the solutions block for the refactor tile (empty solutionSlugs)", () => {
+    const { container } = renderSlider();
+    const refactorIndex = services.findIndex((s) => s.id === "refactor");
+    expect(refactorIndex).toBeGreaterThanOrEqual(0);
+    const slides = container.querySelectorAll('[role="group"][aria-roledescription="slide"]');
+    const refactorSlide = slides[refactorIndex] as HTMLElement;
+    expect(within(refactorSlide).queryByText(LABELS.solutionsLabel)).not.toBeInTheDocument();
+  });
+
+  it("gives solution-line links on inactive slides tabIndex=-1", () => {
+    const { container } = renderSlider();
+    const inactiveIndex = services.findIndex((s, i) => i !== 0 && s.solutionSlugs.length > 0);
+    expect(inactiveIndex).toBeGreaterThan(0);
+    const line = getSolutionLineBySlug(services[inactiveIndex].solutionSlugs[0])!;
+    const slides = container.querySelectorAll('[role="group"][aria-roledescription="slide"]');
+    const link = within(slides[inactiveIndex] as HTMLElement).getByRole("link", {
+      name: line.kicker,
+      hidden: true,
+    });
+    expect(link).toHaveAttribute("tabIndex", "-1");
+  });
+
+  it("deep-link ?usluga=web opens the third slide on mount", () => {
+    Object.defineProperty(window, "location", {
+      value: { search: "?usluga=web" },
+      configurable: true,
+      writable: true,
+    });
+
+    const { container } = renderSlider();
+    const webIndex = services.findIndex((s) => s.id === "web");
+    expect(webIndex).toBe(2);
+    expect(getTrack(container).style.transform).toBe(
+      `translateX(calc(${webIndex} * (-100% - 18px)))`,
+    );
   });
 });

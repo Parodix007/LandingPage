@@ -4,6 +4,7 @@ import { Chip } from "@/components/ui/Chip";
 import { TechStack } from "@/components/ui/TechStack";
 import { WarningNote } from "@/components/ui/WarningNote";
 import { DemoLogo } from "@/components/ui/DemoLogo";
+import { RichText } from "@/components/ui/RichText";
 
 // Shared "chip" treatment for the per-demo language note (2026-07-22 pl-copy handoff §6) —
 // mirrors the pill styling already used for the features/tags lists below (ui/ is frozen, so
@@ -72,7 +73,9 @@ export function DemoModalContent({ demo }: { demo: Demo }) {
         className="max-h-[clamp(120px,calc(92vh-620px),420px)] w-full rounded-[var(--radius-card)] border border-border-08 object-cover object-top"
       />
 
-      <p className="text-[15px] leading-[1.6] text-ink-70">{demo.detail}</p>
+      <p className="text-[15px] leading-[1.6] text-ink-70">
+        <RichText>{demo.detail}</RichText>
+      </p>
 
       <div className="flex flex-col gap-2">
         <div className="text-[13px] font-semibold uppercase tracking-[0.12em] text-accent">

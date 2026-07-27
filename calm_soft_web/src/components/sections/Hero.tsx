@@ -43,7 +43,11 @@ function HeroCodeVariant() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_75%_50%,color-mix(in_oklch,var(--color-accent)_14%,transparent)_0%,transparent_70%)]"
       />
-      <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-start gap-16 px-6 py-[100px] min-[900px]:grid-cols-[1fr_1.15fr]">
+      {/* minmax(0,…) instead of a bare fr: a bare `1fr` track defaults to min-width:auto
+          (min-content), so neither track could shrink below its content — the h1's longest
+          unbreakable word on the left, HeroDemoSlider's card on the right — and the grid
+          overflowed the viewport at 900–1199px. minmax(0,…) lets both tracks shrink past that. */}
+      <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-start gap-16 px-6 py-[100px] min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <div>
           <HeroEyebrow />
           <h1 className="mt-5 text-[clamp(44px,5.5vw,72px)] font-bold leading-[1.05] tracking-[-0.03em]">
