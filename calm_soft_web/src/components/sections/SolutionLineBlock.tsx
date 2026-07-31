@@ -18,6 +18,11 @@ export type SolutionLineBlockProps = {
   serviceLabel: string;
   asIsLabel: string;
   customLabel: string;
+  // When true, suppresses the "To część usługi" paragraph + its link back to
+  // /?usluga=<id>#services. On /uslugi/<slug>/ (2026-07-31 service-pages-restructure design)
+  // that back-link would point from a service's own page back to itself, which is circular —
+  // demos/page.tsx doesn't pass this, so its rendering is unchanged.
+  hideServiceLink?: boolean;
 };
 
 // Shared "chip" treatment for the per-demo language note (2026-07-22 pl-copy handoff §6) —
@@ -54,6 +59,7 @@ export function SolutionLineBlock({
   serviceLabel,
   asIsLabel,
   customLabel,
+  hideServiceLink,
 }: SolutionLineBlockProps) {
   const items = line.items
     .map((item) => ({ item, demo: getDemoBySlug(item.demoSlug) }))
@@ -88,7 +94,7 @@ export function SolutionLineBlock({
           <strong className="text-ink">{audienceLabel}</strong> <RichText>{line.audience}</RichText>
         </p>
 
-        {service && (
+        {service && !hideServiceLink && (
           <p className="text-[16px] leading-[1.6] text-ink-70">
             <strong className="text-ink">{serviceLabel}</strong>{" "}
             <a

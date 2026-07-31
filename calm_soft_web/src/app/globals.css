@@ -47,7 +47,7 @@ html {
 }
 
 /* offsety kotwic — CSS zamiast matematyki scrolla (SPEC §6.5) */
-#services, #process, #cases, #demo { scroll-margin-top: 88px; }
+#services, #process, #cases { scroll-margin-top: 88px; }
 #contact { scroll-margin-top: 32px; }
 
 /* keyframes (HANDOFF Interactions) — wyłącznie transform/opacity;

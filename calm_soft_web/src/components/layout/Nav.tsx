@@ -1,17 +1,26 @@
 import { FilledPill } from "@/components/ui/FilledPill";
+import { services } from "@/content/services";
 import { site } from "@/content/site";
 import { NavMobileMenu, type NavLink } from "./NavMobileMenu";
+import { NavServicesMenu } from "./NavServicesMenu";
 
 // Nav lives outside the providers in layout.tsx — its CTA is a plain anchor to /#contact
 // (SPEC §6.1). Structural nav labels/hrefs are not part of the content model (site.ts only
-// carries footerLinks, per SPEC §5.2) so they're declared here.
+// carries footerLinks, per SPEC §5.2) so they're declared here. "Usługi" is no longer a plain
+// link (it triggers the services menu — desktop dropdown / mobile submenu, see below).
 const NAV_LINKS: NavLink[] = [
-  { href: "/#services", label: "Usługi" },
   { href: "/#cases", label: "Realizacje" },
-  { href: "/#demo", label: "Rozwiązania" },
   { href: "/#process", label: "Proces" },
   { href: "/pricing/", label: "Cennik" },
 ];
+
+const SERVICES_TRIGGER_LABEL = "Usługi";
+const SERVICES_OVERVIEW_HREF = "/#services";
+const SERVICES_OVERVIEW_LABEL = "Wszystkie usługi";
+const SERVICES_BACK_LABEL = "Wróć";
+
+// Adresy /uslugi/<slug>/ budowane ze Service.slug, nigdy z indeksu tablicy.
+const SERVICE_ITEMS: NavLink[] = services.map((s) => ({ href: `/uslugi/${s.slug}/`, label: s.tag }));
 
 export function Nav() {
   return (
@@ -30,6 +39,12 @@ export function Nav() {
           soft
         </a>
         <div className="hidden items-center gap-9 md:flex">
+          <NavServicesMenu
+            triggerLabel={SERVICES_TRIGGER_LABEL}
+            overviewHref={SERVICES_OVERVIEW_HREF}
+            overviewLabel={SERVICES_OVERVIEW_LABEL}
+            items={SERVICE_ITEMS}
+          />
           {NAV_LINKS.map((link) => (
             <a key={link.href} href={link.href} className="text-[15px] text-ink-85 hover:text-white">
               {link.label}
@@ -39,7 +54,17 @@ export function Nav() {
             {site.navCta}
           </FilledPill>
         </div>
-        <NavMobileMenu links={NAV_LINKS} ctaLabel={site.navCta} />
+        <NavMobileMenu
+          links={NAV_LINKS}
+          ctaLabel={site.navCta}
+          serviceMenu={{
+            label: SERVICES_TRIGGER_LABEL,
+            backLabel: SERVICES_BACK_LABEL,
+            overviewHref: SERVICES_OVERVIEW_HREF,
+            overviewLabel: SERVICES_OVERVIEW_LABEL,
+            items: SERVICE_ITEMS,
+          }}
+        />
       </div>
     </div>
   );

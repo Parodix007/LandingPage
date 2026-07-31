@@ -12,6 +12,7 @@ const api = process.env.NEXT_PUBLIC_API_BASE_URL;
 const mock = process.env.NEXT_PUBLIC_INQUIRY_MOCK;
 const site = process.env.NEXT_PUBLIC_SITE_URL;
 const turnstile = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+const ga = process.env.NEXT_PUBLIC_GA_ID;
 
 function fail(message) {
   console.error(`[assert-env] BUILD ZABLOKOWANY: ${message}`);
@@ -78,6 +79,14 @@ if (api) {
       "build produkcyjny (NEXT_PUBLIC_API_BASE_URL ustawiony) wymaga " +
         "NEXT_PUBLIC_TURNSTILE_SITE_KEY — bez publicznego site key widget Turnstile się nie " +
         "wyrenderuje i każdy realny submit dostanie 403 z API."
+    );
+  }
+
+  if (!ga) {
+    fail(
+      "build produkcyjny (NEXT_PUBLIC_API_BASE_URL ustawiony) wymaga NEXT_PUBLIC_GA_ID — " +
+        "bez niego layout.tsx nie wyrenderuje tagu Google, konwersje Google Ads przestaną " +
+        "być zliczane, a build nie zgłosi żadnego błędu."
     );
   }
 

@@ -7,13 +7,6 @@ import type { SolutionsContent, SolutionLine } from "./types";
 // Kolejność grup i linii jest świadoma: operacyjne przed branżowymi, integracje →
 // automatyzacje → migracje → weterynaria → kliniki-laboratoria.
 export const solutions: SolutionsContent = {
-  home: {
-    line1: "Zobacz, co kupujesz.",
-    line2: "Zanim to kupisz.",
-    lead: "Pięć rozwiązań, każde z ustalonym zakresem — przeklikaj każdy ekran, potem powiedz, co zmienić.",
-    cta: "Zobacz rozwiązania ›",
-    tileCta: "Poznaj to rozwiązanie ›",
-  },
   page: {
     mechanism: {
       heading: "Co jest ustalone, a co dopiero powstanie",
@@ -39,11 +32,7 @@ export const solutions: SolutionsContent = {
     clickLabel: "Co przeklikasz teraz",
     audienceLabel: "Dla kogo",
     serviceLabel: "To część usługi",
-    filters: {
-      legend: "Pokaż tylko to, co Cię dotyczy",
-      countLabel: "rozwiązań",
-      clearLabel: "Pokaż wszystkie",
-    },
+    proposalLabel: "Propozycja rozwiązania",
   },
   groups: [
     {
@@ -73,9 +62,6 @@ export const solutions: SolutionsContent = {
             label: "Bez niespodzianek",
             body: "Najdroższa część integracji z Allegro to nie zamówienia, tylko wystawianie ofert. Każda kategoria ma własny zestaw wymaganych parametrów, a wartości muszą pochodzić ze słownika Allegro — nie z pola tekstowego w kartotece ERP. Tego nie da się wygenerować automatem i trzeba to utrzymywać, bo parametry się zmieniają. Mówię o tym przy wycenie, nie w trzecim miesiącu.",
           },
-          leadDemoSlug: "puls",
-          homeTitle: "Integracje ERP",
-          homeTeaser: "Kanały sprzedaży spięte z Comarch ERP, z wyjątkami w jednej skrzynce decyzji.",
         },
         {
           slug: "automatyzacje",
@@ -98,9 +84,6 @@ export const solutions: SolutionsContent = {
             label: "Bez niespodzianek",
             body: "Make i n8n udostępniają pełne API do historii uruchomień — te platformy Cadence czyta bezpośrednio. Zapier nie ma publicznego API do historii; tam potrzebny jest webhook wpięty w przepływ albo plan Enterprise. Mówię to przed wyceną, nie po wdrożeniu.",
           },
-          leadDemoSlug: "cadence",
-          homeTitle: "Automatyzacje",
-          homeTeaser: "Jeden panel nad Make, Zapier i n8n, z alertem, zanim zadzwoni klient.",
         },
         {
           slug: "migracje",
@@ -118,9 +101,6 @@ export const solutions: SolutionsContent = {
           ],
           audience:
             "**Firmy przed dużą migracją danych**, które nie chcą jej robić na ślepo. **Dostawcy IT**, którzy migracje prowadzą regularnie i muszą pokazać klientowi, co się dzieje.",
-          leadDemoSlug: "airlift",
-          homeTitle: "Migracje danych",
-          homeTeaser: "Konsola operatora dużej migracji: checkpointy, wznowienia, pełny dziennik.",
         },
       ],
     },
@@ -152,9 +132,6 @@ export const solutions: SolutionsContent = {
           ],
           audience:
             "**Przychodnie i kliniki weterynaryjne**, które prowadzą wizyty w kalendarzu, a kartoteki w zeszycie, arkuszu albo w programie, z którego nie da się nic wyciągnąć.",
-          leadDemoSlug: "merdi",
-          homeTitle: "Weterynaria",
-          homeTeaser: "Strona dla opiekuna i panel dla zespołu, zaprojektowane jako jeden obieg.",
         },
         {
           slug: "kliniki-laboratoria",
@@ -187,9 +164,6 @@ export const solutions: SolutionsContent = {
             label: "Bez niespodzianek",
             body: "Dane medyczne to dane szczególnej kategorii. Zanim cokolwiek wycenię, ustalamy, co wolno przechowywać, gdzie i kto ma do tego dostęp. Nie doklejam tego na końcu.",
           },
-          leadDemoSlug: "primavita",
-          homeTitle: "Kliniki i laboratoria",
-          homeTeaser: "Front dla pacjenta i zaplecze dla personelu, w trzech wariantach.",
         },
       ],
     },

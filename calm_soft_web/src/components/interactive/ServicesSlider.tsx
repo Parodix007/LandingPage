@@ -24,6 +24,10 @@ export type ServicesSliderProps = {
   ctaLabel: string;
   note: string;
   solutionsLabel: string;
+  // Label for the per-tile link to its own /uslugi/<slug>/ page (2026-07-31 service-pages-
+  // restructure design). Threaded through as a prop rather than imported directly — this
+  // component never reads site.ts itself.
+  detailsLabel: string;
 };
 
 // HANDOFF §3, tones reassigned by the 2026-07-26 services-solutions crosslink reorder (spec §5):
@@ -96,6 +100,7 @@ export function ServicesSlider({
   ctaLabel,
   note,
   solutionsLabel,
+  detailsLabel,
 }: ServicesSliderProps) {
   const { step, next, prev, goTo } = useCarousel(services.length, 0);
   const { openCaseModal } = useModal();
@@ -262,7 +267,7 @@ export function ServicesSlider({
                       {relatedLines.map((line) => (
                         <a
                           key={line.slug}
-                          href={`/demos/#${line.slug}`}
+                          href={`/uslugi/${s.slug}/#${line.slug}`}
                           tabIndex={active ? undefined : -1}
                           className={`inline-flex w-fit rounded-[var(--radius-pill)] ${PILL_FOCUS}`}
                         >
@@ -276,14 +281,35 @@ export function ServicesSlider({
                 )}
 
                 <div className="mt-auto flex flex-wrap items-center gap-[18px] border-t border-border-08 pt-[22px]">
+                  {/* border border-transparent (no visible border, GhostPill BASE's own trick —
+                      src/components/ui/GhostPill.tsx) reserves the same 2px of vertical box
+                      model as the "detailsLabel" link's span below, which shows its border on
+                      hover. Without it the two footer controls differ in height by exactly the
+                      1px top + 1px bottom this border would occupy. */}
                   <button
                     type="button"
                     tabIndex={active ? undefined : -1}
                     onClick={startProject}
-                    className={`hit-44 ${PILL_FOCUS} inline-flex items-center justify-center rounded-[var(--radius-pill)] bg-accent px-7 py-3 text-[15px] font-semibold leading-none text-black transition-[filter] duration-[250ms] hover:brightness-[1.15]`}
+                    className={`hit-44 ${PILL_FOCUS} inline-flex items-center justify-center rounded-[var(--radius-pill)] border border-transparent bg-accent px-7 py-3 text-[15px] font-semibold leading-none text-black transition-[filter] duration-[250ms] hover:brightness-[1.15]`}
                   >
                     {ctaLabel}
                   </button>
+                  {/* Geometry matches FilledPill size="md" (px-7 py-3 text-[15px], see
+                      src/components/ui/FilledPill.tsx) so this secondary link reads as the same
+                      tap target as the CTA button beside it. font-medium (500) stays — it's the
+                      GhostPill (500, secondary) vs FilledPill (600, primary) convention this
+                      site already follows, not an oversight; don't shrink this back down. This
+                      is hand-rolled rather than GhostPill for the same tabIndex reason documented
+                      in the file header comment above (PillElement doesn't forward tabIndex). */}
+                  <a
+                    href={`/uslugi/${s.slug}/`}
+                    tabIndex={active ? undefined : -1}
+                    className={`hit-44 inline-flex w-fit rounded-[var(--radius-pill)] ${PILL_FOCUS}`}
+                  >
+                    <span className="relative z-[1] inline-flex items-center justify-center rounded-[var(--radius-pill)] border border-transparent px-7 py-3 text-[15px] font-medium leading-none text-accent transition-[all] duration-[250ms] hover:border-[color-mix(in_oklch,var(--color-accent)_40%,transparent)] hover:bg-[color-mix(in_oklch,var(--color-accent)_16%,transparent)] hover:text-white">
+                      {detailsLabel}
+                    </span>
+                  </a>
                   <span className="text-[12.5px] text-ink-50">{note}</span>
                 </div>
               </div>

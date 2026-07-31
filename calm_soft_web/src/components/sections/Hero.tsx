@@ -1,10 +1,10 @@
 import { FilledPill } from "@/components/ui/FilledPill";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { site } from "@/content/site";
-import { getDemoBySlug } from "@/content/demos";
+import { getCaseBySlug } from "@/content/cases";
 import { HERO_VARIANT } from "@/lib/config";
-import { HeroDemoSlider } from "@/components/interactive/HeroDemoSlider";
-import type { Demo } from "@/content/types";
+import { HeroCaseSlider } from "@/components/interactive/HeroCaseSlider";
+import type { CaseStudy } from "@/content/types";
 
 // HANDOFF §2 / SPEC §6.8: 3 hero variants, single switch = HERO_VARIANT (lib/config.ts).
 // Server component. Carries id="top" as the header wordmark's scroll target (Nav.tsx links
@@ -31,12 +31,13 @@ function HeroEyebrow() {
 
 function HeroCodeVariant() {
   const { code } = site.hero;
-  // Hero slider shows only the 3 `site.featuredDemoSlugs` (resolved by slug, never index — a
-  // missing/renamed slug just drops silently), mirroring Demos.tsx's homepage curation; the
-  // full 5-demo index lives at /demos/.
-  const heroDemos = site.featuredDemoSlugs
-    .map((slug) => getDemoBySlug(slug))
-    .filter((d): d is Demo => d !== undefined);
+  // Hero slider shows only the featured `site.featuredCaseSlugs` (resolved by slug, never index
+  // — a missing/renamed slug just drops silently), mirroring CaseStudies.tsx's homepage
+  // curation; the full case index lives at /work/ (2026-07-31 service-pages-restructure design
+  // — replaces the previous mockup-based hero slider and its curation field).
+  const heroCases = site.featuredCaseSlugs
+    .map((slug) => getCaseBySlug(slug))
+    .filter((c): c is CaseStudy => c !== undefined);
   return (
     <div className="relative w-full">
       <div
@@ -45,7 +46,7 @@ function HeroCodeVariant() {
       />
       {/* minmax(0,…) instead of a bare fr: a bare `1fr` track defaults to min-width:auto
           (min-content), so neither track could shrink below its content — the h1's longest
-          unbreakable word on the left, HeroDemoSlider's card on the right — and the grid
+          unbreakable word on the left, HeroCaseSlider's card on the right — and the grid
           overflowed the viewport at 900–1199px. minmax(0,…) lets both tracks shrink past that. */}
       <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-start gap-16 px-6 py-[100px] min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <div>
@@ -58,23 +59,15 @@ function HeroCodeVariant() {
             <FilledPill size="lg" as="a" href="/#contact">
               {code.ctaPrimary}
             </FilledPill>
-            <GhostPill tone="accent" size="lg" as="a" href="/#demo">
-              {code.ctaDemos}
-            </GhostPill>
             <GhostPill tone="accent" size="lg" as="a" href="/pricing/">
               {code.ctaPricing}
             </GhostPill>
           </div>
         </div>
-        <HeroDemoSlider
-          demos={heroDemos}
-          label={code.demoLabel}
-          langChip={site.sections.demos.langChip}
-          flowsLabel={site.sections.demos.flowsLegend}
-          techLegend={site.sections.demos.techLegend}
-          liveCta={site.sections.demos.liveCta}
-          demoNote={site.modals.demoNote}
-          desktopNote={site.sections.demos.desktopNote}
+        <HeroCaseSlider
+          cases={heroCases}
+          label={code.casesLabel}
+          readCaseLabel={site.sections.services.readCaseCta}
         />
       </div>
     </div>

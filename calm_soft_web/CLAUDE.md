@@ -49,20 +49,25 @@ zmiany poza `calm_soft_web`, zatrzymujesz się i pytasz.
 
 ## Produkt
 
-Jednostronicowy landing lead-gen (+ podstrony `/work/`, `/demos/`, `/pricing/`).
+Landing lead-gen (+ podstrony `/work/`, `/pricing/` i cztery strony usług `/uslugi/<slug>/`).
 
 - **Polski only** — `<html lang="pl">`, brak wersji EN, brak i18n (świadoma decyzja właściciela;
   nie dodawaj częściowego i18n).
 - **Pierwsza osoba liczby pojedynczej** — „robię", „projektuję". Nigdy „my" / „nasz zespół".
 - Dark theme, akcent `#7ce38b`, mint `#b9f0c4`.
-- Kolejność sekcji strony głównej: Hero → Usługi → Case studies → Rozwiązania → Proces → Kontakt.
-  Sekcja „Rozwiązania" zachowuje kotwicę `#demo` (nawigacja, stopka, CTA w hero) i pokazuje
-  pięć **linii produktowych**, nie pojedyncze dema. Pełna oferta leży na `/demos/` — adres
-  celowo bez zmian, mimo etykiety „Rozwiązania" w menu.
+- Kolejność sekcji strony głównej: Hero → Usługi → Case studies → Proces → Kontakt.
+  **Kotwica `#demo`, sekcja „Rozwiązania" i podstrona `/demos/` nie istnieją** — 2026-07-31
+  restructure usunął je bez przekierowania (eksport statyczny go nie ma). Nie przywracaj ich
+  i nie zakładaj, że gdzieś są. Slider w hero pokazuje `site.featuredCaseSlugs`, nie dema.
+- **Strony usług `/uslugi/<slug>/` to strony docelowe kampanii Google Ads** — jedyna trasa
+  dynamiczna w projekcie (`generateStaticParams` po `Service.slug`). Każda niesie własne
+  `metadata` + canonical, linie rozwiązań tej usługi i **własny `<Contact />` z `id="contact"`**,
+  żeby klik z reklamy konwertował bez przejścia na stronę główną.
 - **Słownictwo jest rozdzielone i nie wolno go mieszać:** kategoria to „rozwiązanie", artefakt do
   klikania to „demo", a „makieta" wyłącznie tam, gdzie mowa o specyfikacji zakresu. Słowa
   „gotowy", „prawie gotowy", „z półki" nie opisują produktu — sugerują klientowi, że kupuje coś,
-  co już istnieje, i sam obniża sobie za to cenę.
+  co już istnieje, i sam obniża sobie za to cenę. Na stronach usług dema stoją pod chipem
+  **„Propozycja rozwiązania"** — to wymóg właściciela, nie ozdobnik.
 - Każde CTA prowadzi do formularza w `#contact` (albo do popupu Calendly).
 - W copy pojawiają się **wyłącznie liczby potwierdzone marketingowo**. Nie wymyślasz statystyk.
 
@@ -116,7 +121,7 @@ są wbudowane w bundle, nie czytane w runtime.
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Publiczny site key Cloudflare Turnstile (nie sekret). Wymagany zawsze, gdy ustawiony jest API base URL. |
 | `NEXT_PUBLIC_INQUIRY_MOCK` | `1` = sukces, `fail` = błąd. Mock jest **jawny, nigdy nie jest cichym fallbackiem**. |
 | `NEXT_PUBLIC_SITE_URL` | Origin dla `metadataBase`/canonical/OG. Wymagany w buildzie produkcyjnym. |
-| `NEXT_PUBLIC_GA_ID` | Publiczny GA4 Measurement ID. Puste = GA całkowicie wyłączone (brak skryptu, brak originów w CSP, brak bannera zgody). |
+| `NEXT_PUBLIC_GA_ID` | Publiczny GA4 Measurement ID. Puste = GA całkowicie wyłączone (brak skryptu, brak originów w CSP, brak bannera zgody). Wymagany przez `assert-env.mjs`, gdy ustawiony jest `NEXT_PUBLIC_API_BASE_URL` — build produkcyjny bez niego jest blokowany. |
 
 `scripts/assert-env.mjs` to prebuild guard. **Nigdy nie „naprawiasz" czerwonego builda
 osłabiając guard ani dorzucając pliki `.env*`** — eskalujesz do właściciela.
@@ -134,9 +139,16 @@ Zmiana którejkolwiek z tych rzeczy wymaga jawnej zgody właściciela:
 - **Zero zagnieżdżonych elementów interaktywnych** (axe `nested-interactive`). Klikalna
   w całości karta = rozciągnięty `<button>` z `::after { inset: 0 }`, a sąsiednie CTA leżą
   nad nim z wyższym `z-index`. `stopPropagation` nigdy nie jest potrzebne.
-- **CSP + nagłówki bezpieczeństwa** generuje `scripts/gen-headers.mjs` do `out/.htaccess`
-  (cel: Hostinger/LiteSpeed). `'unsafe-inline'` w `script-src` to udokumentowane, zaakceptowane
-  odstępstwo — eksport statyczny nie ma nonce'a w request-time.
+- **CSP + nagłówki bezpieczeństwa.** Produkcja (`calmsoft.pro`) działa jako proces Node pod
+  Passengerem (`PassengerStartupFile server.js`), a nie jako eksport statyczny — pipeline
+  Hostingera wymusza build serwerowy, `out/` tam nie powstaje, więc **`.htaccess` nie obowiązuje
+  na produkcji**. Nagłówki dowozi `headers()` w `next.config.ts`, który Passenger wczytuje przy
+  starcie aplikacji i który dlatego duplikuje (nie importuje) te same wartości co
+  `scripts/csp.mjs`. `scripts/gen-headers.mjs` (konsument `scripts/csp.mjs`) pozostaje ścieżką
+  dla eksportu statycznego — lokalny `npm run preview`, Lighthouse, ewentualne przyszłe wdrożenie
+  statyczne — i nadal zapisuje `out/.htaccess`. Rozjazd między obiema kopiami pilnuje
+  `src/lib/securityHeaders.test.ts`. `'unsafe-inline'` w `script-src` to udokumentowane,
+  zaakceptowane odstępstwo — eksport statyczny nie ma nonce'a w request-time.
 - **Katalog `public/demo/` to wierne makiety zewnętrzne** — nie lintujesz ich,
   nie refaktoryzujesz, nie „poprawiasz".
 
@@ -151,12 +163,16 @@ Zmiana którejkolwiek z tych rzeczy wymaga jawnej zgody właściciela:
   `Demo` nic o niej nie wie i nie dostaje pola kategorii — dzięki temu jedna makieta może
   z czasem trafić do więcej niż jednej linii bez migracji danych. `content.test.ts` pilnuje, że
   linie pokrywają wszystkie dema, każde dokładnie raz. Kolejność prezentacji (grupy i linie) jest
-  świadoma i wynika wyłącznie z kolejności tablic w `solutions.ts`, konsumowanej jednocześnie
-  przez stronę główną i `/demos/`.
+  świadoma i wynika wyłącznie z kolejności tablic w `solutions.ts`. Od 2026-07-31 jedynym
+  konsumentem tej taksonomii są **strony usług** — linia trafia na stronę tej usługi, która ma
+  jej slug w `Service.solutionSlugs` (`refactor` ma `[]`, więc `/uslugi/legacy/` nie ma dem).
+  `Service` niesie też `slug` (adres, **osobny od `id`** — `id` czyta deep-link `?usluga=`),
+  `metaTitle`, `metaDescription`, `pageH1` i `pageSections` (nazwane systemy/procesy/narzędzia;
+  puste = sekcja się nie renderuje, treść dostarcza właściciel — nie wymyślasz nazw systemów).
 - **`src/components/`** — `ui/` (prymitywy: `Chip`, `FilledPill`, `GhostPill`, `pillBase`,
   `SectionHeading`, `Watermark`, `Modal`, `TechStack`, `WarningNote`, `DemoLogo`, `icons`),
   `interactive/` (liście z zachowaniem: `CardActions`, `ContactForm`, `ProcessCarousel`,
-  `ServicesSlider`, `HeroDemoSlider`, `PricingExplorer`, `CalendlyCta`, `ConsentBanner`,
+  `ServicesSlider`, `HeroCaseSlider`, `PricingExplorer`, `CalendlyCta`, `ConsentBanner`,
   `useCarousel`), `sections/`, `layout/`, `providers/`.
 - **Granica klient/serwer jest na poziomie liścia.** Sekcje, `page.tsx` i `layout.tsx` to
   komponenty serwerowe. `'use client'` trafia **tylko** na liście interaktywne i providery.

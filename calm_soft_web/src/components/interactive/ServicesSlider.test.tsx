@@ -58,6 +58,7 @@ function renderSlider() {
           ctaLabel={LABELS.cta}
           note={LABELS.note}
           solutionsLabel={LABELS.solutionsLabel}
+          detailsLabel={LABELS.detailsCta}
         />
       </ModalProvider>
     </InquiryProvider>,
@@ -252,9 +253,35 @@ describe("ServicesSlider (docs/superpowers/specs/2026-07-22-services-slider-desi
         .filter((l): l is NonNullable<typeof l> => Boolean(l));
       for (const line of lines) {
         const link = screen.getByRole("link", { name: line.kicker, hidden: true });
-        expect(link).toHaveAttribute("href", `/demos/#${line.slug}`);
+        expect(link).toHaveAttribute("href", `/uslugi/${s.slug}/#${line.slug}`);
       }
     }
+  });
+
+  it("renders a details link to /uslugi/<slug>/ for every service tile (2026-07-31 service-pages-restructure design)", () => {
+    renderSlider();
+    for (const s of services) {
+      const links = screen.getAllByRole("link", { name: LABELS.detailsCta, hidden: true });
+      const link = links.find((l) => l.getAttribute("href") === `/uslugi/${s.slug}/`);
+      expect(link).toBeDefined();
+    }
+  });
+
+  it("gives the details link on the active tile no tabIndex and on inactive tiles tabIndex=-1", () => {
+    const { container } = renderSlider();
+    const slides = container.querySelectorAll('[role="group"][aria-roledescription="slide"]');
+
+    const activeLink = within(slides[0] as HTMLElement).getByRole("link", {
+      name: LABELS.detailsCta,
+      hidden: true,
+    });
+    expect(activeLink).not.toHaveAttribute("tabIndex");
+
+    const inactiveLink = within(slides[1] as HTMLElement).getByRole("link", {
+      name: LABELS.detailsCta,
+      hidden: true,
+    });
+    expect(inactiveLink).toHaveAttribute("tabIndex", "-1");
   });
 
   it("does not render the solutions block for the refactor tile (empty solutionSlugs)", () => {

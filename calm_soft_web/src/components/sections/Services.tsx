@@ -33,6 +33,7 @@ export function Services() {
           ctaLabel={site.sections.services.cta}
           note={site.sections.services.note}
           solutionsLabel={site.sections.services.solutionsLabel}
+          detailsLabel={site.sections.services.detailsCta}
         />
       </div>
       <div className="mt-10 flex flex-col gap-4 rounded-[var(--radius-card)] border border-border-08 bg-surface p-[28px_30px] min-[560px]:flex-row min-[560px]:items-center min-[560px]:justify-between">

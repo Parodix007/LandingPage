@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { services, getServiceForLine } from "./services";
+import { services, getServiceForLine, getServiceBySlug } from "./services";
 import { cases, getCaseBySlug } from "./cases";
 import { steps } from "./steps";
 import { demos, getDemoBySlug } from "./demos";
@@ -26,6 +26,72 @@ describe("content completeness (SPEC §5.3)", () => {
       expect(s.relatedSlugs.length).toBeGreaterThan(0);
     }
   });
+  it("każda usługa ma niepuste slug/metaTitle/metaDescription/pageH1 strony /uslugi/<slug>/ (2026-07-31 service-pages-restructure design)", () => {
+    for (const s of services) {
+      expect(s.slug.trim().length).toBeGreaterThan(0);
+      expect(s.metaTitle.trim().length).toBeGreaterThan(0);
+      expect(s.metaDescription.trim().length).toBeGreaterThan(0);
+      expect(s.pageH1.trim().length).toBeGreaterThan(0);
+    }
+  });
+  it("slugi usług są unikalne", () => {
+    const slugs = services.map((s) => s.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+  });
+  it("slugi usług są kebab-case", () => {
+    for (const s of services) {
+      expect(s.slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+    }
+  });
+  it("metaDescription każdej usługi mieści się w limicie snippetu Google (≤160 znaków)", () => {
+    for (const s of services) {
+      expect(s.metaDescription.length).toBeLessThanOrEqual(160);
+    }
+  });
+  it("getServiceBySlug zwraca właściwą usługę dla istniejącego sluga i undefined dla nieistniejącego", () => {
+    for (const s of services) {
+      expect(getServiceBySlug(s.slug)).toBe(s);
+    }
+    expect(getServiceBySlug("nie-istnieje")).toBeUndefined();
+  });
+  it("pageSections każdej usługi jest tablicą (web/refactor mają ją nadal pustą)", () => {
+    for (const s of services) {
+      expect(Array.isArray(s.pageSections)).toBe(true);
+    }
+  });
+  it("każda sekcja w pageSections ma niepusty heading i co najmniej jedną grupę z co najmniej jedną pozycją; każda pozycja ma niepuste n/d", () => {
+    for (const s of services) {
+      for (const section of s.pageSections) {
+        expect(section.heading.trim().length).toBeGreaterThan(0);
+        expect(section.groups.length).toBeGreaterThan(0);
+        for (const group of section.groups) {
+          expect(group.items.length).toBeGreaterThan(0);
+          for (const item of group.items) {
+            expect(item.n.trim().length).toBeGreaterThan(0);
+            expect(item.d.trim().length).toBeGreaterThan(0);
+          }
+        }
+      }
+    }
+  });
+  // Kontrakt SEO (2026-07-31 service-pages-restructure design, etap 2): te nazwy systemów
+  // odpowiadają frazom, na które właściciel licytuje kampanię. Gdyby ktoś kiedyś je usunął
+  // z pageSections, strona usługi traci pokrycie fraz, za które płaci — test to wyłapuje.
+  it("systemy-i-integracje wymienia Subiekt GT, enova365 i WooCommerce; automatyzacja wymienia n8n i Make.com", () => {
+    const core = getServiceBySlug("systemy-i-integracje");
+    const automation = getServiceBySlug("automatyzacja");
+    const coreNames = core!.pageSections.flatMap((sec) => sec.groups.flatMap((g) => g.items.map((i) => i.n)));
+    const automationNames = automation!.pageSections.flatMap((sec) =>
+      sec.groups.flatMap((g) => g.items.map((i) => i.n)),
+    );
+    expect(coreNames).toEqual(
+      expect.arrayContaining(["Subiekt GT", "enova365", "WooCommerce"]),
+    );
+    expect(automationNames).toEqual(expect.arrayContaining(["n8n", "Make.com"]));
+    for (const n of [...coreNames, ...automationNames]) {
+      expect(n).not.toMatch(/\*\*/);
+    }
+  });
   it("sekcja services (2026-07-22 services-slider design) ma dokładnie nowe nagłówki i niepuste etykiety slidera", () => {
     const s = site.sections.services;
     expect(s.line1).toBe("Cztery obszary.");
@@ -43,6 +109,9 @@ describe("content completeness (SPEC §5.3)", () => {
     ]) {
       expect(label.trim().length).toBeGreaterThan(0);
     }
+  });
+  it("site.sections.services.detailsCta jest niepuste (2026-07-31 service-pages-restructure design)", () => {
+    expect(site.sections.services.detailsCta.trim().length).toBeGreaterThan(0);
   });
   it("lewa kolumna kontaktu ma 3 checki", () => {
     expect(site.contact.checks).toHaveLength(3);
@@ -113,11 +182,6 @@ describe("content completeness (SPEC §5.3)", () => {
     expect(demos.find((d) => d.slug === "cadence")?.logoId).toBe("cadence");
     expect(demos.find((d) => d.slug === "airlift")?.logoId).toBe("airlift");
     expect(demos.find((d) => d.slug === "puls")?.logoId).toBe("puls");
-  });
-  it("featuredDemoSlugs wskazują istniejące dema i zgadzają się z handoffem", () => {
-    expect(site.featuredDemoSlugs.length).toBeGreaterThanOrEqual(1);
-    for (const slug of site.featuredDemoSlugs) expect(getDemoBySlug(slug)).toBeDefined();
-    expect(site.featuredDemoSlugs).toEqual(["puls", "cadence", "airlift"]);
   });
   it("sekcja demos ma niepusty techLegend i langChip (etykieta chipu dla dem uiLang==='en')", () => {
     expect(site.sections.demos.techLegend.trim().length).toBeGreaterThan(0);
@@ -279,12 +343,6 @@ describe("solutions content (2026-07-26 solutions restructure design)", () => {
     expect(new Set(allDemoSlugs)).toEqual(new Set(demos.map((d) => d.slug)));
   });
 
-  it("leadDemoSlug każdej linii występuje wśród demoSlug jej własnych items", () => {
-    for (const line of allSolutionLines) {
-      expect(line.items.map((i) => i.demoSlug)).toContain(line.leadDemoSlug);
-    }
-  });
-
   it("proof.caseSlug (tam, gdzie proof istnieje) rozwiązuje się przez getCaseBySlug", () => {
     for (const line of allSolutionLines) {
       if (line.proof) {
@@ -302,25 +360,21 @@ describe("solutions content (2026-07-26 solutions restructure design)", () => {
     for (const line of allSolutionLines) {
       expect(line.headline.trim().length).toBeGreaterThan(0);
       expect(line.audience.trim().length).toBeGreaterThan(0);
-      expect(line.homeTitle.trim().length).toBeGreaterThan(0);
-      expect(line.homeTeaser.trim().length).toBeGreaterThan(0);
       expect(line.kicker.trim().length).toBeGreaterThan(0);
       expect(line.intro.length).toBeGreaterThanOrEqual(1);
       expect(line.items.length).toBeGreaterThanOrEqual(1);
     }
   });
 
-  it("solutions.home i solutions.page mają niepuste kluczowe pola, mechanism.body ma 3 elementy", () => {
-    expect(solutions.home.line1.trim().length).toBeGreaterThan(0);
-    expect(solutions.home.line2.trim().length).toBeGreaterThan(0);
-    expect(solutions.home.lead.trim().length).toBeGreaterThan(0);
-    expect(solutions.home.cta.trim().length).toBeGreaterThan(0);
-    expect(solutions.home.tileCta.trim().length).toBeGreaterThan(0);
+  it("solutions.page ma niepuste kluczowe pola, mechanism.body ma 3 elementy", () => {
     expect(solutions.page.mechanism.heading.trim().length).toBeGreaterThan(0);
     expect(solutions.page.mechanism.body).toHaveLength(3);
     expect(solutions.page.paths.heading.trim().length).toBeGreaterThan(0);
     expect(solutions.page.clickLabel.trim().length).toBeGreaterThan(0);
     expect(solutions.page.audienceLabel.trim().length).toBeGreaterThan(0);
+  });
+  it("solutions.page.proposalLabel jest niepuste (2026-07-31 service-pages-restructure design)", () => {
+    expect(solutions.page.proposalLabel.trim().length).toBeGreaterThan(0);
   });
 });
 
@@ -377,6 +431,39 @@ describe("keyword emphasis marker parity (2026-07-27 keyword-emphasis-and-audien
     }
     for (const d of demos) {
       expect(countMarkers(d.detail) % 2).toBe(0);
+    }
+  });
+
+  it("has an even number of ** markers in every service pageSections intro/item.d string", () => {
+    for (const service of services) {
+      for (const section of service.pageSections) {
+        if (section.intro) {
+          expect(countMarkers(section.intro) % 2).toBe(0);
+        }
+        for (const group of section.groups) {
+          for (const item of group.items) {
+            expect(countMarkers(item.d) % 2).toBe(0);
+          }
+        }
+      }
+    }
+  });
+
+  // ServicesSlider on the home page renders service.intro/fit/deliver/approach as plain text —
+  // no RichText there. A `**` marker in any of these fields would leak onto the home page as
+  // literal asterisks. This test guards that trap: these fields must stay marker-free, even
+  // though pageSections (a separate field, rendered only on /uslugi/<slug>/) is allowed markers.
+  it("service fields shared with ServicesSlider (intro/fit/deliver/approach) never carry ** markers", () => {
+    for (const service of services) {
+      expect(countMarkers(service.intro)).toBe(0);
+      for (const f of service.fit) {
+        expect(countMarkers(f)).toBe(0);
+      }
+      for (const d of service.deliver) {
+        expect(countMarkers(d.n)).toBe(0);
+        expect(countMarkers(d.d)).toBe(0);
+      }
+      expect(countMarkers(service.approach)).toBe(0);
     }
   });
 });

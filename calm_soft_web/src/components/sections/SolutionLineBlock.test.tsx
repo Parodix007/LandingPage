@@ -24,7 +24,7 @@ const clinics = getLine("kliniki-laboratoria");
 const migrations = getLine("migracje");
 const integrations = getLine("integracje");
 
-function renderLine(line: SolutionLine) {
+function renderLine(line: SolutionLine, hideServiceLink?: boolean) {
   return render(
     <InquiryProvider>
       <ModalProvider cases={cases} demos={demos}>
@@ -35,6 +35,7 @@ function renderLine(line: SolutionLine) {
           serviceLabel={solutions.page.serviceLabel}
           asIsLabel={solutions.page.paths.asIs.title}
           customLabel={solutions.page.paths.custom.title}
+          hideServiceLink={hideServiceLink}
         />
       </ModalProvider>
     </InquiryProvider>,
@@ -163,6 +164,14 @@ describe("SolutionLineBlock (2026-07-26 solutions restructure design)", () => {
     expect(screen.getByText(solutions.page.serviceLabel)).toBeInTheDocument();
     const link = screen.getByRole("link", { name: service.tag });
     expect(link).toHaveAttribute("href", `/?usluga=${service.id}#services`);
+  });
+
+  it("suppresses the service label and its link when hideServiceLink is true (2026-07-31 service-pages-restructure design)", () => {
+    const service = getServiceForLine(integrations.slug)!;
+    renderLine(integrations, true);
+
+    expect(screen.queryByText(solutions.page.serviceLabel)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: service.tag })).not.toBeInTheDocument();
   });
 
   it.each([

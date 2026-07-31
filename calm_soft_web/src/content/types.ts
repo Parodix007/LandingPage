@@ -6,6 +6,17 @@ export type Tone = "a" | "b";
 export type AreaId = "core" | "automation" | "rescue" | "web" | "not-sure";
 export type BudgetId = "under-10k" | "10-30k" | "30-80k" | "80k-plus" | "no-idea";
 
+export type NamedItem = { n: string; d: string };
+
+// Grupa w obrębie ServiceSection. `group` jest opcjonalne: sekcja bez podziału to jedna
+// grupa bez etykiety, dzięki czemu widok ma jedną ścieżkę renderowania zamiast dwóch.
+export type ServiceSectionGroup = { group?: string; items: NamedItem[] };
+
+// Sekcja nazwanych bytów na stronie usługi: „Z jakimi systemami pracuję",
+// „Co najczęściej automatyzuję", „Na czym buduję". Jeden kształt obsługuje wszystkie trzy —
+// różni je wyłącznie heading i zawartość groups (2026-07-31 service-pages-restructure design).
+export type ServiceSection = { heading: string; intro?: string; groups: ServiceSectionGroup[] };
+
 export type Service = {
   id: ServiceId;
   tone: Tone;
@@ -13,7 +24,7 @@ export type Service = {
   headline: string;
   intro: string;
   fit: string[]; // 4 pozycje
-  deliver: { n: string; d: string }[]; // 5–6 pozycji
+  deliver: NamedItem[]; // 5–6 pozycji
   approach: string;
   relatedSlugs: string[]; // slugi case studies (NIE indeksy)
   // Linie rozwiązań, których ta usługa jest źródłem (2026-07-26 services-solutions crosslink
@@ -21,6 +32,20 @@ export type Service = {
   // Kierunek odwrotny (linia → usługa) jest wyprowadzany przez getServiceForLine, nie
   // duplikowany jako pole na SolutionLine.
   solutionSlugs: SolutionLineSlug[];
+  // Segment adresu /uslugi/<slug>/ — NIE równy `id`. `id` jest nośne: czyta je deep-link
+  // ?usluga= w ServicesSlider i dzieli słownictwo z AreaId, więc nie może się zmienić pod adres.
+  // Adres potrzebuje osobnego, polskiego, frazowego segmentu (2026-07-31
+  // service-pages-restructure design).
+  slug: string;
+  metaTitle: string;
+  metaDescription: string;
+  // Osobny od `headline`: headline to hak slidera, pageH1 niesie frazę, na którą licytuje
+  // kampania — różne zadania, więc różna treść (2026-07-31 service-pages-restructure design).
+  pageH1: string;
+  // Puste `[]` nadal znaczy „sekcja się nie renderuje" (ten sam wzorzec co SolutionLine.price,
+  // patrz SolutionLineBlock.tsx) — ale od etapu 2 to nie jest prawdą dla wszystkich usług: `core`
+  // i `automation` mają już treść, `web` i `refactor` czekają na materiał od właściciela.
+  pageSections: ServiceSection[];
 };
 
 export type CaseStudy = {
@@ -141,13 +166,15 @@ export type SiteContent = {
   // treści.
   navCta: string;
   featuredCaseSlugs: string[]; // 3 featured cases (CaseStudies homepage, 3-up), display order
-  featuredDemoSlugs: string[]; // 3 featured demos (Demos homepage, 3-up), display order
   footerLinks: { label: string; href: string }[]; // root-relative: /#services itd.
   hero: {
     aurora: { h1: string; lead: string; ctaPrimary: string; ctaSecondary: string };
     code: {
-      h1: string; lead: string; ctaPrimary: string; ctaDemos: string; ctaPricing: string;
-      demoLabel: string;
+      h1: string; lead: string; ctaPrimary: string; ctaPricing: string;
+      // Eyebrow/aria-label for HeroCaseSlider (2026-07-31 service-pages-restructure design) —
+      // the hero's right-column carousel over site.featuredCaseSlugs. Replaces the retired
+      // demoLabel ("Rozwiązania na żywo"), which labelled the mockup slider this one replaces.
+      casesLabel: string;
     };
     type: { line1: string; line2: string; lead: string; ctaPrimary: string; ctaSecondary?: string };
   };
@@ -170,6 +197,9 @@ export type SiteContent = {
       // Etykieta nad rzędem linków usługa → rozwiązania w kafelku slidera (2026-07-26
       // services-solutions crosslink design).
       solutionsLabel: string;
+      // Link kafelka slidera → jego strona usługi /uslugi/<slug>/ (2026-07-31 service-pages-
+      // restructure design).
+      detailsCta: string;
     };
     process: { line1: string; line2: string };
     cases: {
@@ -178,13 +208,11 @@ export type SiteContent = {
     };
     demos: {
       langChip: string; // etykieta chipu renderowanego TYLKO na kartach/w modalu dem z Demo.uiLang === "en" (nie: globalny chip sekcji)
-      footnote: string;
-      seeAllCta: string; detailCta: string; liveCta: string; techLegend: string;
-      // "Kluczowe przepływy" — etykieta sekcji features w DemoModalContent ORAZ w pełno-
-      // szczegółowych kafelkach HeroDemoSlider (2026-07-23 hero-demo-detail-slider design).
+      detailCta: string; liveCta: string; techLegend: string;
+      // "Kluczowe przepływy" — etykieta sekcji features w DemoModalContent (2026-07-23
+      // hero-demo-detail-slider design; ta sekcja żyje dziś w SolutionLineBlock na /uslugi/<slug>/).
       flowsLegend: string;
       desktopNote: string;
-      calendly: { prompt: string; cta: string };
     };
   };
   modals: { caseNote: string; demoNote: string }; // stopki modali (≈finePrint/footnote, ale z różnicami — 1:1 z prototypu). serviceNote przeniesiony do sections.services.note (2026-07-22 services-slider design — modal usługi zniesiony).
@@ -224,7 +252,6 @@ export type SiteContent = {
     };
   };
   work: Work;
-  demosPage: Work; // /demos/ subpage — reuses the Work shape (meta/heading/lead/calendly/startLabel)
   notFound: { heading: string; text: string; back: string };
   // Consent banner copy (2026-07-22 GA4 + Consent Mode addendum) — settingsLabel doubles as
   // both the footer "Cookie settings" link text and the banner's aria-label (role="region").
@@ -265,9 +292,6 @@ export type SolutionLine = {
   audience: string;
   caveat?: SolutionAside;
   proof?: SolutionProof;
-  leadDemoSlug: string;   // demo, którego zrzut trafia na kafel strony głównej; należy do items
-  homeTitle: string;
-  homeTeaser: string;
   price?: SolutionPrice;
 };
 
@@ -279,19 +303,7 @@ export type SolutionGroup = {
   lines: SolutionLine[];
 };
 
-// /demos/ product-line filter (2026-07-26 solutions-group-heading-and-filters design) — a single
-// filtering axis over SolutionLineSlug, unlike PricingFilters' two axes (category ∧ price tier).
-// No emptyTitle/emptyBody: selecting any chip always leaves at least that one line, so the empty
-// state is unreachable and isn't modeled. Chip labels are NOT carried here — they reuse
-// SolutionLine.kicker, which is already distinct per line.
-export type SolutionFilters = {
-  legend: string; // fieldset legend above the chips
-  countLabel: string; // noun for the "3 / 5 <countLabel>" status line
-  clearLabel: string;
-};
-
 export type SolutionsContent = {
-  home: { line1: string; line2: string; lead: string; cta: string; tileCta: string };
   page: {
     mechanism: { heading: string; body: string[]; noDiscoverLabel: string; noDiscover: string };
     paths: {
@@ -304,7 +316,10 @@ export type SolutionsContent = {
     // Etykieta nad linkiem linia → usługa w SolutionLineBlock (2026-07-26 services-solutions
     // crosslink design).
     serviceLabel: string;
-    filters: SolutionFilters;
+    // Chip nad sekcją propozycji na /uslugi/<slug>/ — wymóg właściciela: makieta ma być
+    // WYRAŹNIE oznaczona jako propozycja, nie gotowy produkt (2026-07-31 service-pages-
+    // restructure design).
+    proposalLabel: string;
   };
   groups: SolutionGroup[];
 };
