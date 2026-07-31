@@ -2,7 +2,9 @@
   "name": "calm-soft-web",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/assert-env.mjs",
@@ -17,7 +19,7 @@
     "audit": "npm audit"
   },
   "dependencies": {
-    "next": "16.2.10",
+    "next": "16.2.12",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -33,7 +35,7 @@
     "@vitejs/plugin-react": "^6.0.3",
     "cross-env": "^10.1.0",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.2.12",
     "jsdom": "^29.1.1",
     "serve": "^14.2.6",
     "sharp": "^0.35.3",
@@ -42,6 +44,7 @@
     "vitest": "^4.1.10"
   },
   "overrides": {
-    "postcss": "^8.5.16"
+    "postcss": "^8.5.25",
+    "sharp": "^0.35.3"
   }
 }
