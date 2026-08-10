@@ -36,7 +36,7 @@ export function CaseStudies() {
     <section
       id="cases"
       aria-labelledby="cases-heading"
-      className="mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]"
+      className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]"
     >
       <SectionHeading
         id="cases-heading"
@@ -54,7 +54,7 @@ export function CaseStudies() {
         ))}
       </div>
 
-      <div className="mt-12 flex flex-col gap-4">
+      <div className="reveal-group mt-12 flex flex-col gap-4">
         {featured.map((c) => (
           <div
             key={c.slug}

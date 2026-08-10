@@ -86,7 +86,7 @@ export default function WorkPage() {
   return (
     <InquiryProvider>
       <ModalProvider cases={cases} demos={demos}>
-        <div className="mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]">
+        <div className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]">
           <header className="mb-4">
             {/* Not SectionHeading (frozen, hardcoded h2) — same visual classes on a real h1,
                 since this is a standalone page rather than a same-page section (mirrors
@@ -99,14 +99,14 @@ export default function WorkPage() {
             <p className="mt-4 max-w-[600px] text-[18px] leading-[1.55] text-ink-70">{site.work.lead}</p>
           </header>
 
-          <div className="mt-12 grid grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))] gap-4">
+          <div className="reveal-group mt-12 grid grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))] gap-4">
             {activeCases.map((c) => (
               <CaseCard key={c.slug} c={c} />
             ))}
           </div>
 
           {archivedCases.length > 0 && site.work.archiveHeading && (
-            <div className="mt-16">
+            <div className="reveal-group mt-16">
               <h2 className="text-[20px] font-bold leading-[1.2] tracking-[-0.02em] text-ink-70">
                 {site.work.archiveHeading}
               </h2>
@@ -115,7 +115,7 @@ export default function WorkPage() {
                   {site.work.archiveIntro}
                 </p>
               )}
-              <div className="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))] gap-4">
+              <div className="reveal-group mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))] gap-4">
                 {archivedCases.map((c) => (
                   <CaseCard key={c.slug} c={c} />
                 ))}

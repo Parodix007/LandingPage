@@ -172,11 +172,48 @@ export const services: Service[] = [
     relatedSlugs: ["public-sector-poland", "enterprise-30-years-in-production"],
     solutionSlugs: ["weterynaria", "kliniki-laboratoria"],
     slug: "platformy-webowe",
-    metaTitle: "Rozwiązania webowe — calm_soft",
+    metaTitle: "Aplikacje webowe na zamówienie — portale, sklepy, panele | calm_soft",
     metaDescription:
-      "Portale, e-commerce, SaaS i narzędzia wewnętrzne. Projekt, architektura, kod i chmura prowadzone przez jedną osobę — nic nie ginie między dostawcami.",
-    pageH1: "Platformy, portale i produkty — budowane, by skalować.",
-    pageSections: [],
+      "Buduję portale, sklepy, panele personelu i narzędzia wewnętrzne. Angular, React, Next.js, Nest.js, PostgreSQL — projekt, kod i chmura w jednych rękach.",
+    pageH1: "Aplikacje webowe na zamówienie — od projektu po produkcję",
+    pageSections: [
+      {
+        heading: "Co najczęściej buduję",
+        intro:
+          "Poniżej produkty, które buduję najczęściej — część z nich możesz zobaczyć niżej na tej stronie jako **klikalne makiety**.",
+        groups: [
+          {
+            items: [
+              { n: "Portal kliencki", d: "Konto, w którym klient widzi swoją **historię, wizyty i wyniki** w jednym miejscu — na wzór profilu pacjenta w Primavita albo profilu zdrowia pupila w Merdi." },
+              { n: "Panel personelu", d: "Zaplecze, w którym żyje zespół — **kalendarz**, **plan dnia** i **kartoteki** w jednym miejscu, jak w panelu Merdi albo konsoli HealthLab." },
+              { n: "Umawianie i rezerwacje", d: "Wieloetapowy proces sprowadzony do **prowadzonych kroków** — umawianie wizyt w Merdi albo zamawianie badań w VitaLab — zamiast telefonu w godzinach otwarcia." },
+              { n: "Sklep i checkout", d: "Witryna, koszyk i płatność jako **jeden przepływ**, spięty z ERP za sceną — bez ręcznego przepisywania zamówień między systemami." },
+              { n: "Narzędzia wewnętrzne", d: "Zamieniam arkusze i dobrą wolę na **jeden system z historią zmian** — na wzór obiegu w HealthLab, gdzie zespół zawsze wie, na jakim etapie jest każde zlecenie." },
+              { n: "Projekt graficzny na produkcję", d: "Masz projekt graficzny od grafika? Dowożę go na produkcję — **frontend i backend w jednym standardzie kodu**, bez gubienia szczegółów po drodze." },
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Na czym buduję",
+        intro:
+          "**Stack dobieram pod projekt, nie odwrotnie.** Poniżej technologie, po które sięgam najczęściej — wybór zależy od tego, co już masz i dokąd to ma urosnąć.",
+        groups: [
+          {
+            items: [
+              { n: "Angular", d: "Wybieram do dużych aplikacji utrzymywanych latami przez wiele zespołów — na tej podstawie stoi platforma dla **20 administracji miejskich**, którą dziś prowadzę jako **jedyny architekt**." },
+              { n: "React", d: "Najczęstszy wybór po stronie klienta: **portale i panele**, które muszą być szybkie i responsywne od pierwszego ekranu." },
+              { n: "Next.js", d: "Kiedy strona musi dobrze wypadać w wyszukiwarce i ładować się natychmiast — **SEO jako wymaganie**, nie dodatek." },
+              { n: "Nest.js", d: "Backend do API, które ma czysto rozmawiać z **CRM, ERP i systemami partnerów** — bez pośredników i bez utraty kontroli nad kontraktem danych." },
+              { n: "Fastify", d: "Lżejsza alternatywa dla Nest.js, gdy liczy się przede wszystkim **przepustowość API**, a nie rozbudowana struktura modułowa." },
+              { n: "Spring Boot", d: "Sięgam po **Javę**, gdy środowisko klienta już na niej stoi — najczęściej w rozbudowanych, firmowych systemach." },
+              { n: "PostgreSQL", d: "Domyślny wybór do nowych projektów — **transakcyjność** i rozszerzenia, których potrzebują aplikacje rosnące poza prosty CRUD." },
+              { n: "MySQL", d: "Kiedy projekt już na niej stoi albo tego wymaga hosting — **utrzymuję i rozwijam** bez migracji tylko dla zasady." },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     id: "refactor",
@@ -203,11 +240,44 @@ export const services: Service[] = [
     relatedSlugs: ["enterprise-30-years-in-production", "public-sector-poland"],
     solutionSlugs: [],
     slug: "legacy",
-    metaTitle: "Refactor & rescue — calm_soft",
+    metaTitle: "Modernizacja systemów legacy — audyt, stabilizacja, migracja | calm_soft",
     metaDescription:
-      "Uczciwy audyt, stabilizacja, potem modernizacja kawałek po kawałku — podczas gdy biznes cały czas pracuje na tym systemie.",
-    pageH1: "Systemy legacy — drugie życie.",
-    pageSections: [],
+      "Wchodzę w cudzy kod: audyt, testy i CI wokół istniejącego systemu, potem modernizacja kawałek po kawałku — bez zatrzymywania biznesu i bez rewrite'u od zera.",
+    pageH1: "Modernizacja systemów legacy bez zatrzymywania biznesu",
+    pageSections: [
+      {
+        heading: "Co najczęściej zastaję",
+        intro:
+          "Sygnały, które widuję najczęściej, zanim ktokolwiek zadzwoni — **zwykle występują razem, nie pojedynczo**.",
+        groups: [
+          {
+            items: [
+              { n: "Framework po końcu wsparcia", d: "**Wersja bez wsparcia producenta**, łatek bezpieczeństwa i dokumentacji, na której da się polegać. Zwykle nikt już nie pamięta, dlaczego akurat ta." },
+              { n: "Baza bez ścieżki upgrade'u", d: "Baza danych **zbyt stara, żeby prosto zaktualizować**, i zbyt krytyczna, żeby ktokolwiek chciał spróbować bez planu awaryjnego." },
+              { n: "Zero testów, zero CI", d: "Każde wydanie to ręczne klikanie po produkcji i nadzieja, że nic nie pominięto. **Żadnej sieci bezpieczeństwa**, która złapałaby regresję, zanim złapie ją klient." },
+              { n: "Wiedza w jednej głowie", d: "**Jedna osoba** trzyma w głowie, jak system naprawdę działa. Jej urlop albo odejście to już nie ryzyko projektowe — to plan awaryjny, którego nie ma." },
+              { n: "Kod bez dokumentacji", d: "Pierwotny zespół dawno odszedł, a **dokumentacja nigdy nie powstała** — albo opisuje wersję sprzed kilku migracji." },
+              { n: "Wycena rewrite'u od zera", d: "Ktoś już policzył **koszt napisania wszystkiego od nowa** — i ta liczba jest powodem, dla którego projekt wciąż stoi w miejscu, zamiast ruszyć." },
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Z czym pracowałem w systemach legacy",
+        intro:
+          "Lista nie jest zamknięta — **audyt zaczyna się od czytania kodu**, nie od katalogu technologii. Poniżej te, z którymi pracowałem najwięcej.",
+        groups: [
+          {
+            items: [
+              { n: "4GL", d: "**Rdzeń liczący dekady w produkcji**, przeniesiony na nowoczesny stack webowy — migracja rdzenia dostarczona w niecały rok, bez nieplanowanych przestojów." },
+              { n: "Java", d: "Legacy kadrowo-płacowe **z innej epoki**, z którym nic współczesnego nie miało wcześniej rozmawiać — zbudowałem do niego nową integrację od zera." },
+              { n: "Oracle", d: "Baza pod platformą, z której korzysta dziś **około 20 tysięcy osób** w dwudziestu administracjach miejskich." },
+              { n: "Angular", d: "**Front tej samej platformy** dla dwudziestu miast — rozwijany równolegle z integracją systemu kadrowo-płacowego, którego nikt wcześniej nie chciał dotykać." },
+            ],
+          },
+        ],
+      },
+    ],
   },
 ];
 

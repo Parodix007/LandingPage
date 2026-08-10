@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 // spec ..\cennik-design-handoff.md (2026-07-20 pricing/Calendly/reorder design doc).
 export default function PricingPage() {
   return (
-    <div className="mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]">
+    <div className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]">
       <header className="mb-4">
         {/* Not SectionHeading (frozen, hardcoded h2) — same visual classes on a real h1, since
             this is a standalone page rather than a same-page section. */}

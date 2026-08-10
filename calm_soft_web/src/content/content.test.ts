@@ -54,9 +54,10 @@ describe("content completeness (SPEC §5.3)", () => {
     }
     expect(getServiceBySlug("nie-istnieje")).toBeUndefined();
   });
-  it("pageSections każdej usługi jest tablicą (web/refactor mają ją nadal pustą)", () => {
+  it("pageSections każdej usługi jest niepustą tablicą (wszystkie cztery usługi mają już treść)", () => {
     for (const s of services) {
       expect(Array.isArray(s.pageSections)).toBe(true);
+      expect(s.pageSections.length).toBeGreaterThan(0);
     }
   });
   it("każda sekcja w pageSections ma niepusty heading i co najmniej jedną grupę z co najmniej jedną pozycją; każda pozycja ma niepuste n/d", () => {
@@ -75,20 +76,29 @@ describe("content completeness (SPEC §5.3)", () => {
     }
   });
   // Kontrakt SEO (2026-07-31 service-pages-restructure design, etap 2): te nazwy systemów
-  // odpowiadają frazom, na które właściciel licytuje kampanię. Gdyby ktoś kiedyś je usunął
-  // z pageSections, strona usługi traci pokrycie fraz, za które płaci — test to wyłapuje.
-  it("systemy-i-integracje wymienia Subiekt GT, enova365 i WooCommerce; automatyzacja wymienia n8n i Make.com", () => {
+  // odpowiadają frazom, na które właściciel licytuje kampanię — dla wszystkich czterech usług
+  // (core, automation, web, refactor). Gdyby ktoś kiedyś je usunął z pageSections, strona usługi
+  // traci pokrycie fraz, za które płaci — test to wyłapuje.
+  it("systemy-i-integracje wymienia Subiekt GT, enova365 i WooCommerce; automatyzacja wymienia n8n i Make.com; platformy-webowe wymienia Next.js, Angular i PostgreSQL; legacy wymienia 4GL, Oracle i Java", () => {
     const core = getServiceBySlug("systemy-i-integracje");
     const automation = getServiceBySlug("automatyzacja");
+    const web = getServiceBySlug("platformy-webowe");
+    const refactor = getServiceBySlug("legacy");
     const coreNames = core!.pageSections.flatMap((sec) => sec.groups.flatMap((g) => g.items.map((i) => i.n)));
     const automationNames = automation!.pageSections.flatMap((sec) =>
+      sec.groups.flatMap((g) => g.items.map((i) => i.n)),
+    );
+    const webNames = web!.pageSections.flatMap((sec) => sec.groups.flatMap((g) => g.items.map((i) => i.n)));
+    const refactorNames = refactor!.pageSections.flatMap((sec) =>
       sec.groups.flatMap((g) => g.items.map((i) => i.n)),
     );
     expect(coreNames).toEqual(
       expect.arrayContaining(["Subiekt GT", "enova365", "WooCommerce"]),
     );
     expect(automationNames).toEqual(expect.arrayContaining(["n8n", "Make.com"]));
-    for (const n of [...coreNames, ...automationNames]) {
+    expect(webNames).toEqual(expect.arrayContaining(["Next.js", "Angular", "PostgreSQL"]));
+    expect(refactorNames).toEqual(expect.arrayContaining(["4GL", "Oracle", "Java"]));
+    for (const n of [...coreNames, ...automationNames, ...webNames, ...refactorNames]) {
       expect(n).not.toMatch(/\*\*/);
     }
   });

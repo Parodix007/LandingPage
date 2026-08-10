@@ -58,6 +58,7 @@ html {
 @keyframes glowDrift2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-50px, 30px); } }
 @keyframes gradShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes revealUp { from { transform: translateY(24px); } to { transform: translateY(0); } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -65,6 +66,38 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Reveal-on-scroll (docs/superpowers/specs/2026-08-10-reveal-on-scroll-design.md) — `.reveal-group`
+   animuje bezpośrednie dzieci, nigdy siebie: klasa oznacza kontener, ruch dostają bloki w środku.
+   `.reveal-group > .reveal-group { animation-name: none }` sprawia, że zagnieżdżanie jest
+   bezpieczne — bez tej linii kontener wewnętrzny animowałby się razem z własnymi dziećmi i
+   opacity mnożyłoby się przez dwa. `animation-fill-mode: both` chroni treść nad zgięciem i LCP:
+   blok będący już w kadrze przy scrollu 0 jest za końcem zakresu, więc trzyma stan końcowy i
+   maluje się od razu w pełni widoczny. Zakres to `cover`, nie `entry` — długość zakresu `entry`
+   to wysokość elementu, więc blok wyższy od ekranu zostawałby wyblakły przez cały swój
+   przewijany metraż. Gate to `prefers-reduced-motion: no-preference`, a nie nadpisanie killswitcha
+   powyżej — interakcja jego `animation-duration: 0.01ms !important` z osią postępu (zamiast osi
+   czasu) jest niejednoznaczna, więc widoczność treści nie ma jej dotyczyć.
+   `revealUp` rusza wyłącznie `transform`, mimo że `fadeSlideUp` obok animuje też `opacity` —
+   axe mierzy skomponowany kolor tekstu w trakcie animacji, więc każdy element w połowie
+   przenikania oblewa `color-contrast` (zmierzone na Lighthouse mobile: `text-ink` jako `#313132`,
+   `text-ink-60` jako `#1e1e1e`), co zbiło a11y do 96 na stronach usług i do 93 na `/work/`.
+   Podniesienie startowej przezroczystości tego nie rozwiązuje — `text-ink-60` ma już 0.6 alfy,
+   więc próg AA wymagałby startu od ok. 0.85, czyli przenikania, którego nie widać. Efektem
+   ubocznym znika też ryzyko SEO z sekcji „Risks" w design docu: żaden tekst nie jest już nigdy
+   niewidoczny, tylko przesunięty. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal-group > *:not([aria-hidden="true"]) {
+      animation-name: revealUp;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 30%;
+    }
+    .reveal-group > .reveal-group { animation-name: none; }
   }
 }
 

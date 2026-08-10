@@ -157,7 +157,7 @@ export function PricingExplorer({ groups, filters }: { groups: PricingGroup[]; f
   const anyFilter = catActive || tierActive;
 
   return (
-    <div className="mt-14">
+    <div className="reveal-group mt-14">
       <div className="flex flex-col gap-6">
         <fieldset className="m-0 border-0 p-0">
           <legend className={FILTER_LEGEND_CLASS}>{filters.categoryLegend}</legend>

@@ -13,7 +13,7 @@ export function Services() {
     <section
       id="services"
       aria-labelledby="services-heading"
-      className="mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]"
+      className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]"
     >
       <SectionHeading
         id="services-heading"

@@ -38,7 +38,7 @@ export function ProcessCarousel({ steps }: ProcessCarouselProps) {
   const { line1, line2 } = site.sections.process;
 
   return (
-    <div aria-roledescription="carousel">
+    <div className="reveal-group" aria-roledescription="carousel">
       <div className="flex flex-wrap items-center justify-between gap-6">
         <SectionHeading id="process-heading" line1={line1} line2={line2} />
         <div className="flex shrink-0 items-center gap-3">

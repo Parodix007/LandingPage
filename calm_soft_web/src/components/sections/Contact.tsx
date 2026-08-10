@@ -18,8 +18,8 @@ export function Contact() {
         aria-hidden="true"
         className="pointer-events-none absolute bottom-[-140px] left-1/2 h-[420px] w-[1000px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse,color-mix(in_oklch,var(--color-accent)_22%,transparent),transparent_70%)]"
       />
-      <div className="relative mx-auto grid max-w-[1200px] grid-cols-1 gap-16 px-6 py-[120px] pb-[100px] min-[900px]:grid-cols-[0.85fr_1.15fr]">
-        <div className="flex flex-col gap-6">
+      <div className="reveal-group relative mx-auto grid max-w-[1200px] grid-cols-1 gap-16 px-6 py-[120px] pb-[100px] min-[900px]:grid-cols-[0.85fr_1.15fr]">
+        <div className="reveal-group flex flex-col gap-6">
           <SectionHeading id="contact-heading" line1={site.contact.heading} />
           <p className="text-[18px] leading-[1.55] text-ink-70">{site.contact.paragraph}</p>
           <a
@@ -37,7 +37,7 @@ export function Contact() {
             ))}
           </div>
         </div>
-        <div className="flex flex-col gap-6">
+        <div className="reveal-group flex flex-col gap-6">
           <div className="rounded-[var(--radius-card)] border border-border-08 bg-surface p-[28px_30px]">
             <p className="text-[18px] font-semibold text-ink">{site.contact.talk.title}</p>
             <p className="mt-2 text-[15px] leading-[1.55] text-ink-70">{site.contact.talk.body}</p>

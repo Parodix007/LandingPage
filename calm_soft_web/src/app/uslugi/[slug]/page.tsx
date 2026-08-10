@@ -26,8 +26,8 @@ export function generateStaticParams() {
 
 // Next.js 16 passes `params` as a Promise — must be awaited (see node_modules/next/dist/docs/
 // 01-app/03-api-reference/04-functions/generate-metadata.md and generate-static-params.md).
-// metaTitle/metaDescription are stage-1 copy composed only from the owner's existing tag/intro
-// (see services.ts) — stage 2 replaces them with keyword-targeted copy.
+// metaTitle/metaDescription are stage-2 keyword-targeted copy (see services.ts) — all four
+// services now carry campaign-phrase meta instead of the stage-1 tag/intro composite.
 export async function generateMetadata({
   params,
 }: {
@@ -128,8 +128,8 @@ function CaseCard({ c }: { c: CaseStudy }) {
 // calls lib/scroll.ts's scrollToContact() automatically retargets to this page's local form —
 // no changes needed there (see design doc "#contact needs no new plumbing").
 //
-// Heading order (contract, see design doc): h1 → h2 pageSections[] (h3 per named group, empty
-// renders nothing — web/refactor still have no content) → h2 fit → h2 deliver → h2 approach →
+// Heading order (contract, see design doc): h1 → h2 pageSections[] (h3 per named group; all four
+// services now carry content) → h2 fit → h2 deliver → h2 approach →
 // h2 proof (h3 per case card) → h2 proposal → h3 mechanism.heading → h3 per solution line (h4 per
 // demo card, both inside SolutionLineBlock) → <Contact/>.
 export default async function ServicePage({
@@ -152,7 +152,7 @@ export default async function ServicePage({
   return (
     <InquiryProvider>
       <ModalProvider cases={cases} demos={demos}>
-        <div className="mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]">
+        <div className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]">
           <header className="mb-4">
             <Chip tone={TONE_CHIP[service.tone]}>{service.tag}</Chip>
             <h1 className="mt-4 text-[clamp(36px,4.5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em]">
@@ -170,14 +170,14 @@ export default async function ServicePage({
             </p>
           </header>
 
-          {/* pageSections is `[]` for web/refactor (owner hasn't supplied their content yet) —
-              this renders nothing for them. Same treatment as SolutionLineBlock's line.price:
-              "this block intentionally renders nothing until content supplies it. Do not invent
-              figures." Placed ahead of fit/deliver: this is the content the visitor clicked an ad
-              for, so it belongs above the fold, not after the benefits list. */}
+          {/* pageSections is non-empty for all four services as of etap 2 (the `.length > 0` guard
+              stays as a defensive no-render path, same treatment as SolutionLineBlock's
+              line.price: "this block intentionally renders nothing until content supplies it. Do
+              not invent figures."). Placed ahead of fit/deliver: this is the content the visitor
+              clicked an ad for, so it belongs above the fold, not after the benefits list. */}
           {service.pageSections.length > 0 &&
             service.pageSections.map((section, i) => (
-              <section key={section.heading} aria-labelledby={`page-section-${i}`} className="mt-16">
+              <section key={section.heading} aria-labelledby={`page-section-${i}`} className="reveal-group mt-16">
                 <h2 id={`page-section-${i}`} className={H2_CLASS}>
                   {section.heading}
                 </h2>
@@ -214,7 +214,7 @@ export default async function ServicePage({
               </section>
             ))}
 
-          <section aria-labelledby="fit-heading" className="mt-16">
+          <section aria-labelledby="fit-heading" className="reveal-group mt-16">
             <h2 id="fit-heading" className={H2_CLASS}>
               {site.sections.services.fitLabel}
             </h2>
@@ -230,7 +230,7 @@ export default async function ServicePage({
             </ul>
           </section>
 
-          <section aria-labelledby="deliver-heading" className="mt-16">
+          <section aria-labelledby="deliver-heading" className="reveal-group mt-16">
             <h2 id="deliver-heading" className={H2_CLASS}>
               {site.sections.services.deliverLabel}
             </h2>
@@ -244,7 +244,7 @@ export default async function ServicePage({
             </div>
           </section>
 
-          <section aria-labelledby="approach-heading" className="mt-16">
+          <section aria-labelledby="approach-heading" className="reveal-group mt-16">
             <h2 id="approach-heading" className={H2_CLASS}>
               {site.sections.services.approachLabel}
             </h2>
@@ -254,7 +254,7 @@ export default async function ServicePage({
           </section>
 
           {relatedCases.length > 0 && (
-            <section aria-labelledby="proof-heading" className="mt-16">
+            <section aria-labelledby="proof-heading" className="reveal-group mt-16">
               <h2 id="proof-heading" className={H2_CLASS}>
                 {site.sections.services.proofLabel}
               </h2>
@@ -273,7 +273,7 @@ export default async function ServicePage({
               framing itself lives in the copy below (mechanism.heading/body, noDiscover), not in
               the markup. */}
           {resolvedLines.length > 0 && (
-            <section aria-labelledby="proposal-heading" className="mt-16">
+            <section aria-labelledby="proposal-heading" className="reveal-group mt-16">
               <h2 id="proposal-heading" className={H2_CLASS}>
                 {solutions.page.proposalLabel}
               </h2>
