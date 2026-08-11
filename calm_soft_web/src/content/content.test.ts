@@ -8,6 +8,7 @@ import { demos, getDemoBySlug } from "./demos";
 import { site } from "./site";
 import { pricing } from "./pricing";
 import { solutions, allSolutionLines, getSolutionLineBySlug } from "./solutions";
+import { stripEmphasis } from "@/components/ui/RichText";
 import type { AreaId, BudgetId } from "./types";
 
 const AREA_IDS: AreaId[] = ["core", "automation", "rescue", "web", "not-sure"];
@@ -262,53 +263,36 @@ describe("contact form v2 content (2026-07-22 pl-copy handoff)", () => {
   });
 });
 
-describe("pricing content (2026-07-20 pricing/Calendly/reorder design doc)", () => {
-  const PRICE_KINDS = ["from", "free", "promo", "individual"];
-  const TONES = ["accent", "accent2"];
-
-  it("has 6 groups, each with a valid tone and at least one card", () => {
-    expect(pricing.groups).toHaveLength(6);
-    for (const g of pricing.groups) {
-      expect(TONES).toContain(g.tone);
-      expect(g.cards.length).toBeGreaterThan(0);
-      expect(g.eyebrow.trim().length).toBeGreaterThan(0);
-      expect(g.sub.trim().length).toBeGreaterThan(0);
-    }
-  });
-
-  it("every card has a non-empty title/desc and a price of a valid kind", () => {
-    for (const g of pricing.groups) {
-      for (const c of g.cards) {
-        expect(c.title.trim().length).toBeGreaterThan(0);
-        expect(c.desc.trim().length).toBeGreaterThan(0);
-        expect(PRICE_KINDS).toContain(c.price.kind);
-      }
-    }
-  });
-
-  it("heading, lead, badges, foot, ctaLabel and disclaimer are all non-empty", () => {
+describe("pricing content (2026-08-11 pricing-single-rate collapse)", () => {
+  it("heading, lead, rate.unit, rate.note are non-empty; badges is non-empty and every badge is non-empty", () => {
     expect(pricing.heading.line1.trim().length).toBeGreaterThan(0);
     expect(pricing.heading.line2.trim().length).toBeGreaterThan(0);
     expect(pricing.lead.trim().length).toBeGreaterThan(0);
+    expect(pricing.rate.unit.trim().length).toBeGreaterThan(0);
+    expect(pricing.rate.note.trim().length).toBeGreaterThan(0);
     expect(pricing.badges.length).toBeGreaterThan(0);
-    expect(pricing.foot.billing.trim().length).toBeGreaterThan(0);
-    expect(pricing.foot.fine.trim().length).toBeGreaterThan(0);
-    expect(pricing.ctaLabel.trim().length).toBeGreaterThan(0);
-    expect(pricing.disclaimer.trim().length).toBeGreaterThan(0);
+    for (const badge of pricing.badges) {
+      expect(badge.trim().length).toBeGreaterThan(0);
+    }
   });
 
-  it("filters block has 5 unique, fully-labelled price tiers and non-empty UI strings", () => {
-    expect(pricing.filters.tiers).toHaveLength(5);
-    expect(new Set(pricing.filters.tiers.map((t) => t.id)).size).toBe(5);
-    for (const tier of pricing.filters.tiers) {
-      expect(tier.label.trim().length).toBeGreaterThan(0);
+  it("rate.amount contains '150' — the only number on this page", () => {
+    expect(pricing.rate.amount).toContain("150");
+  });
+
+  it("heading.line1, heading.line2, rate.amount and rate.unit never carry ** markers (they reach attributes or components that render children verbatim)", () => {
+    expect(pricing.heading.line1).not.toContain("**");
+    expect(pricing.heading.line2).not.toContain("**");
+    expect(pricing.rate.amount).not.toContain("**");
+    expect(pricing.rate.unit).not.toContain("**");
+  });
+
+  it("stripEmphasis(lead/rate.note/each badge) leaves no ** markers", () => {
+    expect(stripEmphasis(pricing.lead)).not.toContain("**");
+    expect(stripEmphasis(pricing.rate.note)).not.toContain("**");
+    for (const badge of pricing.badges) {
+      expect(stripEmphasis(badge)).not.toContain("**");
     }
-    expect(pricing.filters.categoryLegend.trim().length).toBeGreaterThan(0);
-    expect(pricing.filters.priceLegend.trim().length).toBeGreaterThan(0);
-    expect(pricing.filters.clearLabel.trim().length).toBeGreaterThan(0);
-    expect(pricing.filters.countLabel.trim().length).toBeGreaterThan(0);
-    expect(pricing.filters.emptyTitle.trim().length).toBeGreaterThan(0);
-    expect(pricing.filters.emptyBody.trim().length).toBeGreaterThan(0);
   });
 });
 
@@ -474,6 +458,14 @@ describe("keyword emphasis marker parity (2026-07-27 keyword-emphasis-and-audien
         expect(countMarkers(d.d)).toBe(0);
       }
       expect(countMarkers(service.approach)).toBe(0);
+    }
+  });
+
+  it("has an even number of ** markers in pricing.lead, pricing.rate.note and every pricing.badges entry", () => {
+    expect(countMarkers(pricing.lead) % 2).toBe(0);
+    expect(countMarkers(pricing.rate.note) % 2).toBe(0);
+    for (const badge of pricing.badges) {
+      expect(countMarkers(badge) % 2).toBe(0);
     }
   });
 });

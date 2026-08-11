@@ -7,15 +7,7 @@
 // for the same env values and asserts they produce identical output, turning any future edit to
 // one copy without the other into a red test.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  apiOriginFrom,
-  buildCsp,
-  buildDemoHeaders,
-  buildDemoMwprojectHeaders,
-  buildSecurityHeaders,
-  DEMO_CSP,
-  DEMO_MWPROJECT_CSP,
-} from "../../scripts/csp.mjs";
+import { apiOriginFrom, buildCsp, buildDemoHeaders, buildSecurityHeaders, DEMO_CSP } from "../../scripts/csp.mjs";
 
 const API_BASE_URL = "https://api.calmsoft.pro";
 const GA_ID = "G-TESTID1234";
@@ -74,37 +66,5 @@ describe("next.config.ts headers() vs scripts/csp.mjs (anti-drift)", () => {
 
     expect(mainCsp).toBe(buildCsp({ apiOrigin: apiOriginFrom(API_BASE_URL), gaId: GA_ID }));
     expect(demoCsp).toBe(DEMO_CSP);
-  });
-
-  it("the /demo/mwproject/:path* entry has exactly the same key/value pairs as buildDemoMwprojectHeaders()", async () => {
-    const { default: nextConfig } = await import("../../next.config");
-    const entries = await nextConfig.headers!();
-
-    const mwprojectEntry = entries.find((entry) => entry.source === "/demo/mwproject/:path*");
-    expect(mwprojectEntry).toBeDefined();
-    expect(mwprojectEntry!.headers).toEqual(buildDemoMwprojectHeaders());
-  });
-
-  it("lists /demo/mwproject/:path* AFTER /demo/:path*, so the narrower mwproject CSP wins (last-match-wins per Next docs)", async () => {
-    const { default: nextConfig } = await import("../../next.config");
-    const entries = await nextConfig.headers!();
-
-    const mainIndex = entries.findIndex((entry) => entry.source === "/:path*");
-    const demoIndex = entries.findIndex((entry) => entry.source === "/demo/:path*");
-    const mwprojectIndex = entries.findIndex((entry) => entry.source === "/demo/mwproject/:path*");
-    expect(mainIndex).toBeGreaterThanOrEqual(0);
-    expect(demoIndex).toBeGreaterThan(mainIndex);
-    expect(mwprojectIndex).toBeGreaterThan(demoIndex);
-  });
-
-  it("the mwproject CSP string is character-for-character identical between the two copies", async () => {
-    const { default: nextConfig } = await import("../../next.config");
-    const entries = await nextConfig.headers!();
-
-    const mwprojectCsp = entries
-      .find((entry) => entry.source === "/demo/mwproject/:path*")!
-      .headers.find((h) => h.key === "Content-Security-Policy")!.value;
-
-    expect(mwprojectCsp).toBe(DEMO_MWPROJECT_CSP);
   });
 });

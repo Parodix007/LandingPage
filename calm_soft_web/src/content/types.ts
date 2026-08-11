@@ -87,59 +87,15 @@ export type Demo = {
   logoId?: "cadence" | "airlift" | "puls"; // dema z własnym wordmarkiem/logo zamiast (lub obok) zrzutu ekranu — dziś trójka: cadence, airlift, puls
 };
 
-// /pricing/ page content (2026-07-20 pricing/Calendly/reorder design doc). Discriminated union
-// on `kind` — note "from" has no `label` field: the word "from" itself is fixed UI chrome
-// rendered by the page, not sourced from content (unlike "free"/"individual", which are full
-// labels because their wording varies).
-export type PricePoint =
-  | { kind: "from"; amount: string; unit?: string }
-  | { kind: "free"; label: string }
-  | { kind: "promo"; old: string; now: string }
-  | { kind: "individual"; label: string };
-
-export type PricingCard = {
-  title: string;
-  desc: string;
-  tag?: string;
-  price: PricePoint;
-  note?: string;
-};
-
-export type PricingGroup = {
-  eyebrow: string;
-  // Decorative per-group emoji from the owner's draft (🌐⚙️🔗🛟🔧) — rendered in its own
-  // aria-hidden span ahead of the eyebrow text (HANDOFF a11y note); "Start without risk" has
-  // none. Tone is the same "accent"/"accent2" vocabulary Chip/GhostPill already use — unlike
-  // Service.tone's "a"/"b" + translation table, this type matches the tone prop domain 1:1.
-  icon?: string;
-  sub: string;
-  tone: "accent" | "accent2";
-  cards: PricingCard[];
-};
-
-export type PriceTierId = "free" | "lt5k" | "mid" | "high" | "custom";
-
-export type PricingFilterTier = { id: PriceTierId; label: string };
-
-export type PricingFilters = {
-  categoryLegend: string; // e.g. "Category"
-  priceLegend: string; // e.g. "Price"
-  clearLabel: string; // e.g. "Clear all"
-  countLabel: string; // e.g. "shown"  — rendered as `{shown} / {total} {countLabel}`
-  emptyTitle: string; // shown when nothing matches
-  emptyBody: string;
-  tiers: PricingFilterTier[];
-};
-
+// /pricing/ page content — 2026-08-11 pricing-single-rate collapse (owner decision): the
+// 20-card/6-group grid + dual filter set gave way to one hourly rate. `rate` carries the number
+// and how the full price is derived; `badges` carries trust signals; `lead` carries the T&M
+// billing model — three different jobs, kept as three fields on purpose.
 export type PricingPage = {
   heading: { line1: string; line2: string };
   lead: string;
+  rate: { amount: string; unit: string; note: string };
   badges: string[];
-  groups: PricingGroup[];
-  filters: PricingFilters;
-  foot: { billing: string; fine: string };
-  ctaLabel: string;
-  disclaimer: string;
 };
 
 // /work/ page content (2026-07-20 work-page-and-round2-polish design doc) — the full case

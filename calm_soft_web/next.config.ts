@@ -78,13 +78,6 @@ const demoCsp =
   "font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; " +
   "connect-src 'self';";
 
-// /demo/mwproject/ CSP override — must stay byte-identical to scripts/csp.mjs's DEMO_MWPROJECT_CSP.
-const demoMwprojectCsp =
-  "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; " +
-  "img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; " +
-  "font-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; " +
-  "connect-src 'self' blob: data:;";
-
 const nextConfig: NextConfig = {
   output: "export",
   trailingSlash: true,
@@ -104,16 +97,6 @@ const nextConfig: NextConfig = {
         source: "/demo/:path*",
         headers: [
           { key: "Content-Security-Policy", value: demoCsp },
-          { key: "X-Robots-Tag", value: "noindex, nofollow" },
-        ],
-      },
-      {
-        // Listed AFTER "/demo/:path*" on purpose — "/demo/mwproject/:path*" is itself a subset
-        // of "/demo/:path*", so last-match-wins ordering applies the same way here: reversed,
-        // this mockup would fall back to the looser DEMO_CSP (no blob:) and hang on "Unpacking…".
-        source: "/demo/mwproject/:path*",
-        headers: [
-          { key: "Content-Security-Policy", value: demoMwprojectCsp },
           { key: "X-Robots-Tag", value: "noindex, nofollow" },
         ],
       },

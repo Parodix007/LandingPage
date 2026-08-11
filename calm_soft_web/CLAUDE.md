@@ -172,8 +172,12 @@ Zmiana którejkolwiek z tych rzeczy wymaga jawnej zgody właściciela:
 - **`src/components/`** — `ui/` (prymitywy: `Chip`, `FilledPill`, `GhostPill`, `pillBase`,
   `SectionHeading`, `Watermark`, `Modal`, `TechStack`, `WarningNote`, `DemoLogo`, `icons`),
   `interactive/` (liście z zachowaniem: `CardActions`, `ContactForm`, `ProcessCarousel`,
-  `ServicesSlider`, `HeroCaseSlider`, `PricingExplorer`, `CalendlyCta`, `ConsentBanner`,
+  `ServicesSlider`, `HeroCaseSlider`, `CalendlyCta`, `ConsentBanner`,
   `useCarousel`), `sections/`, `layout/`, `providers/`.
+  `sections/Contact.tsx` (`id="contact"`) renderują **trzy** trasy: strona główna,
+  `/uslugi/<slug>/` i `/pricing/`. Na dwóch pierwszych stoi wewnątrz providerów, bo są tam
+  modale; na `/pricing/` **celowo bez nich** — `ContactForm` czyta tylko
+  `useRegisterContactFocus`, który ma bezpieczny domyślny no-op. Nie dokładaj tam providera.
 - **Granica klient/serwer jest na poziomie liścia.** Sekcje, `page.tsx` i `layout.tsx` to
   komponenty serwerowe. `'use client'` trafia **tylko** na liście interaktywne i providery.
   Providery to dedykowane pliki `'use client'` przyjmujące sekcje jako `children` — dzięki

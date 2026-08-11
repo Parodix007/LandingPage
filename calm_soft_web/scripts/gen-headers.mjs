@@ -14,7 +14,7 @@ import nextEnv from "@next/env";
 const { loadEnvConfig } = nextEnv;
 import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { apiOriginFrom, buildDemoHeaders, buildDemoMwprojectHeaders, buildSecurityHeaders } from "./csp.mjs";
+import { apiOriginFrom, buildDemoHeaders, buildSecurityHeaders } from "./csp.mjs";
 
 loadEnvConfig(process.cwd(), false);
 
@@ -70,20 +70,4 @@ if (existsSync(demoDir)) {
   const demoHtaccessPath = resolve(demoDir, ".htaccess");
   writeFileSync(demoHtaccessPath, demoHtaccessContent, "utf8");
   console.log(`[gen-headers] Zapisano ${demoHtaccessPath} (CSP zawężone do /demo/ — Google Fonts w makietach)`);
-}
-
-const demoMwprojectDir = resolve(outDir, "demo", "mwproject");
-if (existsSync(demoMwprojectDir)) {
-  const demoMwprojectHeaders = buildDemoMwprojectHeaders();
-  const demoMwprojectHeaderLines = demoMwprojectHeaders
-    .map((h) => `  Header always set ${h.key} "${h.value}"\n`)
-    .join("");
-
-  const demoMwprojectHtaccessContent = `<IfModule mod_headers.c>\n` + demoMwprojectHeaderLines + `</IfModule>\n`;
-
-  const demoMwprojectHtaccessPath = resolve(demoMwprojectDir, ".htaccess");
-  writeFileSync(demoMwprojectHtaccessPath, demoMwprojectHtaccessContent, "utf8");
-  console.log(
-    `[gen-headers] Zapisano ${demoMwprojectHtaccessPath} (CSP zawężone do /demo/mwproject/ — blob: dla samorozpakowującej się paczki)`
-  );
 }

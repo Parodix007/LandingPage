@@ -5,6 +5,7 @@ import { site } from "@/content/site";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { ConsentBanner } from "@/components/interactive/ConsentBanner";
+import { RevealOnScroll } from "@/components/interactive/RevealOnScroll";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://placeholder.invalid";
@@ -82,6 +83,7 @@ gtag('config',${JSON.stringify(gaId)});`,
         <main className="flex-1">{children}</main>
         <Footer />
         {gaId ? <ConsentBanner /> : null}
+        <RevealOnScroll />
       </body>
     </html>
   );

@@ -58,7 +58,6 @@ html {
 @keyframes glowDrift2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-50px, 30px); } }
 @keyframes gradShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes revealUp { from { transform: translateY(24px); } to { transform: translateY(0); } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -69,35 +68,92 @@ html {
   }
 }
 
-/* Reveal-on-scroll (docs/superpowers/specs/2026-08-10-reveal-on-scroll-design.md) — `.reveal-group`
-   animuje bezpośrednie dzieci, nigdy siebie: klasa oznacza kontener, ruch dostają bloki w środku.
-   `.reveal-group > .reveal-group { animation-name: none }` sprawia, że zagnieżdżanie jest
-   bezpieczne — bez tej linii kontener wewnętrzny animowałby się razem z własnymi dziećmi i
-   opacity mnożyłoby się przez dwa. `animation-fill-mode: both` chroni treść nad zgięciem i LCP:
-   blok będący już w kadrze przy scrollu 0 jest za końcem zakresu, więc trzyma stan końcowy i
-   maluje się od razu w pełni widoczny. Zakres to `cover`, nie `entry` — długość zakresu `entry`
-   to wysokość elementu, więc blok wyższy od ekranu zostawałby wyblakły przez cały swój
-   przewijany metraż. Gate to `prefers-reduced-motion: no-preference`, a nie nadpisanie killswitcha
-   powyżej — interakcja jego `animation-duration: 0.01ms !important` z osią postępu (zamiast osi
-   czasu) jest niejednoznaczna, więc widoczność treści nie ma jej dotyczyć.
-   `revealUp` rusza wyłącznie `transform`, mimo że `fadeSlideUp` obok animuje też `opacity` —
-   axe mierzy skomponowany kolor tekstu w trakcie animacji, więc każdy element w połowie
-   przenikania oblewa `color-contrast` (zmierzone na Lighthouse mobile: `text-ink` jako `#313132`,
-   `text-ink-60` jako `#1e1e1e`), co zbiło a11y do 96 na stronach usług i do 93 na `/work/`.
-   Podniesienie startowej przezroczystości tego nie rozwiązuje — `text-ink-60` ma już 0.6 alfy,
-   więc próg AA wymagałby startu od ok. 0.85, czyli przenikania, którego nie widać. Efektem
-   ubocznym znika też ryzyko SEO z sekcji „Risks" w design docu: żaden tekst nie jest już nigdy
-   niewidoczny, tylko przesunięty. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal-group > *:not([aria-hidden="true"]) {
-      animation-name: revealUp;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      animation-timeline: view();
-      animation-range: cover 0% cover 30%;
-    }
-    .reveal-group > .reveal-group { animation-name: none; }
+/* Reveal-on-scroll, wersja IntersectionObserver (RevealOnScroll.tsx) — poprzedni mechanizm
+   (`animation-timeline: view()`) rozkładał 24px ruchu na ~330px przewijania liniowo i kończył
+   się, zanim blok wszedł w strefę czytania: efekt był w praktyce niewidoczny. Ten JS ustawia
+   `--reveal-i` (indeks kaskady) i przełącza `[data-revealed]`; CSS niżej tylko na to reaguje.
+   Gate to `prefers-reduced-motion: no-preference`, nie nadpisanie killswitcha wyżej w tym pliku —
+   pod `reduce` żadna z tych dwóch reguł nie obowiązuje, `data-reveal` na <html> zostaje więc
+   bezczynne i treść po prostu nie ma czego animować (zero przesunięcia, zero zależności od JS
+   dla widoczności).
+   Dwie reguły, nie jedna — ale podział ról jest teraz między OBECNOŚCIĄ atrybutu a jego
+   WARTOŚCIĄ, nie (jak poprzednio) między specyficznością dwóch reguł na tej samej wartości
+   `"on"`. Powód: RevealOnScroll.tsx uzbraja dwufazowo, `[data-reveal="arming"]` → reflow →
+   `[data-reveal="on"]`, właśnie po to, żeby te dwie reguły NIE zaczęły obowiązywać w tym samym
+   przeliczeniu stylu. Jednofazowe uzbrojenie (`root.dataset.reveal = "on"` i stan startowy, i
+   transition naraz) nakładało `opacity: 0` + `translateY(30px)` na element, który W TEJ SAMEJ
+   klatce dostawał też `transition: opacity, transform` — Chrome czyta to jako zmianę wartości
+   przy już aktywnej tranzycji i animuje WEJŚCIE w stan ukryty zamiast po prostu w nim wystartować:
+   `el.getAnimations()` zwracało `["CSSTransition:opacity:running", "CSSTransition:transform:running"]`,
+   a element pod zgięciem parkował się w połowie przenikania na 700ms. To dokładnie ten sam tryb,
+   który wcześniej (poprzednia wersja na `animation-timeline`) zbijał Accessibility do 93 na
+   `/work/` przez `color-contrast` w trakcie animacji — więc to nie kosmetyka, tylko powrót tego
+   samego ryzyka a11y.
+   Rozwiązanie: reguła stanu startowego dopasowuje na `[data-reveal]` (dowolna wartość, czyli już
+   w fazie "arming") i NIE niesie `transition` — więc w fazie "arming" element trafia w stan
+   ukryty bez animacji, w tej samej klatce co reflow. `transition` mieszka wyłącznie w drugiej
+   regule, dopasowującej `[data-reveal="on"]`, czyli włącza się dopiero PO reflow, kiedy stan
+   ukryty już fizycznie obowiązuje — od tego momentu każda kolejna zmiana (odsłonięcie przez
+   observer, albo `:focus-within`) faktycznie się animuje. Obie reguły ustawiają rozłączne
+   właściwości (pierwsza: transform+opacity, druga: transition+transition-delay), więc kolejność
+   zapisu w pliku i specyficzność już nie mają znaczenia dla poprawności — nie ma między nimi
+   konfliktu do rozstrzygania.
+   Stan spoczynku po odsłonięciu to naturalne "brak transformu" (selektor po prostu przestaje
+   dopasowywać, bo doszło `[data-revealed]`), nie zatrzymana macierz — nad kartami nie zostaje
+   więc trwały containing block, który psułby pozycjonowanie `.pill-stretched::after` w środku.
+   Człon `opacity` jest wydzielony do własnej deklaracji (i w transition, i w stanie startowym)
+   celowo, mimo że mógłby żyć w jednym skrócie z transform: to jest bramka pomiaru Lighthouse
+   (axe mierzy skomponowany kolor tekstu w trakcie animacji — patrz git blame tego bloku dla
+   pełnej historii regresji a11y), a revert tego pojedynczego efektu ma być skasowaniem dwóch
+   linii, nie chirurgią w środku skrótu.
+   Dwa efekty uboczne dotknęły kart case (`.card-host` z `HOVER_LIFT` w CaseStudies.tsx /
+   app/work/page.tsx), zweryfikowane na `preview` i naprawione niżej — ten sam defekt co wyżej,
+   tylko wpuszczony bokiem, bo te karty niosą WŁASNĄ tranzycję z utility Tailwinda, nie naszą:
+   (1) faza "arming" tłumiła tylko brak naszej `transition`, ale nie istnienie cudzej — karta
+   miała już swoją `transition-[transform,border-color]` z Tailwinda aktywną, więc to ONA
+   animowała wejście w stan ukryty (`getAnimations()` pokazywał `CSSTransition:transform:running`
+   zaraz po załadowaniu). Trzecia reguła niżej, `[data-reveal="arming"] { transition: none }`,
+   tłumi WSZYSTKIE tranzycje na celu w tej fazie, nie tylko naszą.
+   (2) nasz skrót `transition` w regule fazy "on" jest nielayerowany, więc bije `@layer utilities`
+   Tailwinda i wymiata całą listę `transition-property` celu — łącznie z `border-color`, który
+   HOVER_LIFT potrzebuje do płynnej obwódki na hover/focus-within. `border-color 350ms` niżej to
+   nie nasza właściwość — to odtworzenie tego, co HOVER_LIFT miał (`duration-[350ms]` + domyślny
+   Tailwindowy `ease-in-out`), żeby hover kart nie stracił po cichu animacji. Świadomie NIE
+   cofnięte: `transform` na tych kartach jedzie teraz naszą krzywą 700ms zamiast ich 350ms —
+   zawężenie reguły fazy "on" do stanu nieodsłoniętego (`:not([data-revealed])`) zabiłoby całą
+   animację wejścia (dwie sondy w przeglądarce: transition tylko na `:not(.rev)` po dodaniu klasy
+   skacze do wartości końcowej z `getAnimations() === []`; transition na regule dopasowującej
+   zawsze animuje się poprawnie — więc reguła MUSI dopasowywać też elementy odsłonięte, i to
+   nadpisanie jest nieuniknioną ceną, nie przeoczeniem). */
+@media (prefers-reduced-motion: no-preference) {
+  /* Faza 1 (uzbrojenie): sam stan startowy, bez `transition` — dopasowuje na SAMĄ OBECNOŚĆ
+     `data-reveal`, więc obowiązuje już w fazie "arming" i zostaje w mocy dalej w fazie "on". */
+  html[data-reveal]
+    .reveal-group
+    > *:not([aria-hidden="true"]):not(.reveal-group):not([data-revealed]):not(:focus-within) {
+    transform: translateY(30px);
+    opacity: 0;                                              /* REWERTOWALNE */
+  }
+  /* Faza „arming" tłumi WSZYSTKIE tranzycje na celach, nie tylko naszą: karty case niosą
+     własne `transition-[transform,border-color]` z utility Tailwinda i bez tego to ich
+     tranzycja animuje wejście w stan ukryty (objaw: CSSTransition:transform:running zaraz
+     po załadowaniu). Reguła nie koliduje z fazą "on" — atrybut ma zawsze dokładnie jedną
+     wartość, więc obie nigdy nie obowiązują naraz. */
+  html[data-reveal="arming"] .reveal-group > *:not([aria-hidden="true"]):not(.reveal-group) {
+    transition: none;
+  }
+  /* Faza 2 (aktywacja): tranzycja dochodzi dopiero przy `data-reveal="on"` (po reflow w
+     RevealOnScroll.tsx), na regule dopasowującej ZAWSZE — także po dopisaniu `[data-revealed]` —
+     więc odsłonięcie przez observer faktycznie się animuje zamiast skakać do `transition: none`.
+     `border-color` w tym skrócie NIE jest naszą właściwością — patrz komentarz nad `@media`
+     wyżej: nielayerowany skrót inaczej wymiótłby ją z HOVER_LIFT (CaseStudies.tsx /
+     app/work/page.tsx) i obwódka karty przeskakiwałaby zamiast płynnie przechodzić na
+     hover/focus-within. */
+  html[data-reveal="on"] .reveal-group > *:not([aria-hidden="true"]):not(.reveal-group) {
+    transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 320ms ease-out,                      /* człon opacity: REWERTOWALNY */
+                border-color 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition-delay: calc(min(var(--reveal-i, 0), 5) * 60ms);
   }
 }
 
