@@ -276,8 +276,8 @@ describe("pricing content (2026-08-11 pricing-single-rate collapse)", () => {
     }
   });
 
-  it("rate.amount contains '150' — the only number on this page", () => {
-    expect(pricing.rate.amount).toContain("150");
+  it('rate.amount is exactly "od 150 zł" — the only price on this page', () => {
+    expect(pricing.rate.amount).toBe("od 150 zł");
   });
 
   it("heading.line1, heading.line2, rate.amount and rate.unit never carry ** markers (they reach attributes or components that render children verbatim)", () => {
