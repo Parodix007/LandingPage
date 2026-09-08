@@ -75,6 +75,32 @@ describe("ServicesSlider (docs/superpowers/specs/2026-07-22-services-slider-desi
     }
   });
 
+  it("renders responsive decorative art for every service with eager loading only on the first slide", () => {
+    const { container } = renderSlider();
+    const slides = Array.from(
+      container.querySelectorAll('[role="group"][aria-roledescription="slide"]'),
+    );
+
+    expect(slides).toHaveLength(services.length);
+    for (const [index, service] of services.entries()) {
+      const picture = slides[index].querySelector('[data-testid="service-slide-art"]');
+      expect(picture).not.toBeNull();
+      expect(picture?.parentElement?.firstElementChild).toBe(picture);
+      expect(picture).toHaveAttribute("aria-hidden", "true");
+      expect(picture?.querySelector('source[media="(min-width: 900px)"]')).toHaveAttribute(
+        "srcset",
+        service.art.desktop,
+      );
+      expect(picture?.querySelector("img")).toHaveAttribute("src", service.art.mobile);
+      expect(picture?.querySelector("img")).toHaveAttribute("alt", "");
+      expect(picture?.querySelector("img")).toHaveAttribute("aria-hidden", "true");
+      expect(picture?.querySelector("img")).toHaveAttribute(
+        "loading",
+        index === 0 ? "eager" : "lazy",
+      );
+    }
+  });
+
   it("renders the track at step 0 initially", () => {
     const { container } = renderSlider();
     expect(getTrack(container).style.transform).toBe("translateX(calc(0 * (-100% - 18px)))");

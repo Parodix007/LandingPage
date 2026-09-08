@@ -33,9 +33,13 @@ export const services: Service[] = [
     // (docs/superpowers/specs/2026-07-31-service-pages-restructure-design.md). Etap 2: meta/H1
     // podmienione na frazy kampanii, pageSections wypełnione dosłownym copy właściciela.
     slug: "systemy-i-integracje",
-    metaTitle: "Integracje ERP — Comarch, Subiekt, enova | calm_soft",
+    art: {
+      mobile: "/service-art/systemy-i-integracje-mobile.webp",
+      desktop: "/service-art/systemy-i-integracje-desktop.webp",
+    },
+    metaTitle: "Integracje ERP ze sklepem i marketplace | calm_soft",
     metaDescription:
-      "Spinam Comarch Optima, Subiekt GT, enova365 i WAPRO Mag z e-commerce, KSeF i systemami partnerów. Architektura, API, migracje bez utraty danych.",
+      "Łączę Comarch, Subiekt, enova i WAPRO ze sklepami, marketplace, KSeF i systemami partnerów. Bez ręcznego przepisywania danych i ciągłych rozjazdów.",
     pageH1: "Integracje systemów ERP, które przestają się rozjeżdżać",
     pageSections: [
       {
@@ -102,9 +106,13 @@ export const services: Service[] = [
     relatedSlugs: ["software-delivery-org-50-people", "localhost-academy"],
     solutionSlugs: ["automatyzacje"],
     slug: "automatyzacja",
-    metaTitle: "Automatyzacja procesów firmy — n8n, Make.com, RPA | calm_soft",
+    art: {
+      mobile: "/service-art/automatyzacja-mobile.webp",
+      desktop: "/service-art/automatyzacja-desktop.webp",
+    },
+    metaTitle: "Automatyzacja procesów w firmie | calm_soft",
     metaDescription:
-      "Automatyzuję faktury, obieg dokumentów, raportowanie i onboarding. Buduję na n8n, Make.com i Power Automate albo we własnym kodzie.",
+      "Automatyzuję faktury, dokumenty, raportowanie, onboarding i przepływ danych. Zaczynam od jednego procesu i sprawdzam, czy wdrożenie się opłaca.",
     pageH1: "Automatyzacja procesów w firmie — od mapowania po wdrożenie",
     pageSections: [
       {
@@ -172,9 +180,13 @@ export const services: Service[] = [
     relatedSlugs: ["public-sector-poland", "enterprise-30-years-in-production"],
     solutionSlugs: ["weterynaria", "kliniki-laboratoria"],
     slug: "platformy-webowe",
-    metaTitle: "Aplikacje webowe na zamówienie — portale, sklepy, panele | calm_soft",
+    art: {
+      mobile: "/service-art/platformy-webowe-mobile.webp",
+      desktop: "/service-art/platformy-webowe-desktop.webp",
+    },
+    metaTitle: "Aplikacje i platformy webowe na zamówienie | calm_soft",
     metaDescription:
-      "Buduję portale, sklepy, panele personelu i narzędzia wewnętrzne. Angular, React, Next.js, Nest.js, PostgreSQL — projekt, kod i chmura w jednych rękach.",
+      "Projektuję i buduję portale klienta, panele pracowników, systemy rezerwacji i produkty online. Od celu biznesowego po działające wdrożenie.",
     pageH1: "Aplikacje webowe na zamówienie — od projektu po produkcję",
     pageSections: [
       {
@@ -240,6 +252,10 @@ export const services: Service[] = [
     relatedSlugs: ["enterprise-30-years-in-production", "public-sector-poland"],
     solutionSlugs: [],
     slug: "legacy",
+    art: {
+      mobile: "/service-art/legacy-mobile.webp",
+      desktop: "/service-art/legacy-desktop.webp",
+    },
     metaTitle: "Modernizacja systemów legacy — audyt, stabilizacja, migracja | calm_soft",
     metaDescription:
       "Wchodzę w cudzy kod: audyt, testy i CI wokół istniejącego systemu, potem modernizacja kawałek po kawałku — bez zatrzymywania biznesu i bez rewrite'u od zera.",

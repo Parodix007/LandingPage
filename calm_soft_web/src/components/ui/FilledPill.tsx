@@ -2,7 +2,7 @@ import { PILL_FOCUS, PillElement, type PillAsProps, type PillSharedProps } from 
 
 export type FilledPillSize = "nav" | "md" | "lg";
 
-export type FilledPillProps = PillSharedProps & PillAsProps & { size?: FilledPillSize };
+export type FilledPillProps = PillSharedProps & PillAsProps & { size?: FilledPillSize; className?: string };
 
 // HANDOFF "Interactions & Behavior": accent bg, black text, hover filter: brightness(1.15),
 // transition: filter 0.25s ease. Weight fixed 600. Sizes:
@@ -17,25 +17,16 @@ const SIZE_CLASSES: Record<FilledPillSize, string> = {
 
 // hit-44 (SPEC §11.3): ≥44px tap area via ::before, without inflating the visual size.
 const BASE =
-  `hit-44 ${PILL_FOCUS} inline-flex items-center justify-center rounded-[var(--radius-pill)] bg-accent font-semibold leading-none text-black transition-[filter] duration-[250ms] hover:brightness-[1.15]`;
+  `hit-44 ${PILL_FOCUS} inline-flex items-center justify-center rounded-[var(--radius-pill)] bg-accent font-semibold leading-none text-black transition-[filter,transform,opacity] duration-[250ms] hover:brightness-[1.15]`;
 
-export function FilledPill({
-  as,
-  href,
-  onClick,
-  size = "md",
-  children,
-  "aria-label": ariaLabel,
-}: FilledPillProps) {
-  return (
-    <PillElement
-      as={as}
-      href={href}
-      className={`${BASE} ${SIZE_CLASSES[size]}`}
-      onClick={onClick}
-      ariaLabel={ariaLabel}
-    >
-      {children}
-    </PillElement>
-  );
+export function FilledPill(props: FilledPillProps) {
+  const size = props.size ?? "md";
+  const className = `${BASE} ${SIZE_CLASSES[size]}${props.className ? ` ${props.className}` : ""}`;
+  const ariaLabel = props["aria-label"];
+  const ariaHidden = props["aria-hidden"];
+
+  if (props.as === "a") {
+    return <PillElement as="a" href={props.href} target={props.target} rel={props.rel} className={className} onClick={props.onClick} ariaLabel={ariaLabel} ariaHidden={ariaHidden} tabIndex={props.tabIndex}>{props.children}</PillElement>;
+  }
+  return <PillElement as="button" className={className} onClick={props.onClick} ariaLabel={ariaLabel} ariaHidden={ariaHidden} tabIndex={props.tabIndex}>{props.children}</PillElement>;
 }

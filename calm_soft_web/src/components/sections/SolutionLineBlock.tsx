@@ -9,6 +9,7 @@ import { PILL_FOCUS } from "@/components/ui/pillBase";
 import { DemoLogo } from "@/components/ui/DemoLogo";
 import { RichText } from "@/components/ui/RichText";
 import { CardActions } from "@/components/interactive/CardActions";
+import { HOVER_LIFT } from "@/components/ui/cardHover";
 import type { Demo, SolutionDemoItem, SolutionLine } from "@/content/types";
 
 export type SolutionLineBlockProps = {
@@ -30,9 +31,6 @@ export type SolutionLineBlockProps = {
 // frozen, so no new shared primitive — this is the fourth copy of the same convention).
 const LANG_CHIP_CLASS =
   "inline-flex items-center rounded-[var(--radius-pill)] border border-border-10 bg-white/[0.06] px-[13px] py-[6px] text-[12.5px] text-ink-70";
-
-const HOVER_LIFT =
-  "transition-[transform,border-color] duration-[350ms] hover:-translate-y-1 hover:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)] focus-within:-translate-y-1 focus-within:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)]";
 
 // Server component (SPEC §16 client/server boundary) — no 'use client'. One instance per
 // SolutionLine, rendered by the two solution groups on /demos/ (2026-07-26 solutions restructure

@@ -36,12 +36,21 @@ naprawy, refaktoru i nowej funkcji w jednym zadaniu bez zgody właściciela.
 ## Model dostarczania
 
 - Agent główny jest orkiestratorem: analizuje, projektuje, przygotowuje brief, deleguje, integruje,
-  wykonuje przegląd diffu i weryfikuje rezultat. Nie pisze kodu produkcyjnego.
+  wykonuje końcowy przegląd diffu i weryfikuje rezultat. Nie pisze kodu produkcyjnego.
 - Kod produkcyjny zawsze deleguj do projektowego subagenta `implementer` z
-  `.codex/agents/implementer.toml`.
+  `.codex/agents/implementer.toml` (GPT-5.6 Luna, reasoning `high`) — tylko w ściśle wyznaczonym zakresie.
+- Po każdej implementacji, przed uznaniem zadania za zakończone, zleć niezależną recenzję agentowi
+  `reviewer` z `.codex/agents/reviewer.toml`, używającemu modelu aktualnie wybranego w sesji agenta
+  głównego. Recenzent nie edytuje kodu; brief wskazuje bazę diffa i wyłącznie zmiany przypisane do
+  danego zlecenia. Recenzent ocenia konkretne błędy i regresje w tym zakresie, bez szukania na siłę
+  problemów poza scope'em lub przedstawiania preferencji stylistycznych jako usterek. Przekazuje
+  `ACCEPT` albo ustalenia do nowego, wąskiego briefu dla implementatora. Gdy to samo ustalenie wraca po
+  dwóch poprawkach, zatrzymaj pętlę i zweryfikuj kontrakt lub klasyfikację; zmianę zakresu eskaluj do
+  właściciela. Zielona bramka, mały diff ani presja terminu nie pozwalają pominąć recenzji.
 - Brief dla implementatora musi podawać cel i kryterium akceptacji, dozwolone pliki, zamrożone
   pliki, kontrakt, niezmienniki oraz testy do wykonania.
-- Agent główny wykonuje końcowy przegląd wizualny, smoke na eksporcie i Lighthouse.
+- Agent główny wykonuje końcowy przegląd wizualny, smoke na eksporcie i Lighthouse po `ACCEPT`
+  recenzenta.
 - Deleguj równolegle tylko niezależne zadania o rozłącznych plikach i ustalonym kontrakcie.
 
 ## Produkt i copy

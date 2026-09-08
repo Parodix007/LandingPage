@@ -159,8 +159,6 @@ export const site: SiteContent = {
       cta: "Umów bezpłatną rozmowę (30 min) ›",
     },
     startLabel: "Zacznij projekt ›",
-    archiveHeading: "Archiwum",
-    archiveIntro: "Starsza praca zespołowa — zostaje dla pełnego obrazu, choć dziś moją miarą są projekty, które prowadzę w całości.",
   },
   notFound: {
     heading: "Nic tu nie ma.",
@@ -168,7 +166,7 @@ export const site: SiteContent = {
     back: "Wróć na stronę główną ›",
   },
   consent: {
-    text: "Używam Google Analytics i mierzę skuteczność reklam Google Ads, żeby wiedzieć, które treści działają. Te cookies włączą się tylko za Twoją zgodą.",
+    text: "Google Analytics pomaga mi mierzyć skuteczność strony i reklam. Te cookies uruchomię tylko za Twoją zgodą.",
     accept: "Akceptuję",
     decline: "Odrzucam",
     settingsLabel: "Ustawienia cookies",

@@ -4,7 +4,7 @@ import type { CaseStudy, Tone } from "@/content/types";
 import { Watermark } from "@/components/ui/Watermark";
 import { Chip } from "@/components/ui/Chip";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { CarouselArrowButton } from "@/components/ui/CarouselArrowButton";
 import { useModal } from "@/components/providers/ModalProvider";
 import { useCarousel } from "./useCarousel";
 
@@ -23,9 +23,6 @@ const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
 
 // Mirrors ProcessCarousel.tsx's/ServicesSlider.tsx's ARROW_BASE exactly (SPEC §6.6 / CLAUDE.md
 // carousel pattern) — also the same treatment the previous mockup-based hero slider used.
-const ARROW_BASE =
-  "hit-44 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border-20 text-ink transition-colors duration-[250ms] hover:border-accent hover:bg-white/[0.05]";
-
 // Dots show the case's TAG (not `c.client`, not an index) so the visible label is contained in
 // the accessible name `Przejdź do: ${c.tag}` — WCAG 2.5.3 Label in Name, same reasoning
 // ProcessCarousel/ServicesSlider document for their own dot rows. `client` is too long (some run
@@ -74,24 +71,8 @@ export function HeroCaseSlider({ cases, label, readCaseLabel }: HeroCaseSliderPr
           {label}
         </p>
         <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
-            aria-label="Poprzednia realizacja"
-            aria-disabled={step === 0}
-            onClick={prev}
-            className={`${ARROW_BASE} ${PILL_FOCUS} ${step === 0 ? "opacity-[0.35]" : ""}`}
-          >
-            <ChevronLeftIcon className="h-[18px] w-[18px]" />
-          </button>
-          <button
-            type="button"
-            aria-label="Następna realizacja"
-            aria-disabled={step === last}
-            onClick={next}
-            className={`${ARROW_BASE} ${PILL_FOCUS} ${step === last ? "opacity-[0.35]" : ""}`}
-          >
-            <ChevronRightIcon className="h-[18px] w-[18px]" />
-          </button>
+          <CarouselArrowButton direction="previous" label="Poprzednia realizacja" atBoundary={step === 0} onClick={prev} />
+          <CarouselArrowButton direction="next" label="Następna realizacja" atBoundary={step === last} onClick={next} />
         </div>
       </div>
 

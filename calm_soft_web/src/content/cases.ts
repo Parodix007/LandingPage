@@ -12,19 +12,19 @@ export const cases: CaseStudy[] = [
     tone: "a",
     tag: "Sektor publiczny",
     client: "Platforma dla sektora publicznego · 20 administracji miejskich",
-    headline: "Dwadzieścia miast, jedna platforma — i legacy, którego nikt nie chciał dotykać.",
+    headline: "Jedna platforma dla 20 administracji miejskich",
     teaser:
-      "Platforma, na której pracownicy 20 administracji miejskich codziennie załatwiają swoje sprawy — a pod spodem zbudowana od zera integracja z systemem kadrowo-płacowym, która wcześniej nie istniała.",
+      "Około 20 tys. osób korzysta z jednego miejsca do obsługi spraw pracowniczych. Platforma uwzględnia różnice między miastami i wymienia dane ze starszym systemem kadrowo-płacowym.",
     m1v: "20",
     m1l: "administracji miejskich",
     m2v: "~20 tys.",
     m2l: "użytkowników",
     challenge:
-      "Administracja publiczna działa na dokumentach — i zaskakująco wiele z nich dotyczy jej samej: wnioski urlopowe, nadgodziny, paski płacowe, obieg pism między wydziałami. Platforma daje pracownikom administracji, od urzędnika po kierownictwo miasta, jedno miejsce do załatwiania tych spraw. Naprawdę trudne były dwie rzeczy: pod spodem pracuje kadrowo-płacowe źródło prawdy o godzinach, nieobecnościach i wypłatach — system zbudowany w innej epoce, z którym nic współczesnego nie miało rozmawiać — a do tego żadne dwa miasta nie są takie same i jedna baza kodu musi zachowywać się jak inny produkt w każdym wdrożeniu.",
+      "Każde miasto pracuje trochę inaczej, ale wszystkie korzystają z jednej platformy. System musiał obsługiwać różne zasady i jednocześnie wymieniać dane o czasie pracy, nieobecnościach i wypłatach ze starszym rozwiązaniem kadrowo-płacowym.",
     approach:
-      "Przejąłem platformę jako działający system produkcyjny i jestem dziś jej jedynym architektem — każda zmiana dzieje się pod ludźmi, którzy nie mogą sobie pozwolić na przestój. Dwie rzeczy zbudowałem w całości, od architektury po wdrożenie: nowy, znacznie prostszy mechanizm zarządzania funkcjami per miasto — konfiguracja kolejnej administracji przestała wymagać wiedzy eksperckiej — oraz zupełnie nową integrację z legacy systemem kadrowo-płacowym. Java, Angular i Oracle.",
+      "Przejąłem odpowiedzialność za architekturę działającej platformy. Uprościłem sposób włączania funkcji dla poszczególnych miast i zbudowałem brakujące połączenie z systemem kadrowo-płacowym — od projektu po wdrożenie.",
     results:
-      "Produkcja w 20 administracjach miejskich, około 20 tysięcy osób używających platformy w codziennej pracy. Integracja kadrowo-płacowa weszła do oferty handlowej produktu — praca, która generuje przychód, nie tylko możliwości. Jedno z wymagań klienta poprowadziłem od pomysłu po projekt graficzny — zostało przyjęte, opłacone i dobrze odebrane.",
+      "Platforma działa w 20 administracjach miejskich i obsługuje około 20 tys. użytkowników. Konfiguracja kolejnego miasta nie wymaga już wiedzy eksperckiej, a nowa integracja weszła do oferty handlowej produktu.",
     tags: ["Sektor publiczny", "Integracja legacy", "Java · Angular · Oracle", "Jedyny architekt"],
   },
   {
@@ -33,19 +33,19 @@ export const cases: CaseStudy[] = [
     tone: "b",
     tag: "Systemy centralne",
     client: "Regulowana platforma dokumentowa",
-    headline: "2,5 miliona plików przeniesionych. Zero utraconych.",
+    headline: "Około 2,5 mln plików przeniesionych bez utraty danych",
     teaser:
-      "Regulowana platforma dokumentowa musiała zejść z NFS na storage obiektowy. Zbudowałem narzędzia migracyjne z checkpointami i ciągłą weryfikacją integralności — ~2,5 mln plików we wznawialnych sesjach, finał w jeden weekend.",
+      "Migrację podzieliłem na bezpieczne, możliwe do wznowienia etapy. Każdy z nich potwierdzał kompletność danych, a finałowe przełączenie zakończyło się w jeden weekend.",
     m1v: "~2,5 mln",
     m1l: "plików, we wznawialnych sesjach",
     m2v: "0",
     m2l: "utraconych plików",
     challenge:
-      "Platforma dokumentowa trzymająca około 2,5 miliona plików (~500 GB) na klasycznym NFS potrzebowała przejść na storage obiektowy: właściwe wersjonowanie, prostszy cykl życia i warstwa, którą da się utrzymywać, a nie tylko przeżywać. W środowisku regulowanym utracony dokument to nie bug, tylko incydent z konsekwencjami poza inżynierią — a przy tej skali naiwne podejście zawodzi: proces, który umiera przy 80% bez wiedzy, co już przeszło, jest gorszy niż nierozpoczęty.",
+      "Regulowana platforma dokumentowa musiała przenieść około 2,5 mln plików, czyli blisko 500 GB danych. Utrata nawet części dokumentów oznaczałaby konsekwencje wykraczające poza zwykłą awarię techniczną.",
     approach:
-      "Ten projekt prowadziłem w całości — architektura i implementacja były po mojej stronie. Prawdziwą pracą nie było kopiowanie, tylko maszyneria wokół niego: silnik transferu, mechanizm checkpointów i wznowień oraz warstwa monitoringu i kontroli, dzięki której proces dało się w każdej chwili zatrzymać, obejrzeć i bezpiecznie kontynuować. Z NFS na obiektowy MinIO — z założeniem, że migrację uruchamia się wielokrotnie i bezpiecznie, a nie raz i nieodwracalnie.",
+      "Zaprojektowałem i zbudowałem proces, który można było zatrzymać, sprawdzić i bezpiecznie wznowić. Każdy etap zapisywał postęp i kontrolował zgodność przeniesionych danych.",
     results:
-      "Około 2,5 miliona plików zmigrowanych bez ani jednej straty — a „zero strat\" nie jest tu deklaracją: sumy kontrolne i metryki rekoncyliacji były wbudowane w proces, więc każda sesja dowodziła, co przeniosła. Migracja działa w sesjach — można ją startować, pauzować i wznawiać — a finałowy przebieg produkcyjny zamknął się w jeden weekend.",
+      "Wszystkie pliki zostały przeniesione bez utraty danych. Migrację można było prowadzić etapami, a jej końcowy przebieg produkcyjny zamknął się w jednym weekendzie.",
     tags: ["Migracja danych", "NFS → MinIO/S3", "Sumy kontrolne", "Finał w jeden weekend"],
   },
   {
@@ -54,19 +54,19 @@ export const cases: CaseStudy[] = [
     tone: "b",
     tag: "Automatyzacja",
     client: "Localhost Academy · szkoła programowania (mentoring 1:1)",
-    headline: "Localhost Academy: 150 uczniów, zero zespołu operacyjnego.",
+    headline: "Codzienna obsługa szkoły bez dokładania ręcznej administracji",
     teaser:
-      "Szkoła ucząca programowania w modelu mentoringu 1:1 prowadziła całą operację ręcznie. Zaprojektowałem automatyzacje na narzędziach, które szkoła już znała — dziś korzysta z nich 150–200 osób dziennie, przeważnie ich nie zauważając.",
+      "Automatyzacje wspierają płatności, komunikację, przypomnienia, notatki i onboarding. Korzysta z nich 150–200 uczniów, pracowników i osób zarządzających dziennie.",
     m1v: "150",
     m1l: "uczniów w modelu 1:1",
     m2v: "150–200",
     m2l: "użytkowników dziennie",
     challenge:
-      "Localhost Academy uczy programowania przez mentoring jeden na jeden — dbałość o każdego ucznia jest produktem i jednocześnie ograniczeniem, bo sama z siebie się nie skaluje. Szkoła prowadziła operacje ręcznie: płatności, komunikację między zarządem a uczniami, przypomnienia o zadaniach, notatki przed i po każdej lekcji, onboarding nowych osób. Przy obietnicy „nikt nie wypada z radaru\" administracyjne potknięcie to nie niedogodność, tylko wada produktu — a operacje ręczne mają twardy sufit.",
+      "Szkoła prowadzi mentoring jeden na jeden, dlatego każde administracyjne przeoczenie bezpośrednio wpływa na doświadczenie ucznia. Płatności, komunikacja, przypomnienia i onboarding były obsługiwane ręcznie, a wraz ze wzrostem szkoły zabierały coraz więcej czasu.",
     approach:
-      "Uczyłem w tej szkole i prowadziłem jej wewnętrzne IT jako CTO. Oczywistą odpowiedzią — w szkole pełnej programistów — byłby dedykowany software. I byłaby to zła odpowiedź: organizacja tej wielkości nie uniesie kosztu jego utrzymania. Zamiast tego zaprojektowałem architekturę automatyzacji na narzędziach, które zespół już rozumiał — Make do orkiestracji, Airtable i Notion jako struktura, Discord do komunikacji, ekosystem Google do kalendarza i poczty. Wdrożenie poprowadziłem, kierując dwójką inżynierów — część zbudowałem sam.",
+      "Zamiast budować kosztowny system od zera, wykorzystałem narzędzia, które organizacja już znała: Make, Airtable, Notion, Discord i usługi Google. Zaprojektowałem cały przepływ i poprowadziłem wdrożenie realizowane wspólnie z dwoma inżynierami.",
     results:
-      "Ze zautomatyzowanych procesów korzysta dziś 150–200 osób dziennie — uczniowie, kadra i zarząd — w większości ich nie zauważając, i właśnie o to chodzi. Zdolność operacyjna szkoły przestała zależeć od liczby godzin, które ludzie mogą poświęcić na administrację, a przypomnienie zmienia się bez otwierania edytora kodu — na narzędziach, które szkoła sama posiada i rozumie.",
+      "Z automatyzacji korzysta codziennie 150–200 osób. Powtarzalna administracja nie ogranicza już w takim stopniu liczby obsługiwanych uczniów, a zespół może samodzielnie zmieniać część reguł bez edycji kodu.",
     tags: ["Automatyzacja procesów", "Make · Airtable · Notion", "CTO wewnętrznego IT", "EdTech"],
   },
   {
@@ -75,19 +75,19 @@ export const cases: CaseStudy[] = [
     tone: "a",
     tag: "Refactor & rescue",
     client: "Enterprise · dekady w produkcji",
-    headline: "System sprzed dekad, odrodzony jako nowoczesna platforma webowa.",
+    headline: "Nowoczesna platforma bez zatrzymywania działającego systemu",
     teaser:
-      "Krytyczny biznesowo system obsługujący ~20 tys. użytkowników — przeniesiony z technologii legacy na nowoczesny stack webowy, bez nieplanowanych przestojów.",
+      "Rdzeń systemu obsługującego około 20 tys. użytkowników został przeniesiony na współczesną platformę webową w mniej niż rok i bez nieplanowanych przestojów.",
     m1v: "<1 rok",
     m1l: "dostarczona migracja rdzenia",
     m2v: "~20 tys.",
     m2l: "użytkowników platformy",
     challenge:
-      "Rdzeń systemu spędził dekady w produkcji na technologii, która dziś jest legacy. Działał — ale wiązał biznes ze starzejącym się narzędziem, z roku na rok utrudniał utrzymanie i rekrutację, a przestarzały interfejs zaczynał przeszkadzać w zdobywaniu klientów. Przy ~20 tysiącach użytkowników zależnych od systemu rewrite w stylu big-bang nie wchodził w grę.",
+      "System działał od dekad i nadal był potrzebny około 20 tys. użytkowników. Starzejąca się technologia utrudniała rozwój i utrzymanie, ale jednorazowe przepisanie całości stwarzało zbyt duże ryzyko dla działającego biznesu.",
     approach:
-      "Pracując w zespole dostarczającym, współtworzyłem kierunek techniczny migracji na nowoczesny stack webowy — architekturę docelową, standardy bezpieczeństwa i benchmarki wydajności — zaplanowanej tak, by biznes cały czas działał na istniejącym systemie, podczas gdy powstawała nowa platforma.",
+      "Pracując w zespole, współtworzyłem kierunek stopniowej migracji. Nowa platforma powstawała obok istniejącego systemu, dzięki czemu kolejne elementy można było wymieniać bez zatrzymywania codziennej pracy.",
     results:
-      "Użytkownicy dostali nowoczesne doświadczenie, którego stara technologia nie była w stanie dać, utrzymanie stało się prostsze i tańsze, a platforma otworzyła się na współczesne integracje — z migracją rdzenia dostarczoną w niecały rok i bez nieplanowanych przestojów.",
+      "Migracja rdzenia została dostarczona w mniej niż rok, bez nieplanowanych przestojów. Użytkownicy otrzymali nowoczesny interfejs, a system stał się prostszy w utrzymaniu i gotowy na kolejne integracje.",
     tags: ["Modernizacja legacy", "4GL → nowoczesny stack", "Architektura", "~20 tys. użytkowników"],
   },
   {
@@ -96,17 +96,17 @@ export const cases: CaseStudy[] = [
     tone: "b",
     tag: "Systemy centralne",
     client: "Regulowany program sektora publicznego",
-    headline: "Prawnie wiążące doręczenia elektroniczne, zbudowane pod zgodność.",
+    headline: "Integracja e-doręczeń zweryfikowana na 50 tys. użytkowników na godzinę",
     teaser:
-      "Platforma bezpiecznych doręczeń elektronicznych, w której każda wiadomość ma wagę prawną — inżynieria pod zgodność regulacyjną i ogólnokrajową skalę.",
+      "Warstwa integracyjna połączyła systemy krajowe i transgraniczne, zachowując wymagania bezpieczeństwa, weryfikowalności i zgodności prawnej.",
     m1v: "50 tys./h",
     m1l: "użytkowników — zweryfikowana przepustowość",
     challenge:
-      "Doręczenia elektroniczne to komunikacja z konsekwencjami prawnymi: każda wiadomość musi być bezpieczna, weryfikowalna i zgodna z regulacjami. Platforma potrzebowała warstwy integracyjnej łączącej systemy krajowe i transgraniczne — każdy z własnymi protokołami i standardami — bez jednego słabego ogniwa.",
+      "Każda wiadomość w systemie e-doręczeń ma znaczenie prawne. Platforma musiała połączyć wiele zewnętrznych systemów działających według różnych standardów, bez osłabienia bezpieczeństwa i możliwości potwierdzenia przebiegu doręczenia.",
     approach:
-      "Współtworzyłem część platformy integracyjnej jako reaktywne, asynchroniczne usługi budowane pod skalę, integrujące się z systemami zewnętrznymi w rygorze bezpieczeństwa i zgodności regulacyjnej. Compliance kształtował architekturę od pierwszego dnia — nie jako checklista na końcu.",
+      "Jako członek zespołu współtworzyłem usługi odpowiedzialne za wymianę danych z systemami zewnętrznymi. Bezpieczeństwo, zgodność i zakładane obciążenie były uwzględniane na każdym etapie projektu.",
     results:
-      "Warstwa integracyjna zaprojektowana i zweryfikowana na 50 tysięcy użytkowników na godzinę — infrastruktura ogólnokrajowej skali, gotowa rosnąć. Inżynieria backend-to-backend: systemy bez ekranu, w których nie ma miejsca na „prawie działa\".",
+      "Warstwa integracyjna została zaprojektowana i zweryfikowana dla obciążenia 50 tys. użytkowników na godzinę. Powstała infrastruktura przygotowana do obsługi usługi o ogólnokrajowej skali.",
     tags: ["Systemy rozproszone", "Zgodność regulacyjna", "Usługi reaktywne", "Integracje"],
   },
   {
@@ -146,7 +146,6 @@ export const cases: CaseStudy[] = [
     results:
       "Dostarczone zgodnie z harmonogramem: platforma działała na rynkach europejskich w dniu premiery i wytrzymała ruch tego dnia.",
     tags: ["Projekt międzynarodowy", "Automotive", "Nest.js · React · AEM"],
-    archived: true,
   },
 ];
 

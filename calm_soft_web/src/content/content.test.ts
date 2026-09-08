@@ -15,6 +15,36 @@ const AREA_IDS: AreaId[] = ["core", "automation", "rescue", "web", "not-sure"];
 const BUDGET_IDS: BudgetId[] = ["under-10k", "10-30k", "30-80k", "80k-plus", "no-idea"];
 
 describe("content completeness (SPEC §5.3)", () => {
+  it("keeps the five approved global case-study summaries", () => {
+    const approved = new Map([
+      ["public-sector-poland", "Jedna platforma dla 20 administracji miejskich"],
+      ["e-delivery-platform-nationwide", "Około 2,5 mln plików przeniesionych bez utraty danych"],
+      ["localhost-academy", "Codzienna obsługa szkoły bez dokładania ręcznej administracji"],
+      ["enterprise-30-years-in-production", "Nowoczesna platforma bez zatrzymywania działającego systemu"],
+      ["public-sector-eu", "Integracja e-doręczeń zweryfikowana na 50 tys. użytkowników na godzinę"],
+    ]);
+    for (const [slug, headline] of approved) expect(getCaseBySlug(slug)?.headline).toBe(headline);
+    expect(getCaseBySlug("public-sector-poland")?.challenge).toContain("Każde miasto pracuje trochę inaczej");
+    expect(getCaseBySlug("e-delivery-platform-nationwide")?.results).toContain("Wszystkie pliki zostały przeniesione bez utraty danych");
+    expect(getCaseBySlug("localhost-academy")?.approach).toContain("Make, Airtable, Notion, Discord i usługi Google");
+    expect(getCaseBySlug("enterprise-30-years-in-production")?.results).toContain("w mniej niż rok");
+    expect(getCaseBySlug("public-sector-eu")?.approach).toContain("Jako członek zespołu współtworzyłem");
+  });
+  it("ma komplet sześciu lokalnych WebP dla modułowego tła aplikacji", () => {
+    const backgrounds = [
+      "home-desktop.webp",
+      "home-mobile.webp",
+      "services-desktop.webp",
+      "services-mobile.webp",
+      "utility-desktop.webp",
+      "utility-mobile.webp",
+    ];
+
+    for (const filename of backgrounds) {
+      expect(existsSync(join(process.cwd(), "public", "app-background", filename))).toBe(true);
+    }
+  });
+
   it("ma 4 usługi z pełnymi polami, w kolejności core → automation → web → refactor", () => {
     expect(services).toHaveLength(4);
     expect(services.map((s) => s.id)).toEqual(["core", "automation", "web", "refactor"]);
@@ -25,6 +55,18 @@ describe("content completeness (SPEC §5.3)", () => {
       expect(s.deliver.length).toBeLessThanOrEqual(6);
       expect(s.deliver.every((d) => d.n.trim().length > 0 && d.d.trim().length > 0)).toBe(true);
       expect(s.relatedSlugs.length).toBeGreaterThan(0);
+    }
+  });
+  it("każda usługa ma unikalny art mobile/desktop pod public/service-art i oba pliki istnieją", () => {
+    const art = services.map((s) => s.art);
+    expect(art).toHaveLength(4);
+    expect(new Set(art.map((item) => item.mobile)).size).toBe(4);
+    expect(new Set(art.map((item) => item.desktop)).size).toBe(4);
+    for (const item of art) {
+      expect(item.mobile).toMatch(/^\/service-art\/[a-z0-9-]+-mobile\.webp$/);
+      expect(item.desktop).toMatch(/^\/service-art\/[a-z0-9-]+-desktop\.webp$/);
+      expect(existsSync(join(process.cwd(), "public", item.mobile.slice(1)))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", item.desktop.slice(1)))).toBe(true);
     }
   });
   it("każda usługa ma niepuste slug/metaTitle/metaDescription/pageH1 strony /uslugi/<slug>/ (2026-07-31 service-pages-restructure design)", () => {
@@ -143,9 +185,8 @@ describe("content completeness (SPEC §5.3)", () => {
     expect(slugs).toContain("localhost-academy");
     expect(slugs).not.toContain("premium-online-school-edtech");
   });
-  it("dokładnie jeden case jest archiwalny: international-automotive-sales-platform", () => {
-    const archived = cases.filter((c) => c.archived);
-    expect(archived.map((c) => c.slug)).toEqual(["international-automotive-sales-platform"]);
+  it("żaden case nie ma flagi archived", () => {
+    expect(cases.every((c) => !("archived" in c))).toBe(true);
   });
   it("relatedSlugs i featuredCaseSlugs wskazują istniejące case'y", () => {
     for (const s of services) for (const slug of s.relatedSlugs) expect(getCaseBySlug(slug)).toBeDefined();

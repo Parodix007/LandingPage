@@ -46,6 +46,221 @@ html {
   font-family: var(--font-sans);
 }
 
+/* One decorative canvas shared by every route. The route marker selects one local, responsive
+   module composition without JavaScript; the canvas stays behind the content and never
+   participates in hit testing. The existing motion gate above owns reduced-motion behavior. */
+.global-background {
+  overflow: hidden;
+  background-color: var(--color-canvas);
+}
+
+.global-background::before {
+  position: absolute;
+  inset: -2%;
+  content: "";
+  background-image: url("/app-background/home-mobile.webp");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  animation: moduleCanvasDrift 34s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+.global-background::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.74), rgba(0, 0, 0, 0.38)),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.74)),
+    radial-gradient(circle at 72% 28%, rgba(124, 227, 139, 0.16), transparent 24%),
+    radial-gradient(circle at 26% 74%, rgba(185, 240, 196, 0.1), transparent 20%);
+}
+
+body:has([data-background-family="services"]) .global-background::before {
+  background-image: url("/app-background/services-mobile.webp");
+}
+
+body:has([data-background-family="utility"]) .global-background::before {
+  background-image: url("/app-background/utility-mobile.webp");
+}
+
+@media (min-width: 900px) {
+  .global-background::before {
+    background-image: url("/app-background/home-desktop.webp");
+  }
+
+  body:has([data-background-family="services"]) .global-background::before {
+    background-image: url("/app-background/services-desktop.webp");
+  }
+
+  body:has([data-background-family="utility"]) .global-background::before {
+    background-image: url("/app-background/utility-desktop.webp");
+  }
+}
+
+.service-slide {
+  isolation: isolate;
+}
+
+.service-slide-art {
+  align-items: flex-start;
+  display: flex;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.service-slide-art::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background:
+    linear-gradient(90deg, rgba(16, 16, 18, 0.96) 0%, rgba(16, 16, 18, 0.78) 45%, rgba(16, 16, 18, 0.48) 100%),
+    linear-gradient(180deg, rgba(16, 16, 18, 0.26), rgba(16, 16, 18, 0.82));
+}
+
+.service-slide-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin-left: auto;
+  object-fit: cover;
+  filter: brightness(0.68) saturate(0.82);
+}
+
+.service-slide > :not(.service-slide-art) {
+  z-index: 1;
+}
+
+.service-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--color-border-08);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  padding: 32px 24px;
+}
+
+.service-hero-art {
+  position: relative;
+  z-index: 0;
+  display: block;
+  width: calc(100% + 48px);
+  height: min(76vw, 380px);
+  margin: 32px -24px -32px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.service-hero-art::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(180deg, rgba(16, 16, 18, 0.16), rgba(16, 16, 18, 0.62));
+}
+
+.service-hero-art picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.service-hero-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.58) saturate(0.86);
+}
+
+@media (min-width: 900px) {
+  .service-hero {
+    min-height: 420px;
+    padding: 48px 40px;
+  }
+
+  .service-hero-art {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 56%;
+    height: auto;
+    margin: 0;
+  }
+
+  .service-hero-art::after {
+    background:
+      linear-gradient(90deg, var(--color-surface) 0%, color-mix(in srgb, var(--color-surface) 82%, transparent) 24%, transparent 76%),
+      linear-gradient(180deg, rgba(16, 16, 18, 0.18), rgba(16, 16, 18, 0.6));
+  }
+}
+
+/* Sales funnels reuse the legacy hero tokens but make the approved service art a full-card
+   background. The legacy `.service-hero-art` composition above stays unchanged. */
+.service-sales-hero {
+  min-height: 440px;
+}
+
+.service-sales-hero-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.service-sales-hero-art::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background:
+    linear-gradient(90deg, rgba(16, 16, 18, 0.98) 0%, rgba(16, 16, 18, 0.82) 46%, rgba(16, 16, 18, 0.48) 100%),
+    linear-gradient(180deg, rgba(16, 16, 18, 0.22), rgba(16, 16, 18, 0.78));
+}
+
+.service-sales-hero-art picture,
+.service-sales-hero-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.service-sales-hero-art img {
+  object-fit: cover;
+  filter: brightness(0.62) saturate(0.84);
+}
+
+.service-disclosure summary {
+  list-style: none;
+}
+
+.service-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.service-disclosure-chevron {
+  transition: transform 250ms ease;
+}
+
+.service-disclosure[open]:not(.service-disclosure-closing) .service-disclosure-chevron {
+  transform: rotate(180deg);
+}
+
+.service-disclosure.service-disclosure-closing .service-disclosure-chevron {
+  transform: rotate(0deg);
+}
+
+/* Odstępstwo właściciela od reguły "wyłącznie transform/opacity" (CLAUDE.md): grid-template-rows
+   nie da się animować przez transform, a to jedyny sposób na płynną wysokość <details> bez znajomości
+   treści z góry. Wyzwalane wyłącznie kliknięciem (nie scrollem), krótkie (otwieranie 300ms,
+   zamykanie 240ms), i nadal gaszone przez killswitch prefers-reduced-motion powyżej. Treść nie jest
+   wygaszana przez opacity, bo pusta ramka w ruchu wyglądała źle (decyzja właściciela 2026-09-08). */
+.service-disclosure-content { display: grid; grid-template-rows: 1fr; }
+.service-disclosure-content-open { animation: serviceDisclosureIn 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+.service-disclosure-content-closing { animation: serviceDisclosureOut 240ms cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+@keyframes serviceDisclosureIn { from { grid-template-rows: 0fr; } to { grid-template-rows: 1fr; } }
+@keyframes serviceDisclosureOut { from { grid-template-rows: 1fr; } to { grid-template-rows: 0fr; } }
+
 /* offsety kotwic — CSS zamiast matematyki scrolla (SPEC §6.5) */
 #services, #process, #cases { scroll-margin-top: 88px; }
 #contact { scroll-margin-top: 32px; }
@@ -58,6 +273,10 @@ html {
 @keyframes glowDrift2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-50px, 30px); } }
 @keyframes gradShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes moduleCanvasDrift {
+  0%, 100% { opacity: 0.9; transform: translate3d(-0.5%, -0.35%, 0); }
+  50% { opacity: 1; transform: translate3d(0.5%, 0.35%, 0); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

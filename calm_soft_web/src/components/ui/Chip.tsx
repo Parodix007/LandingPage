@@ -16,7 +16,7 @@ const TONE_CLASSES: Record<"accent" | "accent2", string> = {
 export function Chip({ tone, children }: ChipProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-[var(--radius-pill)] border px-4 py-2 text-[13.5px] font-medium leading-none text-ink ${TONE_CLASSES[tone]}`}
+      className={`w-fit inline-flex items-center rounded-[var(--radius-pill)] border px-4 py-2 text-[13.5px] font-medium leading-none text-ink ${TONE_CLASSES[tone]}`}
     >
       {children}
     </span>

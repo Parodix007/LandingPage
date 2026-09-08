@@ -6,6 +6,7 @@ import { Watermark } from "@/components/ui/Watermark";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { CardActions } from "@/components/interactive/CardActions";
 import { CalendlyCta } from "@/components/interactive/CalendlyCta";
+import { HOVER_LIFT } from "@/components/ui/cardHover";
 import type { CaseStudy, Tone } from "@/content/types";
 
 // HANDOFF §6: chip/metric tint follows the case's own tone (a → accent, b → accent2), but
@@ -15,9 +16,6 @@ const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
   a: "accent",
   b: "accent2",
 };
-
-const HOVER_LIFT =
-  "transition-[transform,border-color] duration-[350ms] hover:-translate-y-1 hover:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)] focus-within:-translate-y-1 focus-within:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)]";
 
 // Server component (SPEC §16 client/server boundary) — the section renders static content;
 // interactivity (opening the case modal) lives in the frozen `CardActions` client leaf. The

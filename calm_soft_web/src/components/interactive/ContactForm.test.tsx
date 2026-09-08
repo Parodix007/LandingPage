@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { InquiryProvider } from "@/components/providers/InquiryProvider";
 import { site } from "@/content/site";
+import { serviceSales } from "@/content/serviceSales";
 import { ContactForm } from "./ContactForm";
 import { submitWithRetry, submitDetailsWithRetry, InquiryError } from "@/lib/inquiry";
 import { loadTurnstile } from "@/lib/turnstile";
@@ -69,6 +70,58 @@ async function completeStep1(user: ReturnType<typeof userEvent.setup>) {
 describe("ContactForm step 1 (SPEC §8, §14.2)", () => {
   afterEach(() => {
     vi.resetAllMocks();
+  });
+
+  it("allows service copy to replace only the first screen labels", () => {
+    const fixture = { title: "Describe process", intro: "A short note is enough.", messageLabel: "What do you do manually?", messagePlaceholder: "Process description", submit: "Send description" };
+    render(<InquiryProvider><ContactForm introCopy={fixture} /></InquiryProvider>);
+    expect(screen.getByText(fixture.title)).toBeInTheDocument();
+    expect(screen.getByText(fixture.intro)).toBeInTheDocument();
+    expect(screen.getByLabelText(fixture.messageLabel)).toHaveAttribute("placeholder", fixture.messagePlaceholder);
+    expect(screen.getByRole("button", { name: fixture.submit })).toBeInTheDocument();
+    expect(screen.getByLabelText(form.fields.name)).toBeInTheDocument();
+  });
+
+  it("submits a service form through the existing optional details flow while overriding only its five first-screen fields", async () => {
+    vi.mocked(submitWithRetry).mockResolvedValue(undefined);
+    vi.mocked(submitDetailsWithRetry).mockResolvedValue(undefined);
+    const copy = serviceSales.automation.contact.form;
+    const user = userEvent.setup();
+    render(<InquiryProvider><ContactForm introCopy={copy} /></InquiryProvider>);
+
+    expect(screen.getByText(copy.title)).toBeInTheDocument();
+    expect(screen.getByText(copy.intro)).toBeInTheDocument();
+    expect(screen.getByLabelText(copy.messageLabel)).toHaveAttribute("placeholder", copy.messagePlaceholder);
+    expect(screen.getByRole("button", { name: copy.submit })).toBeInTheDocument();
+    expect(screen.getByLabelText(form.fields.name)).toBeInTheDocument();
+    expect(screen.getByLabelText(form.fields.email)).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText(form.fields.name), "Anna Nowak");
+    await user.type(screen.getByLabelText(form.fields.email), "anna@example.com");
+    await user.type(screen.getByLabelText(copy.messageLabel), "Opis procesu.");
+    await user.click(screen.getByRole("button", { name: copy.submit }));
+    await screen.findByText(form.success.heading);
+    expect(screen.getByText(form.success.paragraph)).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: details.areaLegend })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: details.budgetLegend })).toBeInTheDocument();
+    expect(screen.getByLabelText(details.phoneLabel)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: details.skip })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("radio", { name: details.areaOptions[0].label }));
+    await user.click(screen.getByRole("button", { name: details.submit }));
+    await screen.findByText(details.done);
+    expect(submitWithRetry).toHaveBeenCalledWith({ name: "Anna Nowak", email: "anna@example.com", message: "Opis procesu.", website: "" }, expect.any(Function));
+    expect(submitDetailsWithRetry).toHaveBeenCalledWith(expect.objectContaining({ name: "Anna Nowak", email: "anna@example.com", area: details.areaOptions[0].id }), expect.any(Function));
+  });
+
+  it("keeps default name, email, message validation and submit-error copy with a service override", async () => {
+    const user = userEvent.setup();
+    const copy = serviceSales.web.contact.form;
+    render(<InquiryProvider><ContactForm introCopy={copy} /></InquiryProvider>);
+    await user.click(screen.getByRole("button", { name: copy.submit }));
+    expect(screen.getByText(form.fieldErrors.name)).toBeInTheDocument();
+    expect(screen.getByText(form.fieldErrors.emailRequired)).toBeInTheDocument();
+    expect(screen.getByText(form.fieldErrors.message)).toBeInTheDocument();
   });
 
   it("loads Turnstile once on mount, passing the interaction host element", () => {

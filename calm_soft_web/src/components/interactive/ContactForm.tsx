@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { site } from "@/content/site";
 import type { AreaId, BudgetId } from "@/content/types";
+import type { ContactFormIntroCopy } from "@/content/serviceSales";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
 import { useRegisterContactFocus } from "@/components/providers/InquiryProvider";
@@ -263,8 +264,13 @@ function SuccessPanel({
   );
 }
 
-export function ContactForm() {
+export type ContactFormProps = { introCopy?: ContactFormIntroCopy };
+
+export function ContactForm({ introCopy }: ContactFormProps = {}) {
   const register = useRegisterContactFocus();
+  const displayForm = introCopy
+    ? { ...form, title: introCopy.title, intro: introCopy.intro, submit: introCopy.submit, fields: { ...form.fields, message: introCopy.messageLabel }, messagePlaceholder: introCopy.messagePlaceholder }
+    : form;
 
   const [status, setStatus] = useState<Status>("idle");
   const [name, setName] = useState("");
@@ -473,10 +479,10 @@ export function ContactForm() {
                 calm<span className="text-accent">_</span>soft
               </span>
               <span className="text-[12.5px] font-medium uppercase tracking-[0.08em] text-ink-50">
-                {form.title}
+                {displayForm.title}
               </span>
             </div>
-            <p className="m-0 text-[14px] leading-[1.5] text-ink-60">{form.intro}</p>
+            <p className="m-0 text-[14px] leading-[1.5] text-ink-60">{displayForm.intro}</p>
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[26px]">
@@ -530,13 +536,13 @@ export function ContactForm() {
 
             <div className="flex flex-col gap-2">
               <label htmlFor="cf-message" className="text-[13px] font-medium text-ink-60">
-                {form.fields.message}
+                {displayForm.fields.message}
               </label>
               <textarea
                 id="cf-message"
                 ref={messageRef}
                 rows={3}
-                placeholder={form.messagePlaceholder}
+                placeholder={displayForm.messagePlaceholder}
                 value={message}
                 onChange={(e) => {
                   setMessage(e.target.value);
@@ -575,7 +581,7 @@ export function ContactForm() {
                 disabled={status === "submitting"}
                 className={`w-full rounded-[var(--radius-pill)] bg-accent p-[15px] text-[16px] font-semibold text-black transition-[filter] duration-[250ms] hover:brightness-[1.15] disabled:cursor-not-allowed disabled:opacity-70 ${PILL_FOCUS}`}
               >
-                {status === "submitting" ? form.submitting : form.submit}
+                {status === "submitting" ? form.submitting : displayForm.submit}
               </button>
               <div role="status" aria-live="polite" className="flex flex-col items-center gap-1">
                 {status === "error" && (

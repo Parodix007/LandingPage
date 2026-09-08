@@ -76,7 +76,7 @@ describe("CalendlyCta", () => {
   it("variant='filled' applies the accent-background pill classes", () => {
     render(<CalendlyCta variant="filled" label="Book a call" />);
     const el = screen.getByRole("link", { name: "Book a call" });
-    expect(el).toHaveClass("bg-accent", "text-black");
+    expect(el).toHaveClass("bg-accent", "text-black", "text-[17px]", "px-7", "py-3");
   });
 
   it("variant='link' applies the accent text-link classes (no filled background)", () => {

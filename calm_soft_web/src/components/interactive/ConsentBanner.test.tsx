@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { ConsentBanner } from "./ConsentBanner";
 import { site } from "@/content/site";
 import { CONSENT_KEY, reopenConsentBanner } from "@/lib/consent";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const consent = site.consent;
 
@@ -70,5 +72,20 @@ describe("ConsentBanner", () => {
     });
 
     expect(screen.getByRole("region", { name: consent.settingsLabel })).toBeInTheDocument();
+  });
+
+  it("uses compact mobile spacing and stays above the service sticky CTA without sharing state", () => {
+    render(<ConsentBanner />);
+    const banner = screen.getByRole("region", { name: consent.settingsLabel });
+    expect(banner).toHaveClass("px-3", "pb-3", "sm:px-4", "sm:pb-4", "z-[70]");
+    expect(banner).toHaveTextContent(consent.text);
+    expect(screen.getByRole("button", { name: consent.decline })).toHaveTextContent(consent.decline);
+    expect(screen.getByRole("button", { name: consent.accept })).toHaveTextContent(consent.accept);
+
+    const bannerSource = readFileSync(resolve(process.cwd(), "src/components/interactive/ConsentBanner.tsx"), "utf8");
+    const stickySource = readFileSync(resolve(process.cwd(), "src/components/sections/service-sales/ServiceStickyCta.tsx"), "utf8");
+    expect(bannerSource).not.toContain("ServiceStickyCta");
+    expect(stickySource).not.toContain("ConsentBanner");
+    expect(stickySource).toContain("z-[60]");
   });
 });

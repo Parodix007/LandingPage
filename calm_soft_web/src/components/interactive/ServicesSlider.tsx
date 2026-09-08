@@ -5,7 +5,7 @@ import type { Service, Tone } from "@/content/types";
 import { Chip } from "@/components/ui/Chip";
 import { Watermark } from "@/components/ui/Watermark";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { CarouselArrowButton } from "@/components/ui/CarouselArrowButton";
 import { useModal } from "@/components/providers/ModalProvider";
 import { useInquiry } from "@/components/providers/InquiryProvider";
 import { getCaseBySlug } from "@/content/cases";
@@ -58,9 +58,6 @@ const SECTION_LABEL = "text-[13px] font-semibold uppercase tracking-[0.12em] tex
 
 // Mirrors ProcessCarousel.tsx's/HeroDemoSlider.tsx's ARROW_BASE exactly (SPEC §6.6 / CLAUDE.md
 // carousel pattern).
-const ARROW_BASE =
-  "hit-44 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border-20 text-ink transition-colors duration-[250ms] hover:border-accent hover:bg-white/[0.05]";
-
 // Dots show the service TAG (not an index) so the visible label is contained in the accessible
 // name `Przejdź do: ${s.tag}` — WCAG 2.5.3 Label in Name, same reasoning HeroDemoSlider/
 // ProcessCarousel document for their own dot rows.
@@ -131,24 +128,8 @@ export function ServicesSlider({
           {label}
         </p>
         <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
-            aria-label="Poprzednia usługa"
-            aria-disabled={step === 0}
-            onClick={prev}
-            className={`${ARROW_BASE} ${PILL_FOCUS} ${step === 0 ? "opacity-[0.35]" : ""}`}
-          >
-            <ChevronLeftIcon className="h-[18px] w-[18px]" />
-          </button>
-          <button
-            type="button"
-            aria-label="Następna usługa"
-            aria-disabled={step === last}
-            onClick={next}
-            className={`${ARROW_BASE} ${PILL_FOCUS} ${step === last ? "opacity-[0.35]" : ""}`}
-          >
-            <ChevronRightIcon className="h-[18px] w-[18px]" />
-          </button>
+          <CarouselArrowButton direction="previous" label="Poprzednia usługa" atBoundary={step === 0} onClick={prev} />
+          <CarouselArrowButton direction="next" label="Następna usługa" atBoundary={step === last} onClick={next} />
         </div>
       </div>
 
@@ -177,8 +158,24 @@ export function ServicesSlider({
                 aria-roledescription="slide"
                 aria-label={`${i + 1} z ${services.length}`}
                 aria-hidden={active ? undefined : true}
-                className={`card-host relative flex flex-[0_0_100%] flex-col gap-[clamp(14px,2.4vh,22px)] overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[36px_30px] min-[900px]:p-10 transition-[border-color] duration-[350ms] ${TONE_HOVER_BORDER[s.tone]}`}
+                className={`service-slide card-host relative flex flex-[0_0_100%] flex-col gap-[clamp(14px,2.4vh,22px)] overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[36px_30px] min-[900px]:p-10 transition-[border-color] duration-[350ms] ${TONE_HOVER_BORDER[s.tone]}`}
               >
+                {/* eslint-disable-next-line jsx-a11y/aria-unsupported-elements -- decorative picture is
+                    explicitly removed from the accessibility tree; the image also carries aria-hidden. */}
+                <picture
+                  aria-hidden="true"
+                  data-testid="service-slide-art"
+                  className="service-slide-art pointer-events-none absolute inset-0 z-0"
+                >
+                  <source media="(min-width: 900px)" srcSet={s.art.desktop} />
+                  <img
+                    src={s.art.mobile}
+                    alt=""
+                    aria-hidden="true"
+                    loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                  />
+                </picture>
                 {/* Decorative glow circle — purely presentational, hidden from AT. */}
                 <span
                   aria-hidden="true"

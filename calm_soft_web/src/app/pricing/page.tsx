@@ -36,7 +36,10 @@ export default function PricingPage() {
           bottom is kept small because the following <Contact /> section brings its own
           py-[120px]. Symmetric py- here duplicated that spacing and left ~230px of empty
           space that hid the fact that a form sits below it. Do not "fix" this back to py-. */}
-      <div className="reveal-group mx-auto max-w-[1200px] px-6 pt-[72px] pb-[32px] min-[900px]:pt-[110px] min-[900px]:pb-[40px]">
+      <div
+        data-background-family="utility"
+        className="reveal-group mx-auto max-w-[1200px] px-6 pt-[72px] pb-[32px] min-[900px]:pt-[110px] min-[900px]:pb-[40px]"
+      >
         <header className="mb-4">
           {/* Not SectionHeading (frozen, hardcoded h2) — same visual classes on a real h1, since
               this is a standalone page rather than a same-page section. */}

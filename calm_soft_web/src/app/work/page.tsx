@@ -9,6 +9,7 @@ import { Watermark } from "@/components/ui/Watermark";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { CardActions } from "@/components/interactive/CardActions";
 import { CalendlyCta } from "@/components/interactive/CalendlyCta";
+import { HOVER_LIFT } from "@/components/ui/cardHover";
 import type { CaseStudy, Tone } from "@/content/types";
 
 const title = site.work.metaTitle;
@@ -35,11 +36,6 @@ const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
   b: "accent2",
 };
 
-const HOVER_LIFT =
-  "transition-[transform,border-color] duration-[350ms] hover:-translate-y-1 hover:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)] focus-within:-translate-y-1 focus-within:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)]";
-
-// Extracted so the main grid and the archive section below render identical compact case
-// cards (2026-07-22 pl-copy handoff §5) without duplicating the JSX twice in this file.
 function CaseCard({ c }: { c: CaseStudy }) {
   return (
     <div
@@ -77,16 +73,15 @@ function CaseCard({ c }: { c: CaseStudy }) {
 // cards below can open the same case-study modal used on the homepage. Full index of every
 // case study — the homepage (CaseStudies.tsx) only shows the 3 `site.featuredCaseSlugs` as big
 // cards and links here for the rest (2026-07-20 work-page-and-round2-polish design doc). The
-// main grid shows only non-archived cases; the archived one(s) render below in a separate
-// "Archiwum" section (2026-07-22 pl-copy handoff §5) — the modal flow is identical either way.
+// grid renders every case study — the modal flow is identical to the homepage.
 export default function WorkPage() {
-  const activeCases = cases.filter((c) => !c.archived);
-  const archivedCases = cases.filter((c) => c.archived);
-
   return (
     <InquiryProvider>
       <ModalProvider cases={cases} demos={demos}>
-        <div className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]">
+        <div
+          data-background-family="utility"
+          className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]"
+        >
           <header className="mb-4">
             {/* Not SectionHeading (frozen, hardcoded h2) — same visual classes on a real h1,
                 since this is a standalone page rather than a same-page section (mirrors
@@ -100,28 +95,10 @@ export default function WorkPage() {
           </header>
 
           <div className="reveal-group mt-12 grid grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))] gap-4">
-            {activeCases.map((c) => (
+            {cases.map((c) => (
               <CaseCard key={c.slug} c={c} />
             ))}
           </div>
-
-          {archivedCases.length > 0 && site.work.archiveHeading && (
-            <div className="reveal-group mt-16">
-              <h2 className="text-[20px] font-bold leading-[1.2] tracking-[-0.02em] text-ink-70">
-                {site.work.archiveHeading}
-              </h2>
-              {site.work.archiveIntro && (
-                <p className="mt-2 max-w-[600px] text-[14.5px] leading-[1.55] text-ink-50">
-                  {site.work.archiveIntro}
-                </p>
-              )}
-              <div className="reveal-group mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))] gap-4">
-                {archivedCases.map((c) => (
-                  <CaseCard key={c.slug} c={c} />
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="mt-16 rounded-[var(--radius-card)] border border-border-08 bg-surface p-[40px_32px] text-center">
             <p className="mx-auto mb-6 max-w-[560px] text-[17px] text-ink-85">{site.work.calendly.prompt}</p>

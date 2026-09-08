@@ -11,9 +11,11 @@ import { Chip } from "@/components/ui/Chip";
 import { RichText } from "@/components/ui/RichText";
 import { Watermark } from "@/components/ui/Watermark";
 import { CardActions } from "@/components/interactive/CardActions";
+import { HOVER_LIFT } from "@/components/ui/cardHover";
 import { SolutionLineBlock } from "@/components/sections/SolutionLineBlock";
 import { Contact } from "@/components/sections/Contact";
 import type { CaseStudy, SolutionLine, Tone } from "@/content/types";
+import { getServiceSalesPage, ServiceSalesPage } from "@/components/sections/service-sales/ServiceSalesPage";
 
 // First dynamic route in this project (docs/superpowers/specs/2026-07-31-service-pages-
 // restructure-design.md). generateStaticParams enumerates every `Service.slug`, so with
@@ -61,9 +63,6 @@ const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
   a: "accent",
   b: "accent2",
 };
-
-const HOVER_LIFT =
-  "transition-[transform,border-color] duration-[350ms] hover:-translate-y-1 hover:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)] focus-within:-translate-y-1 focus-within:border-[color-mix(in_oklch,var(--color-accent)_50%,transparent)]";
 
 const H2_CLASS = "text-[26px] font-bold leading-[1.15] tracking-[-0.02em]";
 
@@ -149,25 +148,53 @@ export default async function ServicePage({
     .map((lineSlug) => getSolutionLineBySlug(lineSlug))
     .filter((l): l is SolutionLine => Boolean(l));
 
+  if (service.id === "core" || service.id === "automation" || service.id === "web") {
+    return (
+      <InquiryProvider>
+        <ModalProvider cases={cases} demos={demos}>
+          <ServiceSalesPage page={getServiceSalesPage(service.id)} art={service.art} />
+        </ModalProvider>
+      </InquiryProvider>
+    );
+  }
+
   return (
     <InquiryProvider>
       <ModalProvider cases={cases} demos={demos}>
-        <div className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]">
-          <header className="mb-4">
-            <Chip tone={TONE_CHIP[service.tone]}>{service.tag}</Chip>
-            <h1 className="mt-4 text-[clamp(36px,4.5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em]">
-              {service.pageH1}
-            </h1>
-            {/* headline jako podtytuł: to jest hak, który renderuje się też na stronie głównej
-                w sliderze usług, a pageH1 niesie frazę kampanii — obie linie mają swoją rolę
-                i obie zostają (2026-07-31 service-pages-restructure design, etap 2). Akapit, nie
-                nagłówek — nie zaburza kolejności h1 → h2. */}
-            <p className="mt-3 max-w-[600px] text-[20px] font-medium leading-[1.4] text-ink-85">
-              {service.headline}
-            </p>
-            <p className="mt-4 max-w-[600px] text-[18px] leading-[1.55] text-ink-70">
-              {service.intro}
-            </p>
+        <div
+          data-background-family="services"
+          className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]"
+        >
+          <header className="service-hero mb-4">
+            <div className="relative z-10 max-w-[700px]">
+              <Chip tone={TONE_CHIP[service.tone]}>{service.tag}</Chip>
+              <h1 className="mt-4 text-[clamp(36px,4.5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em]">
+                {service.pageH1}
+              </h1>
+              {/* headline jako podtytuł: to jest hak, który renderuje się też na stronie głównej
+                  w sliderze usług, a pageH1 niesie frazę kampanii — obie linie mają swoją rolę
+                  i obie zostają (2026-07-31 service-pages-restructure design, etap 2). Akapit, nie
+                  nagłówek — nie zaburza kolejności h1 → h2. */}
+              <p className="mt-3 max-w-[600px] text-[20px] font-medium leading-[1.4] text-ink-85">
+                {service.headline}
+              </p>
+              <p className="mt-4 max-w-[600px] text-[18px] leading-[1.55] text-ink-70">
+                {service.intro}
+              </p>
+            </div>
+            <div aria-hidden="true" className="service-hero-art">
+              <picture>
+                <source media="(min-width: 900px)" srcSet={service.art.desktop} />
+                <img
+                  src={service.art.mobile}
+                  alt=""
+                  width={1200}
+                  height={1200}
+                  loading="eager"
+                  decoding="async"
+                />
+              </picture>
+            </div>
           </header>
 
           {/* pageSections is non-empty for all four services as of etap 2 (the `.length > 0` guard

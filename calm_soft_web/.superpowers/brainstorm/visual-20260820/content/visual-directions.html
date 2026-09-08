@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kierunki tła i kart usług</title>
+  <style>
+    :root { --ink:#f5f5f7; --soft:rgba(245,245,247,.68); --mint:#7ce38b; --pale:#b9f0c4; --surface:#101012; --line:rgba(185,240,196,.15); }
+    * { box-sizing:border-box; } body { margin:0; min-width:320px; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#060607; }
+    main { max-width:1480px; margin:0 auto; padding:clamp(28px,4vw,64px) clamp(18px,4vw,56px) 76px; }
+    h1 { margin:0; max-width:860px; font-size:clamp(32px,5vw,60px); line-height:1.03; letter-spacing:-.045em; }
+    .intro { margin:18px 0 48px; max-width:730px; color:var(--soft); font-size:17px; line-height:1.55; }
+    .directions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
+    .direction { position:relative; min-width:0; overflow:hidden; border:1px solid rgba(255,255,255,.12); border-radius:24px; background:#101012; cursor:pointer; transition:transform .24s ease,border-color .24s ease; }
+    .direction:hover { transform:translateY(-4px); border-color:rgba(124,227,139,.66); }
+    .direction.selected { outline:2px solid var(--mint); outline-offset:3px; }
+    .preview { position:relative; min-height:424px; overflow:hidden; isolation:isolate; background:#070809; }
+    .preview::after { position:absolute; inset:0; z-index:3; content:""; background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.62)); pointer-events:none; }
+    .fake-nav { position:absolute; z-index:7; top:20px; left:22px; right:22px; display:flex; justify-content:space-between; color:rgba(245,245,247,.8); font:600 10px ui-monospace,monospace; letter-spacing:.12em; }
+    .fake-nav span:last-child { color:var(--mint); }
+    .art { position:absolute; z-index:1; width:86%; height:86%; object-fit:cover; object-position:right center; filter:brightness(.62) saturate(.92); }
+    .microcopy { position:absolute; z-index:5; inset:auto 24px 25px; max-width:77%; }
+    .chip { display:inline-block; margin-bottom:12px; color:var(--mint); font:600 10px ui-monospace,monospace; letter-spacing:.11em; text-transform:uppercase; }
+    .microcopy h3 { margin:0; font-size:clamp(19px,2vw,26px); line-height:1.08; letter-spacing:-.035em; }
+    .microcopy p { margin:12px 0 0; color:rgba(245,245,247,.72); font-size:12px; line-height:1.45; }
+    .meta { padding:22px 24px 24px; }
+    .kicker { color:var(--mint); font:600 11px ui-monospace,monospace; letter-spacing:.11em; text-transform:uppercase; }
+    .meta h2 { margin:10px 0 9px; font-size:22px; letter-spacing:-.03em; }
+    .meta p { min-height:54px; margin:0; color:var(--soft); font-size:14px; line-height:1.45; }
+    .tradeoff { margin-top:16px !important; padding-top:14px; border-top:1px solid rgba(255,255,255,.09); color:rgba(245,245,247,.55) !important; font-size:12px !important; }
+    /* A: one connected, growing system; visual syntax mirrors the art without using a literal grid. */
+    .atlas { background:radial-gradient(ellipse at 80% 16%,rgba(124,227,139,.14),transparent 28%),radial-gradient(ellipse at 15% 86%,rgba(185,240,196,.07),transparent 34%),#08090a; }
+    .atlas .trace { position:absolute; z-index:0; inset:-15%; opacity:.62; background:linear-gradient(125deg,transparent 0 38%,rgba(124,227,139,.18) 38.2% 38.45%,transparent 38.65% 52%,rgba(185,240,196,.1) 52.2% 52.4%,transparent 52.7%),linear-gradient(35deg,transparent 0 47%,rgba(124,227,139,.18) 47.2% 47.5%,transparent 47.8%); transform:rotate(-8deg) scale(1.25); }
+    .atlas .node { position:absolute; z-index:2; width:8px; height:8px; border-radius:999px; background:var(--mint); box-shadow:0 0 17px 7px rgba(124,227,139,.27); }
+    .atlas .n1 { top:27%; left:16%; }.atlas .n2 { top:60%; left:42%; }.atlas .n3 { top:18%; right:22%; }
+    .atlas .art { top:5%; right:-13%; mask-image:linear-gradient(90deg,transparent 0%,black 36%); }
+    .atlas .microcopy { max-width:65%; }
+    /* B: topology field—deliberately quieter, depth comes from stacked plates and connections. */
+    .topology { background:radial-gradient(circle at 70% 22%,rgba(124,227,139,.1),transparent 33%),#0a0b0c; }
+    .topology .rail { position:absolute; z-index:0; border:1px solid rgba(185,240,196,.15); border-left:0; border-radius:0 80px 80px 0; width:75%; height:34%; left:-16%; }
+    .topology .r1 { top:13%; }.topology .r2 { top:42%; width:66%; }.topology .r3 { top:69%; width:88%; }
+    .topology .plate { position:absolute; z-index:1; width:54px; height:54px; border:1px solid rgba(185,240,196,.24); border-radius:12px; background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(0,0,0,.3)); box-shadow:0 14px 28px rgba(0,0,0,.32),inset 0 0 24px rgba(124,227,139,.04); }
+    .topology .p1 { top:27%; left:14%; }.topology .p2 { top:55%; left:35%; transform:scale(.7); }.topology .p3 { top:16%; left:56%; transform:scale(.85); }
+    .topology .art { right:-17%; bottom:-6%; width:88%; height:92%; opacity:.76; mask-image:linear-gradient(90deg,transparent 3%,black 36%); }
+    /* C: visual energy arrives within panels; the app background stays mostly calm. */
+    .corridor { background:linear-gradient(110deg,#090a0b 0%,#0c1010 48%,#06100c 100%); }
+    .corridor .corridor-lines { position:absolute; z-index:0; inset:0; opacity:.56; background:repeating-linear-gradient(90deg,transparent 0 49px,rgba(185,240,196,.08) 50px 51px),linear-gradient(116deg,transparent 0 39%,rgba(124,227,139,.2) 39.25% 39.5%,transparent 39.8%); transform:skewX(-18deg) scaleX(1.25); }
+    .corridor .art { right:-4%; top:0; width:91%; height:100%; opacity:.86; mask-image:linear-gradient(90deg,transparent 0%,black 42%); }
+    .corridor .microcopy { max-width:69%; }
+    .badge { position:absolute; z-index:8; right:18px; bottom:18px; display:grid; place-items:center; width:28px; height:28px; border-radius:50%; border:1px solid rgba(124,227,139,.7); color:var(--mint); font:700 13px ui-monospace,monospace; background:#0b1110; }
+    .note { margin:36px 0 0; padding:20px 22px; border-left:2px solid var(--mint); color:var(--soft); background:rgba(124,227,139,.05); font-size:14px; line-height:1.55; }
+    @media (max-width:980px) { .directions { grid-template-columns:1fr; max-width:580px; } .preview { min-height:355px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="kicker">Makiety · tło + sekcja usług</p>
+    <h1>Trzy kierunki, które wykorzystują język nowych grafik — bez odbierania pierwszeństwa tekstowi.</h1>
+    <p class="intro">W każdym wariancie ilustracja w karcie jest dekoracyjna i wygaszona przez gradient. Różnica dotyczy tego, ile charakteru ma tło całej strony i w jaki sposób „systemowe” połączenia przechodzą między sekcjami.</p>
+    <div class="directions">
+      <article class="direction" data-choice="atlas" onclick="toggleSelect(this)">
+        <div class="preview atlas">
+          <div class="fake-nav"><span>calm_soft</span><span>USŁUGI / 01</span></div><div class="trace"></div><i class="node n1"></i><i class="node n2"></i><i class="node n3"></i>
+          <img class="art" src="http://localhost:4173/service-art/systemy-i-integracje-desktop.webp" alt="">
+          <div class="microcopy"><span class="chip">Systemy centralne i integracje</span><h3>Systemy, które gadają z systemami.</h3><p>Treść pozostaje na osobnej, ciemnej warstwie.</p></div><span class="badge">A</span>
+        </div>
+        <div class="meta"><span class="kicker">Rekomendowany</span><h2>Atlas połączeń</h2><p>Zamiast neutralnej siatki: asymetryczne trasy, węzły i rozlane światło. To wspólny język z ilustracjami, ale nie ich kopia.</p><p class="tradeoff">Najbardziej wyrazisty, a nadal spokojny przy długim czytaniu.</p></div>
+      </article>
+      <article class="direction" data-choice="topology" onclick="toggleSelect(this)">
+        <div class="preview topology">
+          <div class="fake-nav"><span>calm_soft</span><span>USŁUGI / 02</span></div><i class="rail r1"></i><i class="rail r2"></i><i class="rail r3"></i><i class="plate p1"></i><i class="plate p2"></i><i class="plate p3"></i>
+          <img class="art" src="http://localhost:4173/service-art/automatyzacja-desktop.webp" alt="">
+          <div class="microcopy"><span class="chip">Automatyzacja</span><h3>Powtarzalna robota — zdjęta z barków zespołu.</h3><p>Grafika ma swój oddech; po lewej zostaje obszar czytania.</p></div><span class="badge">B</span>
+        </div>
+        <div class="meta"><span class="kicker">Najbardziej produktowy</span><h2>Topologia modułów</h2><p>Ciemne płytki i łuki tworzą tło zbliżone do konstrukcji usług. Na kartach grafika jest mocniej obecna, nadal pod tekstem.</p><p class="tradeoff">Bardziej „3D product”, ryzyko większej dekoracyjności między sekcjami.</p></div>
+      </article>
+      <article class="direction" data-choice="corridor" onclick="toggleSelect(this)">
+        <div class="preview corridor">
+          <div class="fake-nav"><span>calm_soft</span><span>USŁUGI / 03</span></div><div class="corridor-lines"></div>
+          <img class="art" src="http://localhost:4173/service-art/platformy-webowe-desktop.webp" alt="">
+          <div class="microcopy"><span class="chip">Rozwiązania webowe</span><h3>Platformy, portale i produkty — budowane, by skalować.</h3><p>Tło nabiera energii dopiero w obrębie bloków.</p></div><span class="badge">C</span>
+        </div>
+        <div class="meta"><span class="kicker">Najbardziej oszczędny</span><h2>Korytarz sygnału</h2><p>Globalne tło jest prawie czarne, a kierunkowe linie i pełniejsze grafiki skupiają uwagę na kartach usług.</p><p class="tradeoff">Najmniej rozprasza, ale słabiej tworzy jeden motyw między stronami.</p></div>
+      </article>
+    </div>
+    <p class="note">Kliknij wariant, który najlepiej odpowiada Ci jako bazowy kierunek. Potem dopracuję jego wersję mobilną i dokładne proporcje grafiki w panelu usługi.</p>
+  </main>
+</body>
+</html>

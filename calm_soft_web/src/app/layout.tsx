@@ -78,12 +78,15 @@ gtag('config',${JSON.stringify(gaId)});`,
           </>
         ) : null}
       </head>
-      <body className="flex min-h-screen flex-col">
-        <Nav />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        {gaId ? <ConsentBanner /> : null}
-        <RevealOnScroll />
+      <body className="relative min-h-screen">
+        <div aria-hidden="true" className="global-background pointer-events-none fixed inset-0 z-0" />
+        <div className="relative z-10 flex min-h-screen flex-col">
+          <Nav />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          {gaId ? <ConsentBanner /> : null}
+          <RevealOnScroll />
+        </div>
       </body>
     </html>
   );

@@ -131,7 +131,12 @@ function HeroTypeVariant() {
 
 export function Hero() {
   return (
-    <section id="top" aria-label="Hero" className="flex min-h-[88vh] w-full items-center">
+    <section
+      id="top"
+      aria-label="Hero"
+      data-background-family="home"
+      className="flex min-h-[88vh] w-full items-center"
+    >
       {HERO_VARIANT === "code" ? <HeroCodeVariant /> : null}
       {HERO_VARIANT === "aurora" ? <HeroAuroraVariant /> : null}
       {HERO_VARIANT === "type" ? <HeroTypeVariant /> : null}

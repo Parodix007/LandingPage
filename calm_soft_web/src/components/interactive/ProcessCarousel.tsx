@@ -5,7 +5,7 @@ import { site } from "@/content/site";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Watermark } from "@/components/ui/Watermark";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { CarouselArrowButton } from "@/components/ui/CarouselArrowButton";
 import { useCarousel } from "./useCarousel";
 
 export type ProcessCarouselProps = {
@@ -14,9 +14,6 @@ export type ProcessCarouselProps = {
 
 // HANDOFF §5 / SPEC §6.6 — 44px circular arrows; opacity 0.35 at bounds but always rendered
 // and clickable (useCarousel clamps, so a bound click is a no-op, never `disabled`/tab-skip).
-const ARROW_BASE =
-  "hit-44 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border-20 text-ink transition-colors duration-[250ms] hover:border-accent hover:bg-white/[0.05]";
-
 // Mono pill dots — labels use the visible step.number ("00".."04") so the accessible name
 // contains the on-screen text (WCAG 2.5.3 Label in Name, Level A: a voice-control user saying
 // the number can activate it). goTo still keys off the raw 0-based index, which equals the
@@ -42,24 +39,8 @@ export function ProcessCarousel({ steps }: ProcessCarouselProps) {
       <div className="flex flex-wrap items-center justify-between gap-6">
         <SectionHeading id="process-heading" line1={line1} line2={line2} />
         <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
-            aria-label="Poprzedni krok"
-            aria-disabled={step === 0}
-            onClick={prev}
-            className={`${ARROW_BASE} ${PILL_FOCUS} ${step === 0 ? "opacity-[0.35]" : ""}`}
-          >
-            <ChevronLeftIcon className="h-[18px] w-[18px]" />
-          </button>
-          <button
-            type="button"
-            aria-label="Następny krok"
-            aria-disabled={step === last}
-            onClick={next}
-            className={`${ARROW_BASE} ${PILL_FOCUS} ${step === last ? "opacity-[0.35]" : ""}`}
-          >
-            <ChevronRightIcon className="h-[18px] w-[18px]" />
-          </button>
+          <CarouselArrowButton direction="previous" label="Poprzedni krok" atBoundary={step === 0} onClick={prev} />
+          <CarouselArrowButton direction="next" label="Następny krok" atBoundary={step === last} onClick={next} />
         </div>
       </div>
 

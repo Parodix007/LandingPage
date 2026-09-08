@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { PILL_FOCUS, PillElement, type PillAsProps, type PillSharedProps } from "./pillBase";
 
 export type GhostPillTone = "accent" | "accent2" | "gray";
@@ -42,17 +43,16 @@ const FLUSH_CLASSES: Record<GhostPillSize, string> = {
 const BASE =
   "inline-flex items-center justify-center rounded-[var(--radius-pill)] border border-transparent font-medium leading-none transition-[all] duration-[250ms]";
 
-export function GhostPill({
-  tone,
-  as,
-  href,
-  onClick,
-  size = "sm",
-  stretched,
-  flush = false,
-  children,
-  "aria-label": ariaLabel,
-}: GhostPillProps) {
+export function GhostPill(props: GhostPillProps) {
+  const { tone, size = "sm", stretched, flush = false, children } = props;
+  const ariaLabel = props["aria-label"];
+  const ariaHidden = props["aria-hidden"];
+  const renderElement = (className: string, content: ReactNode) => {
+    if (props.as === "a") {
+      return <PillElement as="a" href={props.href} target={props.target} rel={props.rel} className={className} onClick={props.onClick} ariaLabel={ariaLabel} ariaHidden={ariaHidden} tabIndex={props.tabIndex}>{content}</PillElement>;
+    }
+    return <PillElement as="button" className={className} onClick={props.onClick} ariaLabel={ariaLabel} ariaHidden={ariaHidden} tabIndex={props.tabIndex}>{content}</PillElement>;
+  };
   // Non-stretched: the visible pill IS the button; its own :hover drives the tint, which only
   // ever fires on direct pointer over the pill (hit-44 ::before does not extend card-wide).
   if (!stretched) {
@@ -67,11 +67,7 @@ export function GhostPill({
       .filter(Boolean)
       .join(" ");
 
-    return (
-      <PillElement as={as} href={href} className={className} onClick={onClick} ariaLabel={ariaLabel}>
-        {children}
-      </PillElement>
-    );
+    return renderElement(className, children);
   }
 
   // Stretched (whole-card click via .pill-stretched::after): the button is a bare, STATICALLY
@@ -96,15 +92,5 @@ export function GhostPill({
     .filter(Boolean)
     .join(" ");
 
-  return (
-    <PillElement
-      as={as}
-      href={href}
-      className={buttonClassName}
-      onClick={onClick}
-      ariaLabel={ariaLabel}
-    >
-      <span className={spanClassName}>{children}</span>
-    </PillElement>
-  );
+  return renderElement(buttonClassName, <span className={spanClassName}>{children}</span>);
 }

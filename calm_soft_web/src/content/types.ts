@@ -17,6 +17,8 @@ export type ServiceSectionGroup = { group?: string; items: NamedItem[] };
 // różni je wyłącznie heading i zawartość groups (2026-07-31 service-pages-restructure design).
 export type ServiceSection = { heading: string; intro?: string; groups: ServiceSectionGroup[] };
 
+export type ServiceArt = { mobile: string; desktop: string };
+
 export type Service = {
   id: ServiceId;
   tone: Tone;
@@ -46,6 +48,7 @@ export type Service = {
   // patrz SolutionLineBlock.tsx) — ale od etapu 2 to nie jest prawdą dla wszystkich usług: `core`
   // i `automation` mają już treść, `web` i `refactor` czekają na materiał od właściciela.
   pageSections: ServiceSection[];
+  art: ServiceArt;
 };
 
 export type CaseStudy = {
@@ -62,7 +65,6 @@ export type CaseStudy = {
   approach: string;
   results: string;
   tags: string[];
-  archived?: true; // case archiwalny (dziś: tylko international-automotive-sales-platform) — widoczny na /work/ w osobnej sekcji archiwum
 };
 
 export type ProcessStep = {
@@ -108,8 +110,6 @@ export type Work = {
   lead: string;
   calendly: { prompt: string; cta: string };
   startLabel: string;
-  archiveHeading?: string; // nagłówek sekcji archiwum (tylko /work/)
-  archiveIntro?: string; // linia wprowadzająca nad sekcją archiwum (tylko /work/)
 };
 
 export type SiteContent = {

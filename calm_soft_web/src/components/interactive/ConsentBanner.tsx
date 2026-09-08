@@ -41,11 +41,11 @@ export function ConsentBanner() {
     <div
       role="region"
       aria-label={consent.settingsLabel}
-      className="fixed inset-x-0 bottom-0 z-[70] flex justify-center px-4 pb-4 animate-[fadeSlideUp_300ms_ease-out]"
+      className="fixed inset-x-0 bottom-0 z-[70] flex justify-center px-3 pb-3 animate-[fadeSlideUp_300ms_ease-out] sm:px-4 sm:pb-4"
     >
-      <div className="flex w-full max-w-[560px] flex-col gap-4 rounded-[var(--radius-card)] border border-border-08 bg-surface p-5 sm:flex-row sm:items-center sm:justify-between">
-        <p className="m-0 text-[13.5px] leading-[1.5] text-ink-70">{consent.text}</p>
-        <div className="flex shrink-0 items-center gap-3">
+      <div className="flex w-full max-w-[560px] flex-col gap-3 rounded-[var(--radius-card)] border border-border-08 bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-5">
+        <p className="m-0 text-[12.5px] leading-[1.4] text-ink-70 sm:text-[13.5px] sm:leading-[1.5]">{consent.text}</p>
+        <div className="flex shrink-0 items-center justify-end gap-3">
           <GhostPill tone="gray" size="sm" onClick={() => decide("denied")}>
             {consent.decline}
           </GhostPill>

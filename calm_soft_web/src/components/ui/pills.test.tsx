@@ -7,6 +7,14 @@ import { Chip } from "./Chip";
 import { SectionHeading } from "./SectionHeading";
 
 describe("GhostPill", () => {
+  it("forwards shared anchor target, rel and aria props", () => {
+    render(<GhostPill tone="accent" as="a" href="/external" target="_blank" rel="noopener" aria-hidden tabIndex={-1}>Open</GhostPill>);
+    const link = screen.getByRole("link", { hidden: true });
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener");
+    expect(link).toHaveAttribute("aria-hidden", "true");
+    expect(link).toHaveAttribute("tabindex", "-1");
+  });
   it("renders a button with the label", () => {
     render(
       <GhostPill tone="accent" onClick={() => {}}>
@@ -143,9 +151,24 @@ describe("GhostPill", () => {
 });
 
 describe("FilledPill", () => {
+  it("forwards anchor target, rel, className, and a typed click handler", async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    render(<FilledPill as="a" href="/contact" target="_blank" rel="noopener noreferrer" className="custom-cta" onClick={onClick}>Contact</FilledPill>);
+    const link = screen.getByRole("link", { name: "Contact" });
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    expect(link).toHaveClass("custom-cta", "bg-accent");
+    await user.click(link);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
   it("renders a button", () => {
     render(<FilledPill onClick={() => {}}>Start a project</FilledPill>);
-    expect(screen.getByRole("button", { name: "Start a project" })).toBeInTheDocument();
+    const button = screen.getByRole("button", { name: "Start a project" });
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveClass("transition-[filter,transform,opacity]");
+    expect(button).not.toHaveClass("transition-[filter]");
   });
 
   it("renders a link with href when as='a'", () => {
@@ -207,6 +230,11 @@ describe("FilledPill", () => {
 });
 
 describe("Chip", () => {
+  it("keeps its intrinsic width inside a flex column", () => {
+    render(<Chip tone="accent">Web apps</Chip>);
+    expect(screen.getByText("Web apps")).toHaveClass("w-fit");
+  });
+
   it("renders children", () => {
     render(<Chip tone="accent">Web apps</Chip>);
     expect(screen.getByText("Web apps")).toBeInTheDocument();
