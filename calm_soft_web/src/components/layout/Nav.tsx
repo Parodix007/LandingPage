@@ -1,6 +1,7 @@
 import { FilledPill } from "@/components/ui/FilledPill";
 import { services } from "@/content/services";
 import { site } from "@/content/site";
+import { ksef } from "@/content/ksef";
 import { NavMobileMenu, type NavLink } from "./NavMobileMenu";
 import { NavServicesMenu } from "./NavServicesMenu";
 
@@ -8,6 +9,10 @@ import { NavServicesMenu } from "./NavServicesMenu";
 // (SPEC §6.1). Structural nav labels/hrefs are not part of the content model (site.ts only
 // carries footerLinks, per SPEC §5.2) so they're declared here. "Usługi" is no longer a plain
 // link (it triggers the services menu — desktop dropdown / mobile submenu, see below).
+// 2026-09-09 ksef-product-pages design ("Krok 3") added a second, highlighted nav entry for
+// the KSeF product — its own NavServicesMenu (desktop) / productMenu submenu (mobile), placed
+// BEFORE the existing services entry. Labels/hrefs come from src/content/ksef.ts (`ksef.nav`,
+// `ksef.erps`), never hardcoded here.
 const NAV_LINKS: NavLink[] = [
   { href: "/#cases", label: "Realizacje" },
   { href: "/#process", label: "Proces" },
@@ -21,6 +26,8 @@ const SERVICES_BACK_LABEL = "Wróć";
 
 // Adresy /uslugi/<slug>/ budowane ze Service.slug, nigdy z indeksu tablicy.
 const SERVICE_ITEMS: NavLink[] = services.map((s) => ({ href: `/uslugi/${s.slug}/`, label: s.tag }));
+// Adresy /ksef/<slug>/ budowane z KsefErpPage.slug, nigdy z indeksu tablicy.
+const KSEF_ITEMS: NavLink[] = ksef.erps.map((e) => ({ href: `/ksef/${e.slug}/`, label: e.name }));
 
 export function Nav() {
   return (
@@ -40,10 +47,19 @@ export function Nav() {
         </a>
         <div className="hidden items-center gap-9 md:flex">
           <NavServicesMenu
+            triggerLabel={ksef.nav.triggerLabel}
+            overviewHref={ksef.nav.overviewHref}
+            overviewLabel={ksef.nav.overviewLabel}
+            items={KSEF_ITEMS}
+            panelId="nav-ksef-panel"
+            highlight
+          />
+          <NavServicesMenu
             triggerLabel={SERVICES_TRIGGER_LABEL}
             overviewHref={SERVICES_OVERVIEW_HREF}
             overviewLabel={SERVICES_OVERVIEW_LABEL}
             items={SERVICE_ITEMS}
+            panelId="nav-services-panel"
           />
           {NAV_LINKS.map((link) => (
             <a key={link.href} href={link.href} className="text-[15px] text-ink-85 hover:text-white">
@@ -63,6 +79,14 @@ export function Nav() {
             overviewHref: SERVICES_OVERVIEW_HREF,
             overviewLabel: SERVICES_OVERVIEW_LABEL,
             items: SERVICE_ITEMS,
+          }}
+          productMenu={{
+            label: ksef.nav.triggerLabel,
+            backLabel: SERVICES_BACK_LABEL,
+            overviewHref: ksef.nav.overviewHref,
+            overviewLabel: ksef.nav.overviewLabel,
+            items: KSEF_ITEMS,
+            highlight: true,
           }}
         />
       </div>

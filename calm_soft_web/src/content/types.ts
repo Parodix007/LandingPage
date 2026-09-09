@@ -1,3 +1,5 @@
+import type { SalesContactCopy } from "./serviceSales";
+
 export type ServiceId = "web" | "automation" | "core" | "refactor";
 export type Tone = "a" | "b";
 
@@ -278,4 +280,82 @@ export type SolutionsContent = {
     proposalLabel: string;
   };
   groups: SolutionGroup[];
+};
+
+// Produkt KSeF (2026-09-09 ksef-product-pages design) — zajawka na stronie głównej + jedna
+// podstrona /ksef/comarch-erp-optima/, bez huba /ksef/. `contact` importuje kształt
+// `SalesContactCopy` z serviceSales.ts, żeby nie duplikować kontraktu formularza kontaktowego.
+export type KsefPlanCell = boolean | string; // true = ✓, false = brak, string = wartość w komórce
+export type KsefPlan = {
+  id: "firma" | "biuro" | "pro";
+  name: string; // "Firma" | "Biuro rachunkowe" | "PRO"
+  price: string; // "499 zł" (netto, bez jednostki — jednostka wspólna: pricing.unit)
+  audience: string;
+  highlights: string[];
+  note?: string;
+  cta: string;
+  prefill: string;
+  featured?: boolean;
+  badge?: string; // "Polecany" — tylko przy pakiecie Biuro
+};
+export type KsefTableRow = { label: string; cells: Record<KsefPlan["id"], KsefPlanCell> };
+export type KsefFaqItem = { question: string; answer: string };
+export type KsefErpPage = {
+  slug: string;
+  name: string; // "comarch-erp-optima", "Comarch ERP Optima"
+  metaTitle: string;
+  metaDescription: string;
+  contactHref: string; // "/ksef/comarch-erp-optima/#contact"
+  hero: { eyebrow: string; h1: string; lead: string; note: string; cta: string };
+  // rev. 3: bez listy — body niesie argument w dwóch akapitach.
+  problem: { title: string; body: string[]; badge: string; punchline: string };
+  // NOWE (rev. 3) — cztery kafle pełnej obsługi KSeF; highlight opcjonalny, bo nie każdy kafel
+  // ma wyróżnik.
+  coverage: {
+    title: string;
+    intro: string;
+    tiles: { title: string; body: string; highlight?: string }[];
+  };
+  // NOWE (rev. 3) — niezawodność integracji: dwa akapity, claim, lista punktów.
+  reliability: { title: string; body: string[]; claim: string; items: string[] };
+  howItWorks: { title: string; steps: { title: string; body: string }[]; punchline: string };
+  // dotyczy stacjonarnej Comarch ERP Optima w klasycznym modelu licencyjnym; nie mylić
+  // z modelem subskrypcyjnym, o którym mówi notice. rev. 3: bez listy.
+  legacy: {
+    title: string;
+    body: string;
+    claim: string;
+    notice: { label: string; body: string[] };
+  };
+  pricing: {
+    title: string;
+    includesTitle: string;
+    includes: string[];
+    includesNote: string;
+    unit: string;
+    plans: KsefPlan[];
+    table: KsefTableRow[];
+    tableCaption: string;
+    yesLabel: string;
+    noLabel: string;
+    badge: string;
+  };
+  savings: { title: string; body: string; claim: string; cta: string; prefill: string };
+  support: { title: string; body: string[]; claim: string };
+  faq: { title: string; items: KsefFaqItem[] };
+  finalCta: { title: string; body: string; claim: string; cta: string };
+  contact: SalesContactCopy;
+};
+export type KsefContent = {
+  teaser: {
+    id: "ksef";
+    heading: string;
+    body: string[];
+    tagline: string;
+    cta: string;
+    erpListLabel: string;
+    erpCta: string;
+  };
+  nav: { triggerLabel: string; overviewHref: "/#ksef"; overviewLabel: string };
+  erps: KsefErpPage[];
 };

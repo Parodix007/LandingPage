@@ -11,8 +11,25 @@ import type { ReactElement } from "react";
 // (`SolutionLineBlock`, `DemoModalContent`) and inside client trees (`HeroDemoSlider`) alike.
 // Emphasis is never underlined — underline is reserved for links elsewhere on this site, and
 // that distinction is the whole point of the marker (see spec §2).
+// 2026-09-09 rev. 2 KSeF: the owner's brief was "wherever calm_soft appears, style it like the
+// logo" — so every literal `calm_soft` (the brand token), including inside `**…**`, renders with
+// the same `<span className="font-mono">calm<span className="text-accent">_</span>soft</span>`
+// markup as the footer logo (`src/components/layout/Footer.tsx`).
 
 const EMPHASIS = /\*\*([^*]+)\*\*/g;
+const BRAND_TOKEN = /(calm_soft)/;
+
+function renderBrandToken(text: string, keyPrefix: string) {
+  return text.split(BRAND_TOKEN).map((piece, index) =>
+    piece === "calm_soft" ? (
+      <span key={`${keyPrefix}-${index}`} className="font-mono">
+        calm<span className="text-accent">_</span>soft
+      </span>
+    ) : (
+      piece
+    ),
+  );
+}
 
 export function RichText({ children }: { children: string }): ReactElement {
   const parts = children.split(EMPHASIS);
@@ -21,10 +38,10 @@ export function RichText({ children }: { children: string }): ReactElement {
       {parts.map((part, index) =>
         index % 2 === 1 ? (
           <strong key={index} className="font-semibold text-accent">
-            {part}
+            {renderBrandToken(part, `${index}`)}
           </strong>
         ) : (
-          part
+          renderBrandToken(part, `${index}`)
         ),
       )}
     </>

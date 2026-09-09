@@ -44,6 +44,40 @@ describe("RichText", () => {
   });
 });
 
+describe("RichText brand token", () => {
+  it("renders calm_soft as a font-mono span containing a text-accent underscore", () => {
+    const { container } = render(<RichText>{"calm_soft"}</RichText>);
+    const brand = container.querySelector("span.font-mono");
+    expect(brand).not.toBeNull();
+    const underscore = brand?.querySelector("span.text-accent");
+    expect(underscore).not.toBeNull();
+    expect(underscore).toHaveTextContent("_");
+    expect(brand?.textContent).toBe("calm_soft");
+  });
+
+  it("does not create a font-mono span when the token is absent", () => {
+    const { container } = render(<RichText>{"no brand mention here"}</RichText>);
+    expect(container.querySelectorAll("span.font-mono")).toHaveLength(0);
+  });
+
+  it("styles calm_soft inside emphasis too, nested in <strong>", () => {
+    const { container } = render(<RichText>{"**calm_soft** x"}</RichText>);
+    const strong = container.querySelector("strong");
+    expect(strong).not.toBeNull();
+    expect(strong?.querySelector("span.font-mono")).not.toBeNull();
+    expect(container.textContent).toBe("calm_soft x");
+  });
+
+  it("renders two separate font-mono spans for two occurrences", () => {
+    const { container } = render(<RichText>{"calm_soft and calm_soft"}</RichText>);
+    expect(container.querySelectorAll("span.font-mono")).toHaveLength(2);
+  });
+
+  it("stripEmphasis leaves calm_soft as plain text, unchanged behavior", () => {
+    expect(stripEmphasis("**calm_soft**")).toBe("calm_soft");
+  });
+});
+
 describe("stripEmphasis", () => {
   it("removes markers, leaving the plain text", () => {
     expect(stripEmphasis("a **b** c")).toBe("a b c");

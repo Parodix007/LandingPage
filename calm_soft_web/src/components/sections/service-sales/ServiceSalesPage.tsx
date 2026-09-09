@@ -8,10 +8,9 @@ import { CheckIcon } from "@/components/ui/icons";
 import { FilledPill } from "@/components/ui/FilledPill";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { CardActions } from "@/components/interactive/CardActions";
-import { ContactForm } from "@/components/interactive/ContactForm";
-import { CalendlyCta } from "@/components/interactive/CalendlyCta";
 import { HOVER_LIFT, HOVER_BORDER } from "@/components/ui/cardHover";
 import { RichText } from "@/components/ui/RichText";
+import { SalesContact } from "./SalesContact";
 import { ServiceStickyCta } from "./ServiceStickyCta";
 import { ServiceDemoShowcase } from "./ServiceDemoShowcase";
 import { ServiceDisclosure } from "./ServiceDisclosure";
@@ -150,41 +149,6 @@ function PricingTechFaq({ page }: { page: SalesPage }) {
   );
 }
 
-function Contact({ page }: { page: SalesPage }) {
-  return (
-    <section id="contact" aria-labelledby="service-contact-heading" className="relative overflow-hidden border-t border-white/[0.06]">
-      <span aria-hidden="true" className="pointer-events-none absolute bottom-[-140px] left-1/2 h-[420px] w-[1000px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse,color-mix(in_oklch,var(--color-accent)_22%,transparent),transparent_70%)]" />
-      <div className="reveal-group relative mx-auto grid max-w-[1200px] grid-cols-1 gap-16 px-6 py-[120px] pb-[100px] min-[900px]:grid-cols-[0.85fr_1.15fr]">
-        <div className="reveal-group flex flex-col gap-6">
-          <h2 id="service-contact-heading" className="text-[32px] font-bold">{page.contact.title}</h2>
-          <p className="text-[18px] leading-[1.55] text-ink-70">{page.contact.intro}</p>
-          <div className="mt-3 flex flex-col gap-3">
-            {page.contact.checks.map((check) => (
-              <div key={check} className="flex items-center gap-3">
-                <span aria-hidden="true" className="text-[15px] text-accent">✓</span>
-                <span className="text-[14.5px] text-ink-70">{check}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="reveal-group flex flex-col gap-6">
-          <div className={`service-card relative overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[28px_30px] ${HOVER_BORDER}`}>
-            <CardGlow />
-            <div className="relative z-[1]">
-              <p className="text-[18px] font-semibold text-ink">{page.contact.calendlyTitle}</p>
-              <p className="mt-2 text-[15px] leading-[1.55] text-ink-70">{page.contact.calendlyBody}</p>
-              <div className="mt-4">
-                <CalendlyCta variant="filled" label={page.contact.calendlyCta} />
-              </div>
-            </div>
-          </div>
-          <ContactForm introCopy={page.contact.form} />
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function CoreComposition({ page }: { page: Extract<SalesPage, { id: "core" }> }) {
   return <><Group group={page.problems} contactHref={page.contactHref} /><Group group={page.systems} contactHref={page.contactHref} /><Proof page={page} /><Group group={page.scope} contactHref={page.contactHref} /><Process page={page} /><ServiceDemoShowcase mode="grid" title={page.demosTitle} demos={page.demos} /><PricingTechFaq page={page} /></>;
 }
@@ -224,7 +188,7 @@ export function ServiceSalesPage({ page, art }: { page: SalesPage; art: ServiceA
         <FilledPill size="lg" as="a" href={page.contactHref}>{page.contact.cta}</FilledPill>
       </div>
     </main>
-    <Contact page={page} />
+    <SalesContact copy={page.contact} />
     <ServiceStickyCta href={page.contactHref} label={page.contact.stickyCta} />
   </>;
 }

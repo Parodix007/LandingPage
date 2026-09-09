@@ -19,6 +19,7 @@ function renderMenu() {
       overviewHref={OVERVIEW_HREF}
       overviewLabel={OVERVIEW_LABEL}
       items={ITEMS}
+      panelId="nav-services-panel"
     />,
   );
 }
@@ -78,6 +79,7 @@ describe("NavServicesMenu", () => {
           overviewHref={OVERVIEW_HREF}
           overviewLabel={OVERVIEW_LABEL}
           items={ITEMS}
+          panelId="nav-services-panel"
         />
         <button>Outside</button>
       </div>,
@@ -123,5 +125,45 @@ describe("NavServicesMenu", () => {
     for (const item of ITEMS) {
       expect(screen.getByRole("link", { name: item.label })).toHaveAttribute("href", item.href);
     }
+  });
+
+  it("wraps the trigger label in .nav-highlight when highlight is set", () => {
+    render(
+      <NavServicesMenu
+        triggerLabel={TRIGGER_LABEL}
+        overviewHref={OVERVIEW_HREF}
+        overviewLabel={OVERVIEW_LABEL}
+        items={ITEMS}
+        panelId="nav-services-panel"
+        highlight
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: TRIGGER_LABEL });
+    expect(trigger.querySelector(".nav-highlight")).not.toBeNull();
+  });
+
+  it("gives two instances with different panelId different aria-controls", () => {
+    render(
+      <div>
+        <NavServicesMenu
+          triggerLabel="First"
+          overviewHref={OVERVIEW_HREF}
+          overviewLabel={OVERVIEW_LABEL}
+          items={ITEMS}
+          panelId="panel-one"
+        />
+        <NavServicesMenu
+          triggerLabel="Second"
+          overviewHref={OVERVIEW_HREF}
+          overviewLabel={OVERVIEW_LABEL}
+          items={ITEMS}
+          panelId="panel-two"
+        />
+      </div>,
+    );
+
+    expect(screen.getByRole("button", { name: "First" })).toHaveAttribute("aria-controls", "panel-one");
+    expect(screen.getByRole("button", { name: "Second" })).toHaveAttribute("aria-controls", "panel-two");
   });
 });

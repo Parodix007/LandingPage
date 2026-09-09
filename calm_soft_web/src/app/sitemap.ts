@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { services } from "@/content/services";
+import { ksef } from "@/content/ksef";
 
 // required for `output: "export"` (static export) — app-router special routes
 // (manifest/sitemap/robots) must opt into force-static or the build fails.
@@ -17,5 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // page is retired outright (see design doc "Cost accepted") — not redirected, not kept
     // unlinked.
     ...services.map((s) => ({ url: `${siteUrl}/uslugi/${s.slug}/` })),
+    // One /ksef/<erp-slug>/ entry per supported ERP (2026-09-09 ksef-product-pages design).
+    ...ksef.erps.map((e) => ({ url: `${siteUrl}/ksef/${e.slug}/` })),
   ];
 }

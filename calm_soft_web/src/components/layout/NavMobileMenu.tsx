@@ -18,30 +18,36 @@ export type NavServiceMenu = {
   items: NavLink[];
 };
 
-type View = "main" | "services";
+type View = "main" | "services" | "product";
 
 // SPEC §6.7 — own design (the mockup has no mobile nav). Client leaf: hamburger + a
 // full-width panel dropped below the bar, same nav tokens. No scroll-lock (the panel does
 // not cover the page) and no focus trap (it stays naturally reachable under the button).
 // `serviceMenu` (optional) adds a second, nested view inside the same panel — see NavServiceMenu.
+// `productMenu` (optional, 2026-09-09 ksef design) adds a third, sibling nested view for the
+// KSeF product nav entry, following the exact same focus-management pattern as `serviceMenu`
+// but with its own trigger ref so focus returns to the right trigger on "back".
 export function NavMobileMenu({
   links,
   ctaLabel,
   serviceMenu,
+  productMenu,
 }: {
   links: NavLink[];
   ctaLabel: string;
   serviceMenu?: NavServiceMenu;
+  productMenu?: NavServiceMenu & { highlight?: boolean };
 }) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<View>("main");
   const rootRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const servicesTriggerRef = useRef<HTMLButtonElement>(null);
+  const productTriggerRef = useRef<HTMLButtonElement>(null);
   const backButtonRef = useRef<HTMLButtonElement>(null);
   // Which element should receive focus after the next view swap — a ref, not state: it's read
   // once by the effect below and cleared, so it never itself triggers a render.
-  const pendingFocusRef = useRef<"back" | "trigger" | null>(null);
+  const pendingFocusRef = useRef<"back" | "trigger" | "productTrigger" | null>(null);
 
   useEffect(() => {
     const target = pendingFocusRef.current;
@@ -49,6 +55,7 @@ export function NavMobileMenu({
     pendingFocusRef.current = null;
     if (target === "back") backButtonRef.current?.focus();
     if (target === "trigger") servicesTriggerRef.current?.focus();
+    if (target === "productTrigger") productTriggerRef.current?.focus();
   }, [view]);
 
   function closeAll() {
@@ -111,6 +118,23 @@ export function NavMobileMenu({
       >
         {view === "main" && (
           <nav className="flex flex-col">
+            {productMenu && (
+              <button
+                ref={productTriggerRef}
+                type="button"
+                onClick={() => {
+                  pendingFocusRef.current = "back";
+                  setView("product");
+                }}
+                className={navItemClass}
+              >
+                {productMenu.highlight ? (
+                  <span className="nav-highlight">{productMenu.label}</span>
+                ) : (
+                  productMenu.label
+                )}
+              </button>
+            )}
             {serviceMenu && (
               <button
                 ref={servicesTriggerRef}
@@ -163,6 +187,39 @@ export function NavMobileMenu({
               {serviceMenu.overviewLabel}
             </a>
             {serviceMenu.items.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={closeAll}
+                className={navItemClass}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        )}
+        {productMenu && view === "product" && (
+          <nav className="flex flex-col">
+            <button
+              ref={backButtonRef}
+              type="button"
+              onClick={() => {
+                pendingFocusRef.current = "productTrigger";
+                setView("main");
+              }}
+              className={`${navItemClass} flex items-center gap-2`}
+            >
+              <ChevronLeftIcon className="h-5 w-5 shrink-0" />
+              {productMenu.backLabel}
+            </button>
+            <a
+              href={productMenu.overviewHref}
+              onClick={closeAll}
+              className={navItemClass}
+            >
+              {productMenu.overviewLabel}
+            </a>
+            {productMenu.items.map((item) => (
               <a
                 key={item.href}
                 href={item.href}

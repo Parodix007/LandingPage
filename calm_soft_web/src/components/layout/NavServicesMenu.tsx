@@ -13,11 +13,15 @@ export function NavServicesMenu({
   overviewHref,
   overviewLabel,
   items,
+  panelId,
+  highlight,
 }: {
   triggerLabel: string;
   overviewHref: string;
   overviewLabel: string;
   items: NavLink[];
+  panelId: string;
+  highlight?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -73,7 +77,7 @@ export function NavServicesMenu({
         type="button"
         aria-expanded={open}
         aria-haspopup="true"
-        aria-controls="nav-services-panel"
+        aria-controls={panelId}
         // `aria-expanded` advertises a toggle, so keyboard activation must actually toggle it —
         // otherwise Enter on an already-open trigger does nothing, which fails keyboard users.
         // But a real mouse click can't just toggle either: it fires `mouseenter` on the root
@@ -89,11 +93,11 @@ export function NavServicesMenu({
         // visually centered exactly as before.
         className={`${PILL_FOCUS} flex h-full items-center rounded-[var(--radius-input)] text-[15px] text-ink-85 hover:text-white`}
       >
-        {triggerLabel}
+        {highlight ? <span className="nav-highlight">{triggerLabel}</span> : triggerLabel}
       </button>
       {/* Plain <a> siblings of the trigger button — never nested inside it (axe nested-interactive). */}
       <div
-        id="nav-services-panel"
+        id={panelId}
         hidden={!open}
         className="absolute left-0 top-full w-max min-w-[220px] rounded-[var(--radius-input)] border border-border-08 bg-surface py-2"
       >

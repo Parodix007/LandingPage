@@ -156,3 +156,72 @@ describe("NavMobileMenu — services submenu (serviceMenu prop)", () => {
     expect(screen.queryByRole("button", { name: SERVICE_MENU.backLabel })).not.toBeInTheDocument();
   });
 });
+
+// productMenu (2026-09-09 ksef design) — a third, sibling nested view alongside serviceMenu.
+describe("NavMobileMenu — product submenu (productMenu prop)", () => {
+  const LINKS_WITHOUT_SERVICES = [
+    { href: "/#process", label: "Process" },
+    { href: "/#cases", label: "Case studies" },
+  ];
+
+  const PRODUCT_MENU = {
+    label: "KSeF w ERP taniej",
+    backLabel: "Wróć",
+    overviewHref: "/#ksef",
+    overviewLabel: "O produkcie KSeF",
+    items: [{ href: "/ksef/comarch-erp-optima/", label: "Comarch ERP Optima" }],
+    highlight: true,
+  };
+
+  it("opens the product view on the product trigger, shows the overview and item links from props, and highlights the trigger label", async () => {
+    const user = userEvent.setup();
+    render(
+      <NavMobileMenu links={LINKS_WITHOUT_SERVICES} ctaLabel={CTA_LABEL} productMenu={PRODUCT_MENU} />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Menu" }));
+    const trigger = screen.getByRole("button", { name: PRODUCT_MENU.label });
+    expect(trigger.querySelector(".nav-highlight")).not.toBeNull();
+
+    await user.click(trigger);
+
+    expect(screen.getByRole("link", { name: PRODUCT_MENU.overviewLabel })).toHaveAttribute(
+      "href",
+      PRODUCT_MENU.overviewHref,
+    );
+    expect(screen.getByRole("link", { name: PRODUCT_MENU.items[0].label })).toHaveAttribute(
+      "href",
+      PRODUCT_MENU.items[0].href,
+    );
+  });
+
+  it("returns to the main view and refocuses the product trigger from Wróć", async () => {
+    const user = userEvent.setup();
+    render(
+      <NavMobileMenu links={LINKS_WITHOUT_SERVICES} ctaLabel={CTA_LABEL} productMenu={PRODUCT_MENU} />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Menu" }));
+    await user.click(screen.getByRole("button", { name: PRODUCT_MENU.label }));
+    await user.click(screen.getByRole("button", { name: PRODUCT_MENU.backLabel }));
+
+    const productTrigger = screen.getByRole("button", { name: PRODUCT_MENU.label });
+    expect(productTrigger).toBeVisible();
+    expect(productTrigger).toHaveFocus();
+    expect(screen.getByRole("link", { name: "Process" })).toBeVisible();
+  });
+
+  it("Escape closes the whole menu from within the product view", async () => {
+    const user = userEvent.setup();
+    render(
+      <NavMobileMenu links={LINKS_WITHOUT_SERVICES} ctaLabel={CTA_LABEL} productMenu={PRODUCT_MENU} />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Menu" }));
+    await user.click(screen.getByRole("button", { name: PRODUCT_MENU.label }));
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(screen.getByRole("button", { name: "Menu" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByRole("button", { name: "Menu" })).toHaveFocus();
+  });
+});

@@ -263,6 +263,7 @@ body:has([data-background-family="utility"]) .global-background::before {
 
 /* offsety kotwic — CSS zamiast matematyki scrolla (SPEC §6.5) */
 #services, #process, #cases { scroll-margin-top: 88px; }
+#ksef { scroll-margin-top: 88px; }
 #contact { scroll-margin-top: 32px; }
 
 /* keyframes (HANDOFF Interactions) — wyłącznie transform/opacity;
@@ -384,6 +385,66 @@ body:has([data-background-family="utility"]) .global-background::before {
   border-radius: 9999px;
   pointer-events: none;
   background: radial-gradient(circle, var(--glow-color, transparent), transparent 70%);
+}
+
+/* Matowe karty z głębią dla stron produktu KSeF — działają razem z .service-card / .card-host /
+   .reveal-group (border-box gradient żyje osobno od tła padding-box, więc nie koliduje z border
+   ani z tłem tamtych klas). */
+.ksef-surface {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid transparent;
+  border-radius: var(--radius-card);
+  background:
+    linear-gradient(color-mix(in srgb, var(--color-surface) 94%, transparent), color-mix(in srgb, var(--color-surface) 94%, transparent)) padding-box,
+    linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03) 45%, color-mix(in oklch, var(--color-accent) 22%, transparent)) border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 48px -28px rgba(0, 0, 0, 0.7);
+}
+
+.ksef-surface-featured {
+  background:
+    linear-gradient(color-mix(in srgb, var(--color-surface) 94%, transparent), color-mix(in srgb, var(--color-surface) 94%, transparent)) padding-box,
+    linear-gradient(160deg, color-mix(in oklch, var(--color-accent) 70%, transparent), color-mix(in oklch, var(--color-accent) 18%, transparent)) border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 48px -28px rgba(0, 0, 0, 0.7),
+    0 0 0 1px color-mix(in oklch, var(--color-accent) 25%, transparent);
+}
+
+.ksef-surface-compact {
+  border-radius: var(--radius-grid-card);
+}
+
+/* Hover kolumny w tabeli cennika KSeF (rev. 3) — Tailwind nie ma selektora na poziomie tabeli,
+   więc kolumna jest podświetlana przez :has() na <table>. Kolumna featured ma bazowo 8% akcentu
+   na komórkach, więc hover na 14% zachowuje widoczną różnicę zamiast ją zjadać. */
+.ksef-plan-table [data-plan] {
+  transition: background-color 200ms ease;
+}
+
+.ksef-plan-table:has([data-plan="firma"]:hover) [data-plan="firma"],
+.ksef-plan-table:has([data-plan="biuro"]:hover) [data-plan="biuro"],
+.ksef-plan-table:has([data-plan="pro"]:hover) [data-plan="pro"] {
+  background-color: color-mix(in oklch, var(--color-accent) 14%, transparent);
+}
+
+/* Highlight triggera w navbarze (NavServicesMenu) — nakładany na wewnętrzny <span>, nie na
+   button z h-full/h-16, więc celowo bez wysokości. */
+.nav-highlight {
+  border-radius: var(--radius-pill);
+  border: 1px solid color-mix(in oklch, var(--color-accent) 40%, transparent);
+  background: color-mix(in oklch, var(--color-accent) 12%, transparent);
+  color: var(--color-accent);
+  padding: 6px 14px;
+  box-shadow: 0 0 18px -6px color-mix(in oklch, var(--color-accent) 55%, transparent);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.nav-highlight:hover {
+  background: color-mix(in oklch, var(--color-accent) 20%, transparent);
+  color: var(--color-ink);
 }
 
 /* wzorzec rozciągniętego przycisku (SPEC §6.4) */

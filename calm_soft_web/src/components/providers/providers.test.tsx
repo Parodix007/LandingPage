@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cases, getCaseBySlug } from "@/content/cases";
 import { demos } from "@/content/demos";
-import { InquiryProvider, useRegisterContactFocus } from "./InquiryProvider";
+import { InquiryProvider, useRegisterContactFocus, useRegisterContactPrefill, useInquiry } from "./InquiryProvider";
 import { ModalProvider, useModal, useModalCtaClose } from "./ModalProvider";
 
 vi.mock("@/lib/scroll", () => ({ scrollToContact: vi.fn() }));
@@ -19,6 +20,9 @@ function Harness() {
   const { openCaseModal, openDemoModal } = useModal();
   const ctaClose = useModalCtaClose();
   const registerFocus = useRegisterContactFocus();
+  const registerPrefill = useRegisterContactPrefill();
+  const { prefillContactMessage } = useInquiry();
+  const [prefilled, setPrefilled] = useState<string | null>(null);
 
   return (
     <div>
@@ -32,7 +36,12 @@ function Harness() {
       >
         Register focus handler
       </button>
+      <button onClick={() => registerPrefill((text) => setPrefilled(text))}>
+        Register prefill handler
+      </button>
+      <button onClick={() => prefillContactMessage("x")}>Prefill message</button>
       <input id="contact-focus-target" aria-label="contact focus target" />
+      <p data-testid="prefilled-value">{prefilled ?? ""}</p>
     </div>
   );
 }
@@ -151,5 +160,19 @@ describe("ModalProvider / InquiryProvider integration (SPEC §14.2, as amended b
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(document.body.style.overflow).toBe("");
     expect(opener).toHaveFocus();
+  });
+
+  it("prefillContactMessage delivers text to a registered handler, and is a safe no-op with nothing registered", async () => {
+    const user = userEvent.setup();
+    renderHarness();
+
+    // No handler registered yet — must not throw.
+    await user.click(screen.getByRole("button", { name: "Prefill message" }));
+    expect(screen.getByTestId("prefilled-value")).toHaveTextContent("");
+
+    await user.click(screen.getByRole("button", { name: "Register prefill handler" }));
+    await user.click(screen.getByRole("button", { name: "Prefill message" }));
+
+    expect(screen.getByTestId("prefilled-value")).toHaveTextContent("x");
   });
 });

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { InquiryProvider } from "@/components/providers/InquiryProvider";
+import { InquiryProvider, useInquiry } from "@/components/providers/InquiryProvider";
 import { site } from "@/content/site";
 import { serviceSales } from "@/content/serviceSales";
 import { ContactForm } from "./ContactForm";
@@ -660,5 +660,63 @@ describe("ContactForm analytics hooks (2026-07-22 GA4 addendum)", () => {
     await screen.findByText(details.error);
 
     expect(track).not.toHaveBeenCalledWith(EVENT_ADS_CONVERSION);
+  });
+});
+
+describe("ContactForm message prefill (SPEC §6.2, 2026-09-09 ksef design)", () => {
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  // Small harness that calls prefillContactMessage on click — stands in for the KSeF plan/
+  // savings CTAs, which will call it via useInquiry() before scrolling to #contact.
+  function PrefillTrigger({ text }: { text: string }) {
+    const { prefillContactMessage } = useInquiry();
+    return <button onClick={() => prefillContactMessage(text)}>Prefill: {text}</button>;
+  }
+
+  function renderWithPrefillTrigger(text: string) {
+    render(
+      <InquiryProvider>
+        <PrefillTrigger text={text} />
+        <ContactForm />
+      </InquiryProvider>,
+    );
+  }
+
+  it("fills the empty message field with the prefilled text", async () => {
+    const user = userEvent.setup();
+    renderWithPrefillTrigger("Interesuje mnie pakiet Firma.");
+
+    await user.click(screen.getByRole("button", { name: "Prefill: Interesuje mnie pakiet Firma." }));
+
+    expect(screen.getByLabelText(form.fields.message)).toHaveValue("Interesuje mnie pakiet Firma.");
+  });
+
+  it("does not overwrite a message the user already typed", async () => {
+    const user = userEvent.setup();
+    renderWithPrefillTrigger("Prefilled ask.");
+
+    await user.type(screen.getByLabelText(form.fields.message), "abc");
+    await user.click(screen.getByRole("button", { name: "Prefill: Prefilled ask." }));
+
+    expect(screen.getByLabelText(form.fields.message)).toHaveValue("abc");
+  });
+
+  it("overwrites a still-untouched previous prefill with a newer one", async () => {
+    const user = userEvent.setup();
+    render(
+      <InquiryProvider>
+        <PrefillTrigger text="A" />
+        <PrefillTrigger text="B" />
+        <ContactForm />
+      </InquiryProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Prefill: A" }));
+    expect(screen.getByLabelText(form.fields.message)).toHaveValue("A");
+
+    await user.click(screen.getByRole("button", { name: "Prefill: B" }));
+    expect(screen.getByLabelText(form.fields.message)).toHaveValue("B");
   });
 });

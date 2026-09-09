@@ -15,6 +15,7 @@ export const site: SiteContent = {
     { label: "Realizacje", href: "/#cases" },
     { label: "Proces", href: "/#process" },
     { label: "Cennik", href: "/pricing/" },
+    { label: "KSeF", href: "/#ksef" },
     { label: "Kontakt", href: "/#contact" },
   ],
   hero: {

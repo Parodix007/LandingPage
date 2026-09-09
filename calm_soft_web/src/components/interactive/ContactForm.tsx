@@ -6,7 +6,10 @@ import type { AreaId, BudgetId } from "@/content/types";
 import type { ContactFormIntroCopy } from "@/content/serviceSales";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
-import { useRegisterContactFocus } from "@/components/providers/InquiryProvider";
+import {
+  useRegisterContactFocus,
+  useRegisterContactPrefill,
+} from "@/components/providers/InquiryProvider";
 import {
   submitWithRetry,
   submitDetailsWithRetry,
@@ -268,6 +271,7 @@ export type ContactFormProps = { introCopy?: ContactFormIntroCopy };
 
 export function ContactForm({ introCopy }: ContactFormProps = {}) {
   const register = useRegisterContactFocus();
+  const registerPrefill = useRegisterContactPrefill();
   const displayForm = introCopy
     ? { ...form, title: introCopy.title, intro: introCopy.intro, submit: introCopy.submit, fields: { ...form.fields, message: introCopy.messageLabel }, messagePlaceholder: introCopy.messagePlaceholder }
     : form;
@@ -292,6 +296,10 @@ export function ContactForm({ introCopy }: ContactFormProps = {}) {
   // between two rapid clicks, but these refs are read/written immediately inside the handlers.
   const submittingRef = useRef(false);
   const detailsSubmittingRef = useRef(false);
+  // Tracks the text of the last applied prefill (SPEC §6.2, 2026-09-09 ksef design) so a
+  // second prefill call can tell "still what I set" apart from "user typed over it" — see
+  // prefillContactMessage's overwrite rule below. `undefined` = no prefill applied yet.
+  const lastPrefillRef = useRef<string | undefined>(undefined);
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
@@ -312,6 +320,28 @@ export function ContactForm({ introCopy }: ContactFormProps = {}) {
     register(() => nameRef.current?.focus({ preventScroll: true }));
     return () => register(null);
   }, [register]);
+
+  // KSeF plan/savings CTAs prefill the message field (SPEC §6.2, 2026-09-09 ksef design). Never
+  // clobbers user-typed text: overwrites only when the current message is empty, or equal to the
+  // last prefill this component itself applied. Reads the live value synchronously from
+  // messageRef (the DOM textarea) instead of React's setMessage updater — React doesn't
+  // guarantee the updater runs synchronously (eager state only applies when the queue is
+  // empty), so a flag set inside it and read right after was not a reliable read of "did this
+  // apply". In the `status === "success"` state the textarea is unmounted, so messageRef.current
+  // is null — treat that as "don't overwrite" and bail out without touching state.
+  useEffect(() => {
+    registerPrefill((text: string) => {
+      const current = messageRef.current?.value;
+      if (current === undefined) return;
+      const trimmed = current.trim();
+      if (trimmed === "" || current === lastPrefillRef.current) {
+        lastPrefillRef.current = text;
+        setMessage(text);
+        setErrors((p) => ({ ...p, message: null }));
+      }
+    });
+    return () => registerPrefill(null);
+  }, [registerPrefill]);
 
   function focusFirstInvalid(errs: Record<FieldKey, string | null>) {
     const order: [FieldKey, React.RefObject<HTMLElement | null>][] = [
@@ -446,6 +476,7 @@ export function ContactForm({ introCopy }: ContactFormProps = {}) {
     setDetailsWebsite("");
     setDetailsError(null);
     setDetailsPhase("form");
+    lastPrefillRef.current = undefined;
   }
 
   return (

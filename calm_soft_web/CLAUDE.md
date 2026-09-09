@@ -55,14 +55,30 @@ Landing lead-gen (+ podstrony `/work/`, `/pricing/` i cztery strony usług `/usl
   nie dodawaj częściowego i18n).
 - **Pierwsza osoba liczby pojedynczej** — „robię", „projektuję". Nigdy „my" / „nasz zespół".
 - Dark theme, akcent `#7ce38b`, mint `#b9f0c4`.
-- Kolejność sekcji strony głównej: Hero → Usługi → Case studies → Proces → Kontakt.
+- Kolejność sekcji strony głównej: Hero → Usługi → KSeF (`#ksef`, zajawka produktu) → Case studies →
+  Proces → Kontakt.
   **Kotwica `#demo`, sekcja „Rozwiązania" i podstrona `/demos/` nie istnieją** — 2026-07-31
   restructure usunął je bez przekierowania (eksport statyczny go nie ma). Nie przywracaj ich
   i nie zakładaj, że gdzieś są. Slider w hero pokazuje `site.featuredCaseSlugs`, nie dema.
-- **Strony usług `/uslugi/<slug>/` to strony docelowe kampanii Google Ads** — jedyna trasa
-  dynamiczna w projekcie (`generateStaticParams` po `Service.slug`). Każda niesie własne
+- **Strony usług `/uslugi/<slug>/` to strony docelowe kampanii Google Ads** — trasa
+  dynamiczna (`generateStaticParams` po `Service.slug`). Każda niesie własne
   `metadata` + canonical, linie rozwiązań tej usługi i **własny `<Contact />` z `id="contact"`**,
   żeby klik z reklamy konwertował bez przejścia na stronę główną.
+- **Produkt KSeF** (`docs/superpowers/specs/2026-09-09-ksef-product-pages-design.md`): druga trasa
+  dynamiczna `/ksef/<erp>/` (`generateStaticParams` po `KsefErpPage.slug`, dziś tylko
+  `comarch-erp-optima`), zajawka `#ksef` na stronie głównej i wyróżniony wpis „KSeF w ERP taniej"
+  w navbarze z submenu ERP. Całe copy w `src/content/ksef.ts`. Pozycjonowanie: „ta sama obsługa
+  KSeF, taniej, stały abonament, bez limitu dokumentów". **Na stronach KSeF nie ma żadnych liczb
+  ani nazw pakietów Comarch, a kalkulator oszczędności został świadomie pominięty** — CTA
+  „Policz moją oszczędność" i CTA pakietów robią prefill wiadomości w formularzu
+  (`prefillContactMessage`) i przewijają do `#contact`. Nie wymyślaj stawek konkurencji.
+  Rev. 2 (drugi brief): sekcja `legacy` (starsze wersje Optimy w klasycznym modelu licencyjnym)
+  **musi** nieść widoczne zastrzeżenie, że model subskrypcyjny nadal wymaga aktywnej subskrypcji
+  Comarch — wymóg właściciela, nie drobny druk. FAQ renderuje `ServiceDisclosure`.
+  Rev. 3 (trzeci brief): sekcje `coverage` (4 kafle) i `reliability`; sekcja porównania **nie istnieje**;
+  badge pakietu Biuro to „Polecany" (nie „najczęściej wybierane" — brak potwierdzonych danych);
+  **bez logotypów Comarch/KSeF** (decyzja właściciela — cudze znaki towarowe, brak zgody); hover
+  kolumn cennika to `.ksef-plan-table` + `:has()` w `globals.css`.
 - **Słownictwo jest rozdzielone i nie wolno go mieszać:** kategoria to „rozwiązanie", artefakt do
   klikania to „demo", a „makieta" wyłącznie tam, gdzie mowa o specyfikacji zakresu. Słowa
   „gotowy", „prawie gotowy", „z półki" nie opisują produktu — sugerują klientowi, że kupuje coś,
@@ -155,7 +171,7 @@ Zmiana którejkolwiek z tych rzeczy wymaga jawnej zgody właściciela:
 ## Architektura (mapa, nie changelog)
 
 - **`src/content/*.ts`** — typowane moduły z **całym** copy i danymi (`site`, `services`,
-  `cases`, `demos`, `solutions`, `steps`, `pricing`, `types`). **Komponenty nie hardkodują
+  `cases`, `demos`, `solutions`, `steps`, `pricing`, `serviceSales`, `ksef`, `types`). **Komponenty nie hardkodują
   żadnych stringów.** Case'y i dema adresowane przez stabilne `slug`, nigdy przez indeks tablicy;
   resolucja przez `getCaseBySlug`/`getDemoBySlug`, a nieudana resolucja jest odfiltrowywana,
   nie wywraca strony.
@@ -170,14 +186,20 @@ Zmiana którejkolwiek z tych rzeczy wymaga jawnej zgody właściciela:
   `metaTitle`, `metaDescription`, `pageH1` i `pageSections` (nazwane systemy/procesy/narzędzia;
   puste = sekcja się nie renderuje, treść dostarcza właściciel — nie wymyślasz nazw systemów).
 - **`src/components/`** — `ui/` (prymitywy: `Chip`, `FilledPill`, `GhostPill`, `pillBase`,
-  `SectionHeading`, `Watermark`, `Modal`, `TechStack`, `WarningNote`, `DemoLogo`, `icons`),
+  `SectionHeading`, `Watermark`, `Modal`, `TechStack`, `WarningNote`, `DemoLogo`, `icons`;
+  `RichText` parsuje `**emfazę**` **i token marki** — literalne `calm_soft` w copy renderuje się jak
+  logo (`font-mono`, akcentowy `_`) globalnie, w każdym stringu przechodzącym przez `RichText`;
+  atrybuty i meta dostają czysty tekst przez `stripEmphasis`),
   `interactive/` (liście z zachowaniem: `CardActions`, `ContactForm`, `ProcessCarousel`,
   `ServicesSlider`, `HeroCaseSlider`, `CalendlyCta`, `ConsentBanner`,
   `useCarousel`), `sections/`, `layout/`, `providers/`.
-  `sections/Contact.tsx` (`id="contact"`) renderują **trzy** trasy: strona główna,
-  `/uslugi/<slug>/` i `/pricing/`. Na dwóch pierwszych stoi wewnątrz providerów, bo są tam
-  modale; na `/pricing/` **celowo bez nich** — `ContactForm` czyta tylko
-  `useRegisterContactFocus`, który ma bezpieczny domyślny no-op. Nie dokładaj tam providera.
+  `sections/Contact.tsx` (`id="contact"`) renderują strona główna, `/uslugi/legacy/` i `/pricing/`;
+  strony sprzedażowe usług i `/ksef/<erp>/` renderują `service-sales/SalesContact.tsx` (ta sama
+  sekcja z copy `SalesContactCopy` i `ContactForm introCopy`). Na stronie głównej i `/uslugi/`
+  sekcja stoi wewnątrz providerów, bo są tam modale; `/ksef/<erp>/` ma tylko `InquiryProvider`
+  (prefill + scroll, brak modali); na `/pricing/` **celowo bez providerów** — `ContactForm` czyta
+  `useRegisterContactFocus`/`useRegisterContactPrefill`, które mają bezpieczny domyślny no-op.
+  Nie dokładaj tam providera.
 - **Granica klient/serwer jest na poziomie liścia.** Sekcje, `page.tsx` i `layout.tsx` to
   komponenty serwerowe. `'use client'` trafia **tylko** na liście interaktywne i providery.
   Providery to dedykowane pliki `'use client'` przyjmujące sekcje jako `children` — dzięki
@@ -186,7 +208,9 @@ Zmiana którejkolwiek z tych rzeczy wymaga jawnej zgody właściciela:
   → opcjonalny `POST /api/contact/details`; jeden `AbortController` 10 s, retry dokładnie raz
   na HTTP 403 z odświeżonymi tokenami), `turnstile`, `calendly`, `scroll`, `analytics`,
   `consent`, `config`. Integracja z backendem dotyka wyłącznie `inquiry.ts` i `turnstile.ts`.
-- **Kontrakty stanu** — `InquiryContext` (`requestContactScroll`, `focusContactField`),
+- **Kontrakty stanu** — `InquiryContext` (`requestContactScroll`, `focusContactField`,
+  `prefillContactMessage` — nadpisuje wiadomość tylko, gdy pole jest puste albo zawiera poprzedni
+  prefill; nigdy nie kasuje tekstu użytkownika),
   `ModalContext` (`openCaseModal`, `openDemoModal`, `closeModals`). `ModalRoot` trzyma stan obu
   rodzajów modala i renderuje **jedną** instancję `Modal` z podmienianą treścią, więc blokada
   scrolla i focus trap przeżywają przełączenie case↔demo.
