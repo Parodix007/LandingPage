@@ -264,6 +264,7 @@ body:has([data-background-family="utility"]) .global-background::before {
 /* offsety kotwic — CSS zamiast matematyki scrolla (SPEC §6.5) */
 #services, #process, #cases { scroll-margin-top: 88px; }
 #ksef { scroll-margin-top: 88px; }
+#funkcje, #starsza-optima, #cennik { scroll-margin-top: 88px; }
 #contact { scroll-margin-top: 32px; }
 
 /* keyframes (HANDOFF Interactions) — wyłącznie transform/opacity;

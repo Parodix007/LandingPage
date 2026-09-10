@@ -68,7 +68,7 @@ export function KsefErpPage({ page }: { page: KsefErpPageContent }) {
           </p>
         </section>
 
-        <section className="reveal-group mt-16" aria-labelledby="ksef-coverage">
+        <section id="funkcje" className="reveal-group mt-16" aria-labelledby="ksef-coverage">
           <h2 id="ksef-coverage" className="text-[26px] font-bold leading-[1.15] tracking-[-0.02em]">
             {page.coverage.title}
           </h2>
@@ -136,7 +136,7 @@ export function KsefErpPage({ page }: { page: KsefErpPageContent }) {
           </p>
         </section>
 
-        <section className="reveal-group mt-16" aria-labelledby="ksef-legacy">
+        <section id="starsza-optima" className="reveal-group mt-16" aria-labelledby="ksef-legacy">
           <div className="ksef-surface ksef-surface-featured relative overflow-hidden p-7 min-[900px]:p-10">
             <CardGlow />
             <div className="relative z-[1]">
@@ -167,7 +167,7 @@ export function KsefErpPage({ page }: { page: KsefErpPageContent }) {
           </div>
         </section>
 
-        <section className="reveal-group mt-16" aria-labelledby="ksef-pricing">
+        <section id="cennik" className="reveal-group mt-16" aria-labelledby="ksef-pricing">
           <h2 id="ksef-pricing" className="text-[26px] font-bold leading-[1.15] tracking-[-0.02em]">
             {page.pricing.title}
           </h2>
@@ -236,7 +236,10 @@ export function KsefErpPage({ page }: { page: KsefErpPageContent }) {
         </section>
       </div>
 
-      <SalesContact copy={page.contact} />
+      {/* Wrapper carries the Google Ads sitelink anchor; SalesContact already owns id="contact" and is frozen (2026-09-10). */}
+      <div id="kontakt">
+        <SalesContact copy={page.contact} />
+      </div>
       <ServiceStickyCta href={page.contactHref} label={page.contact.stickyCta} />
     </>
   );
