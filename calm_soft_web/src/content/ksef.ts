@@ -1,261 +1,201 @@
 import { site } from "./site";
 import type { KsefContent, KsefErpPage, KsefPlan, KsefTableRow } from "./types";
 
-// Produkt KSeF (2026-09-09 ksef-product-pages design, rev. 3: coverage + reliability, comparison
-// usunięte) — zajawka na stronie głównej (`#ksef`) + jedna podstrona `/ksef/comarch-erp-optima/`.
-// Zero kalkulatora, zero liczb Comarch (świadome decyzje właściciela z Fazy 0 specu, podtrzymane
-// w rev. 2 i rev. 3). `contact` czyta `checks`/`calendly*` z `site.contact`, żeby nie duplikować
-// tych samych fraz w drugim pliku contentu.
-
 const plans: KsefPlan[] = [
   {
-    id: "firma",
-    name: "Firma",
-    price: "499 zł",
-    audience: "Dla jednej firmy korzystającej z Comarch ERP Optima.",
-    highlights: ["jedna firma", "standardowe wsparcie"],
-    cta: "Wybieram pakiet Firma",
-    prefill: "Interesuje mnie pakiet Firma (Comarch ERP Optima).",
-  },
-  {
-    id: "biuro",
-    name: "Biuro rachunkowe",
-    price: "699 zł",
-    audience: "Dla biur, które chcą obsługiwać wiele firm w ramach jednego rozwiązania.",
-    highlights: ["obsługa wielu firm", "standardowe wsparcie"],
-    badge: "Polecany",
-    cta: "Wybieram pakiet dla biura",
-    prefill: "Interesuje mnie pakiet Biuro rachunkowe (Comarch ERP Optima).",
-    featured: true,
+    id: "standard",
+    name: "Standard",
+    price: "249 zł",
+    audience: "KSeF ma działać, a dodatkowe zmiany są potrzebne od czasu do czasu.",
+    highlights: ["dodatkowe prace wyceniane osobno", "indywidualny rozwój na zamówienie"],
+    cta: "Wybieram Standard",
+    prefill: "Interesuje mnie plan Standard dla Comarch ERP Optima.",
   },
   {
     id: "pro",
     name: "PRO",
-    price: "1 499 zł",
-    audience: "Dla firm i biur, które potrzebują rozwiązania dopasowanego do własnych procesów.",
+    price: "od 699 zł",
+    audience: "Dla firm, które regularnie rozwijają rozwiązanie i chcą mieć zarezerwowany czas na zmiany.",
     highlights: [
-      "obsługa wielu firm",
-      "priorytetowe wsparcie",
-      "dopasowanie do procesów firmy",
-      "dodatkowe funkcje",
-      "automatyzacja pracy",
+      "od 2 godzin miesięcznie zarezerwowanych na rozwój rozwiązania",
+      "pierwszeństwo w planowaniu prac rozwojowych",
+      "możliwość zwiększenia miesięcznego zakresu",
+      "rozszerzona opieka nad indywidualnymi elementami",
     ],
-    note: "**Potrzebujesz dodatkowej funkcji w ERP, KSeF albo automatyzacji pracy? Mogę rozwinąć rozwiązanie pod sposób działania Twojej firmy.** Indywidualne prace rozwojowe dostępne na preferencyjnych warunkach.",
-    cta: "Porozmawiaj o pakiecie PRO",
-    prefill: "Chcę porozmawiać o pakiecie PRO (Comarch ERP Optima).",
+    noteLabel: "Warunki planu PRO",
+    note: "Zarezerwowany zakres obowiązuje w danym okresie rozliczeniowym i nie przechodzi na kolejne okresy. Większe prace i dodatkowy zakres ustalam przed rozpoczęciem realizacji.",
+    cta: "Dobierz wariant PRO",
+    prefill: "Interesuje mnie plan PRO dla Comarch ERP Optima i regularny rozwój rozwiązania.",
+    featured: true,
+    badge: "Polecany",
   },
 ];
 
 const table: KsefTableRow[] = [
-  { label: "Dla kogo", cells: { firma: "jedna firma", biuro: "biuro obsługujące wiele firm", pro: "firmy i biura z indywidualnymi potrzebami" } },
-  { label: "Obsługa wielu firm", cells: { firma: false, biuro: true, pro: true } },
-  { label: "Wsparcie", cells: { firma: "standardowe", biuro: "standardowe", pro: "priorytetowe" } },
-  { label: "Dopasowanie do procesów firmy", cells: { firma: false, biuro: false, pro: true } },
-  { label: "Dodatkowe funkcje", cells: { firma: false, biuro: false, pro: true } },
-  { label: "Automatyzacja pracy", cells: { firma: false, biuro: false, pro: true } },
+  { label: "Rozwój rozwiązania", cells: { standard: "wycena osobno", pro: "od 2 godzin miesięcznie" } },
+  { label: "Planowanie prac", cells: { standard: "według dostępności", pro: "pierwszeństwo" } },
+  { label: "Zwiększenie zakresu", cells: { standard: false, pro: true } },
+  { label: "Opieka nad zmianami", cells: { standard: "standardowa", pro: "rozszerzona" } },
+  { label: "Wsparcie techniczne", cells: { standard: true, pro: true } },
+  { label: "Obsługa starszych wersji Optimy", cells: { standard: true, pro: true } },
+  { label: "Aktualizacje i utrzymanie", cells: { standard: true, pro: true } },
+  { label: "Monitoring działania", cells: { standard: true, pro: true } },
 ];
 
 const comarchOptima: KsefErpPage = {
   slug: "comarch-erp-optima",
   name: "Comarch ERP Optima",
-  metaTitle: "KSeF w Comarch ERP Optima taniej — stały abonament | calm_soft",
-  metaDescription:
-    "Wysyłaj i odbieraj dokumenty KSeF w Comarch ERP Optima w stałym abonamencie, bez limitu dokumentów. Integracja, utrzymanie i wsparcie w cenie.",
+  metaTitle: "KSeF w Comarch ERP Optima bez limitu | calm_soft",
+  metaDescription: "KSeF dla Comarch ERP Optima bez limitu dokumentów. Obsługa starszych wersji, wiele firm, monitoring, wsparcie i możliwość indywidualnego rozwoju rozwiązania.",
   contactHref: "/ksef/comarch-erp-optima/#contact",
   hero: {
     eyebrow: "Comarch ERP Optima + KSeF",
-    h1: "KSeF w Comarch ERP Optima. Tylko taniej.",
-    lead: "Wysyłaj i odbieraj dokumenty KSeF **bez kosztu rosnącego wraz z liczbą faktur**. Zostajesz przy Comarch ERP Optima, a calm_soft zapewnia pełną obsługę KSeF, utrzymanie rozwiązania i wsparcie w stałym abonamencie.",
-    note: "Zmienia się koszt. Nie sposób pracy.",
-    cta: "Sprawdź, ile możesz zaoszczędzić",
-  },
-  problem: {
-    title: "Po co płacić więcej za obsługę KSeF?",
-    body: [
-      "W modelu pakietowym koszt może rosnąć razem z liczbą dokumentów.",
-      "W calm_soft płacisz stały abonament niezależnie od tego, czy firma wysyła kilkaset, kilka tysięcy czy więcej dokumentów.",
-    ],
-    badge: "Stały koszt. Bez limitu dokumentów.",
-    punchline: "Twoja firma może rosnąć. Koszt obsługi KSeF nie musi rosnąć razem z nią.",
-  },
-  coverage: {
-    title: "Pełna obsługa KSeF bez dokładania pracy po stronie firmy",
-    intro:
-      "Nie chodzi tylko o wysłanie faktury. Rozwiązanie obsługuje cały codzienny proces związany z KSeF — od wysyłki dokumentu po potwierdzenie jego przyjęcia.",
-    tiles: [
-      {
-        title: "Wiesz, czy faktura została przyjęta",
-        body: "Po wysłaniu dokumentu otrzymujesz informację o jego przyjęciu, numer KSeF oraz UPO.",
-        highlight: "Nie musisz ręcznie sprawdzać, co stało się z dokumentem.",
-      },
-      {
-        title: "Faktury zakupowe trafiają do Twojego procesu",
-        body: "Dokumenty z KSeF są pobierane i przekazywane do dalszej obsługi w Optimie.",
-        highlight: "Mniej ręcznego przenoszenia dokumentów.",
-      },
-      {
-        title: "Korekty są częścią tego samego rozwiązania",
-        body: "Nie potrzebujesz osobnego procesu ani dodatkowego narzędzia do obsługi faktur korygujących.",
-      },
-      {
-        title: "Problemy z KSeF nie muszą zatrzymywać pracy",
-        body: "W przypadku czasowej niedostępności systemu dokumenty mogą zostać obsłużone i przesłane po przywróceniu działania KSeF.",
-        highlight: "Firma może pracować dalej, nawet gdy KSeF ma problem.",
-      },
-    ],
-  },
-  reliability: {
-    title: "Nie musisz pilnować KSeF. Pilnuję go za Ciebie.",
-    body: [
-      "KSeF jest zewnętrznym systemem i jego działanie nie zawsze zależy od Twojej firmy.",
-      "Dlatego calm_soft odpowiada za działanie rozwiązania po stronie integracji, obsługę problemów z wysyłką oraz dostosowanie do zmian po stronie KSeF.",
-    ],
-    claim: "Mniej ręcznego pilnowania. Mniej ryzyka, że dokument utknie bez wiedzy pracownika.",
-    items: [
-      "dokument został wysłany — wiesz o tym",
-      "dokument został przyjęty — masz potwierdzenie",
-      "pojawił się problem — rozwiązanie może go obsłużyć",
-      "KSeF się zmienia — dostosowanie rozwiązania jest po mojej stronie",
-    ],
+    h1: "KSeF w Comarch ERP Optima dopasowany do Twojej firmy",
+    lead: "Wysyłaj i odbieraj dokumenty bez limitu. Korzystaj z obecnej wersji Optimy — również starszej. A jeśli Twój proces wymaga czegoś więcej, mogę dopasować rozwiązanie do sposobu pracy Twojej firmy.",
+    note: "Od 249 zł netto / miesiąc",
+    bullets: ["dokumenty bez limitu", "wiele obsługiwanych firm", "wsparcie starszych wersji Optimy", "indywidualne rozwiązania w każdym planie"],
+    cta: "Sprawdź zgodność mojej Optimy",
+    pricingCta: "Zobacz cennik",
   },
   legacy: {
-    title: "Masz starszą Optimę? Nie musisz jej aktualizować tylko dla KSeF.",
-    body: "Jeżeli korzystasz ze stacjonarnej Comarch ERP Optima w klasycznym modelu licencyjnym i Twoja obecna wersja nadal działa, możesz korzystać z integracji calm_soft **bez przechodzenia na nowszą wersję wyłącznie ze względu na KSeF**.",
-    claim: "Zostań na wersji, która działa. Nie płać za upgrade tylko dlatego, że potrzebujesz KSeF.",
-    notice: {
-      label: "Ważne: model subskrypcyjny",
-      body: [
-        "Dotyczy klasycznego modelu licencyjnego Comarch ERP Optima.",
-        "W przypadku Optimy działającej w modelu subskrypcyjnym aktywna subskrypcja Comarch jest nadal wymagana do korzystania z samego programu. Integracja calm_soft tego wymogu nie zastępuje.",
-      ],
-    },
-  },
-  howItWorks: {
-    title: "Pracujesz w Optimie tak jak dotychczas",
+    title: "Masz starszą wersję Optimy? Zostań przy niej, jeśli nadal spełnia potrzeby firmy.",
+    body: "Wdrożenie KSeF nie musi oznaczać aktualizacji całego ERP. Najpierw sprawdzam używaną wersję Optimy i Twoje środowisko. Jeśli mogę uruchomić integrację w obecnej konfiguracji, nie musisz zmieniać działającego systemu tylko ze względu na KSeF.",
     steps: [
-      { title: "Pracujesz w swoim ERP", body: "Dokumenty nadal tworzysz i obsługujesz w Comarch ERP Optima." },
-      { title: "Ja zajmuję się KSeF", body: "calm_soft odpowiada za wysyłanie i odbieranie dokumentów oraz ich poprawną obsługę." },
-      { title: "Wiesz, co dzieje się z każdą fakturą", body: "Informacje o przyjęciu dokumentu, numerze KSeF i UPO wracają do Twojego procesu." },
-      { title: "Ja utrzymuję rozwiązanie", body: "Zmiany KSeF, utrzymanie i wsparcie pozostają po stronie calm_soft." },
+      { title: "Sprawdzam zgodność Twojej wersji", body: "Weryfikuję, czy mogę uruchomić integrację w obecnym środowisku." },
+      { title: "Uruchamiam standardową integrację", body: "Jeśli wersja jest obsługiwana, przechodzę do wdrożenia." },
+      { title: "Informuję wcześniej o dostosowaniu", body: "Zakres i koszt ustalam przed rozpoczęciem prac." },
     ],
-    punchline: "Nie zmieniasz ERP. Nie zmieniasz procesu pracy. Zmieniasz koszt i przenosisz odpowiedzialność za obsługę KSeF na mnie.",
+    claim: "Starsza wersja Optimy nie oznacza automatycznie wyższego abonamentu.",
+    cta: "Sprawdź moją wersję Optimy",
+  },
+  development: {
+    title: "Integracja KSeF, którą można rozwijać",
+    intro: "Twój proces działa inaczej? Mogę dopasować integrację. Standardowa obsługa KSeF wystarczy wielu firmom, ale nie każda firma pracuje tak samo.",
+    items: [
+      { title: "Dodatkowe automatyzacje", body: "Mogę opracować automatyzacje dopasowane do sposobu pracy firmy." },
+      { title: "Własne reguły obsługi dokumentów", body: "Ustalam reguły, które odpowiadają Twojemu procesowi." },
+      { title: "Niestandardowy obieg faktur", body: "Mogę odwzorować obieg dokumentów, którego nie obejmuje standard." },
+      { title: "Dodatkowe statusy i działania", body: "Rozszerzam informacje i akcje potrzebne pracownikom." },
+      { title: "Połączenie z innymi systemami", body: "Mogę połączyć KSeF z CRM, WMS, sklepem lub innym systemem." },
+      { title: "Rozwój pod proces firmy", body: "Indywidualne rozwiązania są dostępne w każdym planie." },
+    ],
+    standardNote: "W planie Standard dodatkowe prace wyceniam osobno.",
+    proNote: "Plan PRO wybierasz wtedy, gdy regularnie rozwijasz rozwiązanie i chcesz mieć co miesiąc zarezerwowany czas na takie prace.",
+  },
+  coverage: {
+    title: "Pełna obsługa KSeF",
+    intro: "KSeF działa w tle. Ty pracujesz dalej w swoim ERP.",
+    tiles: [
+      { title: "Wysyłka i odbiór bez limitu", body: "Nie kupujesz kolejnych paczek dokumentów wraz ze wzrostem firmy." },
+      { title: "Statusy i UPO", body: "Wiesz, czy dokument został przyjęty i jaki jest jego aktualny status." },
+      { title: "Obsługa korekt", body: "Korekty są częścią tego samego procesu." },
+      { title: "Automatyczne ponowienia", body: "Czasowy problem po stronie KSeF nie musi oznaczać ręcznego rozpoczynania procesu od początku." },
+      { title: "Wiele firm", body: "Jedno rozwiązanie może obsługiwać wiele podmiotów." },
+      { title: "Praca w Optimie", body: "Nie dokładamy użytkownikom kolejnego programu do codziennej obsługi faktur." },
+    ],
+  },
+  monitoring: {
+    title: "Integracja nie kończy się w dniu wdrożenia",
+    intro: "KSeF jest usługą, która musi działać również po uruchomieniu. Dlatego rozwiązanie pozostaje objęte utrzymaniem i monitoringiem technicznym.",
+    items: [
+      { title: "Monitoring działania", body: "Kontroluję pracę integracji i zdarzenia wymagające diagnostyki." },
+      { title: "Obsługa błędów", body: "Problemy z komunikacją pozostawiają informacje potrzebne do szybkiego ustalenia przyczyny." },
+      { title: "Aktualizacje", body: "Utrzymuję standardową integrację wraz ze zmianami wymaganymi przez KSeF." },
+      { title: "Wsparcie techniczne", body: "W razie problemu masz konkretnego dostawcę odpowiedzialnego za rozwiązanie." },
+    ],
+    claim: "Nie zostajesz sam z wdrożeniem po jego uruchomieniu.",
   },
   pricing: {
     title: "Cennik",
-    includesTitle: "Co firma dostaje w każdym pakiecie",
-    includes: [
-      "pełną codzienną obsługę KSeF",
-      "wysyłanie i odbieranie dokumentów",
-      "informację, czy dokument został poprawnie przyjęty",
-      "numer KSeF i UPO",
-      "obsługę korekt",
-      "brak limitu dokumentów",
-      "utrzymanie rozwiązania",
-      "dostosowanie do zmian KSeF",
-      "wsparcie calm_soft",
-    ],
-    includesNote: "Płacisz mniej, ale nie dostajesz okrojonego rozwiązania.",
+    includesTitle: "Prosty abonament. Bez progów dokumentowych.",
+    includes: ["nielimitowana wysyłka do KSeF", "nielimitowany odbiór z KSeF", "wiele obsługiwanych firm", "statusy, UPO i korekty", "automatyczna synchronizacja"],
+    includesNote: "Możliwość indywidualnego rozwoju rozwiązania pozostaje dostępna w każdym planie.",
     unit: "netto / miesiąc",
     plans,
     table,
-    tableCaption: "Porównanie pakietów KSeF dla Comarch ERP Optima",
-    yesLabel: "w pakiecie",
-    noLabel: "brak w pakiecie",
+    tableCaption: "Porównanie planów KSeF dla Comarch ERP Optima",
+    yesLabel: "w planie",
+    noLabel: "brak w planie",
     badge: "Utrzymanie, aktualizacje i wsparcie w cenie.",
   },
-  savings: {
-    title: "Im więcej dokumentów, tym więcej zostaje w Twojej firmie",
-    body: "W calm_soft koszt nie rośnie razem z liczbą faktur. Dzięki stałemu abonamentowi łatwiej przewidzieć koszt KSeF i uniknąć przechodzenia na kolejne progi cenowe wraz ze wzrostem działalności.",
-    claim: "Więcej faktur nie oznacza wyższego abonamentu.",
-    cta: "Sprawdź swoją oszczędność",
-    prefill:
-      "Proszę o wyliczenie oszczędności na KSeF w Comarch ERP Optima. Miesięcznie wystawiam ok. ___ faktur sprzedażowych i otrzymuję ok. ___ faktur zakupowych.",
+  comparison: {
+    title: "Standard czy PRO?",
+    intro: "Wybierz model współpracy dopasowany do tego, jak często rozwijasz rozwiązanie.",
+    standard: { title: "Standard", body: "KSeF ma działać, a dodatkowych zmian potrzebujesz od czasu do czasu. Korzystasz z rozwiązania, a indywidualne prace zamawiasz wtedy, gdy są potrzebne." },
+    pro: { title: "PRO", body: "Regularnie rozwijasz procesy i chcesz mieć co miesiąc zarezerwowany czas na zmiany. Zakres miesięcznej dostępności mogę zwiększać wraz z potrzebami Twojej firmy." },
+    note: "W obu planach możesz zamawiać indywidualne rozwiązania. PRO rezerwuje czas na ich regularny rozwój.",
   },
-  support: {
-    title: "Taniej nie oznacza bez wsparcia",
-    body: [
-      "Nie zostajesz sam z rozwiązaniem po wdrożeniu.",
-      "calm_soft odpowiada za utrzymanie integracji, dostosowanie jej do zmian KSeF i wsparcie w przypadku problemów.",
+  otherErp: {
+    title: "Potrzebujesz KSeF również w innym ERP?",
+    body: ["Nie ograniczam indywidualnych wdrożeń wyłącznie do Comarch ERP Optima.", "Jeśli korzystasz z innego systemu, sprawdzę możliwości jego połączenia z KSeF i ocenię, czy mogę opracować odpowiednie rozwiązanie.", "Możliwe jest również połączenie kilku systemów w jeden proces, jeżeli pozwalają na to możliwości danego oprogramowania."],
+    cta: "Zapytaj o mój ERP",
+    prefill: "Chcę zapytać o możliwość integracji KSeF z moim ERP.",
+  },
+  howItWorks: {
+    title: "Od obecnej Optimy do działającego KSeF",
+    steps: [
+      { title: "Sprawdzam środowisko", body: "Poznaję wersję Optimy, sposób pracy i potrzeby firmy." },
+      { title: "Konfiguruję rozwiązanie", body: "Podłączam KSeF i ustawiam sposób obsługi dokumentów." },
+      { title: "Testuję", body: "Sprawdzam wysyłkę, odbiór, statusy, UPO i najważniejsze scenariusze." },
+      { title: "Uruchamiam", body: "Przechodzę na środowisko produkcyjne." },
+      { title: "Utrzymuję", body: "Po wdrożeniu rozwiązanie pozostaje objęte monitoringiem, aktualizacjami i wsparciem." },
     ],
-    claim: "Ty korzystasz z KSeF. Ja dbam, żeby rozwiązanie działało.",
+  },
+  audience: {
+    title: "Dla kogo jest ta oferta?",
+    intro: "Najwięcej zyskasz, jeśli:",
+    items: [
+      { title: "Masz starszą wersję Optimy", body: "Nie chcesz aktualizować całego ERP tylko ze względu na KSeF." },
+      { title: "Obsługujesz dużo dokumentów lub wiele firm", body: "Zależy Ci na stałym koszcie bez kolejnych progów." },
+      { title: "Masz własny sposób pracy", body: "Standardowy moduł nie obejmuje całego procesu." },
+      { title: "Potrzebujesz dodatkowych automatyzacji lub integracji", body: "Chcesz rozwijać rozwiązanie razem z potrzebami firmy." },
+      { title: "Korzystasz z kilku systemów", body: "KSeF powinien być częścią większego procesu, a nie kolejnym osobnym programem." },
+    ],
   },
   faq: {
     title: "Pytania i odpowiedzi",
     items: [
-      {
-        question: "Czy muszę zmienić Comarch ERP Optima?",
-        answer: "Nie. Rozwiązanie działa z Twoją obecną Optimą.",
-      },
-      {
-        question: "Czy potrzebuję najnowszej wersji Optimy?",
-        answer:
-          "Nie zawsze. W przypadku klasycznych licencji możliwe jest pozostanie na starszej wersji, jeśli jest ona wspierana przez moje rozwiązanie.",
-      },
-      {
-        question: "Co jeśli KSeF chwilowo nie działa?",
-        answer: "Rozwiązanie obsługuje sytuacje niedostępności i może przekazać dokumenty po przywróceniu działania systemu.",
-      },
-      {
-        question: "Czy dostanę potwierdzenie, że faktura została przyjęta?",
-        answer: "Tak. Obsługiwane są informacje o statusie dokumentu, numer KSeF oraz UPO.",
-      },
-      {
-        question: "Czy liczba dokumentów wpływa na cenę?",
-        answer: "Nie. Abonament calm_soft nie rośnie wraz z liczbą faktur.",
-      },
-      {
-        question: "Czy obsługiwane są korekty?",
-        answer: "Tak. Korekty są częścią obsługi KSeF.",
-      },
-      {
-        question: "Czy biuro rachunkowe może obsługiwać wiele firm?",
-        answer: "Tak. Pakiet dla biur jest przeznaczony właśnie do takiego modelu pracy.",
-      },
+      { question: "Czy muszę mieć najnowszą wersję Comarch ERP Optima?", answer: "Nie zawsze. Najpierw sprawdzam używaną wersję i możliwości Twojego środowiska. Jeżeli mogę uruchomić integrację bez aktualizacji ERP, nie musisz zmieniać wersji tylko ze względu na KSeF." },
+      { question: "Czy liczba dokumentów wpływa na wysokość abonamentu?", answer: "Nie. Abonament nie jest uzależniony od liczby wysyłanych i odbieranych dokumentów." },
+      { question: "Czy mogę obsługiwać wiele firm?", answer: "Tak. Rozwiązanie obsługuje również wiele podmiotów." },
+      { question: "Czy w Standardzie mogę zamówić indywidualną funkcję?", answer: "Tak. Indywidualne rozwiązania są dostępne niezależnie od planu. W Standardzie zakres dodatkowych prac wyceniam osobno." },
+      { question: "Czym Standard różni się od PRO?", answer: "W Standardzie dodatkowe prace zamawiasz wtedy, gdy ich potrzebujesz. PRO zapewnia dodatkowo zarezerwowany miesięczny czas na regularny rozwój rozwiązania." },
+      { question: "Czy niewykorzystany zakres PRO przechodzi na kolejny miesiąc?", answer: "Nie. PRO rezerwuje określony czas na prace w danym okresie rozliczeniowym. Niewykorzystany zakres nie przechodzi na kolejne okresy i nie podlega zwrotowi." },
+      { question: "Co jeśli potrzebuję większej zmiany?", answer: "Najpierw ustalam zakres i opracowuję wycenę. Prace rozpoczynam dopiero po jej zaakceptowaniu." },
+      { question: "Czy możesz podłączyć KSeF do innego ERP?", answer: "W wielu przypadkach tak. Najpierw sprawdzam możliwości danego systemu i na tej podstawie określam zakres integracji." },
+      { question: "Czy poprawki błędów zużywają zakres PRO?", answer: "Nie. Poprawki standardowego rozwiązania wynikające z jego prawidłowego utrzymania są częścią obsługi produktu. Pula PRO dotyczy nowych funkcji i indywidualnych zmian." },
+      { question: "Co obejmuje monitoring?", answer: "Monitoring obejmuje techniczne działanie integracji, procesy komunikacji z KSeF oraz zdarzenia wymagające diagnostyki." },
     ],
   },
   finalCta: {
-    title: "Zostań przy Optimie. Płać mniej za KSeF.",
-    body: "Pełna codzienna obsługa KSeF, brak limitu dokumentów, utrzymanie i wsparcie — bez zmiany ERP.",
-    claim: "Mniej kosztów. Mniej ręcznej pracy. Mniej rzeczy do pilnowania.",
-    cta: "Sprawdź, ile możesz zaoszczędzić",
+    title: "Sprawdź, jak KSeF może działać w Twojej Optimie",
+    body: "Napisz, z jakiej wersji Optimy korzystasz i czego potrzebujesz. Sprawdzę zgodność środowiska oraz najlepszy wariant wdrożenia.",
+    cta: "Sprawdź moją Optimę",
   },
   contact: {
     title: "Porozmawiajmy o KSeF w Twojej Optimie",
-    intro: "Napisz, którego pakietu potrzebujesz i ile dokumentów obsługujesz miesięcznie. Odpowiadam osobiście.",
+    intro: "Napisz, z jakiej wersji Optimy korzystasz i czego potrzebujesz. Odpowiadam osobiście.",
     checks: site.contact.checks,
     calendlyTitle: site.contact.talk.title,
     calendlyBody: site.contact.talk.body,
     calendlyCta: site.contact.talk.cta,
-    form: {
-      title: "Zapytanie o KSeF",
-      intro: "Napisz, którego pakietu potrzebujesz i ile dokumentów obsługujesz miesięcznie.",
-      messageLabel: "Wiadomość",
-      messagePlaceholder: "Np. Interesuje mnie pakiet Firma dla jednej firmy na Comarch ERP Optima.",
-      submit: "Wyślij zapytanie",
-    },
-    cta: "Sprawdź, ile możesz zaoszczędzić",
-    stickyCta: "Sprawdź, ile zaoszczędzisz",
+    form: { title: "Zapytanie o KSeF", intro: "Napisz, z jakiej wersji Optimy korzystasz i czego potrzebujesz.", messageLabel: "Wiadomość", messagePlaceholder: "Np. Korzystam z wersji Optimy ___ i potrzebuję obsługi KSeF.", submit: "Wyślij zapytanie" },
+    cta: "Sprawdź moją Optimę",
+    stickyCta: "Sprawdź moją Optimę",
   },
 };
 
 export const ksef: KsefContent = {
   teaser: {
     id: "ksef",
-    heading: "KSeF w Twoim ERP. Po prostu taniej.",
-    body: [
-      "Nie musisz zmieniać systemu ani sposobu pracy, żeby obniżyć koszt obsługi KSeF.",
-      "calm_soft łączy Twój obecny ERP z KSeF i zapewnia wysyłanie oraz odbieranie dokumentów w stałym abonamencie, **bez kosztu rosnącego wraz z liczbą faktur**.",
-    ],
-    tagline: "Ta sama codzienna obsługa KSeF. Niższy koszt. Utrzymanie i wsparcie w cenie.",
+    heading: "KSeF w Twoim ERP. Dopasowany do sposobu pracy firmy.",
+    body: ["Wysyłaj i odbieraj dokumenty bez limitu. Korzystaj z obecnej wersji ERP, również starszej, jeśli środowisko spełnia warunki integracji.", "Mogę dopasować rozwiązanie do sposobu pracy Twojej firmy i połączyć je z innymi systemami."],
+    tagline: "Bez limitu dokumentów. Starsze wersje Optimy. Możliwość indywidualnego rozwoju.",
     cta: "Sprawdź swój ERP",
     erpListLabel: "Obsługiwane systemy",
     erpCta: "Zobacz ofertę ›",
   },
-  nav: {
-    triggerLabel: "KSeF w ERP taniej",
-    overviewHref: "/#ksef",
-    overviewLabel: "O produkcie KSeF",
-  },
+  nav: { triggerLabel: "KSeF w ERP", overviewHref: "/#ksef", overviewLabel: "O produkcie KSeF" },
   erps: [comarchOptima],
 };
 

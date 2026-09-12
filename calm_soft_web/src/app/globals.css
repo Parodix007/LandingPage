@@ -431,6 +431,26 @@ body:has([data-background-family="utility"]) .global-background::before {
   background-color: color-mix(in oklch, var(--color-accent) 14%, transparent);
 }
 
+/* Hover kolumny Standard używa inset box-shadow zamiast border, aby zachować rozmiar tabeli.
+   Header dostaje ten sam zaokrąglony początek i górę obrysu co bazowo wyróżniony PRO; komórki
+   utrzymują ciągłe boki. Ten hook jest deterministyczny w runtime: :has() wybiera kolumnę po
+   najechaniu na dowolną jej komórkę, a box-shadow nie wpływa na layout. Jsdom nie oblicza :hover
+   ani geometrii CSS, dlatego test sprawdza obecność selektorów i deklaracji, a preview jest miejscem
+   weryfikacji przeglądarkowej. */
+.ksef-plan-table:has([data-plan="firma"]:hover) th[data-plan="firma"] {
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, var(--color-accent) 40%, transparent),
+    inset 1px 0 0 color-mix(in oklch, var(--color-accent) 40%, transparent),
+    inset -1px 0 0 color-mix(in oklch, var(--color-accent) 40%, transparent);
+}
+
+.ksef-plan-table:has([data-plan="firma"]:hover) td[data-plan="firma"] {
+  box-shadow:
+    inset 1px 0 0 color-mix(in oklch, var(--color-accent) 40%, transparent),
+    inset -1px 0 0 color-mix(in oklch, var(--color-accent) 40%, transparent);
+}
+
 /* Highlight triggera w navbarze (NavServicesMenu) — nakładany na wewnętrzny <span>, nie na
    button z h-full/h-16, więc celowo bez wysokości. */
 .nav-highlight {

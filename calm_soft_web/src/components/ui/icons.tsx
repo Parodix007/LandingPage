@@ -54,6 +54,17 @@ export function MinusIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Lucide Info geometry (https://lucide.dev/icons/info), used under the ISC license.
+export function InfoIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...ICON_BASE} {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </svg>
+  );
+}
+
 // Warning triangle + exclamation (SPEC 2026-07-21 desktop-only-demo-note-design "Warning
 // treatment"). Decorative only — WarningNote's sentence carries the meaning — so it stays
 // aria-hidden like every other icon here. Geometrically centered in the 24×24 box.

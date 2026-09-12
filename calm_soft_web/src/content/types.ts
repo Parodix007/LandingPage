@@ -287,11 +287,12 @@ export type SolutionsContent = {
 // `SalesContactCopy` z serviceSales.ts, żeby nie duplikować kontraktu formularza kontaktowego.
 export type KsefPlanCell = boolean | string; // true = ✓, false = brak, string = wartość w komórce
 export type KsefPlan = {
-  id: "firma" | "biuro" | "pro";
-  name: string; // "Firma" | "Biuro rachunkowe" | "PRO"
-  price: string; // "499 zł" (netto, bez jednostki — jednostka wspólna: pricing.unit)
+  id: "standard" | "pro";
+  name: string;
+  price: string;
   audience: string;
   highlights: string[];
+  noteLabel?: string;
   note?: string;
   cta: string;
   prefill: string;
@@ -306,27 +307,15 @@ export type KsefErpPage = {
   metaTitle: string;
   metaDescription: string;
   contactHref: string; // "/ksef/comarch-erp-optima/#contact"
-  hero: { eyebrow: string; h1: string; lead: string; note: string; cta: string };
-  // rev. 3: bez listy — body niesie argument w dwóch akapitach.
-  problem: { title: string; body: string[]; badge: string; punchline: string };
-  // NOWE (rev. 3) — cztery kafle pełnej obsługi KSeF; highlight opcjonalny, bo nie każdy kafel
-  // ma wyróżnik.
+  hero: { eyebrow: string; h1: string; lead: string; note: string; bullets: string[]; cta: string; pricingCta: string };
+  legacy: { title: string; body: string; steps: { title: string; body: string }[]; claim: string; cta: string };
+  development: { title: string; intro: string; items: { title: string; body: string }[]; standardNote: string; proNote: string };
   coverage: {
     title: string;
     intro: string;
     tiles: { title: string; body: string; highlight?: string }[];
   };
-  // NOWE (rev. 3) — niezawodność integracji: dwa akapity, claim, lista punktów.
-  reliability: { title: string; body: string[]; claim: string; items: string[] };
-  howItWorks: { title: string; steps: { title: string; body: string }[]; punchline: string };
-  // dotyczy stacjonarnej Comarch ERP Optima w klasycznym modelu licencyjnym; nie mylić
-  // z modelem subskrypcyjnym, o którym mówi notice. rev. 3: bez listy.
-  legacy: {
-    title: string;
-    body: string;
-    claim: string;
-    notice: { label: string; body: string[] };
-  };
+  monitoring: { title: string; intro: string; items: { title: string; body: string }[]; claim: string };
   pricing: {
     title: string;
     includesTitle: string;
@@ -340,10 +329,12 @@ export type KsefErpPage = {
     noLabel: string;
     badge: string;
   };
-  savings: { title: string; body: string; claim: string; cta: string; prefill: string };
-  support: { title: string; body: string[]; claim: string };
+  comparison: { title: string; intro: string; standard: { title: string; body: string }; pro: { title: string; body: string }; note: string };
+  otherErp: { title: string; body: string[]; cta: string; prefill: string };
+  howItWorks: { title: string; steps: { title: string; body: string }[] };
+  audience: { title: string; intro: string; items: { title: string; body: string }[] };
   faq: { title: string; items: KsefFaqItem[] };
-  finalCta: { title: string; body: string; claim: string; cta: string };
+  finalCta: { title: string; body: string; cta: string };
   contact: SalesContactCopy;
 };
 export type KsefContent = {

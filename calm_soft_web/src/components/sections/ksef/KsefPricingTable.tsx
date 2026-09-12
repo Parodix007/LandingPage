@@ -1,10 +1,39 @@
 import type { KsefErpPage } from "@/content/types";
 import { Chip } from "@/components/ui/Chip";
 import { RichText } from "@/components/ui/RichText";
-import { CheckIcon, MinusIcon } from "@/components/ui/icons";
+import { CheckIcon, InfoIcon, MinusIcon } from "@/components/ui/icons";
 import { KsefPlanCta } from "@/components/interactive/KsefPlanCta";
 
 type Pricing = KsefErpPage["pricing"];
+
+function PlanNote({ plan, placement }: { plan: Pricing["plans"][number]; placement: "desktop" | "mobile" }) {
+  if (!plan.note || !plan.noteLabel) return null;
+  const tooltipId = `ksef-${plan.id}-note-${placement}`;
+  const tooltipPlacement = placement === "mobile"
+    ? "left-0 max-w-[min(18rem,calc(100vw-6rem))]"
+    : "right-0 left-auto max-w-[min(18rem,calc(100vw-3rem))]";
+  const groupClassName = placement === "desktop" ? "group relative inline-flex" : "group inline-flex";
+
+  return (
+    <span className={groupClassName}>
+      <button
+        type="button"
+        aria-label={plan.noteLabel}
+        aria-describedby={tooltipId}
+        className="hit-44 inline-flex h-4 w-4 items-center justify-center rounded-full text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
+        <InfoIcon className="h-4 w-4 text-ink-50" />
+      </button>
+          <span
+            id={tooltipId}
+            role="tooltip"
+            className={`invisible pointer-events-none absolute ${tooltipPlacement} top-full z-20 mt-1 w-max translate-y-1 rounded-[var(--radius-input)] border border-border-12 bg-surface px-4 py-3 text-left text-[14px] font-normal leading-[1.5] text-ink-85 opacity-0 shadow-[0_12px_30px_rgba(0,0,0,0.35)] transition-[opacity,transform,visibility] duration-150 motion-reduce:transition-none group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100`}
+      >
+        <RichText>{plan.note}</RichText>
+      </span>
+    </span>
+  );
+}
 
 // Server component (2026-09-09 ksef-product-pages design, rev. 3: badge + hover, includesIntro
 // removed) — the KSeF pricing block: an "includes" summary shared by every plan (closing
@@ -24,7 +53,8 @@ type Pricing = KsefErpPage["pricing"];
 // explicit height so a percentage-based child height (`h-full`) resolves, which is what lets the
 // existing `mt-auto` pin the CTA to the bottom of the cell in Chrome.
 export function KsefPricingTable({ pricing }: { pricing: Pricing }) {
-  const proPlan = pricing.plans.find((plan) => plan.note);
+  const presentationPlanId = (id: Pricing["plans"][number]["id"]) => id === "standard" ? "firma" : id;
+  const sharedRows = pricing.table.filter((row) => pricing.plans.every((plan) => row.cells[plan.id] === true));
 
   return (
     <>
@@ -53,19 +83,19 @@ export function KsefPricingTable({ pricing }: { pricing: Pricing }) {
                   <th
                     key={plan.id}
                     scope="col"
-                    data-plan={plan.id}
+                    data-plan={presentationPlanId(plan.id)}
                     className={`h-px p-4 text-center align-top ${plan.featured ? "rounded-t-[var(--radius-card)] border border-b-0 border-[color-mix(in_oklch,var(--color-accent)_40%,transparent)] bg-[color-mix(in_oklch,var(--color-accent)_8%,transparent)]" : ""}`}
                   >
                     <div className="flex h-full flex-col items-center">
                       <div className="flex min-h-8 justify-center">
                         {plan.badge && <Chip tone="accent">{plan.badge}</Chip>}
                       </div>
-                      <h3 className="mt-2 text-[22px] font-bold leading-[1.15]">{plan.name}</h3>
+                      <div className="mt-2 flex min-h-11 items-center justify-center gap-1"><h3 className="text-[22px] font-bold leading-[1.15]">{plan.name}</h3></div>
                       <p className="mt-2">
                         <span className="text-[36px] font-bold leading-none text-accent">{plan.price}</span>{" "}
                         <span className="text-[13px] text-ink-50">{pricing.unit}</span>
                       </p>
-                      <p className="mt-2 text-[14px] leading-[1.4] text-ink-70"><RichText>{plan.audience}</RichText></p>
+                      <p className="relative mt-2 text-[14px] leading-[1.4] text-ink-70"><RichText>{plan.audience}</RichText>{plan.id === "pro" && <PlanNote plan={plan} placement="desktop" />}</p>
                       <div className="mt-auto flex justify-center pt-4">
                         <KsefPlanCta label={plan.cta} prefill={plan.prefill} variant="filled" />
                       </div>
@@ -85,7 +115,7 @@ export function KsefPricingTable({ pricing }: { pricing: Pricing }) {
                     return (
                       <td
                         key={plan.id}
-                        data-plan={plan.id}
+                        data-plan={presentationPlanId(plan.id)}
                         className={`border-t border-border-08 py-4 px-4 text-center ${plan.featured ? "border-x border-x-[color-mix(in_oklch,var(--color-accent)_40%,transparent)] bg-[color-mix(in_oklch,var(--color-accent)_8%,transparent)]" : ""}`}
                       >
                         {cell === true ? (
@@ -109,11 +139,6 @@ export function KsefPricingTable({ pricing }: { pricing: Pricing }) {
             </tbody>
           </table>
         </div>
-        {proPlan?.note && (
-          <div className="ksef-surface-compact mt-6 p-6">
-            <p className="text-[16px] leading-[1.6] text-ink-85"><RichText>{proPlan.note}</RichText></p>
-          </div>
-        )}
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 min-[900px]:hidden">
@@ -123,12 +148,12 @@ export function KsefPricingTable({ pricing }: { pricing: Pricing }) {
             className={`ksef-surface p-6 transition-transform duration-[350ms] hover:-translate-y-1 ${plan.featured ? "ksef-surface-featured" : ""}`}
           >
             {plan.badge && <Chip tone="accent">{plan.badge}</Chip>}
-            <h3 className={`text-[22px] font-bold leading-[1.15] ${plan.badge ? "mt-2" : ""}`}>{plan.name}</h3>
+            <div className={`flex min-h-11 items-center gap-1 ${plan.badge ? "mt-2" : ""}`}><h3 className="text-[22px] font-bold leading-[1.15]">{plan.name}</h3></div>
             <p className="mt-2">
               <span className="text-[36px] font-bold leading-none text-accent">{plan.price}</span>{" "}
               <span className="text-[13px] text-ink-50">{pricing.unit}</span>
             </p>
-            <p className="mt-2 text-[14px] leading-[1.4] text-ink-70"><RichText>{plan.audience}</RichText></p>
+            <p className="relative mt-2 text-[14px] leading-[1.4] text-ink-70"><RichText>{plan.audience}</RichText>{plan.id === "pro" && <PlanNote plan={plan} placement="mobile" />}</p>
             <ul className="mt-4 flex flex-col gap-2">
               {plan.highlights.map((highlight) => (
                 <li key={highlight} className="flex items-start gap-3">
@@ -136,8 +161,13 @@ export function KsefPricingTable({ pricing }: { pricing: Pricing }) {
                   <span className="text-[14.5px] leading-[1.5] text-ink-70"><RichText>{highlight}</RichText></span>
                 </li>
               ))}
+              {sharedRows.map((row) => (
+                <li key={row.label} className="flex items-start gap-3">
+                  <CheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+                  <span className="text-[14.5px] leading-[1.5] text-ink-70">{row.label}</span>
+                </li>
+              ))}
             </ul>
-            {plan.note && <p className="mt-4 text-[15px] leading-[1.55] text-ink-85"><RichText>{plan.note}</RichText></p>}
             <div className="mt-5">
               <KsefPlanCta label={plan.cta} prefill={plan.prefill} variant="filled" />
             </div>
