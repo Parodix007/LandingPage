@@ -25,7 +25,7 @@ describe("ksef content", () => {
   it("ma zatwierdzone menu, zajawkę i metadata", () => {
     expect(ksef.nav.triggerLabel).toBe("KSeF w ERP");
     expect(ksef.teaser.heading).toBe("KSeF w Twoim ERP. Dopasowany do sposobu pracy firmy.");
-    const page = ksef.erps[0]!;
+    const page = getKsefErpBySlug("comarch-erp-optima")!;
     expect(page.metaTitle).toBe("KSeF w Comarch ERP Optima bez limitu | calm_soft");
     expect(page.metaDescription).toBe("KSeF dla Comarch ERP Optima bez limitu dokumentów. Obsługa starszych wersji, wiele firm, monitoring, wsparcie i możliwość indywidualnego rozwoju rozwiązania.");
     expect(page.hero.bullets).toHaveLength(4);
@@ -35,14 +35,19 @@ describe("ksef content", () => {
     for (const erp of ksef.erps) {
       expect(erp.pricing.plans.map((p) => p.id)).toEqual(PLAN_ORDER);
       expect(erp.pricing.plans.filter((p) => p.featured).map((p) => p.id)).toEqual(["pro"]);
-      expect(erp.pricing.plans[0]?.price).toBe("249 zł");
+      expect(erp.pricing.plans[0]?.price).toMatch(/^\d+ zł$/);
       expect(erp.pricing.plans[1]?.price).toBe("od 699 zł");
       expect(erp.pricing.plans[1]?.highlights).toContain("od 2 godzin miesięcznie zarezerwowanych na rozwój rozwiązania");
     }
   });
 
+  it("zachowuje cenę Standard Optimy wyłącznie dla wpisu Optimy", () => {
+    const optima = getKsefErpBySlug("comarch-erp-optima")!;
+    expect(optima.pricing.plans[0]?.price).toBe("249 zł");
+  });
+
   it("przechowuje warunki PRO wyłącznie w etykiecie i krótkim opisie tooltipa", () => {
-    const pro = ksef.erps[0]!.pricing.plans.find((plan) => plan.id === "pro");
+    const pro = getKsefErpBySlug("comarch-erp-optima")!.pricing.plans.find((plan) => plan.id === "pro");
     expect(pro?.noteLabel).toBe("Warunki planu PRO");
     expect(pro?.note).toBe("Zarezerwowany zakres obowiązuje w danym okresie rozliczeniowym i nie przechodzi na kolejne okresy. Większe prace i dodatkowy zakres ustalam przed rozpoczęciem realizacji.");
     expect(JSON.stringify(ksef)).not.toContain("PRO nie jest wymagany, aby zamawiać indywidualne zmiany.");
@@ -50,17 +55,16 @@ describe("ksef content", () => {
 
   it("każdy wiersz tabeli ma komórki obu planów i brak dublowania wspólnego zakresu", () => {
     for (const erp of ksef.erps) {
-      expect(erp.pricing.table.map((row) => row.label)).toEqual([
+      expect(erp.pricing.table.map((row) => row.label)).toEqual(expect.arrayContaining([
         "Rozwój rozwiązania",
         "Planowanie prac",
         "Zwiększenie zakresu",
         "Opieka nad zmianami",
         "Wsparcie techniczne",
-        "Obsługa starszych wersji Optimy",
         "Aktualizacje i utrzymanie",
         "Monitoring działania",
-      ]);
-      for (const label of ["Wsparcie techniczne", "Obsługa starszych wersji Optimy", "Aktualizacje i utrzymanie", "Monitoring działania"]) {
+      ]));
+      for (const label of ["Wsparcie techniczne", "Aktualizacje i utrzymanie", "Monitoring działania"]) {
         const row = erp.pricing.table.find((item) => item.label === label);
         expect(row?.cells).toEqual({ standard: true, pro: true });
       }
@@ -71,10 +75,23 @@ describe("ksef content", () => {
       for (const row of erp.pricing.table) expect(includes.has(row.label.toLowerCase())).toBe(false);
       for (const plan of erp.pricing.plans) for (const item of plan.highlights) expect(includes.has(item.toLowerCase())).toBe(false);
     }
+    const optima = getKsefErpBySlug("comarch-erp-optima")!;
+    expect(optima.pricing.table.map((row) => row.label)).toEqual([
+      "Rozwój rozwiązania",
+      "Planowanie prac",
+      "Zwiększenie zakresu",
+      "Opieka nad zmianami",
+      "Wsparcie techniczne",
+      "Obsługa starszych wersji Optimy",
+      "Aktualizacje i utrzymanie",
+      "Monitoring działania",
+    ]);
+    const optimaLegacy = optima.pricing.table.find((row) => row.label === "Obsługa starszych wersji Optimy");
+    expect(optimaLegacy?.cells).toEqual({ standard: true, pro: true });
   });
 
   it("zawiera wszystkie sekcje w zatwierdzonej kolejności i 10 FAQ", () => {
-    const page = ksef.erps[0]!;
+    const page = getKsefErpBySlug("comarch-erp-optima")!;
     expect(page.legacy.steps).toHaveLength(3);
     expect(page.development.items.length).toBeGreaterThan(0);
     expect(page.coverage.tiles).toHaveLength(6);
@@ -89,7 +106,7 @@ describe("ksef content", () => {
   });
 
   it("CTA planów i innego ERP mają prefill, pozostałe CTA używają contactHref", () => {
-    const page = ksef.erps[0]!;
+    const page = getKsefErpBySlug("comarch-erp-optima")!;
     expect(page.hero.cta).toBe("Sprawdź zgodność mojej Optimy");
     expect(page.legacy.cta).toBe("Sprawdź moją wersję Optimy");
     expect(page.otherErp.prefill).toContain("ERP");

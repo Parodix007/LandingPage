@@ -42,6 +42,24 @@ const table: KsefTableRow[] = [
   { label: "Monitoring działania", cells: { standard: true, pro: true } },
 ];
 
+const rachmistrzNexoPlans: KsefPlan[] = plans.map((plan) => ({
+  ...plan,
+  price: plan.id === "standard" ? "350 zł" : plan.price,
+  prefill: plan.id === "standard"
+    ? "Interesuje mnie plan Standard dla Rachmistrza Nexo / Nexo PRO."
+    : "Interesuje mnie plan PRO dla Rachmistrza Nexo / Nexo PRO i regularny rozwój rozwiązania.",
+}));
+
+const rachmistrzNexoTable: KsefTableRow[] = table.map((row) => ({
+  ...row,
+  cells: row.label === "Obsługa starszych wersji Optimy"
+    ? { standard: "po sprawdzeniu zgodności", pro: "po sprawdzeniu zgodności" }
+    : { ...row.cells },
+  ...(row.label === "Obsługa starszych wersji Optimy"
+    ? { label: "Obsługa starszych wersji Rachmistrza Nexo" }
+    : {}),
+}));
+
 const comarchOptima: KsefErpPage = {
   slug: "comarch-erp-optima",
   name: "Comarch ERP Optima",
@@ -185,18 +203,161 @@ const comarchOptima: KsefErpPage = {
   },
 };
 
+const rachmistrzNexo: KsefErpPage = {
+  slug: "rachmistrz-nexo",
+  name: "Rachmistrz Nexo / Nexo PRO",
+  metaTitle: "KSeF w Rachmistrzu Nexo i Nexo PRO | calm_soft",
+  metaDescription: "Odbiór faktur z KSeF w Rachmistrzu Nexo i Nexo PRO. Obsługa wielu firm, monitoring, wsparcie i możliwość indywidualnego rozwoju rozwiązania.",
+  contactHref: "/ksef/rachmistrz-nexo/#contact",
+  hero: {
+    eyebrow: "Rachmistrz Nexo / Nexo PRO + KSeF",
+    h1: "Odbiór faktur z KSeF w Rachmistrzu Nexo",
+    lead: "Odbieraj faktury z KSeF bez limitu i pracuj dalej w swoim Rachmistrzu Nexo. Oferta dotyczy Rachmistrza Nexo i Nexo PRO, a zakres rozwiązania sprawdzam względem używanej wersji programu.",
+    note: "Od 350 zł netto / miesiąc",
+    bullets: ["odbiór faktur bez limitu", "Rachmistrz Nexo i Nexo PRO", "wsparcie starszych wersji po sprawdzeniu zgodności", "indywidualne dopasowanie procesu odbioru"],
+    cta: "Sprawdź zgodność mojego Rachmistrza",
+    pricingCta: "Zobacz cennik",
+  },
+  legacy: {
+    title: "Masz starszą wersję Rachmistrza Nexo? Najpierw sprawdzam jej możliwości.",
+    body: "Wersja programu wpływa na zakres dostępnych mechanizmów wymiany danych. Sprawdzam wersję Rachmistrza Nexo, środowisko i sposób pracy, żeby ustalić realny zakres odbioru faktur z KSeF.",
+    steps: [
+      { title: "Sprawdzam zgodność Twojej wersji", body: "Weryfikuję, jakie możliwości odbioru faktur udostępnia obecne środowisko." },
+      { title: "Ustalam zakres odbioru", body: "Dobieram sposób pobierania i obsługi dokumentów do wersji Rachmistrza Nexo." },
+      { title: "Informuję wcześniej o dostosowaniu", body: "Zakres i koszt ustalam przed rozpoczęciem prac." },
+    ],
+    claim: "Starsza wersja Rachmistrza Nexo nie oznacza automatycznie wyższego abonamentu.",
+    cta: "Sprawdź moją wersję Rachmistrza",
+  },
+  development: {
+    title: "Odbiór KSeF, który można rozwijać",
+    intro: "Twój proces działa inaczej? Mogę dopasować odbiór faktur do sposobu pracy firmy. Standardowa obsługa wystarczy wielu firmom, ale nie każda firma pracuje tak samo.",
+    items: [
+      { title: "Dodatkowe automatyzacje", body: "Mogę opracować automatyzacje dopasowane do obiegu faktur zakupowych." },
+      { title: "Własne reguły obsługi dokumentów", body: "Ustalam reguły, które odpowiadają Twojemu procesowi odbioru." },
+      { title: "Niestandardowy obieg faktur", body: "Mogę odwzorować obieg dokumentów, którego nie obejmuje standard." },
+      { title: "Dodatkowe statusy i działania", body: "Rozszerzam informacje i akcje potrzebne pracownikom." },
+      { title: "Połączenie z innymi systemami", body: "Mogę połączyć odbiór faktur z CRM, WMS, sklepem lub innym systemem." },
+      { title: "Rozwój pod proces firmy", body: "Indywidualne rozwiązania są dostępne w każdym planie." },
+    ],
+    standardNote: "W planie Standard dodatkowe prace wyceniam osobno.",
+    proNote: "Plan PRO wybierasz wtedy, gdy regularnie rozwijasz rozwiązanie i chcesz mieć co miesiąc zarezerwowany czas na takie prace.",
+  },
+  coverage: {
+    title: "Odbiór faktur z KSeF",
+    intro: "Faktury trafiają do Rachmistrza Nexo, a Ty pracujesz dalej w swoim ERP.",
+    tiles: [
+      { title: "Odbiór faktur bez limitu", body: "Nie kupujesz kolejnych paczek dokumentów wraz ze wzrostem firmy." },
+      { title: "Automatyczne pobieranie dokumentów", body: "Faktury są pobierane zgodnie z ustalonym sposobem pracy." },
+      { title: "Odbiór faktur korygujących", body: "Korekty są częścią tego samego procesu odbioru." },
+      { title: "Statusy i diagnostyka", body: "Wiesz, czy dokument został odebrany i jaki jest jego aktualny status." },
+      { title: "Wiele firm", body: "Jedno rozwiązanie może obsługiwać wiele podmiotów." },
+      { title: "Praca w Rachmistrzu Nexo", body: "Nie dokładam użytkownikom kolejnego programu do codziennej obsługi faktur." },
+    ],
+  },
+  monitoring: {
+    title: "Integracja nie kończy się w dniu wdrożenia",
+    intro: "Odbiór faktur musi działać również po uruchomieniu. Dlatego rozwiązanie pozostaje objęte utrzymaniem i monitoringiem technicznym.",
+    items: [
+      { title: "Monitoring działania", body: "Kontroluję pracę integracji i zdarzenia wymagające diagnostyki." },
+      { title: "Obsługa błędów", body: "Problemy z komunikacją pozostawiają informacje potrzebne do szybkiego ustalenia przyczyny." },
+      { title: "Aktualizacje", body: "Utrzymuję standardową integrację wraz ze zmianami wymaganymi przez KSeF." },
+      { title: "Wsparcie techniczne", body: "W razie problemu masz konkretnego dostawcę odpowiedzialnego za rozwiązanie." },
+    ],
+    claim: "Nie zostajesz sam z wdrożeniem po jego uruchomieniu.",
+  },
+  pricing: {
+    title: "Cennik",
+    includesTitle: "Odbiór faktur z KSeF. Bez progów dokumentowych.",
+    includes: ["nielimitowany odbiór faktur z KSeF", "obsługa Rachmistrza Nexo i Nexo PRO", "wiele obsługiwanych firm", "statusy odbioru i diagnostyka", "automatyczna synchronizacja"],
+    includesNote: "Możliwość indywidualnego rozwoju rozwiązania pozostaje dostępna w każdym planie.",
+    unit: "netto / miesiąc",
+    plans: rachmistrzNexoPlans,
+    table: rachmistrzNexoTable,
+    tableCaption: "Porównanie planów KSeF dla Rachmistrza Nexo / Nexo PRO",
+    yesLabel: "w planie",
+    noLabel: "brak w planie",
+    badge: "Utrzymanie, aktualizacje i wsparcie w cenie.",
+  },
+  comparison: {
+    title: "Standard czy PRO?",
+    intro: "Wybierz model współpracy dopasowany do tego, jak często rozwijasz rozwiązanie.",
+    standard: { title: "Standard", body: "Odbiór faktur ma działać, a dodatkowych zmian potrzebujesz od czasu do czasu. Korzystasz z rozwiązania, a indywidualne prace zamawiasz wtedy, gdy są potrzebne." },
+    pro: { title: "PRO", body: "Regularnie rozwijasz procesy i chcesz mieć co miesiąc zarezerwowany czas na zmiany. Zakres miesięcznej dostępności mogę zwiększać wraz z potrzebami Twojej firmy." },
+    note: "W obu planach możesz zamawiać indywidualne rozwiązania. PRO rezerwuje czas na ich regularny rozwój.",
+  },
+  otherErp: {
+    title: "Potrzebujesz odbioru KSeF również w innym ERP?",
+    body: ["Nie ograniczam indywidualnych wdrożeń wyłącznie do Rachmistrza Nexo.", "Jeśli korzystasz z innego systemu, sprawdzę możliwości jego połączenia z KSeF i ocenię, czy mogę opracować odpowiednie rozwiązanie.", "Możliwe jest również połączenie kilku systemów w jeden proces, jeżeli pozwalają na to możliwości danego oprogramowania."],
+    cta: "Zapytaj o mój ERP",
+    prefill: "Chcę zapytać o możliwość odbioru faktur z KSeF w moim ERP.",
+  },
+  howItWorks: {
+    title: "Od obecnego Rachmistrza do działającego odbioru KSeF",
+    steps: [
+      { title: "Sprawdzam środowisko", body: "Poznaję wersję Rachmistrza Nexo, sposób pracy i potrzeby firmy." },
+      { title: "Konfiguruję odbiór", body: "Podłączam KSeF i ustawiam sposób pobierania dokumentów." },
+      { title: "Testuję", body: "Sprawdzam pobieranie, dopasowanie, statusy i najważniejsze scenariusze." },
+      { title: "Uruchamiam", body: "Przechodzę na środowisko produkcyjne." },
+      { title: "Utrzymuję", body: "Po wdrożeniu rozwiązanie pozostaje objęte monitoringiem, aktualizacjami i wsparciem." },
+    ],
+  },
+  audience: {
+    title: "Dla kogo jest ta oferta?",
+    intro: "Najwięcej zyskasz, jeśli:",
+    items: [
+      { title: "Masz starszą wersję Rachmistrza Nexo", body: "Nie chcesz aktualizować całego ERP tylko ze względu na KSeF." },
+      { title: "Obsługujesz dużo dokumentów lub wiele firm", body: "Zależy Ci na stałym koszcie bez kolejnych progów." },
+      { title: "Masz własny sposób pracy", body: "Standardowy moduł nie obejmuje całego procesu odbioru." },
+      { title: "Potrzebujesz dodatkowych automatyzacji lub integracji", body: "Chcesz rozwijać rozwiązanie razem z potrzebami firmy." },
+      { title: "Korzystasz z kilku systemów", body: "KSeF powinien być częścią większego procesu, a nie kolejnym osobnym programem." },
+    ],
+  },
+  faq: {
+    title: "Pytania i odpowiedzi",
+    items: [
+      { question: "Czy oferta dotyczy również Rachmistrza Nexo PRO?", answer: "Tak. Rachmistrz Nexo PRO to wersja programu, a plan abonamentowy PRO jest osobnym wariantem współpracy. Odbiór faktur dotyczy obu wersji programu." },
+      { question: "Czy muszę mieć najnowszą wersję Rachmistrza Nexo?", answer: "Nie zawsze. Najpierw sprawdzam używaną wersję i możliwości Twojego środowiska. Zakres obsługi starszej wersji ustalam po tej weryfikacji." },
+      { question: "Czy liczba dokumentów wpływa na wysokość abonamentu?", answer: "Nie. Abonament nie jest uzależniony od liczby odbieranych dokumentów." },
+      { question: "Czy mogę obsługiwać wiele firm?", answer: "Tak. Rozwiązanie obsługuje również wiele podmiotów." },
+      { question: "Czy w Standardzie mogę zamówić indywidualną funkcję?", answer: "Tak. Indywidualne rozwiązania są dostępne niezależnie od planu. W Standardzie zakres dodatkowych prac wyceniam osobno." },
+      { question: "Czym Standard różni się od PRO?", answer: "W Standardzie dodatkowe prace zamawiasz wtedy, gdy ich potrzebujesz. PRO zapewnia dodatkowo zarezerwowany miesięczny czas na regularny rozwój rozwiązania." },
+      { question: "Czy niewykorzystany zakres PRO przechodzi na kolejny miesiąc?", answer: "Nie. PRO rezerwuje określony czas na prace w danym okresie rozliczeniowym. Niewykorzystany zakres nie przechodzi na kolejne okresy i nie podlega zwrotowi." },
+      { question: "Co jeśli potrzebuję większej zmiany?", answer: "Najpierw ustalam zakres i opracowuję wycenę. Prace rozpoczynam dopiero po jej zaakceptowaniu." },
+      { question: "Czy możesz podłączyć KSeF do innego ERP?", answer: "W wielu przypadkach tak. Najpierw sprawdzam możliwości danego systemu i na tej podstawie określam zakres integracji." },
+      { question: "Co obejmuje monitoring?", answer: "Monitoring obejmuje techniczne działanie integracji, procesy komunikacji z KSeF oraz zdarzenia wymagające diagnostyki." },
+    ],
+  },
+  finalCta: {
+    title: "Sprawdź, jak KSeF może działać w Twoim Rachmistrzu",
+    body: "Napisz, z jakiej wersji Rachmistrza Nexo korzystasz i czego potrzebujesz. Sprawdzę zgodność środowiska oraz najlepszy wariant wdrożenia.",
+    cta: "Sprawdź mojego Rachmistrza",
+  },
+  contact: {
+    title: "Porozmawiajmy o odbiorze KSeF w Twoim Rachmistrzu",
+    intro: "Napisz, z jakiej wersji Rachmistrza Nexo korzystasz i czego potrzebujesz. Odpowiadam osobiście.",
+    checks: site.contact.checks,
+    calendlyTitle: site.contact.talk.title,
+    calendlyBody: site.contact.talk.body,
+    calendlyCta: site.contact.talk.cta,
+    form: { title: "Zapytanie o KSeF", intro: "Napisz, z jakiej wersji Rachmistrza Nexo korzystasz i czego potrzebujesz.", messageLabel: "Wiadomość", messagePlaceholder: "Np. Korzystam z wersji Rachmistrza Nexo ___ i potrzebuję odbioru faktur z KSeF.", submit: "Wyślij zapytanie" },
+    cta: "Sprawdź mojego Rachmistrza",
+    stickyCta: "Sprawdź mojego Rachmistrza",
+  },
+};
+
 export const ksef: KsefContent = {
   teaser: {
     id: "ksef",
     heading: "KSeF w Twoim ERP. Dopasowany do sposobu pracy firmy.",
-    body: ["Wysyłaj i odbieraj dokumenty bez limitu. Korzystaj z obecnej wersji ERP, również starszej, jeśli środowisko spełnia warunki integracji.", "Mogę dopasować rozwiązanie do sposobu pracy Twojej firmy i połączyć je z innymi systemami."],
-    tagline: "Bez limitu dokumentów. Starsze wersje Optimy. Możliwość indywidualnego rozwoju.",
+    body: ["Obsługuj dokumenty KSeF zgodnie z możliwościami Twojego ERP. Korzystaj z obecnej wersji systemu, również starszej, jeśli środowisko spełnia warunki integracji.", "Mogę dopasować rozwiązanie do sposobu pracy Twojej firmy i połączyć je z innymi systemami."],
+    tagline: "Dokumenty KSeF dopasowane do Twojego ERP. Możliwość indywidualnego rozwoju.",
     cta: "Sprawdź swój ERP",
     erpListLabel: "Obsługiwane systemy",
     erpCta: "Zobacz ofertę ›",
   },
   nav: { triggerLabel: "KSeF w ERP", overviewHref: "/#ksef", overviewLabel: "O produkcie KSeF" },
-  erps: [comarchOptima],
+  erps: [comarchOptima, rachmistrzNexo],
 };
 
 export const getKsefErpBySlug = (slug: string) => ksef.erps.find((e) => e.slug === slug);
