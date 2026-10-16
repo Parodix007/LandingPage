@@ -17,6 +17,7 @@ export const site: SiteContent = {
     { label: "Cennik", href: "/pricing/" },
     { label: "KSeF", href: "/#ksef" },
     { label: "Kontakt", href: "/#contact" },
+    { label: "Ikona promocji: Freepik / Flaticon", href: "https://www.flaticon.com/free-icon/hot-sale_1685230" },
   ],
   hero: {
     aurora: {

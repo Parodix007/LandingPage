@@ -300,10 +300,23 @@ export type KsefPlan = {
   badge?: string; // "Polecany" — tylko przy pakiecie Biuro
 };
 export type KsefTableRow = { label: string; cells: Record<KsefPlan["id"], KsefPlanCell> };
-export type KsefFaqItem = { question: string; answer: string };
+export type KsefFaqItem = { question: string; answer: string; id?: string };
+export type KsefSwitchOfferContent = {
+  eyebrow: string;
+  title: string;
+  cta: string;
+  entryHref: string;
+  prefill: string;
+  conditionsLinkLabel: string;
+  conditionsHref: string;
+  pricingTitle: string;
+  pricingBody: string;
+  stickyLabel: string;
+};
 export type KsefErpPage = {
   slug: string;
   name: string; // "comarch-erp-optima", "Comarch ERP Optima"
+  switchOffer?: KsefSwitchOfferContent;
   metaTitle: string;
   metaDescription: string;
   contactHref: string; // "/ksef/comarch-erp-optima/#contact"

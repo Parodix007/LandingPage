@@ -206,16 +206,28 @@ const comarchOptima: KsefErpPage = {
 const rachmistrzNexo: KsefErpPage = {
   slug: "rachmistrz-nexo",
   name: "Rachmistrz Nexo / Nexo PRO",
+  switchOffer: {
+    eyebrow: "KSeF · Rachmistrz nexo / nexo PRO",
+    title: "Masz już kupione InsPunkty? Odliczę ich cenę od abonamentu.",
+    cta: "Chcę skorzystać z rabatu",
+    entryHref: "/ksef/rachmistrz-nexo/?rabat=inspunkty#contact",
+    prefill: "Chcę skorzystać z rabatu za ostatni pakiet InsPunktów i omówić odbiór faktur z KSeF w Rachmistrzu nexo.",
+    conditionsLinkLabel: "Warunki rabatu",
+    conditionsHref: "/ksef/rachmistrz-nexo/#nexo-rabat-faq",
+    pricingTitle: "Masz InsPunkty? Zapłacisz mniej na start.",
+    pricingBody: "Odliczę pełną cenę netto Twojego ostatniego pakietu.",
+    stickyLabel: "Rabat za InsPunkty",
+  },
   metaTitle: "KSeF w Rachmistrzu Nexo i Nexo PRO | calm_soft",
   metaDescription: "Odbiór faktur z KSeF w Rachmistrzu Nexo i Nexo PRO. Obsługa wielu firm, monitoring, wsparcie i możliwość indywidualnego rozwoju rozwiązania.",
   contactHref: "/ksef/rachmistrz-nexo/#contact",
   hero: {
     eyebrow: "Rachmistrz Nexo / Nexo PRO + KSeF",
-    h1: "Odbiór faktur z KSeF w Rachmistrzu Nexo",
-    lead: "Odbieraj faktury z KSeF bez limitu i pracuj dalej w swoim Rachmistrzu Nexo. Oferta dotyczy Rachmistrza Nexo i Nexo PRO, a zakres rozwiązania sprawdzam względem używanej wersji programu.",
+    h1: "Odbieraj faktury z KSeF bez limitu. **Cenę InsPunktów odliczę od abonamentu.**",
+    lead: "Masz już kupiony pakiet? Jego pełną cenę netto zamienię na rabat na start.",
     note: "Od 350 zł netto / miesiąc",
     bullets: ["odbiór faktur bez limitu", "Rachmistrz Nexo i Nexo PRO", "wsparcie starszych wersji po sprawdzeniu zgodności", "indywidualne dopasowanie procesu odbioru"],
-    cta: "Sprawdź zgodność mojego Rachmistrza",
+    cta: "Chcę skorzystać z rabatu",
     pricingCta: "Zobacz cennik",
   },
   legacy: {
@@ -316,6 +328,8 @@ const rachmistrzNexo: KsefErpPage = {
   faq: {
     title: "Pytania i odpowiedzi",
     items: [
+      { id: "nexo-rabat-faq", question: "Jak otrzymać rabat za InsPunkty?", answer: "Przy umowie na minimum 6 miesięcy rabat przysługuje każdemu klientowi i w każdym planie. Odliczam pełną cenę netto jednego, ostatniego pakietu InsPunktów kupionego przed podpisaniem umowy. Potwierdzeniem jest faktura. Wykorzystanie części lub wszystkich punktów nie pomniejsza rabatu, a pulę rozliczam od pierwszego miesiąca w kolejnych abonamentach." },
+      { id: "nexo-rabat-przyklad", question: "Jak rabat obniży moje pierwsze rachunki?", answer: "Przy pakiecie InsPunktów za 500 zł netto i abonamencie 350 zł netto miesięcznie zapłacisz 0 zł netto w 1. miesiącu, 200 zł netto w 2. miesiącu i 350 zł netto od 3. miesiąca. Wszystkie kwoty są netto." },
       { question: "Czy oferta dotyczy również Rachmistrza Nexo PRO?", answer: "Tak. Rachmistrz Nexo PRO to wersja programu, a plan abonamentowy PRO jest osobnym wariantem współpracy. Odbiór faktur dotyczy obu wersji programu." },
       { question: "Czy muszę mieć najnowszą wersję Rachmistrza Nexo?", answer: "Nie zawsze. Najpierw sprawdzam używaną wersję i możliwości Twojego środowiska. Zakres obsługi starszej wersji ustalam po tej weryfikacji." },
       { question: "Czy liczba dokumentów wpływa na wysokość abonamentu?", answer: "Nie. Abonament nie jest uzależniony od liczby odbieranych dokumentów." },

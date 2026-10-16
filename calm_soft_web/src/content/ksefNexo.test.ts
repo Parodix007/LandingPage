@@ -25,7 +25,9 @@ describe("KSeF w Rachmistrzu Nexo", () => {
     const page = nexo();
     const blob = collectStrings(page).join(" ").toLowerCase();
 
-    expect(page?.hero.lead).toContain("Odbieraj");
+    expect(page?.hero.h1).toContain("Odbieraj");
+    expect(page?.hero.h1).toContain("**Cenę InsPunktów odliczę od abonamentu.**");
+    expect(page?.hero.lead).toContain("pełną cenę netto");
     expect(blob).toContain("rachmistrz");
     expect(blob).toContain("nexo pro");
     expect(blob).not.toContain("comarch");
@@ -57,11 +59,34 @@ describe("KSeF w Rachmistrzu Nexo", () => {
     expect(page?.monitoring.items).toHaveLength(4);
     expect(page?.howItWorks.steps).toHaveLength(5);
     expect(page?.audience.items).toHaveLength(5);
-    expect(page?.faq.items).toHaveLength(10);
+    expect(page?.faq.items).toHaveLength(12);
     const legacyRow = page?.pricing.table.find((row) => row.label === "Obsługa starszych wersji Rachmistrza Nexo");
     expect(legacyRow?.cells).toEqual({ standard: "po sprawdzeniu zgodności", pro: "po sprawdzeniu zgodności" });
     expect(collectStrings(page?.legacy).join(" ").toLowerCase()).toContain("sprawdzam");
     expect(collectStrings(page?.legacy).join(" ").toLowerCase()).not.toContain("każdą wersję");
     expect(collectStrings(page).join(" ")).not.toMatch(/\bmy\b/);
+  });
+
+  it("udostępnia ofertę i warunki odliczenia ostatniego pakietu InsPunktów", () => {
+    const page = nexo();
+    const offer = page?.switchOffer;
+    const faq = page?.faq.items;
+
+    expect(offer).toBeDefined();
+    expect(offer?.entryHref).toBe("/ksef/rachmistrz-nexo/?rabat=inspunkty#contact");
+    expect(offer?.prefill).toBe("Chcę skorzystać z rabatu za ostatni pakiet InsPunktów i omówić odbiór faktur z KSeF w Rachmistrzu nexo.");
+    expect(offer?.conditionsHref).toBe("/ksef/rachmistrz-nexo/#nexo-rabat-faq");
+    expect(offer?.stickyLabel).toBe("Rabat za InsPunkty");
+    expect(faq?.slice(0, 2).map((item) => item.id)).toEqual(["nexo-rabat-faq", "nexo-rabat-przyklad"]);
+    expect(faq?.[0]?.answer).toContain("minimum 6 miesięcy");
+    expect(faq?.[0]?.answer).toContain("pełną cenę netto jednego, ostatniego pakietu");
+    expect(faq?.[0]?.answer).toContain("Wykorzystanie części lub wszystkich punktów nie pomniejsza rabatu");
+    expect(faq?.[1]?.answer).toContain("500 zł netto");
+    expect(faq?.[1]?.answer).toContain("0 zł netto w 1. miesiącu");
+    expect(faq?.[1]?.answer).toContain("200 zł netto w 2. miesiącu");
+    expect(faq?.[1]?.answer).toContain("350 zł netto od 3. miesiąca");
+    expect(page?.hero.lead).not.toContain("6 miesięcy");
+    expect(page?.hero.lead).not.toContain("fakturę");
+    expect((getKsefErpBySlug("comarch-erp-optima") as unknown as { switchOffer?: unknown })?.switchOffer).toBeUndefined();
   });
 });

@@ -418,6 +418,31 @@ body:has([data-background-family="utility"]) .global-background::before {
   border-radius: var(--radius-grid-card);
 }
 
+.service-sticky-cta-floating::after {
+  position: absolute;
+  inset: 0;
+  background: #064c27;
+  border-radius: inherit;
+  pointer-events: none;
+  content: "";
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .service-sticky-cta-floating-pulse::after {
+    animation: service-sticky-cta-floating-pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes service-sticky-cta-floating-pulse {
+    0%, 100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.22;
+    }
+  }
+}
+
 /* Hover kolumny w tabeli cennika KSeF (rev. 3) — Tailwind nie ma selektora na poziomie tabeli,
    więc kolumna jest podświetlana przez :has() na <table>. Kolumna featured ma bazowo 8% akcentu
    na komórkach, więc hover na 14% zachowuje widoczną różnicę zamiast ją zjadać. */

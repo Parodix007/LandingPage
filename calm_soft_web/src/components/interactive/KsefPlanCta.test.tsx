@@ -56,4 +56,11 @@ describe("KsefPlanCta", () => {
     const button = screen.getByRole("button", { name: "Wybieram pakiet Firma" });
     expect(button).toHaveClass("bg-accent");
   });
+
+  it("forwards floating visibility attributes without changing the default CTA", () => {
+    render(<KsefPlanCta label="Rabat za InsPunkty" prefill="x" aria-hidden tabIndex={-1} />);
+    const button = document.querySelector("button")!;
+    expect(button).toHaveAttribute("aria-hidden", "true");
+    expect(button).toHaveAttribute("tabindex", "-1");
+  });
 });

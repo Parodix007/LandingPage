@@ -4,6 +4,9 @@ import { site } from "@/content/site";
 import { getCaseBySlug } from "@/content/cases";
 import { HERO_VARIANT } from "@/lib/config";
 import { HeroCaseSlider } from "@/components/interactive/HeroCaseSlider";
+import { KsefSwitchOffer } from "@/components/sections/ksef/KsefSwitchOffer";
+import { ServiceStickyCta } from "@/components/sections/service-sales/ServiceStickyCta";
+import { getKsefErpBySlug } from "@/content/ksef";
 import type { CaseStudy } from "@/content/types";
 
 // HANDOFF §2 / SPEC §6.8: 3 hero variants, single switch = HERO_VARIANT (lib/config.ts).
@@ -130,16 +133,20 @@ function HeroTypeVariant() {
 }
 
 export function Hero() {
+  const switchOffer = getKsefErpBySlug("rachmistrz-nexo")?.switchOffer;
+
   return (
     <section
       id="top"
       aria-label="Hero"
       data-background-family="home"
-      className="flex min-h-[88vh] w-full items-center"
+      className="flex min-h-[88vh] w-full flex-col items-center"
     >
+      {switchOffer ? <KsefSwitchOffer offer={switchOffer} contactHref="/ksef/rachmistrz-nexo/#contact" variant="compact" /> : null}
       {HERO_VARIANT === "code" ? <HeroCodeVariant /> : null}
       {HERO_VARIANT === "aurora" ? <HeroAuroraVariant /> : null}
       {HERO_VARIANT === "type" ? <HeroTypeVariant /> : null}
+      {switchOffer ? <ServiceStickyCta href={switchOffer.entryHref} label={switchOffer.stickyLabel} floating={{ startId: "nexo-switch-banner", hideIds: ["contact"] }} /> : null}
     </section>
   );
 }
