@@ -1,4 +1,4 @@
-import type { SolutionsContent, SolutionLine } from "./types";
+import type { SolutionsContent } from "./types";
 
 // Treść /rozwiazania/ (2026-07-26 solutions restructure design + dodanie linii "integracje")
 // — pięć linii produktowych na dwóch poziomach (branżowe / operacyjne), grupujące osiem
@@ -170,6 +170,5 @@ export const solutions: SolutionsContent = {
   ],
 };
 
-export const allSolutionLines: SolutionLine[] = solutions.groups.flatMap((g) => g.lines);
-
-export const getSolutionLineBySlug = (slug: string) => allSolutionLines.find((l) => l.slug === slug);
+export const getSolutionLineBySlug = (slug: string) =>
+  solutions.groups.flatMap((g) => g.lines).find((l) => l.slug === slug);

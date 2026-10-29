@@ -22,12 +22,16 @@ the commit) → deploy → **only then** rotate `SMTP_PASS` (rotating while the 
 re-leak the new password on the next boot). The web bundle (`calm_soft_web_out.zip`) is unaffected.]**
 
 **Ready-to-upload bundles** (in `_deploy/`):
-- `_deploy/calm_soft_web_out.zip` — the static site (42 entries incl. `.htaccess`).
+- `_deploy/calm-soft-web-{date}.zip` — **source zip** of `calm_soft_web/` (full project: `src/`, `package.json`,
+  `package-lock.json`, `tsconfig.json`, `next.config.ts`, scripts, assets, `.nvmrc`). Built from the reference
+  template (`calm-soft-hostinger-{date}.zip`) with updated files copied in. **No `out/` — the host builds from
+  source.** See §1-ALT below.
 - `_deploy/calm_soft_api_src.zip` — **rebuilt 2026-07-09 22:04 from the working tree** (changes were still
   uncommitted, so the §2-ALT `git archive HEAD` command would have packaged the stale outbox build; used the
   documented fallback — bsdtar, forward-slash entries verified). Contains sync-send + the logger level split,
   no `[DIAG]`, no outbox. **Commit the source before/at deploy so HEAD matches what's live.**
 - `_deploy/calm_soft_api_deploy.zip` — **STALE, do not upload** (prebuilt `dist/` from the outbox era).
+- `_deploy/calm_soft_web_out.zip.ARCHIVED` — **old static-export format, no longer used**. Archived as obsolete.
 
 **[2026-07-22 — contact v2: BOTH bundles above are stale again.]** The working tree carries the 3-field-form +
 `POST /api/contact/details` rework (see the 2026-07-22 addendum at the end of this file). Required order:
@@ -63,6 +67,40 @@ $env:NEXT_PUBLIC_GA_ID="G-ZJR3EJ2Q6F"
 npm ci ; npm run build      # prebuild env-guard → next build → postbuild writes out/.htaccess
 ```
 Then re-zip and re-upload `out/`. Never weaken `scripts/assert-env.mjs` or add `.env*` files to force a build.
+
+---
+
+## 1-ALT) Frontend — source zip → build on host
+
+**Use this variant when the hPanel deploy screen shows a **framework preset + Node version selector +
+overridable "build & output settings" + an env-vars panel** (Hostinger's newer LiteSpeed-proxied Web-Apps model),
+rather than the classic "Setup Node.js App" entry-file form above.**
+
+**Bundle:** upload **`_deploy/calm-soft-web-{date}.zip`** (full source, not the prebuilt `out/`). Build it by
+copying the reference template (`calm-soft-hostinger-{date}.zip`) and replacing the 4 changed files:
+`src/content/types.ts`, `src/content/site.ts`, `src/components/sections/About.tsx`,
+`src/app/o-mnie/page.tsx` (if applicable). Full rebuild from scratch is also fine — just zip the working tree
+excluding `node_modules/`, `out/`, `.git/`, `.next/`, `.env.local`.
+
+**Build settings.** In practice this panel exposes **only the Build command (`npm run build`)** — it runs an
+implicit **production-only** install first (devDeps pruned → `sh: tsc: command not found`), then your Build
+command. Confirmed by the first deploy log (`added 76 packages` before the build). So the dev-dependency install
+is **baked into the `build` script itself** (`package.json`):
+`"build": "npm ci --include=dev && tsc && node scripts/copy-templates.mjs"`. Verified end-to-end by reproducing
+Hostinger's sequence locally — a prod-only `npm ci` (76 pkgs, no `tsc`) followed by `npm run build` self-installs
+the 127-package dev set, compiles, and emits `dist/server.js`.
+- **Node:** `22.x` (≥ 22.13 for flag-free `node:sqlite`).
+- **Build:** `npm run build` — leave as the panel default.
+- **Start:** `npm start` (`node dist/server.js`) if the panel exposes it; otherwise the preset auto-runs the
+  `start` script. Never leave the Fastify preset's `fastify start … app.js` default — there is no `app.js` here.
+- **Root:** `./` · **Output dir:** blank.
+
+**Env vars (§3):** set all required vars in the panel. **Do NOT add `PORT`** — let the platform inject it.
+
+**Important:** the frontend is a **static export** (`output: "export"`), so Hostinger's Node build pipeline
+will compile TypeScript but the final output is `out/` — static files served by Apache/LiteSpeed. The
+`postbuild` script (`gen-headers.mjs`) writes `out/.htaccess` only during a local build; on Hostinger's
+pipeline the `.htaccess` must be included in the source zip (it is — part of `scripts/` output).
 
 ---
 

@@ -7,7 +7,10 @@ import { steps } from "./steps";
 import { demos, getDemoBySlug } from "./demos";
 import { site } from "./site";
 import { pricing } from "./pricing";
-import { solutions, allSolutionLines, getSolutionLineBySlug } from "./solutions";
+import { solutions, getSolutionLineBySlug } from "./solutions";
+
+// Inline replacement for the removed `allSolutionLines` export.
+const allSolutionLines = solutions.groups.flatMap((g) => g.lines);
 import { stripEmphasis } from "@/components/ui/RichText";
 import type { AreaId, BudgetId } from "./types";
 

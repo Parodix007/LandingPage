@@ -20,12 +20,6 @@ export const site: SiteContent = {
     { label: "Ikona promocji: Freepik / Flaticon", href: "https://www.flaticon.com/free-icon/hot-sale_1685230" },
   ],
   hero: {
-    aurora: {
-      h1: "Oprogramowanie, które\npo prostu działa.",
-      lead: "Platformy webowe, automatyzacja, integracje i ratowanie legacy — budowane od początku do końca przez osobę, która traktuje Twój produkt jak własny.",
-      ctaPrimary: "Zacznij projekt",
-      ctaSecondary: "Poznaj usługi",
-    },
     code: {
       h1: "Spokojna strona oprogramowania.",
       lead: "Systemy klasy enterprise bez enterprise'owej dramy — jasny proces, uczciwe terminy i żadnych niespodzianek w czwartym miesiącu. Od pierwszej rozmowy do produkcji rozmawiasz z inżynierem, który pisze kod — dziś jedynym architektem platformy używanej w dwudziestu administracjach miejskich.",
@@ -33,12 +27,17 @@ export const site: SiteContent = {
       ctaPricing: "Sprawdź cennik ›",
       casesLabel: "Wybrane realizacje",
     },
-    type: {
-      line1: "Złożone problemy.",
-      line2: "Spokojny software.",
-      lead: "Od platform webowych i automatyzacji po integracje i ratowanie legacy — dowożone przez osobę, która dotrzymuje obietnic.",
-      ctaPrimary: "Zacznij projekt",
-    },
+  },
+  about: {
+    heading: "O mnie",
+    short: "Nazywam się Sebastian Siarczyński. Buduję systemy, które zostają na dłużej. Specjalizuję się w platformach webowych, automatyzacjach, integracjach z ERP i ratowaniu legacy. Po prawie dekadzie z korporacjami w kraju i za granicą pomogę Ci wprowadzić **rozwiązania klasy enterprise**, które oszczędzą **czas i pieniądze** — bez konieczności angażowania **własnego działu IT**.",
+    long: [
+      "Nazywam się Sebastian Siarczyński. Prowadzę calm_soft i tworzę **oprogramowanie szyte na miarę** — dopasowane do Twojego stylu pracy i realiów, w których działasz.",
+      "Rozwiązuję codzienne i niecodzienne problemy, ułatwiam pracę i oszczędzam pieniądze za pomocą systemów skrojonych pod Twoje potrzeby. Dzięki temu oszczędzasz **czas i kapitał** firmy, a przy tym nie martwisz się o **dział techniczny**.",
+      "Po prawie dekadzie w branży, pracy z największymi korporacjami w kraju i za granicą, chętnie pomogę również Tobie.",
+      "Czy nie byłoby dobrym pomysłem wprowadzić u siebie **rozwiązania klasy enterprise**, które realnie pomogą w codziennej pracy?",
+    ],
+    cta: "Umów bezpłatną rozmowę (30 min) ›",
   },
   sections: {
     services: {

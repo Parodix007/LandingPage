@@ -14,6 +14,7 @@ import { NavServicesMenu } from "./NavServicesMenu";
 // BEFORE the existing services entry. Labels/hrefs come from src/content/ksef.ts (`ksef.nav`,
 // `ksef.erps`), never hardcoded here.
 const NAV_LINKS: NavLink[] = [
+  { href: "/o-mnie/", label: "O mnie" },
   { href: "/#cases", label: "Realizacje" },
   { href: "/#process", label: "Proces" },
   { href: "/pricing/", label: "Cennik" },

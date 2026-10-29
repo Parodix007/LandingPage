@@ -1,6 +1,6 @@
 // SINGLE source of the hero variant (SPEC §6.8). site.ts intentionally does NOT carry a
 // heroVariant field — this constant is the only switch.
-export type HeroVariant = "aurora" | "code" | "type";
+export type HeroVariant = "code";
 export const HERO_VARIANT: HeroVariant = "code";
 
 // Calendly popup widget URL (owner's choice over a plain scheduling link) — single source

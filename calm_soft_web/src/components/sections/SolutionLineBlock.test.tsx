@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import { cases } from "@/content/cases";
 import { demos, getDemoBySlug } from "@/content/demos";
 import { getServiceForLine } from "@/content/services";
-import { allSolutionLines, solutions } from "@/content/solutions";
+import { solutions } from "@/content/solutions";
+
+// Inline replacement for the removed `allSolutionLines` export.
+const allSolutionLines = solutions.groups.flatMap((g) => g.lines);
 import { site } from "@/content/site";
 import { InquiryProvider } from "@/components/providers/InquiryProvider";
 import { ModalProvider } from "@/components/providers/ModalProvider";

@@ -3,6 +3,7 @@ import { demos } from "@/content/demos";
 import { InquiryProvider } from "@/components/providers/InquiryProvider";
 import { ModalProvider } from "@/components/providers/ModalProvider";
 import { Hero } from "@/components/sections/Hero";
+import { About } from "@/components/sections/About";
 import { Services } from "@/components/sections/Services";
 import { KsefTeaser } from "@/components/sections/KsefTeaser";
 import { Process } from "@/components/sections/Process";
@@ -14,13 +15,14 @@ import { Contact } from "@/components/sections/Contact";
 //
 // 2026-07-31 service-pages-restructure design: the mockup-showcase section is retired — its
 // content now lives on /uslugi/<slug>/ via SolutionLineBlock. 2026-09-09 ksef-product-pages
-// design ("Krok 4 B") inserts the KSeF teaser. Section order: Hero → Services → KSeF →
-// CaseStudies → Process → Contact.
+// design ("Krok 4 B") inserts the KSeF teaser. 2026-10-29 about-page-design: adds "O mnie"
+// section. Section order: Hero → About → Services → KSeF → CaseStudies → Process → Contact.
 export default function Page() {
   return (
     <InquiryProvider>
       <ModalProvider cases={cases} demos={demos}>
         <Hero />
+        <About />
         <Services />
         <KsefTeaser />
         <CaseStudies />

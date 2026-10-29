@@ -114,6 +114,13 @@ export type Work = {
   startLabel: string;
 };
 
+export type AboutContent = {
+  heading: string;
+  short: string; // homepage section
+  long: string[]; // /o-mnie/ page — tablica akapitów
+  cta: string;
+};
+
 export type SiteContent = {
   name: string;
   email: string;
@@ -126,7 +133,6 @@ export type SiteContent = {
   featuredCaseSlugs: string[]; // 3 featured cases (CaseStudies homepage, 3-up), display order
   footerLinks: { label: string; href: string }[]; // root-relative: /#services itd.
   hero: {
-    aurora: { h1: string; lead: string; ctaPrimary: string; ctaSecondary: string };
     code: {
       h1: string; lead: string; ctaPrimary: string; ctaPricing: string;
       // Eyebrow/aria-label for HeroCaseSlider (2026-07-31 service-pages-restructure design) —
@@ -134,8 +140,8 @@ export type SiteContent = {
       // demoLabel ("Rozwiązania na żywo"), which labelled the mockup slider this one replaces.
       casesLabel: string;
     };
-    type: { line1: string; line2: string; lead: string; ctaPrimary: string; ctaSecondary?: string };
   };
+  about: AboutContent;
   sections: {
     services: {
       line1: string; line2: string; pricingCta: string; pricingPrompt: string;
