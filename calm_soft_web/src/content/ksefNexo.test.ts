@@ -87,6 +87,5 @@ describe("KSeF w Rachmistrzu Nexo", () => {
     expect(faq?.[1]?.answer).toContain("350 zł netto od 3. miesiąca");
     expect(page?.hero.lead).not.toContain("6 miesięcy");
     expect(page?.hero.lead).not.toContain("fakturę");
-    expect((getKsefErpBySlug("comarch-erp-optima") as unknown as { switchOffer?: unknown })?.switchOffer).toBeUndefined();
   });
 });

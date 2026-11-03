@@ -169,7 +169,7 @@ describe("NavMobileMenu — product submenu (productMenu prop)", () => {
     backLabel: "Wróć",
     overviewHref: "/#ksef",
     overviewLabel: "O produkcie KSeF",
-    items: [{ href: "/ksef/comarch-erp-optima/", label: "Comarch ERP Optima" }],
+    items: [{ href: "/ksef/rachmistrz-nexo/", label: "Rachmistrz Nexo" }],
     highlight: true,
   };
 

@@ -1,3 +1,5 @@
+@AGENTS.md
+
 # CLAUDE.md
 
 Instrukcje dla Claude Code (claude.ai/code) pracującego w tym repozytorium.
@@ -66,7 +68,7 @@ Landing lead-gen (+ podstrony `/work/`, `/pricing/` i cztery strony usług `/usl
   żeby klik z reklamy konwertował bez przejścia na stronę główną.
 - **Produkt KSeF** (`docs/superpowers/specs/2026-09-09-ksef-product-pages-design.md`): druga trasa
   dynamiczna `/ksef/<erp>/` (`generateStaticParams` po `KsefErpPage.slug`, dziś tylko
-  `comarch-erp-optima`), zajawka `#ksef` na stronie głównej i wyróżniony wpis „KSeF w ERP taniej"
+  `rachmistrz-nexo`), zajawka `#ksef` na stronie głównej i wyróżniony wpis „KSeF w ERP taniej"
   w navbarze z submenu ERP. Całe copy w `src/content/ksef.ts`. Pozycjonowanie: „ta sama obsługa
   KSeF, taniej, stały abonament, bez limitu dokumentów". **Na stronach KSeF nie ma żadnych liczb
   ani nazw pakietów Comarch, a kalkulator oszczędności został świadomie pominięty** — CTA
@@ -78,7 +80,10 @@ Landing lead-gen (+ podstrony `/work/`, `/pricing/` i cztery strony usług `/usl
   Rev. 3 (trzeci brief): sekcje `coverage` (4 kafle) i `reliability`; sekcja porównania **nie istnieje**;
   badge pakietu Biuro to „Polecany" (nie „najczęściej wybierane" — brak potwierdzonych danych);
   **bez logotypów Comarch/KSeF** (decyzja właściciela — cudze znaki towarowe, brak zgody); hover
-  kolumn cennika to `.ksef-plan-table` + `:has()` w `globals.css`.
+   kolumn cennika to `.ksef-plan-table` + `:has()` w `globals.css`. 2026-11-03 (decyzja
+   właściciela): podstrona `/ksef/comarch-erp-optima/` została usunięta; martwy URL zwraca 404
+   bez redirectu (precedens `/demos/`); KSeF dla Optimy pozostaje dostępne jako customowa
+   integracja przez `/uslugi/systemy-i-integracje/`.
 - **Słownictwo jest rozdzielone i nie wolno go mieszać:** kategoria to „rozwiązanie", artefakt do
   klikania to „demo", a „makieta" wyłącznie tam, gdzie mowa o specyfikacji zakresu. Słowa
   „gotowy", „prawie gotowy", „z półki" nie opisują produktu — sugerują klientowi, że kupuje coś,

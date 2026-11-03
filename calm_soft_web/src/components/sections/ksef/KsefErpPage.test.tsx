@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { KsefErpPage } from "./KsefErpPage";
 import { ksef } from "@/content/ksef";
+import { stripEmphasis } from "@/components/ui/RichText";
 
 vi.mock("@/components/interactive/KsefPlanCta", () => ({
   KsefPlanCta: ({ label, prefill }: { label: string; prefill: string }) => <button type="button" data-prefill={prefill}>{label}</button>,
@@ -30,7 +31,7 @@ describe("KsefErpPage", () => {
     const headings = [...root.querySelectorAll("h1, h2")].map((heading) => heading.textContent?.trim());
 
     expect(headings).toEqual([
-      ksef.erps[0]!.hero.h1,
+      stripEmphasis(ksef.erps[0]!.hero.h1),
       ksef.erps[0]!.legacy.title,
       ksef.erps[0]!.development.title,
       ksef.erps[0]!.coverage.title,
@@ -44,12 +45,12 @@ describe("KsefErpPage", () => {
       ksef.erps[0]!.finalCta.title,
     ]);
     expect(root.querySelector('a[href="#cennik"]')?.textContent).toContain(ksef.erps[0]!.hero.pricingCta);
-    expect(root.querySelector(`a[href="${ksef.erps[0]!.contactHref}"]`)?.textContent).toContain(ksef.erps[0]!.hero.cta);
-    expect(root.querySelector("button")?.textContent).toContain(ksef.erps[0]!.otherErp.cta);
+    expect(root.querySelector("header button")?.textContent).toContain(ksef.erps[0]!.hero.cta);
+    expect([...root.querySelectorAll("button")].some((b) => b.textContent?.includes(ksef.erps[0]!.otherErp.cta))).toBe(true);
     expect(root.querySelector("[data-testid='pricing-table']")).toBeTruthy();
   });
 
-  it("pokazuje link do warunków rabatu tylko w nagłówku Nexo", () => {
+  it("pokazuje link do warunków rabatu w nagłówku Nexo", () => {
     const nexo = ksef.erps.find((page) => page.slug === "rachmistrz-nexo")!;
     const nexoHtml = renderToStaticMarkup(<KsefErpPage page={nexo} />);
     const nexoRoot = document.createElement("div");
@@ -61,9 +62,5 @@ describe("KsefErpPage", () => {
     expect(nexoRoot.querySelector("header button")?.getAttribute("data-prefill")).toBe(nexo.switchOffer!.prefill);
     expect(nexoRoot.querySelector("#nexo-switch-pricing button")?.textContent).toContain(nexo.switchOffer!.cta);
     expect(nexoRoot.querySelector("#nexo-switch-pricing button")?.getAttribute("data-prefill")).toBe(nexo.switchOffer!.prefill);
-
-    const optimaRoot = document.createElement("div");
-    optimaRoot.innerHTML = renderToStaticMarkup(<KsefErpPage page={ksef.erps[0]!} />);
-    expect(optimaRoot.querySelector(`a[href="${conditionsHref}"]`)).toBeNull();
   });
 });

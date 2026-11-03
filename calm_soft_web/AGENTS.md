@@ -20,6 +20,19 @@ nadrzędnego ani konfiguracji systemu bez jawnej zgody właściciela.
   `node_modules/next/dist/docs/`; nie zgaduj API z pamięci i respektuj deprecations.
 - Nie osłabiaj `scripts/assert-env.mjs`, testów, CSP ani innych bramek tylko po to, aby uzyskać zieleń.
 
+## Zakazy destrukcyjne
+
+Każde z poniższych wymaga jawnej zgody właściciela:
+
+- Brak usuwania tras (`src/app/**/page.tsx`) ani plików źródłowych bez zgody — incydent
+  2026-10-29: słaby model usunął trasę `ksef/[erp]`.
+- Brak hurtowej edycji encodingu plików (BOM/mojibake — incydent 2026-10-29).
+- Żaden plik `.env*` w paczkach deployowych.
+- Paczki ZIP wyłącznie przez `scripts/release-package.mjs` — zakaz `Compress-Archive`,
+  którego separatory `\` psuły build na Hostingerze.
+- Każdy plik źródłowy musi być trackowany w gicie — lekcja `scripts/csp.mjs`: nieśledzony
+  plik został utracony w incydencie 2026-10-29.
+
 ## Routing do workflowów
 
 Zacznij od właściwego repozytoryjnego skilla:
@@ -52,6 +65,19 @@ naprawy, refaktoru i nowej funkcji w jednym zadaniu bez zgody właściciela.
 - Agent główny wykonuje końcowy przegląd wizualny, smoke na eksporcie i Lighthouse po `ACCEPT`
   recenzenta.
 - Deleguj równolegle tylko niezależne zadania o rozłącznych plikach i ustalonym kontrakcie.
+
+## Routing modeli
+
+- Orchestrator = model aktualnie wybrany w sesji; implementator i recenzent to role z
+  `opencode.json` (model `qwen-flash-next`).
+- Słaby model (np. Qwen3.6-35B-A3B) nie wykonuje operacji destrukcyjnych ani zmian poza
+  wąskim briefem — wniosek z incydentu 2026-10-29.
+
+## Wiedza
+
+- `docs/knowledge/discoveries.md` to dziennik append-only: czytasz go przed rozpoczęciem
+  zadania i dopisujesz zweryfikowane ustalenia jako wpis z datą; istniejących wpisów
+  nie edytujesz.
 
 ## Produkt i copy
 

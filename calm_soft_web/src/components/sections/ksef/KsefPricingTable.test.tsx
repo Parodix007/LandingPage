@@ -16,9 +16,13 @@ describe("KsefPricingTable", () => {
     const mobileCards = [...document.querySelectorAll("article")];
     expect(mobileCards).toHaveLength(2);
     for (const card of mobileCards) {
-      for (const label of ["Wsparcie techniczne", "Obsługa starszych wersji Optimy", "Aktualizacje i utrzymanie", "Monitoring działania"]) {
+      for (const label of ["Wsparcie techniczne", "Aktualizacje i utrzymanie", "Monitoring działania"]) {
         expect(card.textContent).toContain(label);
       }
+    }
+    const desktopTable = screen.getByRole("table");
+    for (const row of ksef.erps[0]!.pricing.table) {
+      expect(desktopTable.textContent).toContain(row.label);
     }
     expect(document.querySelectorAll('[data-plan="firma"]').length).toBeGreaterThan(0);
     expect(document.querySelectorAll('[data-plan="pro"]').length).toBeGreaterThan(0);

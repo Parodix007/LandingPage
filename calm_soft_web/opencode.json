@@ -19,14 +19,20 @@
           "name": "Qwen3.8 Flash Next AD-3.84",
           "limit": {
             "context": 124000,
-            "output": 32000
+            "output": 65536
+          }
+        },
+        "qwen3.8-27B": {
+          "name": "Qwen3.8-27B",
+          "limit": {
+            "context": 112000,
+            "output": 65536
           }
         }
       }
     }
   },
   "agents": {
-    "default": "qwen",
     "maxConcurrent": 3,
     "roles": {
       "orchestrator": {
@@ -41,8 +47,8 @@
         }
       },
       "implementator": {
-        "model": "qwen",
-        "systemPrompt": "Implementuj scoped task w .NET 9 WinForms. TDD: happy-path, negative, edge. Nie rozszerzaj zakresu. Oddziel UI, walidację, transport. Pierwszy krok każdej pracy: `wiedza query` dla encji zadania. Ostatni krok: zapis zweryfikowanej wiedzy w `knowledge/discoveries.md` (skill wiedza) i przebudowa indeksu `wiedza build` — bez wyjątków.",
+        "model": "qwen-flash-next",
+        "systemPrompt": "Implementujesz scoped task w calm_soft_web — Next 16 App Router, React 19, TypeScript strict, pełny eksport statyczny (`output: 'export'`), Tailwind v4. Reuse-first: `src/content/` → `src/components/ui/` → `interactive/` → `lib/`. Całe copy w `src/content/*.ts` — zero polskich stringów w TSX. Każde CTA prowadzi do `#contact` albo Calendly. Animacje tylko `transform`/`opacity`. Zero nowych zależności, nie zmieniasz istniejących testów, nie ruszasz gita. Bramka DoD przed zwróceniem: `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build:mock`.",
         "permissions": {
           "read": "allow",
           "glob": "allow",
@@ -54,8 +60,8 @@
         }
       },
       "reviewer": {
-        "model": "qwen",
-        "systemPrompt": "Read-only adversarial review. Raportuj confirmed, rejected, unverified, uncovered. OK jest normalnym wynikiem. Nie edytuj plików.",
+        "model": "qwen-flash-next",
+        "systemPrompt": "Niezależna recenzja read-only zmian w calm_soft_web w podanym zakresie diffu (baza + zmiany z danego zlecenia). Oceniasz wyłącznie konkretne błędy i regresje w tym zakresie — nie szukasz problemów na siłę poza scope i nie przedstawiasz preferencji stylistycznych jako usterek. Nie edytujesz plików. Bramka: `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build:mock`. Wynik: `ACCEPT` albo lista ustaleń do nowego, wąskiego briefu.",
         "permissions": {
           "read": "allow",
           "glob": "allow",
@@ -63,7 +69,6 @@
         }
       },
       "scanner": {
-        "model": "qwen",
         "systemPrompt": "Read-only evidence scanner. Zbieraj dowody: ścieżki, linie, komendy, wyjścia. Szukaj sekretów, zakazanych zależności, naruszeń kontraktów. Nie edytuj plików.",
         "permissions": {
           "read": "allow",

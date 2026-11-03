@@ -289,7 +289,7 @@ export type SolutionsContent = {
 };
 
 // Produkt KSeF (2026-09-09 ksef-product-pages design) — zajawka na stronie głównej + jedna
-// podstrona /ksef/comarch-erp-optima/, bez huba /ksef/. `contact` importuje kształt
+// podstrona /ksef/rachmistrz-nexo/, bez huba /ksef/. `contact` importuje kształt
 // `SalesContactCopy` z serviceSales.ts, żeby nie duplikować kontraktu formularza kontaktowego.
 export type KsefPlanCell = boolean | string; // true = ✓, false = brak, string = wartość w komórce
 export type KsefPlan = {
@@ -321,11 +321,11 @@ export type KsefSwitchOfferContent = {
 };
 export type KsefErpPage = {
   slug: string;
-  name: string; // "comarch-erp-optima", "Comarch ERP Optima"
+  name: string; // "rachmistrz-nexo", "Rachmistrz Nexo / Nexo PRO"
   switchOffer?: KsefSwitchOfferContent;
   metaTitle: string;
   metaDescription: string;
-  contactHref: string; // "/ksef/comarch-erp-optima/#contact"
+  contactHref: string; // "/ksef/rachmistrz-nexo/#contact"
   hero: { eyebrow: string; h1: string; lead: string; note: string; bullets: string[]; cta: string; pricingCta: string };
   legacy: { title: string; body: string; steps: { title: string; body: string }[]; claim: string; cta: string };
   development: { title: string; intro: string; items: { title: string; body: string }[]; standardNote: string; proNote: string };
