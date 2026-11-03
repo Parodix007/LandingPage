@@ -24,6 +24,8 @@ describe("KsefPricingTable", () => {
     for (const row of ksef.erps[0]!.pricing.table) {
       expect(desktopTable.textContent).toContain(row.label);
     }
+    expect(screen.getAllByText("350 zł")).toHaveLength(2);
+    expect(screen.getAllByText("od 699 zł")).toHaveLength(2);
     expect(document.querySelectorAll('[data-plan="firma"]').length).toBeGreaterThan(0);
     expect(document.querySelectorAll('[data-plan="pro"]').length).toBeGreaterThan(0);
     expect(screen.getAllByText("PRO").length).toBeGreaterThan(0);

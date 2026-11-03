@@ -1,32 +1,30 @@
 {
+  
   "$schema": "https://opencode.ai/config.json",
+  "model": "strata/qwen3.8-flash-next-iq3_s",
+  "small_model": "strata/qwen3.8-flash-next-iq3_s",
+  "autoupdate": false,
+  "compaction": {
+    "auto": true
+  },
+  "share": "disabled",
   "provider": {
-    "local": {
+    "strata": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Lokalnie",
+      "name": "Strata (local)",
       "options": {
-        "baseURL": "http://127.0.0.1:8080/v1"
+        "baseURL": "http://127.0.0.1:8080/v1",
+        "apiKey": "sk-strata-NamG3wGl9GJB0lfyn2VzrpTckVwR0clq"
       },
       "models": {
-        "qwen": {
-          "name": "Qwen3.6-35B-A3B",
+        "qwen3.8-flash-next-iq3_s": {
+          "name": "Qwen3.8-Flash-Next (local)",
+          "tool_call": true,
+          "reasoning": true,
           "limit": {
-            "context": 124000,
-            "output": 65536
-          }
-        },
-        "qwen-flash-next": {
-          "name": "Qwen3.8 Flash Next AD-3.84",
-          "limit": {
-            "context": 124000,
-            "output": 65536
-          }
-        },
-        "qwen3.8-27B": {
-          "name": "Qwen3.8-27B",
-          "limit": {
-            "context": 112000,
-            "output": 65536
+            "context": 131072,
+            "input": 126976,
+            "output": 126976
           }
         }
       }

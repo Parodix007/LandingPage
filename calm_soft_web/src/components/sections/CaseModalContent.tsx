@@ -1,12 +1,8 @@
-import type { CaseStudy, Tone } from "@/content/types";
+import type { CaseStudy } from "@/content/types";
 import { site } from "@/content/site";
 import { Chip } from "@/components/ui/Chip";
+import { TONE_CHIP } from "@/components/ui/chipTone";
 import { ModalCta } from "@/components/interactive/ModalCta";
-
-const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
-  a: "accent",
-  b: "accent2",
-};
 
 // HANDOFF §7 — renders inside the shared Modal shell (frozen `Modal`, SPEC §6.2-6.3). No
 // hooks here, so no 'use client' (mirrors DemoModalContent's no-hook skeleton) — it is still

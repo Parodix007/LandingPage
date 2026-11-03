@@ -51,14 +51,15 @@ zmiany poza `calm_soft_web`, zatrzymujesz się i pytasz.
 
 ## Produkt
 
-Landing lead-gen (+ podstrony `/work/`, `/pricing/` i cztery strony usług `/uslugi/<slug>/`).
+Landing lead-gen (+ podstrony `/work/`, `/pricing/`, `/o-mnie/`, `/ksef/<erp>/` i cztery strony
+usług `/uslugi/<slug>/`).
 
 - **Polski only** — `<html lang="pl">`, brak wersji EN, brak i18n (świadoma decyzja właściciela;
   nie dodawaj częściowego i18n).
 - **Pierwsza osoba liczby pojedynczej** — „robię", „projektuję". Nigdy „my" / „nasz zespół".
 - Dark theme, akcent `#7ce38b`, mint `#b9f0c4`.
-- Kolejność sekcji strony głównej: Hero → Usługi → KSeF (`#ksef`, zajawka produktu) → Case studies →
-  Proces → Kontakt.
+- Kolejność sekcji strony głównej: Hero → About → Usługi → KSeF (`#ksef`, zajawka produktu) →
+  Case studies → Proces → Kontakt.
   **Kotwica `#demo`, sekcja „Rozwiązania" i podstrona `/demos/` nie istnieją** — 2026-07-31
   restructure usunął je bez przekierowania (eksport statyczny go nie ma). Nie przywracaj ich
   i nie zakładaj, że gdzieś są. Slider w hero pokazuje `site.featuredCaseSlugs`, nie dema.
@@ -68,17 +69,20 @@ Landing lead-gen (+ podstrony `/work/`, `/pricing/` i cztery strony usług `/usl
   żeby klik z reklamy konwertował bez przejścia na stronę główną.
 - **Produkt KSeF** (`docs/superpowers/specs/2026-09-09-ksef-product-pages-design.md`): druga trasa
   dynamiczna `/ksef/<erp>/` (`generateStaticParams` po `KsefErpPage.slug`, dziś tylko
-  `rachmistrz-nexo`), zajawka `#ksef` na stronie głównej i wyróżniony wpis „KSeF w ERP taniej"
+  `rachmistrz-nexo`), zajawka `#ksef` na stronie głównej i wyróżniony wpis „KSeF w ERP"
   w navbarze z submenu ERP. Całe copy w `src/content/ksef.ts`. Pozycjonowanie: „ta sama obsługa
-  KSeF, taniej, stały abonament, bez limitu dokumentów". **Na stronach KSeF nie ma żadnych liczb
-  ani nazw pakietów Comarch, a kalkulator oszczędności został świadomie pominięty** — CTA
-  „Policz moją oszczędność" i CTA pakietów robią prefill wiadomości w formularzu
-  (`prefillContactMessage`) i przewijają do `#contact`. Nie wymyślaj stawek konkurencji.
+  KSeF, taniej, stały abonament, bez limitu dokumentów". **Kalkulator oszczędności nie istnieje** —
+  CTA planów (Standard i PRO, pola `cta` + `prefill`) robią prefill wiadomości w formularzu
+  (`prefillContactMessage`) i przewijają do `#contact`. Jedyne kwoty na stronach KSeF to własny
+  cennik calm_soft i przykład rabatu za InsPunkty w FAQ; w treściach stron nie ma nazw ani stawek
+  pakietów Comarch. Nie wymyślaj stawek konkurencji.
   Rev. 2 (drugi brief): sekcja `legacy` (starsze wersje Optimy w klasycznym modelu licencyjnym)
   **musi** nieść widoczne zastrzeżenie, że model subskrypcyjny nadal wymaga aktywnej subskrypcji
   Comarch — wymóg właściciela, nie drobny druk. FAQ renderuje `ServiceDisclosure`.
-  Rev. 3 (trzeci brief): sekcje `coverage` (4 kafle) i `reliability`; sekcja porównania **nie istnieje**;
-  badge pakietu Biuro to „Polecany" (nie „najczęściej wybierane" — brak potwierdzonych danych);
+  Rev. 3 (trzeci brief): sekcje `coverage` (6 kafli) i `monitoring` (sekcja `reliability` nie
+  istnieje); sekcja porównania **istnieje**: „Standard czy PRO?"; plany to Standard i PRO (nie ma
+  pakietu „Biuro"), badge „Polecany" nosi plan PRO (`featured`; nie „najczęściej wybierane" — brak
+  potwierdzonych danych);
   **bez logotypów Comarch/KSeF** (decyzja właściciela — cudze znaki towarowe, brak zgody); hover
    kolumn cennika to `.ksef-plan-table` + `:has()` w `globals.css`. 2026-11-03 (decyzja
    właściciela): podstrona `/ksef/comarch-erp-optima/` została usunięta; martwy URL zwraca 404
@@ -107,10 +111,11 @@ w `globals.css`. Żadnego `tailwind.config.js`, żadnego `@tailwind base/compone
 ## Komendy i bramka DoD
 
 ```
-npm run dev          # serwer deweloperski (mock włączony przez .env.development)
+npm run dev          # serwer deweloperski (mock tylko gdy jawnie ustawisz NEXT_PUBLIC_INQUIRY_MOCK — build:mock ustawia go jawnie)
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint
 npm run test         # vitest run
+npm run test:scripts # node --test scripts/release-package.test.mjs (testy packera)
 npm run build        # prebuild (assert-env.mjs) → next build → postbuild (gen-headers.mjs → out/.htaccess)
 npm run build:mock   # build z jawnym mockiem — do lokalnych bramek (next build NIE czyta .env.development)
 npm run preview      # serwuje out/ — wymagane do Lighthouse i smoke testów eksportu
@@ -119,10 +124,10 @@ npx vitest run sciezka/do/pliku.test.tsx    # pojedynczy plik testowy
 npx vitest run -t "nazwa testu"             # pojedynczy test po nazwie
 ```
 
-**Bramka DoD — każde zadanie kończy się czterema zielonymi krokami:**
+**Bramka DoD — każde zadanie kończy się pięcioma zielonymi krokami:**
 
 ```bash
-npm run typecheck && npm run lint && npm run test && npm run build:mock
+npm run typecheck && npm run lint && npm run test && npm run test:scripts && npm run build:mock
 ```
 
 PowerShell 5.1 nie obsługuje `&&` — uruchamiaj przez narzędzie Bash albo łańcuchem
@@ -142,6 +147,7 @@ są wbudowane w bundle, nie czytane w runtime.
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Publiczny site key Cloudflare Turnstile (nie sekret). Wymagany zawsze, gdy ustawiony jest API base URL. |
 | `NEXT_PUBLIC_INQUIRY_MOCK` | `1` = sukces, `fail` = błąd. Mock jest **jawny, nigdy nie jest cichym fallbackiem**. |
 | `NEXT_PUBLIC_SITE_URL` | Origin dla `metadataBase`/canonical/OG. Wymagany w buildzie produkcyjnym. |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Publiczny adres e-mail kontaktowy pokazywany w sekcji Contact (mailto + tekst). Opcjonalny — bez niego używany jest fallback `hello@calmsoft.com` w `src/content/site.ts`. |
 | `NEXT_PUBLIC_GA_ID` | Publiczny GA4 Measurement ID. Puste = GA całkowicie wyłączone (brak skryptu, brak originów w CSP, brak bannera zgody). Wymagany przez `assert-env.mjs`, gdy ustawiony jest `NEXT_PUBLIC_API_BASE_URL` — build produkcyjny bez niego jest blokowany. |
 
 `scripts/assert-env.mjs` to prebuild guard. **Nigdy nie „naprawiasz" czerwonego builda
@@ -223,7 +229,7 @@ Zmiana którejkolwiek z tych rzeczy wymaga jawnej zgody właściciela:
   scrollowanie w mockowalnym `lib/scroll.ts`. Wszystkie linki kotwiczące są root-relative
   (`/#services`), żeby działały z podstron.
 - **`scripts/`** — `assert-env.mjs` (prebuild guard), `gen-headers.mjs` (CSP i `.htaccess`,
-  w tym osobny, luźniejszy blok dla `/demo/`), `derive-assets.mjs`.
+  w tym osobny, luźniejszy blok dla `/demo/`), `csp.mjs`, `release-package.mjs` (+ test).
 - **Decyzje projektowe z historii** (dlaczego coś wygląda tak, a nie inaczej) leżą w
   `docs/superpowers/specs/` — czytaj stamtąd, zamiast rekonstruować intencję z kodu.
 

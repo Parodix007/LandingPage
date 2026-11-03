@@ -172,13 +172,27 @@ export function readZipEntryNames(zipPath) {
 }
 
 // ---------------------------------------------------------------------------
-// buildPackage — spacer po root, pomijane: wejście do .git/.next/node_modules/out
-// oraz pliki o nazwie zaczynającej się od `.env`. Nazwy entry: scieżki relatywne
+// buildPackage — allowlist paczki deployowej. W root pakowane są wyłącznie
+// pliki z ALLOWED_ROOT_FILES, a rekurencyjnie wyłącznie katalogi z
+// ALLOWED_DIRS. W rekurencji nadal pomijamy katalogi ze SKIP_DIRS oraz pliki
+// `.env*` (defense in depth). Nieobecność katalogu z ALLOWED_DIRS jest błędem:
+// cicha pusta paczka jest gorsza od crasha. Nazwy entry: scieżki relatywne
 // od root, separator `/`, bez `./`.
 // ---------------------------------------------------------------------------
 const SKIP_DIRS = new Set([".git", ".next", "node_modules", "out"]);
+const ALLOWED_DIRS = ["src", "public", "scripts"];
+const ALLOWED_ROOT_FILES = [".nvmrc", "next-env.d.ts", "next.config.ts", "package.json", "package-lock.json", "postcss.config.mjs", "tsconfig.json"];
 
 export function buildPackage(root, outZipPath) {
+  const rootItems = readdirSync(root, { withFileTypes: true });
+  const rootDirs = new Set(
+    rootItems.filter((item) => item.isDirectory()).map((item) => item.name)
+  );
+  const missingDirs = ALLOWED_DIRS.filter((dir) => !rootDirs.has(dir));
+  if (missingDirs.length > 0) {
+    throw new Error(`Brak katalogów z ALLOWED_DIRS w ${root}: ${missingDirs.join(", ")}`);
+  }
+
   const entries = [];
 
   function walk(dir) {
@@ -196,17 +210,30 @@ export function buildPackage(root, outZipPath) {
     }
   }
 
-  walk(root);
+  for (const item of rootItems) {
+    const full = join(root, item.name);
+    if (item.isDirectory()) {
+      if (ALLOWED_DIRS.includes(item.name)) walk(full);
+    } else if (item.isFile() && ALLOWED_ROOT_FILES.includes(item.name)) {
+      entries.push({ name: item.name, data: readFileSync(full) });
+    }
+  }
+
   entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   writeZip(outZipPath, entries);
   return entries.map((e) => e.name);
 }
 
 // ---------------------------------------------------------------------------
-// checkPackage — walidacja paczki: separatory, ekskluzje, pliki wymagane.
+// checkPackage — walidacja paczki: separatory, ekskluzje, pliki wymagane oraz
+// bramka FORBIDDEN_TOP odrzucająca entry spoza kontraktu allowlist — mechaniczna
+// antyregresja po incydencie 2026-10-29, gdy do paczki trafiły docs/, README.md,
+// opencode.json i `.env`; zestaw niżej jest prewencyjnie szerszy niż tamta delta.
 // ---------------------------------------------------------------------------
-const REQUIRED = ["package.json", "package-lock.json", "src/app/page.tsx", "next.config.ts"];
+const REQUIRED = ["package.json","package-lock.json","next.config.ts","tsconfig.json","postcss.config.mjs",".nvmrc","src/app/page.tsx","src/app/layout.tsx","scripts/assert-env.mjs","scripts/csp.mjs","scripts/gen-headers.mjs"];
 const FORBIDDEN_DIRS = [".next", "node_modules", "out", ".git"];
+const FORBIDDEN_TOP_DIRS = new Set(["docs", ".idea", ".claude", ".codex", ".agents", ".github", ".wrangler", ".vercel"]);
+const FORBIDDEN_TOP_ROOT_FILES = new Set(["opencode.json", "lighthouse.json", "tsconfig.tsbuildinfo", "eslint.config.mjs", "vitest.config.ts", "AGENTS.md", "CLAUDE.md", "README.md", ".gitignore", "serve.json", "zipcheck"]);
 
 function isUnder(name, dir) {
   return name === dir || name.startsWith(dir + "/");
@@ -218,19 +245,29 @@ export function checkPackage(zipPath) {
   const nameSet = new Set(names);
 
   for (const name of names) {
+    let flagged = false;
     if (name.includes("\\")) {
       problems.push(`separator \\ w nazwie entry: ${name}`);
+      flagged = true;
     }
     const parts = name.split("/");
     const base = parts[parts.length - 1];
     if (base.startsWith(".env")) {
       problems.push(`plik .env* w paczce: ${name}`);
+      flagged = true;
     }
     for (const dir of FORBIDDEN_DIRS) {
       if (isUnder(name, dir)) {
         problems.push(`entry w zakazanym katalogu ${dir}/: ${name}`);
+        flagged = true;
         break;
       }
+    }
+    const offContract =
+      FORBIDDEN_TOP_DIRS.has(parts[0]) ||
+      (parts.length === 1 && FORBIDDEN_TOP_ROOT_FILES.has(name));
+    if (!flagged && offContract) {
+      problems.push(`plik lub katalog spoza kontraktu paczki: ${name}`);
     }
   }
 

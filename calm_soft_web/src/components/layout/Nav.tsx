@@ -6,8 +6,9 @@ import { NavMobileMenu, type NavLink } from "./NavMobileMenu";
 import { NavServicesMenu } from "./NavServicesMenu";
 
 // Nav lives outside the providers in layout.tsx — its CTA is a plain anchor to /#contact
-// (SPEC §6.1). Structural nav labels/hrefs are not part of the content model (site.ts only
-// carries footerLinks, per SPEC §5.2) so they're declared here. "Usługi" is no longer a plain
+// (SPEC §6.1). Structural nav labels/hrefs are not part of the content model (site.ts carries
+// footerLinks plus the wordmark/hamburger a11y labels in `site.nav`, per SPEC §5.2) so the
+// link structure itself is declared here. "Usługi" is no longer a plain
 // link (it triggers the services menu — desktop dropdown / mobile submenu, see below).
 // 2026-09-09 ksef-product-pages design ("Krok 3") added a second, highlighted nav entry for
 // the KSeF product — its own NavServicesMenu (desktop) / productMenu submenu (mobile), placed
@@ -39,7 +40,7 @@ export function Nav() {
             (the reported bug) — see impl-spec-followup.md §1. */}
         <a
           href="/#top"
-          aria-label="calm_soft — wróć na górę"
+          aria-label={site.nav.wordmarkAriaLabel}
           className="font-mono text-[26px] font-semibold tracking-[-0.02em] text-ink"
         >
           calm

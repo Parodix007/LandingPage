@@ -8,7 +8,8 @@ export type UseCarouselResult = {
 };
 
 // SPEC §6.6 — carousel step logic, clamped [0, count-1], no wraparound. Pure hook, unit
-// tested in isolation; ProcessCarousel (the 'use client' leaf) is the sole consumer.
+// tested in isolation; consumers: HeroCaseSlider, ProcessCarousel, ServicesSlider (interactive)
+// and ServiceDemoShowcase (sections/service-sales).
 function clampStep(value: number, count: number): number {
   if (count <= 0) return 0;
   return Math.min(Math.max(value, 0), count - 1);

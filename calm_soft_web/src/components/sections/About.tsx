@@ -33,7 +33,7 @@ export function About({ variant = "short", hideCta = false }: AboutProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/about-photo.webp"
-            alt="calm_soft — projektant i developer systemów webowych"
+            alt={site.about.photoAlt}
             className="w-full object-cover"
             loading="lazy"
           />

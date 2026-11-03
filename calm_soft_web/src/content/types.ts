@@ -119,6 +119,8 @@ export type AboutContent = {
   short: string; // homepage section
   long: string[]; // /o-mnie/ page — tablica akapitów
   cta: string;
+  // alt zdjęcia w sekcji about (sections/About.tsx).
+  photoAlt: string;
 };
 
 export type SiteContent = {
@@ -140,8 +142,29 @@ export type SiteContent = {
       // demoLabel ("Rozwiązania na żywo"), which labelled the mockup slider this one replaces.
       casesLabel: string;
     };
+    // Etykiety strzałek (a11y) hero slidera realizacji — hardkodowane kiedyś w leafu
+    // HeroCaseSlider.tsx (importuje site.ts; props-contract leafa zostaje bez zmian).
+    slider: { prevLabel: string; nextLabel: string };
   };
   about: AboutContent;
+  // Etykiety a11y komponentów współdzielonych/ui (Modal, kropki karuzel) — statyczne, build-time.
+  ui: {
+    // aria-label przycisku zamykania modala (ui/Modal.tsx).
+    modalClose: string;
+    // Prefiks aria-labelu kropek karuzel: "Przejdź do: <tag>" — jeden field współdzielony przez
+    // HeroCaseSlider.tsx i ServicesSlider.tsx (ProcessCarousel ma własną konwencję "Przejdź do
+    // kroku <numer>", celowo poza tym fieldem).
+    goToDotPrefix: string;
+  };
+  // Etykiety a11y nawigacji (wordmark, hamburger) — strukturalne etykiety pozostają w Nav.tsx,
+  // tu tylko to, co hardkodowały komponenty.
+  nav: {
+    // aria-label wordmarku → /#top (layout/Nav.tsx); "calm_soft" pisane ręcznie, bo wordmark
+    // renderuje "calm_soft" z migającym "_" (site.name nie da się w niego złożyć).
+    wordmarkAriaLabel: string;
+    // aria-label hamburgera (layout/NavMobileMenu.tsx).
+    menuAriaLabel: string;
+  };
   sections: {
     services: {
       line1: string; line2: string; pricingCta: string; pricingPrompt: string;
@@ -150,6 +173,9 @@ export type SiteContent = {
       // design.md). sliderLabel is the carousel's uppercase eyebrow/aria-label; the rest are
       // the tile's section labels/CTAs, transplanted verbatim from the retired service modal.
       sliderLabel: string;
+      // Etykiety strzałek carousela (a11y) — hardkodowane kiedyś w ServicesSlider.tsx.
+      sliderPrevLabel: string;
+      sliderNextLabel: string;
       overviewLabel: string;
       fitLabel: string;
       deliverLabel: string;
@@ -165,9 +191,18 @@ export type SiteContent = {
       // restructure design).
       detailsCta: string;
     };
-    process: { line1: string; line2: string };
+    process: {
+      line1: string; line2: string;
+      // Etykiety strzałek carousela (a11y) — hardkodowane kiedyś w ProcessCarousel.tsx.
+      prevLabel: string; nextLabel: string;
+    };
     cases: {
       line1: string; line2: string; intro: [string, string]; footnote: string; seeAllCta: string;
+      // Prefix aria-labelu mini-karty case ("Przeczytaj historię: <client>") — ten sam prefix
+      // współdzielony przez CaseStudies.tsx i ServicesSlider.tsx (jedno pole, bez duplikatów).
+      // Widoczna etykieta CTA to współdzielone sections.services.readCaseCta (ten sam precedens
+      // co Hero.tsx, który od 2026-07-31 podaje ją HeroCaseSlider jako readCaseLabel).
+      readCaseAriaPrefix: string;
       calendly: { prompt: string; cta: string };
     };
     demos: {
@@ -303,7 +338,7 @@ export type KsefPlan = {
   cta: string;
   prefill: string;
   featured?: boolean;
-  badge?: string; // "Polecany" — tylko przy pakiecie Biuro
+  badge?: string; // "Polecany" — przy planie PRO (featured)
 };
 export type KsefTableRow = { label: string; cells: Record<KsefPlan["id"], KsefPlanCell> };
 export type KsefFaqItem = { question: string; answer: string; id?: string };

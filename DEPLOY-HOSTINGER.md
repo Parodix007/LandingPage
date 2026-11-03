@@ -4,7 +4,7 @@ Two separately-deployed apps, both built for **Node 22** and Hostinger's serving
 
 | App | What | Where | Runs |
 |---|---|---|---|
-| **Frontend** `calm_soft_web` | Next.js 16 **static export** | `public_html/` of **calmsoft.pro** (apex + www) | Apache/LiteSpeed serves files — no Node on host |
+| **Frontend** `calm_soft_web` | Next.js 16 — **build źródła na hoście** (od 2026-10-29; statyczny export `out/` jest ARCHIVED) | **Node.js Web App** podpięty do **calmsoft.pro** (apex + www) | Node 22 + Passenger; build zleca panel z `package.json`, nagłówki dowozi `headers()` w `next.config.ts` |
 | **Backend** `calm_soft_api` | Fastify (stack unchanged) | **Node.js Web App** on subdomain **api.calmsoft.pro** (same account, same IP `46.202.142.128`) | Node 22 + Passenger/LiteSpeed |
 
 They are joined by CORS (`CORS_ORIGINS` on the API = the front's origins) and the front's CSP
@@ -22,7 +22,12 @@ the commit) → deploy → **only then** rotate `SMTP_PASS` (rotating while the 
 re-leak the new password on the next boot). The web bundle (`calm_soft_web_out.zip`) is unaffected.]**
 
 **Ready-to-upload bundles** (in `_deploy/`):
-- `_deploy/calm_soft_web_out.zip` — the static site (42 entries incl. `.htaccess`).
+- `_deploy/calm_soft_web_out.zip` — **ARCHIVED (ścieżka do 2026-10-29)**: statyczny site (42 entries incl. `.htaccess`).
+  Aktualna paczka frontu powstaje **wyłącznie** przez `calm_soft_web/scripts/release-package.mjs` (allowlist,
+  192 entry, separatory `/`, brak `.env*`).   W `_deploy/`: `calm-soft-hostinger-2026-10-16.zip` (**znany dobry baseline**, 188 entry) i
+  `calm-soft-web-2026-10-29.zip` (**wadliwa treść**: 241 entry, w tym 223 z separatorami `\`, `docs/`,
+  `opencode.json`, `lighthouse.json`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `tsconfig.tsbuildinfo`
+  i `.env`/`.env.example`; nie wgrywać bez potrzeby).
 - `_deploy/calm_soft_api_src.zip` — **rebuilt 2026-07-09 22:04 from the working tree** (changes were still
   uncommitted, so the §2-ALT `git archive HEAD` command would have packaged the stale outbox build; used the
   documented fallback — bsdtar, forward-slash entries verified). Contains sync-send + the logger level split,
@@ -38,6 +43,22 @@ commit → rebuild `calm_soft_api_src.zip` (§2-ALT) → deploy **API first** �
 ---
 
 ## 1) Frontend — static site → `public_html`
+
+> **[Superseded — 2026-10-29, potwierdzone 2026-11-03]** Front **nie jest już** statycznym exportem w
+> `public_html`. Model deployu: paczka **źródeł** budowana przez `calm_soft_web/scripts/release-package.mjs`
+> (allowlist: `src/`, `public/`, `scripts/` + 7 plików roota: `.nvmrc`, `next-env.d.ts`, `next.config.ts`,
+> `package.json`, `package-lock.json`, `postcss.config.mjs`, `tsconfig.json`), wgrana jako **Node.js Web App**
+> (preset Next.js, Node `22.x` z `.nvmrc`). Panel instaluje zależności i uruchamia build zlecony z `package.json`
+> (`npm run build` → `prebuild` = `scripts/assert-env.mjs`); startup procesu zapewnia host (Passenger) — w tym repo
+> **nie ma** skryptu `start` ani `dist/server.js` (to model `calm_soft_api`). Nagłówki bezpieczeństwa dowozi
+> `headers()` w `next.config.ts`, a nie `.htaccess`. Envy `NEXT_PUBLIC_*` są ustawiane ręcznie w panelu i każda
+> ich zmiana wymaga rebuildu. Kroki poniżej opisują wyłącznie archiwalną ścieżkę `out/`.
+
+Komenda aktualnej paczki (z katalogu `calm_soft_web/`):
+```powershell
+node scripts/release-package.mjs ..\_deploy\calm-soft-web-<data>.zip
+node scripts/release-package.mjs --check ..\_deploy\calm-soft-web-<data>.zip
+```
 
 Baked into this build (build-time env, inlined — changing any of these requires a rebuild):
 `NEXT_PUBLIC_API_BASE_URL=https://api.calmsoft.pro`, `NEXT_PUBLIC_SITE_URL=https://calmsoft.pro`,

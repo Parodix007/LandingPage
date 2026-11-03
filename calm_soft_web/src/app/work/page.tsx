@@ -10,7 +10,8 @@ import { GhostPill } from "@/components/ui/GhostPill";
 import { CardActions } from "@/components/interactive/CardActions";
 import { CalendlyCta } from "@/components/interactive/CalendlyCta";
 import { HOVER_LIFT } from "@/components/ui/cardHover";
-import type { CaseStudy, Tone } from "@/content/types";
+import { TONE_CHIP } from "@/components/ui/chipTone";
+import type { CaseStudy } from "@/content/types";
 
 const title = site.work.metaTitle;
 const description = site.work.metaDescription;
@@ -27,13 +28,6 @@ export const metadata: Metadata = {
     type: "website",
     url: "/work/",
   },
-};
-
-// Mirrors CaseStudies.tsx's tone lookup (ui/ is frozen, so this small table is duplicated
-// locally rather than shared — same precedent as pricing/page.tsx's PricingCardItem).
-const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
-  a: "accent",
-  b: "accent2",
 };
 
 function CaseCard({ c }: { c: CaseStudy }) {

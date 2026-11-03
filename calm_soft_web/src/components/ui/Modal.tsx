@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, type ReactNode } from "react";
+import { site } from "@/content/site";
 import { PILL_FOCUS } from "./pillBase";
 import { CloseIcon } from "./icons";
 
@@ -69,7 +70,7 @@ export function Modal({ open, onClose, labelledBy, children, contentKey }: Modal
         <button
           ref={closeRef}
           type="button"
-          aria-label="Zamknij"
+          aria-label={site.ui.modalClose}
           onClick={onClose}
           className={`hit-44 ${PILL_FOCUS} absolute right-6 top-5 flex h-9 w-9 items-center justify-center rounded-full border border-border-20 text-ink-70 transition-colors duration-[250ms] hover:border-accent hover:text-white`}
         >

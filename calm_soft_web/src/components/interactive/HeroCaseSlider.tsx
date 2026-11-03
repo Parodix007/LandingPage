@@ -1,9 +1,12 @@
 "use client";
 
-import type { CaseStudy, Tone } from "@/content/types";
+import type { CaseStudy } from "@/content/types";
+import { site } from "@/content/site";
 import { Watermark } from "@/components/ui/Watermark";
 import { Chip } from "@/components/ui/Chip";
+import { TONE_CHIP } from "@/components/ui/chipTone";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
+import { FilledPill } from "@/components/ui/FilledPill";
 import { CarouselArrowButton } from "@/components/ui/CarouselArrowButton";
 import { useModal } from "@/components/providers/ModalProvider";
 import { useCarousel } from "./useCarousel";
@@ -12,13 +15,6 @@ export type HeroCaseSliderProps = {
   cases: CaseStudy[];
   label: string;
   readCaseLabel: string;
-};
-
-// Mirrors CaseStudies.tsx's/work/page.tsx's tone lookup (ui/ is frozen, so this small table is
-// duplicated locally rather than shared — same precedent those files' own comments document).
-const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
-  a: "accent",
-  b: "accent2",
 };
 
 // Mirrors ProcessCarousel.tsx's/ServicesSlider.tsx's ARROW_BASE exactly (SPEC §6.6 / CLAUDE.md
@@ -71,8 +67,8 @@ export function HeroCaseSlider({ cases, label, readCaseLabel }: HeroCaseSliderPr
           {label}
         </p>
         <div className="flex shrink-0 items-center gap-3">
-          <CarouselArrowButton direction="previous" label="Poprzednia realizacja" atBoundary={step === 0} onClick={prev} />
-          <CarouselArrowButton direction="next" label="Następna realizacja" atBoundary={step === last} onClick={next} />
+          <CarouselArrowButton direction="previous" label={site.hero.slider.prevLabel} atBoundary={step === 0} onClick={prev} />
+          <CarouselArrowButton direction="next" label={site.hero.slider.nextLabel} atBoundary={step === last} onClick={next} />
         </div>
       </div>
 
@@ -139,14 +135,12 @@ export function HeroCaseSlider({ cases, label, readCaseLabel }: HeroCaseSliderPr
                     are both aria-hidden and keyboard-inert). Styled like the previous mockup
                     slider's live-demo CTA (filled accent pill). */}
                 <div className="mt-auto pt-[22px]">
-                  <button
-                    type="button"
+                  <FilledPill
                     tabIndex={active ? undefined : -1}
                     onClick={() => openCaseModal(c.slug)}
-                    className={`hit-44 ${PILL_FOCUS} inline-flex items-center justify-center rounded-[var(--radius-pill)] bg-accent px-7 py-3 text-[15px] font-semibold leading-none text-black transition-[filter] duration-[250ms] hover:brightness-[1.15]`}
                   >
                     {readCaseLabel}
-                  </button>
+                  </FilledPill>
                 </div>
               </div>
             );
@@ -161,7 +155,7 @@ export function HeroCaseSlider({ cases, label, readCaseLabel }: HeroCaseSliderPr
             <button
               key={c.slug}
               type="button"
-              aria-label={`Przejdź do: ${c.tag}`}
+              aria-label={`${site.ui.goToDotPrefix}${c.tag}`}
               aria-current={active ? "true" : undefined}
               onClick={() => goTo(i)}
               className={`${DOT_BASE} ${PILL_FOCUS} ${active ? DOT_ACTIVE : DOT_INACTIVE}`}

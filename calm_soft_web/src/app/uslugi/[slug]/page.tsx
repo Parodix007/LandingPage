@@ -12,9 +12,10 @@ import { RichText } from "@/components/ui/RichText";
 import { Watermark } from "@/components/ui/Watermark";
 import { CardActions } from "@/components/interactive/CardActions";
 import { HOVER_LIFT } from "@/components/ui/cardHover";
+import { TONE_CHIP } from "@/components/ui/chipTone";
 import { SolutionLineBlock } from "@/components/sections/SolutionLineBlock";
 import { Contact } from "@/components/sections/Contact";
-import type { CaseStudy, SolutionLine, Tone } from "@/content/types";
+import type { CaseStudy, SolutionLine } from "@/content/types";
 import { getServiceSalesPage, ServiceSalesPage } from "@/components/sections/service-sales/ServiceSalesPage";
 
 // First dynamic route in this project (docs/superpowers/specs/2026-07-31-service-pages-
@@ -57,13 +58,6 @@ export async function generateMetadata({
   };
 }
 
-// Mirrors work/page.tsx's tone lookup (ui/ is frozen, so this small table is duplicated
-// locally rather than shared — same precedent as work/page.tsx's own comment documents).
-const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
-  a: "accent",
-  b: "accent2",
-};
-
 const H2_CLASS = "text-[26px] font-bold leading-[1.15] tracking-[-0.02em]";
 
 // This page's named-item typography (name + description, used by both `deliver` and
@@ -78,10 +72,10 @@ const NAMED_ITEM_DESC = "text-[15px] leading-[1.55] text-ink-60";
 const NAMED_ITEM_GRID =
   "grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-[12px_20px]";
 
-// Mirrors SECTION_LABEL from ServicesSlider.tsx (also used by SolutionLineBlock.tsx via
-// identical classes): the site-wide convention for a label sitting above a group of items.
-// Duplicated locally rather than imported because ui/ and interactive/ are frozen and
-// ServicesSlider is a client leaf — same precedent TONE_CHIP and HOVER_LIFT document above.
+// Mirrors SECTION_LABEL from ServicesSlider.tsx (SolutionLineBlock.tsx carries the same base
+// classes): the site-wide convention for a label sitting above a group of items. Duplicated
+// locally rather than imported because ui/ and interactive/ are frozen and ServicesSlider is a
+// client leaf — both files likewise keep their own local copy of this pattern.
 const GROUP_LABEL_CLASS = "mb-4 text-[13px] font-semibold uppercase tracking-[0.12em] text-accent";
 
 // Case-card markup transplanted from work/page.tsx's CaseCard (same duplication precedent that

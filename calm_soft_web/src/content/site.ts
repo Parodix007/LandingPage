@@ -27,6 +27,10 @@ export const site: SiteContent = {
       ctaPricing: "Sprawdź cennik ›",
       casesLabel: "Wybrane realizacje",
     },
+    slider: {
+      prevLabel: "Poprzednia realizacja",
+      nextLabel: "Następna realizacja",
+    },
   },
   about: {
     heading: "O mnie",
@@ -38,6 +42,15 @@ export const site: SiteContent = {
       "Czy nie byłoby dobrym pomysłem wprowadzić u siebie **rozwiązania klasy enterprise**, które realnie pomogą w codziennej pracy?",
     ],
     cta: "Umów bezpłatną rozmowę (30 min) ›",
+    photoAlt: "calm_soft — projektant i developer systemów webowych",
+  },
+  nav: {
+    wordmarkAriaLabel: "calm_soft — wróć na górę",
+    menuAriaLabel: "Menu",
+  },
+  ui: {
+    modalClose: "Zamknij",
+    goToDotPrefix: "Przejdź do: ",
   },
   sections: {
     services: {
@@ -46,6 +59,8 @@ export const site: SiteContent = {
       pricingCta: "Zobacz przejrzysty cennik ›",
       pricingPrompt: "Zastanawiasz się, ile kosztuje taki projekt?",
       sliderLabel: "Przegląd usług",
+      sliderPrevLabel: "Poprzednia usługa",
+      sliderNextLabel: "Następna usługa",
       overviewLabel: "Przegląd usługi",
       fitLabel: "Kiedy to właściwy wybór",
       deliverLabel: "Co dostarczam",
@@ -57,7 +72,12 @@ export const site: SiteContent = {
       solutionsLabel: "Rozwiązania z tego obszaru",
       detailsCta: "Zobacz szczegóły usługi ›",
     },
-    process: { line1: "Od pomysłu do produkcji.", line2: "Spokojnie, krok po kroku." },
+    process: {
+      line1: "Od pomysłu do produkcji.",
+      line2: "Spokojnie, krok po kroku.",
+      prevLabel: "Poprzedni krok",
+      nextLabel: "Następny krok",
+    },
     cases: {
       line1: "Dowody, nie obietnice.",
       line2: "Praca, która działa na produkcji.",
@@ -67,6 +87,7 @@ export const site: SiteContent = {
       ],
       footnote: "Tam, gdzie wymagają tego umowy o poufności, nazwy klientów pomijam. O szczegółach chętnie opowiem na rozmowie.",
       seeAllCta: "Zobacz wszystkie case studies ›",
+      readCaseAriaPrefix: "Przeczytaj historię: ",
       calendly: {
         prompt: "Wolisz omówić swój projekt na żywo?",
         cta: "Umów bezpłatną rozmowę (30 min) ›",

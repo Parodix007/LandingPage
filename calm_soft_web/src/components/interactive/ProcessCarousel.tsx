@@ -39,8 +39,8 @@ export function ProcessCarousel({ steps }: ProcessCarouselProps) {
       <div className="flex flex-wrap items-center justify-between gap-6">
         <SectionHeading id="process-heading" line1={line1} line2={line2} />
         <div className="flex shrink-0 items-center gap-3">
-          <CarouselArrowButton direction="previous" label="Poprzedni krok" atBoundary={step === 0} onClick={prev} />
-          <CarouselArrowButton direction="next" label="Następny krok" atBoundary={step === last} onClick={next} />
+          <CarouselArrowButton direction="previous" label={site.sections.process.prevLabel} atBoundary={step === 0} onClick={prev} />
+          <CarouselArrowButton direction="next" label={site.sections.process.nextLabel} atBoundary={step === last} onClick={next} />
         </div>
       </div>
 

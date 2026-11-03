@@ -204,4 +204,21 @@ describe("HeroCaseSlider", () => {
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByRole("heading", { name: target.headline })).toBeInTheDocument();
   });
+
+  // Characterization (2026-11-03 refactor): pins visual tokens of the pills slated for GhostPill/FilledPill swap
+  it("pins the active slide CTA pill tokens", () => {
+    const { container } = renderSlider();
+    const slides = container.querySelectorAll('[role="group"][aria-roledescription="slide"]');
+    const cta = within(slides[0] as HTMLElement).getByRole("button", { name: READ_CASE_LABEL });
+    expect(cta).toHaveClass(
+      "hit-44",
+      "bg-accent",
+      "text-black",
+      "font-semibold",
+      "text-[15px]",
+      "px-7",
+      "py-3",
+      "focus-visible:ring-2",
+    );
+  });
 });

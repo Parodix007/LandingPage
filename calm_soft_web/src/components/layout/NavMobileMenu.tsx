@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { FilledPill } from "@/components/ui/FilledPill";
 import { ChevronLeftIcon } from "@/components/ui/icons";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
+import { site } from "@/content/site";
 
 export type NavLink = { href: string; label: string };
 
@@ -94,7 +95,7 @@ export function NavMobileMenu({
       <button
         ref={toggleRef}
         type="button"
-        aria-label="Menu"
+        aria-label={site.nav.menuAriaLabel}
         aria-expanded={open}
         aria-controls="mobile-menu"
         onClick={() => {

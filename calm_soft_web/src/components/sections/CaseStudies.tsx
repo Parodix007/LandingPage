@@ -7,15 +7,13 @@ import { GhostPill } from "@/components/ui/GhostPill";
 import { CardActions } from "@/components/interactive/CardActions";
 import { CalendlyCta } from "@/components/interactive/CalendlyCta";
 import { HOVER_LIFT } from "@/components/ui/cardHover";
-import type { CaseStudy, Tone } from "@/content/types";
+import { TONE_CHIP } from "@/components/ui/chipTone";
+import type { CaseStudy } from "@/content/types";
 
-// HANDOFF §6: chip/metric tint follows the case's own tone (a → accent, b → accent2), but
-// card-hover border is always accent regardless of tone (prototype hard-codes `--accent` for
-// both the featured and grid card hover states — unlike Services, which is tone-dependent).
-const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
-  a: "accent",
-  b: "accent2",
-};
+// HANDOFF §6: chip/metric tint follows the case's own tone (a → accent, b → accent2 — TONE_CHIP
+// in ui/chipTone.ts), but card-hover border is always accent regardless of tone (HOVER_LIFT
+// hard-codes `--accent` for both the featured and grid card hover states — unlike Services,
+// which is tone-dependent).
 
 // Server component (SPEC §16 client/server boundary) — the section renders static content;
 // interactivity (opening the case modal) lives in the frozen `CardActions` client leaf. The
@@ -79,8 +77,8 @@ export function CaseStudies() {
               <CardActions
                 kind="case-card"
                 caseSlug={c.slug}
-                readLabel="Przeczytaj historię ›"
-                ariaLabel={`Przeczytaj historię: ${c.client}`}
+                readLabel={site.sections.services.readCaseCta}
+                ariaLabel={`${site.sections.cases.readCaseAriaPrefix}${c.client}`}
               />
             </div>
 

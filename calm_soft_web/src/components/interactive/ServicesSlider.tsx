@@ -2,9 +2,12 @@
 
 import { useEffect } from "react";
 import type { Service, Tone } from "@/content/types";
+import { site } from "@/content/site";
 import { Chip } from "@/components/ui/Chip";
+import { TONE_CHIP } from "@/components/ui/chipTone";
 import { Watermark } from "@/components/ui/Watermark";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
+import { GhostPill } from "@/components/ui/GhostPill";
 import { CarouselArrowButton } from "@/components/ui/CarouselArrowButton";
 import { useModal } from "@/components/providers/ModalProvider";
 import { useInquiry } from "@/components/providers/InquiryProvider";
@@ -25,8 +28,9 @@ export type ServicesSliderProps = {
   note: string;
   solutionsLabel: string;
   // Label for the per-tile link to its own /uslugi/<slug>/ page (2026-07-31 service-pages-
-  // restructure design). Threaded through as a prop rather than imported directly — this
-  // component never reads site.ts itself.
+  // restructure design). Threaded through as a prop rather than imported directly — visible
+  // content labels come from the parent; since 2026-11-03 only the static a11y labels
+  // (carousel arrows, dots, case-link prefix) are read from site.ts in this leaf.
   detailsLabel: string;
 };
 
@@ -34,11 +38,6 @@ export type ServicesSliderProps = {
 // card 1 core (tone "b") and card 4 refactor (tone "a") keep their original glow/hover accent;
 // card 2 automation now carries tone "a" and card 3 web now carries tone "b" — a straight swap
 // that restores the alternating b/a/b/a rhythm the reorder would otherwise have broken.
-const TONE_CHIP: Record<Tone, "accent" | "accent2"> = {
-  a: "accent",
-  b: "accent2",
-};
-
 const TONE_GLOW: Record<Tone, string> = {
   a: "[--glow-color:color-mix(in_oklch,var(--color-accent)_18%,transparent)]",
   b: "[--glow-color:color-mix(in_oklch,var(--color-accent2)_18%,transparent)]",
@@ -79,12 +78,12 @@ const DOT_INACTIVE = "border-white/[0.16] text-ink-55";
 // ServiceModalContent.tsx's git history for the pre-slider markup this was transplanted from.
 // The tile is an h3 (not h2 — SectionHeading's h2 in Services.tsx stays the page's only H2 for
 // this section) and carries no id="modal-headline" (there is no modal to label anymore). The
-// related-case mini-card's "Read the story" trigger is a hand-rolled stretched button rather
-// than GhostPill (GhostPill's PillElement doesn't forward tabIndex, and roving tabIndex on
-// off-screen slides is required here) — the mini-card keeps `card-host relative` so
-// .pill-stretched::after anchors to the mini-card, not the tile. The tile footer CTA mirrors
-// CardActions' retired service-card "start" behavior exactly (requestContactScroll then a rAF
-// focusContactField — never ctaClose, since a slider tile isn't a modal).
+// related-case mini-card's "Read the story" trigger is the stretched GhostPill (xs) — roving
+// tabIndex on off-screen slides works because PillElement/GhostPill forward tabIndex
+// (pillBase.tsx, GhostPill.tsx) — the mini-card keeps `card-host
+// relative` so .pill-stretched::after anchors to the mini-card, not the tile. The tile footer
+// CTA mirrors CardActions' retired service-card "start" behavior exactly (requestContactScroll
+// then a rAF focusContactField — never ctaClose, since a slider tile isn't a modal).
 export function ServicesSlider({
   services,
   label,
@@ -128,8 +127,8 @@ export function ServicesSlider({
           {label}
         </p>
         <div className="flex shrink-0 items-center gap-3">
-          <CarouselArrowButton direction="previous" label="Poprzednia usługa" atBoundary={step === 0} onClick={prev} />
-          <CarouselArrowButton direction="next" label="Następna usługa" atBoundary={step === last} onClick={next} />
+          <CarouselArrowButton direction="previous" label={site.sections.services.sliderPrevLabel} atBoundary={step === 0} onClick={prev} />
+          <CarouselArrowButton direction="next" label={site.sections.services.sliderNextLabel} atBoundary={step === last} onClick={next} />
         </div>
       </div>
 
@@ -240,17 +239,16 @@ export function ServicesSlider({
                             {c.m1v}
                           </p>
                           <p className="text-[14px] font-semibold leading-[1.35] text-ink">{c.headline}</p>
-                          <button
-                            type="button"
-                            aria-label={`Przeczytaj historię: ${c.client}`}
+                          <GhostPill
+                            tone="accent"
+                            size="xs"
+                            stretched
                             tabIndex={active ? undefined : -1}
+                            aria-label={`${site.sections.cases.readCaseAriaPrefix}${c.client}`}
                             onClick={() => openCaseModal(c.slug)}
-                            className={`pill-stretched w-fit rounded-[var(--radius-pill)] ${PILL_FOCUS}`}
                           >
-                            <span className="relative z-[1] inline-flex items-center justify-center rounded-[var(--radius-pill)] border border-transparent px-[14px] py-[6px] text-[13px] font-medium leading-none text-accent transition-[all] duration-[250ms] hover:bg-[color-mix(in_oklch,var(--color-accent)_16%,transparent)] hover:border-[color-mix(in_oklch,var(--color-accent)_40%,transparent)] hover:text-white">
-                              {readCaseLabel}
-                            </span>
-                          </button>
+                            {readCaseLabel}
+                          </GhostPill>
                         </div>
                       ))}
                     </div>
@@ -262,16 +260,16 @@ export function ServicesSlider({
                     <p className={SECTION_LABEL}>{solutionsLabel}</p>
                     <div className="flex flex-wrap gap-3">
                       {relatedLines.map((line) => (
-                        <a
+                        <GhostPill
+                          as="a"
                           key={line.slug}
+                          tone="accent"
+                          size="sm"
                           href={`/uslugi/${s.slug}/#${line.slug}`}
                           tabIndex={active ? undefined : -1}
-                          className={`inline-flex w-fit rounded-[var(--radius-pill)] ${PILL_FOCUS}`}
                         >
-                          <span className="relative z-[1] inline-flex items-center justify-center rounded-[var(--radius-pill)] border border-transparent px-4 py-2 text-[14.5px] font-medium leading-none text-accent transition-[all] duration-[250ms] hover:border-[color-mix(in_oklch,var(--color-accent)_40%,transparent)] hover:bg-[color-mix(in_oklch,var(--color-accent)_16%,transparent)] hover:text-white">
-                            {line.kicker}
-                          </span>
-                        </a>
+                          {line.kicker}
+                        </GhostPill>
                       ))}
                     </div>
                   </div>
@@ -296,8 +294,10 @@ export function ServicesSlider({
                       tap target as the CTA button beside it. font-medium (500) stays — it's the
                       GhostPill (500, secondary) vs FilledPill (600, primary) convention this
                       site already follows, not an oversight; don't shrink this back down. This
-                      is hand-rolled rather than GhostPill for the same tabIndex reason documented
-                      in the file header comment above (PillElement doesn't forward tabIndex). */}
+                      is hand-rolled rather than GhostPill — GhostPill's size scale is
+                      13/14.5/17px (src/components/ui/GhostPill.tsx), so no GhostPill size
+                      renders the 15px text above; the roving tabIndex needs no special
+                      justification here since PillElement/GhostPill forward tabIndex. */}
                   <a
                     href={`/uslugi/${s.slug}/`}
                     tabIndex={active ? undefined : -1}
@@ -322,7 +322,7 @@ export function ServicesSlider({
             <button
               key={s.id}
               type="button"
-              aria-label={`Przejdź do: ${s.tag}`}
+              aria-label={`${site.ui.goToDotPrefix}${s.tag}`}
               aria-current={active ? "true" : undefined}
               onClick={() => goTo(i)}
               className={`${DOT_BASE} ${PILL_FOCUS} ${active ? DOT_ACTIVE : DOT_INACTIVE}`}

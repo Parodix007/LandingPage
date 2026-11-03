@@ -84,7 +84,7 @@ naprawy, refaktoru i nowej funkcji w jednym zadaniu bez zgody właściciela.
 - Strona jest wyłącznie po polsku: `<html lang="pl">`, bez i18n i wersji angielskiej.
 - Pisz w pierwszej osobie liczby pojedynczej („robię”, „projektuję”), nigdy „my” lub „nasz zespół”.
 - Dark theme; akcent `#7ce38b`, mint `#b9f0c4`.
-- Strona główna: Hero → Usługi → Case studies → Proces → Kontakt.
+- Strona główna: Hero → About → Usługi → KSeF (`#ksef`) → Case studies → Proces → Kontakt.
 - Nie przywracaj `#demo`, sekcji „Rozwiązania” ani `/demos/`. Hero używa `site.featuredCaseSlugs`.
 - `/uslugi/<slug>/` to landing pages Google Ads. Każda ma własne metadata, canonical i `<Contact id="contact">`.
 - Rozróżniaj „rozwiązanie”, „demo” i „makietę”. Na stronach usług demo ma chip
@@ -141,6 +141,7 @@ Zmiana któregokolwiek punktu wymaga jawnej zgody właściciela:
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` jest wymagany razem z API base URL.
 - `NEXT_PUBLIC_INQUIRY_MOCK`: `1` oznacza sukces, `fail` błąd; mock nigdy nie jest fallbackiem.
 - `NEXT_PUBLIC_SITE_URL` zasila metadata/canonical/OG.
+- `NEXT_PUBLIC_CONTACT_EMAIL` to opcjonalny adres e-mail kontaktowy (fallback `hello@calmsoft.com` w `site.ts`).
 - Pusty `NEXT_PUBLIC_GA_ID` całkowicie wyłącza GA.
 - Nie dodawaj ani nie edytuj `.env*` i nie osłabiaj guarda bez zgody właściciela.
 
@@ -160,6 +161,7 @@ npm run dev
 npm run typecheck
 npm run lint
 npm run test
+npm run test:scripts
 npm run build:mock
 npm run preview
 npm run audit
@@ -171,6 +173,7 @@ Każde zadanie zmieniające repo kończ pełną bramką:
 npm run typecheck
 npm run lint
 npm run test
+npm run test:scripts
 npm run build:mock
 ```
 

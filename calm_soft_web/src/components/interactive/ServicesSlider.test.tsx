@@ -346,4 +346,64 @@ describe("ServicesSlider (docs/superpowers/specs/2026-07-22-services-slider-desi
       `translateX(calc(${webIndex} * (-100% - 18px)))`,
     );
   });
+
+  // Characterization (2026-11-03 refactor): pins visual tokens of the pills slated for GhostPill/FilledPill swap
+  it("pins the mini-card trigger pill tokens (stretched button wrapper + visible span)", () => {
+    const { container } = renderSlider();
+    const firstCase = getCaseBySlug(services[0].relatedSlugs[0])!;
+    const slides = container.querySelectorAll('[role="group"][aria-roledescription="slide"]');
+    const trigger = within(slides[0] as HTMLElement).getByRole("button", {
+      name: `Przeczytaj historię: ${firstCase.client}`,
+      hidden: true,
+    });
+    expect(trigger).toHaveClass("pill-stretched", "w-fit", "focus-visible:ring-2");
+
+    const visiblePill = trigger.firstElementChild;
+    expect(visiblePill).not.toBeNull();
+    expect(visiblePill).toHaveClass(
+      "relative",
+      "z-[1]",
+      "px-[14px]",
+      "py-[6px]",
+      "text-[13px]",
+      "font-medium",
+      "text-accent",
+      "border-transparent",
+    );
+  });
+
+  it("pins the solution-line link pill tokens on the combined anchor + inner element classes", () => {
+    renderSlider();
+    const line = getSolutionLineBySlug(services[0].solutionSlugs[0])!;
+    const link = screen.getByRole("link", { name: line.kicker, hidden: true });
+    // Pre-swap the visible pill is the inner span; post-swap (non-stretched GhostPill) the
+    // anchor itself is the pill — querying either way keeps the haystack valid on both shapes.
+    const visual = link.querySelector("span") ?? link;
+    const haystack = `${link.className} ${visual.className}`;
+    for (const token of [
+      "text-accent",
+      "text-[14.5px]",
+      "px-4",
+      "py-2",
+      "rounded-[var(--radius-pill)]",
+      "focus-visible:ring-2",
+    ]) {
+      expect(haystack).toContain(token);
+    }
+  });
+
+  it("pins the active tile footer CTA pill tokens", () => {
+    renderSlider();
+    const cta = screen.getAllByRole("button", { name: LABELS.cta, hidden: true })[0];
+    expect(cta).toHaveClass(
+      "hit-44",
+      "bg-accent",
+      "text-black",
+      "font-semibold",
+      "text-[15px]",
+      "px-7",
+      "py-3",
+      "focus-visible:ring-2",
+    );
+  });
 });
