@@ -16,7 +16,7 @@ export function KsefSwitchOffer({ offer, contactHref, prefill, variant }: KsefSw
   if (variant === "compact") {
     return (
       <aside id="nexo-switch-banner" className="mx-auto w-full max-w-[1200px] px-6 pt-5" aria-label={offer.eyebrow}>
-        <div className="ksef-surface ksef-surface-featured flex flex-col gap-4 p-5 min-[700px]:flex-row min-[700px]:items-center min-[700px]:justify-between min-[700px]:gap-6 min-[700px]:p-6">
+        <div className="service-card card-featured flex flex-col gap-4 p-5 min-[700px]:flex-row min-[700px]:items-center min-[700px]:justify-between min-[700px]:gap-6 min-[700px]:p-6">
           <div className="min-w-0">
             <Chip tone="accent">{offer.eyebrow}</Chip>
             <p className="mt-3 text-[clamp(22px,3vw,32px)] font-bold leading-[1.1] tracking-[-0.02em] text-ink">
@@ -33,7 +33,7 @@ export function KsefSwitchOffer({ offer, contactHref, prefill, variant }: KsefSw
   }
 
   return (
-    <section id="nexo-switch-pricing" className="ksef-surface ksef-surface-featured mt-6 flex flex-col gap-4 p-5 min-[700px]:flex-row min-[700px]:items-center min-[700px]:justify-between min-[700px]:gap-6 min-[900px]:p-6">
+    <section id="nexo-switch-pricing" className="service-card card-featured mt-6 flex flex-col gap-4 p-5 min-[700px]:flex-row min-[700px]:items-center min-[700px]:justify-between min-[700px]:gap-6 min-[900px]:p-6">
       <div className="flex min-w-0 items-center gap-3">
         <HotSaleIcon className="h-12 w-12 shrink-0" />
         <div className="min-w-0">

@@ -245,7 +245,9 @@ describe("ServiceDemoShowcase", () => {
     const cards = [...container.querySelectorAll('[role="group"]')];
     expect(cards.length).toBeGreaterThan(0);
     for (const card of cards) {
-      expect(card).toHaveClass("service-card-interactive");
+      // Brief #10A: `service-card-interactive` był martwy (brak reguły CSS); interaktywność
+      // kafla demonstruje HOVER_LIFT (`hover:-translate-y-1`) na bazie `.service-card`.
+      expect(card).toHaveClass("service-card", "hover:-translate-y-1");
       expect(card.querySelector(".card-glow")).toBeInTheDocument();
       let ancestor = card.querySelector(".pill-stretched")?.parentElement;
       while (ancestor && ancestor !== card) {
@@ -254,6 +256,20 @@ describe("ServiceDemoShowcase", () => {
       }
       expect(ancestor).toBe(card);
       expect(card.querySelectorAll("button a, a button")).toHaveLength(0);
+    }
+  });
+
+  it("pins pointer glow on every demo card in grid and carousel mode", () => {
+    // brief #11: poświata za kursorem (`data-glow`) na każdym kafelku dem — w trybie carousel
+    // dotyczy także kafelków nieaktywnych (inert/aria-hidden nadal mają atrybut).
+    for (const mode of ["grid", "carousel"] as const) {
+      const { container } = renderShowcase(mode, serviceSales.web.demos);
+      const cards = [...container.querySelectorAll('[role="group"]')];
+      expect(cards).toHaveLength(serviceSales.web.demos.length);
+      for (const card of cards) {
+        expect(card).toHaveAttribute("data-glow");
+        expect(card.querySelector(":scope > .card-glow")).toBeInTheDocument();
+      }
     }
   });
 });

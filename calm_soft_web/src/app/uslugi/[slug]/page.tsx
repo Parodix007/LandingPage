@@ -84,12 +84,13 @@ const GROUP_LABEL_CLASS = "mb-4 text-[13px] font-semibold uppercase tracking-[0.
 function CaseCard({ c }: { c: CaseStudy }) {
   return (
     <div
-      className={`card-host relative flex flex-col gap-3 overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-7 ${HOVER_LIFT}`}
+      data-glow
+      className={`stack-item card-host service-card flex flex-col gap-3 p-7 ${HOVER_LIFT}`}
     >
       {/* Decorative glow + mono watermark — purely presentational, hidden from AT. */}
       <span
         aria-hidden="true"
-        className="card-glow -right-[80px] -top-[80px] h-[220px] w-[220px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)]"
+        className="card-glow pointer-events-none"
       />
       <span aria-hidden="true" className="absolute right-[26px] top-6">
         <Watermark />
@@ -159,7 +160,7 @@ export default async function ServicePage({
           data-background-family="services"
           className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]"
         >
-          <header className="service-hero mb-4">
+          <header className="service-hero mb-4" data-glow data-tilt>
             <div className="relative z-10 max-w-[700px]">
               <Chip tone={TONE_CHIP[service.tone]}>{service.tag}</Chip>
               <h1 className="mt-4 text-[clamp(36px,4.5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em]">
@@ -189,6 +190,14 @@ export default async function ServicePage({
                 />
               </picture>
             </div>
+            {/* brief #10A: hero podstron dostaje efekty wskaźnika hero kafli (glow/tilt); hero nie
+                jest .service-card, więc geometria i barwa poświaty inline jak w HeroCaseSlider. */}
+            <span aria-hidden="true" className="card-glow pointer-events-none -right-[120px] -top-[120px] h-[340px] w-[340px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)]" />
+            {/* brief #11: watermark jak na kafelkach strony głównej — dopiero PO warstwie art i PO
+                poświacie (kolejność DOM decyduje o malowaniu), bez z-index. */}
+            <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[26px] top-6">
+              <Watermark />
+            </span>
           </header>
 
           {/* pageSections is non-empty for all four services as of etap 2 (the `.length > 0` guard
@@ -239,7 +248,7 @@ export default async function ServicePage({
             <h2 id="fit-heading" className={H2_CLASS}>
               {site.sections.services.fitLabel}
             </h2>
-            <ul className="mt-6 flex flex-col gap-[9px]">
+            <ul className="mt-6 focus-dim flex flex-col gap-[9px]">
               {service.fit.map((item) => (
                 <li key={item} className="flex items-start gap-3">
                   <span aria-hidden="true" className="text-[16px] leading-[1.6] text-accent">
@@ -255,7 +264,7 @@ export default async function ServicePage({
             <h2 id="deliver-heading" className={H2_CLASS}>
               {site.sections.services.deliverLabel}
             </h2>
-            <div className={`mt-6 ${NAMED_ITEM_GRID}`}>
+            <div className={`mt-6 focus-dim ${NAMED_ITEM_GRID}`}>
               {service.deliver.map((d) => (
                 <div key={d.n} className="flex flex-col gap-[3px]">
                   <p className={NAMED_ITEM_NAME}>{d.n}</p>
@@ -279,7 +288,7 @@ export default async function ServicePage({
               <h2 id="proof-heading" className={H2_CLASS}>
                 {site.sections.services.proofLabel}
               </h2>
-              <div className="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))] gap-4">
+              <div className="mt-6 flex flex-col gap-4 min-[724px]:grid min-[724px]:grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))]">
                 {relatedCases.map((c) => (
                   <CaseCard key={c.slug} c={c} />
                 ))}

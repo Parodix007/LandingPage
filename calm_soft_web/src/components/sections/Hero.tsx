@@ -3,6 +3,7 @@ import { GhostPill } from "@/components/ui/GhostPill";
 import { site } from "@/content/site";
 import { getCaseBySlug } from "@/content/cases";
 import { HeroCaseSlider } from "@/components/interactive/HeroCaseSlider";
+import { HeroParticleField } from "@/components/interactive/HeroParticleField";
 import { KsefSwitchOffer } from "@/components/sections/ksef/KsefSwitchOffer";
 import { ServiceStickyCta } from "@/components/sections/service-sales/ServiceStickyCta";
 import { getKsefErpBySlug } from "@/content/ksef";
@@ -34,9 +35,11 @@ export function Hero() {
       className="flex min-h-[88vh] w-full flex-col items-center"
     >
       {switchOffer ? <KsefSwitchOffer offer={switchOffer} contactHref="/ksef/rachmistrz-nexo/#contact" variant="compact" /> : null}
-      <div className="relative w-full">
+      <div className="relative w-full overflow-clip">
+        <HeroParticleField className="-z-10" />
         <div
           aria-hidden="true"
+          data-parallax
           className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_75%_50%,color-mix(in_oklch,var(--color-accent)_14%,transparent)_0%,transparent_70%)]"
         />
         <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-start gap-16 px-6 py-[100px] min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">

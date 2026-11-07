@@ -1,13 +1,6 @@
 {
-  
   "$schema": "https://opencode.ai/config.json",
-  "model": "strata/qwen3.8-flash-next-iq3_s",
-  "small_model": "strata/qwen3.8-flash-next-iq3_s",
-  "autoupdate": false,
-  "compaction": {
-    "auto": true
-  },
-  "share": "disabled",
+  "formatter": true,
   "provider": {
     "strata": {
       "npm": "@ai-sdk/openai-compatible",
@@ -19,60 +12,19 @@
       "models": {
         "qwen3.8-flash-next-iq3_s": {
           "name": "Qwen3.8-Flash-Next (local)",
-          "tool_call": true,
-          "reasoning": true,
+          "capabilities": {
+            "tools": true,
+            "input": ["text", "image"],
+            "output": "text",
+            "reasoning": {
+              "supported": true,
+            }
+          },
           "limit": {
             "context": 131072,
             "input": 126976,
             "output": 126976
           }
-        }
-      }
-    }
-  },
-  "agents": {
-    "maxConcurrent": 3,
-    "roles": {
-      "orchestrator": {
-        "model": "qwen",
-        "systemPrompt": "Jesteś orkiestratorom (.NET/Windows). Planuj graf zadań, deleguj do implementatora, zbierz diff do recenzenta. Max 3 agenty, max 2 rundy napraw. Pierwszy krok każdej pracy: `wiedza query` dla encji zadania. Ostatni krok: zapis zweryfikowanej wiedzy w `knowledge/discoveries.md` (skill wiedza) i przebudowa indeksu `wiedza build` — bez wyjątków.",
-        "permissions": {
-          "*": "ask",
-          "websearch": "ask",
-          "webfetch": "ask",
-          "bash": "ask",
-          "edit": "ask"
-        }
-      },
-      "implementator": {
-        "model": "qwen-flash-next",
-        "systemPrompt": "Implementujesz scoped task w calm_soft_web — Next 16 App Router, React 19, TypeScript strict, pełny eksport statyczny (`output: 'export'`), Tailwind v4. Reuse-first: `src/content/` → `src/components/ui/` → `interactive/` → `lib/`. Całe copy w `src/content/*.ts` — zero polskich stringów w TSX. Każde CTA prowadzi do `#contact` albo Calendly. Animacje tylko `transform`/`opacity`. Zero nowych zależności, nie zmieniasz istniejących testów, nie ruszasz gita. Bramka DoD przed zwróceniem: `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build:mock`.",
-        "permissions": {
-          "read": "allow",
-          "glob": "allow",
-          "grep": "allow",
-          "edit": "ask",
-          "write": "ask",
-          "patch": "ask",
-          "shell": "ask"
-        }
-      },
-      "reviewer": {
-        "model": "qwen-flash-next",
-        "systemPrompt": "Niezależna recenzja read-only zmian w calm_soft_web w podanym zakresie diffu (baza + zmiany z danego zlecenia). Oceniasz wyłącznie konkretne błędy i regresje w tym zakresie — nie szukasz problemów na siłę poza scope i nie przedstawiasz preferencji stylistycznych jako usterek. Nie edytujesz plików. Bramka: `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build:mock`. Wynik: `ACCEPT` albo lista ustaleń do nowego, wąskiego briefu.",
-        "permissions": {
-          "read": "allow",
-          "glob": "allow",
-          "grep": "allow"
-        }
-      },
-      "scanner": {
-        "systemPrompt": "Read-only evidence scanner. Zbieraj dowody: ścieżki, linie, komendy, wyjścia. Szukaj sekretów, zakazanych zależności, naruszeń kontraktów. Nie edytuj plików.",
-        "permissions": {
-          "read": "allow",
-          "glob": "allow",
-          "grep": "allow",
-          "shell": "ask"
         }
       }
     }

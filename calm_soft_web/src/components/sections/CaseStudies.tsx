@@ -50,10 +50,14 @@ export function CaseStudies() {
         ))}
       </div>
 
-      <div className="reveal-group mt-12 flex flex-col gap-4">
+      {/* Brief #20 (makieta focus-dim-demo-v1): focus-dim na wrapperze kart — hover na karcie
+          ściemnia + bluruje rodzeństwo, fokus pozostaje pełny. Współistnieje z HOVER_LIFT przez
+          regułę zgodności .focus-dim > .card-host w globals.css (brief #19/#20). */}
+      <div className="reveal-group focus-dim mt-12 flex flex-col gap-4">
         {featured.map((c) => (
           <div
             key={c.slug}
+            data-glow
             className={`card-host relative grid grid-cols-1 gap-12 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[44px_48px] min-[900px]:grid-cols-[1.25fr_0.75fr] min-[900px]:items-center ${HOVER_LIFT}`}
           >
             {/* Decorative glow + mono watermark — purely presentational, hidden from AT. */}

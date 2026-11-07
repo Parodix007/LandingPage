@@ -34,15 +34,101 @@ export const site: SiteContent = {
   },
   about: {
     heading: "O mnie",
-    short: "Nazywam się Sebastian Siarczyński. Buduję systemy, które zostają na dłużej. Specjalizuję się w platformach webowych, automatyzacjach, integracjach z ERP i ratowaniu legacy. Po prawie dekadzie z korporacjami w kraju i za granicą pomogę Ci wprowadzić **rozwiązania klasy enterprise**, które oszczędzą **czas i pieniądze** — bez konieczności angażowania **własnego działu IT**.",
+    // Brief #18: copy zatwierdzone przez właściciela („szyte na miarę", „pracy w korporacjach").
+    short: "Nazywam się Sebastian Siarczyński. **Buduję systemy, szyte na miarę**. Specjalizuję się w platformach webowych, automatyzacjach, integracjach z ERP i ratowaniu legacy. Po prawie dekadzie pracy w korporacjach w kraju i za granicą pomogę Ci wprowadzić **rozwiązania klasy enterprise**, które oszczędzą **czas i pieniądze** — bez konieczności angażowania **własnego działu IT**.",
     long: [
       "Nazywam się Sebastian Siarczyński. Prowadzę calm_soft i tworzę **oprogramowanie szyte na miarę** — dopasowane do Twojego stylu pracy i realiów, w których działasz.",
       "Rozwiązuję codzienne i niecodzienne problemy, ułatwiam pracę i oszczędzam pieniądze za pomocą systemów skrojonych pod Twoje potrzeby. Dzięki temu oszczędzasz **czas i kapitał** firmy, a przy tym nie martwisz się o **dział techniczny**.",
       "Po prawie dekadzie w branży, pracy z największymi korporacjami w kraju i za granicą, chętnie pomogę również Tobie.",
       "Czy nie byłoby dobrym pomysłem wprowadzić u siebie **rozwiązania klasy enterprise**, które realnie pomogą w codziennej pracy?",
+      // TODO(właściciel): podmienić przed publikacją — akapity placeholderowe do oceny wizualnej.
+      "Projekty prowadzę spokojnie i po ludzku: decyzje zapadają bez pośpiechu, a o każdym kroku mówię z wyprzedzeniem. Wolę jasny zakres i jedną osobę odpowiedzialną za całość niż rozmytą komunikację.",
+      "Zależy mi, żeby po rozmowie ze mną wiedziałeś dokładnie, co się teraz stanie — bez żargonu, bez pośpiechu i bez wrażenia, że projekt trafił do **czarnej skrzynki**. Tak buduję software, do którego chce się wracać.",
     ],
-    cta: "Umów bezpłatną rozmowę (30 min) ›",
     photoAlt: "calm_soft — projektant i developer systemów webowych",
+    // Brief #12 (spec 2026-11-07): dokładnie 2 fakty — decyzja właściciela (placeholderowe
+    // „X" i „1 h" usunięte).
+    stats: [
+      { value: "8 lat", label: "doświadczenia" },
+      { value: "15+", label: "systemów na produkcji" },
+    ],
+    // Copy wartości: pierwotnie zatwierdzone na makiecie wartosci-manifest-glify-v3 (spec 2026-11-07),
+    // teksty skorygowane briefem #18.
+    values: [
+      { title: "Spokój", text: "Decyzje podejmowane są bez pośpiechu według tego co naprawdę przyniesie korzyść firmie. A nie to co ma tylko rozpocząć projekt, który będzie zmieniany w połowie drogi.", icon: "calm" },
+      { title: "Jakość", text: "Nie oddaję kodu, którego nie chciałbym u siebie: testy, review i dokumentacja są częścią każdego wdrożenia.", icon: "quality" },
+      { title: "Rzemiosło", text: "Najważniejsza jest warstwa, której nie widać: model danych, granice modułów, nazwy. To one mają wpływ na to, jak długo przeżyje system.", icon: "craft" },
+      { title: "Partnerstwo", text: "Twój system prowadzę tak, jak prowadziłbym własny — nie wahając się powiedzieć „tego nie warto robić”.", icon: "partnership" },
+    ],
+    // Rzędy marek (brief #12, kafle/piguły marek, spec 2026-11-07). short (strona główna) =
+    // statyczne piguły pod opisem; long (/o-mnie/) = kafle — komponent BrandTiles doda brief #13.
+    // border/wash/glow/titleColor 1:1 z tabelą zatwierdzonych kolorów speca (RGB triplety → rgba);
+    // logo pracodawców wyłącznie jako nazwy tekstowe + geometria w barwach (znak towarowy).
+    experience: {
+      label: "Doświadczenie zdobywałem między innymi w:",
+      columns: 3,
+      items: [
+        {
+          name: "Asseco",
+          border: "rgba(0,174,232,.4)",
+          chipBorder: "rgba(0,174,232,.55)",
+          wash: "linear-gradient(135deg, rgba(0,110,146,.75), rgba(0,60,110,.6) 40%, rgba(15,19,53,.85) 75%, rgba(5,8,20,.9))",
+          glow: "rgba(0,174,232,.28)",
+        },
+        {
+          name: "Wunderman Thompson Technology",
+          border: "rgba(159,254,255,.35)",
+          chipBorder: "rgba(159,254,255,.5)",
+          wash: "linear-gradient(135deg, rgba(28,52,54,.9), rgba(33,35,34,.95) 45%, rgba(18,20,20,.95) 75%, rgba(230,238,238,.14) 115%)",
+          glow: "rgba(159,254,255,.28)",
+          titleColor: "#e6fcfd",
+        },
+        {
+          name: "Politechnika Wrocławska",
+          border: "rgba(154,52,45,.55)",
+          chipBorder: "rgba(154,52,45,.7)",
+          wash: "linear-gradient(135deg, rgba(122,46,39,.78), rgba(90,36,32,.7) 40%, rgba(30,16,14,.88) 72%, rgba(180,154,94,.28) 112%)",
+          glow: "rgba(154,52,45,.28)",
+          titleColor: "#f7ece9",
+        },
+      ],
+    },
+    certifications: {
+      label: "Certyfikaty:", // brief #18: „Certyfikacje:” → „Certyfikaty:”
+      columns: 4,
+      items: [
+        {
+          name: "Microsoft",
+          border: "rgba(255,255,255,.16)",
+          chipBorder: "rgba(255,255,255,.2)",
+          wash: "linear-gradient(to right, rgba(16,18,20,.96) 40%, rgba(242,80,34,.10) 60%, rgba(127,186,0,.10) 72%, rgba(0,164,239,.12) 84%, rgba(255,185,0,.14))",
+          glow: "rgba(255,185,0,.18)",
+          mark: "microsoft",
+        },
+        {
+          name: "Cisco",
+          border: "rgba(27,160,215,.45)",
+          chipBorder: "rgba(27,160,215,.6)",
+          wash: "linear-gradient(135deg, rgba(27,160,215,.45), rgba(0,80,115,.65) 55%, rgba(6,18,26,.9))",
+          glow: "rgba(27,160,215,.28)",
+        },
+        {
+          name: "C++ Institute",
+          border: "rgba(85,153,255,.4)",
+          chipBorder: "rgba(85,153,255,.55)",
+          wash: "linear-gradient(135deg, rgba(51,51,51,.9), rgba(85,153,255,.42) 50%, rgba(141,211,95,.34))",
+          glow: "rgba(85,153,255,.28)",
+        },
+        {
+          name: "LPI",
+          border: "rgba(251,192,0,.45)",
+          chipBorder: "rgba(251,192,0,.55)",
+          wash: "linear-gradient(135deg, rgba(251,192,0,.42), rgba(150,114,10,.35) 45%, rgba(24,20,8,.92))",
+          glow: "rgba(251,192,0,.26)",
+          titleColor: "#f5edd9",
+        },
+      ],
+    },
   },
   nav: {
     wordmarkAriaLabel: "calm_soft — wróć na górę",

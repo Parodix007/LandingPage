@@ -77,3 +77,7 @@ export function WarningIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+// Ikony wartości ValuesGrid (Calm/Quality/Craft/Partnership + mapa ABOUT_VALUE_ICON_COMPONENTS,
+// brief 3) usunięte w briefie #15 (spec 2026-11-07 decyzja 6): ValuesGrid przeszedł na manifest
+// edytorski z glifami CSS/SVG (blok brief #15 w globals.css + lokalna mapa w ValuesGrid.tsx).

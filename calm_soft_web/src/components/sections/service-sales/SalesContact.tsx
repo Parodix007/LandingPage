@@ -3,11 +3,11 @@ import { CalendlyCta } from "@/components/interactive/CalendlyCta";
 import { ContactForm } from "@/components/interactive/ContactForm";
 import { HOVER_BORDER } from "@/components/ui/cardHover";
 
-function CardGlow({ interactive = false }: { interactive?: boolean }) {
+function CardGlow() {
   return (
     <span
       aria-hidden="true"
-      className={`card-glow pointer-events-none -right-[80px] -top-[80px] h-[220px] w-[220px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)] ${interactive ? "service-card-glow-interactive" : ""}`}
+      className="card-glow pointer-events-none"
     />
   );
 }
@@ -36,7 +36,7 @@ export function SalesContact({ copy }: { copy: SalesContactCopy }) {
           </div>
         </div>
         <div className="reveal-group flex flex-col gap-6">
-          <div className={`service-card relative overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[28px_30px] ${HOVER_BORDER}`}>
+          <div data-glow className={`service-card p-[28px_30px] ${HOVER_BORDER}`}>
             <CardGlow />
             <div className="relative z-[1]">
               <p className="text-[18px] font-semibold text-ink">{copy.calendlyTitle}</p>

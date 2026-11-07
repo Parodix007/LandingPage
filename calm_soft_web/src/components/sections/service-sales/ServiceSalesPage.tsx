@@ -15,11 +15,11 @@ import { ServiceStickyCta } from "./ServiceStickyCta";
 import { ServiceDemoShowcase } from "./ServiceDemoShowcase";
 import { ServiceDisclosure } from "./ServiceDisclosure";
 
-function CardGlow({ interactive = false }: { interactive?: boolean }) {
+function CardGlow() {
   return (
     <span
       aria-hidden="true"
-      className={`card-glow pointer-events-none -right-[80px] -top-[80px] h-[220px] w-[220px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)] ${interactive ? "service-card-glow-interactive" : ""}`}
+      className="card-glow pointer-events-none"
     />
   );
 }
@@ -32,11 +32,11 @@ function Group({ group, contactHref }: { group: SalesGroup; contactHref: string 
       </h2>
       {group.intro && <p className="mt-4 max-w-[720px] whitespace-pre-line text-[16px] leading-[1.6] text-ink-70">{group.intro}</p>}
       {group.bullets ? (
-        <ul className="mt-6 grid grid-cols-1 gap-4 text-[16px] leading-[1.55] text-ink-70 min-[900px]:grid-cols-2">
+        <ul className="mt-6 focus-dim flex flex-col gap-4 text-[16px] leading-[1.55] text-ink-70 min-[900px]:grid min-[900px]:grid-cols-2">
           {group.bullets.map((bullet) => (
-            <li key={bullet} className={`service-card relative overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-5 ${HOVER_BORDER}`}>
+            <li key={bullet} data-glow className={`stack-item service-card p-5 ${HOVER_BORDER}`}>
               <CardGlow />
-              <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[26px] top-6 hidden min-[900px]:block"><Watermark /></span>
+              <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[26px] top-6"><Watermark /></span>
               <div className="relative z-[1] flex items-start gap-3 min-[900px]:pr-[140px]">
                 <CheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
                 <span className="min-w-0"><RichText>{bullet}</RichText></span>
@@ -45,11 +45,11 @@ function Group({ group, contactHref }: { group: SalesGroup; contactHref: string 
           ))}
         </ul>
       ) : (
-        <div className="mt-6 flex flex-col gap-4">
+        <div className="mt-6 focus-dim flex flex-col gap-4">
           {(group.items ?? []).map((item) => (
-            <article key={item.title} className={`service-card relative grid grid-cols-1 gap-6 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-6 min-[900px]:grid-cols-[0.8fr_1.2fr] min-[900px]:items-center min-[900px]:gap-12 min-[900px]:p-[44px_48px] ${HOVER_BORDER}`}>
+            <article key={item.title} data-glow className={`stack-item service-card grid grid-cols-1 gap-6 p-6 min-[900px]:grid-cols-[0.8fr_1.2fr] min-[900px]:items-center min-[900px]:gap-12 min-[900px]:p-[44px_48px] ${HOVER_BORDER}`}>
               <CardGlow />
-              <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[34px] top-7 hidden min-[900px]:block"><Watermark /></span>
+              <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[34px] top-7"><Watermark /></span>
               <h3 className="relative z-[1] text-[22px] font-bold leading-[1.15] tracking-[-0.02em]">{item.title}</h3>
               <p className="relative z-[1] whitespace-pre-line text-[16px] leading-[1.6] text-ink-70 min-[900px]:pr-[140px]"><RichText>{item.body}</RichText></p>
             </article>
@@ -70,10 +70,13 @@ function Proof({ page }: { page: SalesPage }) {
   return (
     <section className="reveal-group mt-16" aria-labelledby="sales-proof">
       <h2 id="sales-proof" className="text-[26px] font-bold">{page.proof.title}</h2>
-      <div className="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))] gap-4">
+      {/* Próg min-[724px] = realny moment, w którym auto-fit 330px w kontenerze px-6 przechodzi
+          na 2 kolumny (2×330+16+48); poniżej = flex-col, stack działa; w gridzie wielokolumnowym
+          sticky jest no-opiem — celowe. */}
+      <div className="mt-6 flex flex-col gap-4 min-[724px]:grid min-[724px]:grid-cols-[repeat(auto-fit,minmax(min(100%,330px),1fr))]">
         {cases.map((item) => item && (
-          <article key={item.slug} className={`card-host service-card service-card-interactive relative flex flex-col gap-3 overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-7 ${HOVER_LIFT}`}>
-            <CardGlow interactive />
+          <article key={item.slug} data-glow className={`stack-item card-host service-card flex flex-col gap-3 p-7 ${HOVER_LIFT}`}>
+            <CardGlow />
             <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[26px] top-6"><Watermark /></span>
             <div className="z-[1] flex flex-col gap-3">
               <Chip tone="accent">{item.tag}</Chip>
@@ -101,9 +104,9 @@ function Process({ page }: { page: SalesPage }) {
       <h2 className="text-[26px] font-bold">{page.process.title}</h2>
       <ol className="mt-6 flex flex-col gap-4">
         {page.process.steps.map((step, i) => (
-          <li key={step.title} className={`service-card relative grid grid-cols-[auto_1fr] gap-x-5 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-6 min-[900px]:gap-x-10 min-[900px]:p-[44px_48px] ${HOVER_BORDER}`}>
+          <li key={step.title} data-glow className={`stack-item service-card grid grid-cols-[auto_1fr] gap-x-5 p-6 min-[900px]:gap-x-10 min-[900px]:p-[44px_48px] ${HOVER_BORDER}`}>
             <CardGlow />
-            <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[34px] top-7 hidden min-[900px]:block"><Watermark /></span>
+            <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[34px] top-7"><Watermark /></span>
             <span className="relative z-[1] text-[52px] font-bold leading-none tracking-[-0.03em] text-accent">0{i + 1}</span>
             <div className="relative z-[1]">
               <h3 className="text-[22px] font-bold leading-[1.15] tracking-[-0.02em] min-[900px]:pr-[140px]">{step.title}</h3>
@@ -119,7 +122,7 @@ function Process({ page }: { page: SalesPage }) {
 function PricingTechFaq({ page }: { page: SalesPage }) {
   return (
     <>
-      <section className={`service-card relative mt-16 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-7 ${HOVER_BORDER}`}>
+      <section data-glow className={`service-card mt-16 p-7 ${HOVER_BORDER}`}>
         <CardGlow />
         <div className="relative z-[1]">
           <h2 className="text-[26px] font-bold">{page.pricing.title}</h2>
@@ -164,7 +167,7 @@ function WebComposition({ page }: { page: Extract<SalesPage, { id: "web" }> }) {
 export function ServiceSalesPage({ page, art }: { page: SalesPage; art: ServiceArt }) {
   return <>
     <main data-background-family="services" className="mx-auto max-w-[1200px] px-6 py-5 min-[900px]:py-[110px]">
-      <header className="service-hero service-sales-hero !p-4 min-[900px]:!px-10 min-[900px]:!py-12">
+      <header className="service-hero service-sales-hero !p-4 min-[900px]:!px-10 min-[900px]:!py-12" data-glow data-tilt>
         <div className="relative z-10 flex max-w-[720px] flex-col">
           <Chip tone="accent">{page.hero.eyebrow}</Chip>
           <h1 className="mt-2 text-[30px] font-bold leading-[1.08] tracking-[-0.025em] min-[900px]:mt-4 min-[900px]:text-[clamp(36px,4.5vw,56px)] min-[900px]:leading-[1.05]">{page.hero.h1}</h1>
@@ -182,6 +185,12 @@ export function ServiceSalesPage({ page, art }: { page: SalesPage; art: ServiceA
             <img src={art.mobile} alt="" width={1200} height={1200} loading="eager" decoding="sync" fetchPriority="high" />
           </picture>
         </div>
+        {/* brief #10A: hero podstron dostaje efekty wskaźnika hero kafli (glow/tilt); hero nie
+            jest .service-card, więc geometria i barwa poświaty inline jak w HeroCaseSlider. */}
+        <span aria-hidden="true" className="card-glow pointer-events-none -right-[120px] -top-[120px] h-[340px] w-[340px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)]" />
+        {/* brief #11: watermark jak na kafelkach strony głównej — dopiero PO warstwie art i PO
+            poświacie (kolejność DOM decyduje o malowaniu), bez z-index. */}
+        <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[26px] top-6"><Watermark /></span>
       </header>
       {page.id === "core" ? <CoreComposition page={page} /> : page.id === "automation" ? <AutomationComposition page={page} /> : <WebComposition page={page} />}
       <div className="mt-12">

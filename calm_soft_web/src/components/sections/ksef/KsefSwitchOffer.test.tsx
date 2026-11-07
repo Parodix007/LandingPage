@@ -34,6 +34,7 @@ describe("KsefSwitchOffer", () => {
     expect(screen.getByRole("button", { name: offer.cta })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: offer.conditionsLinkLabel })).toHaveAttribute("href", offer.conditionsHref);
     expect(document.querySelector("#nexo-switch-pricing")).toBeInTheDocument();
-    expect(document.querySelector("#nexo-switch-pricing")).toHaveClass("ksef-surface", "ksef-surface-featured");
+    // Brief #10A: `ksef-surface`/`ksef-surface-featured` zastąpione wspólną bazą kafli.
+    expect(document.querySelector("#nexo-switch-pricing")).toHaveClass("service-card", "card-featured");
   });
 });

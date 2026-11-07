@@ -42,13 +42,13 @@ export function KsefTeaser() {
           {erps.map((erp) => (
             <li
               key={erp.slug}
-              className={`card-host service-card ksef-surface-compact relative overflow-hidden p-6 ${HOVER_LIFT}`}
+              className={`card-host relative overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-6 ${HOVER_LIFT}`}
             >
               <span
                 aria-hidden="true"
-                className="card-glow pointer-events-none -right-[80px] -top-[80px] h-[220px] w-[220px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)] service-card-glow-interactive"
+                className="card-glow pointer-events-none -right-[80px] -top-[80px] h-[220px] w-[220px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)]"
               />
-              <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[26px] top-6">
+              <span aria-hidden="true" className="pointer-events-none absolute right-[26px] top-6">
                 <Watermark />
               </span>
               <p className="relative z-[1] text-[18px] font-semibold text-ink">{erp.name}</p>

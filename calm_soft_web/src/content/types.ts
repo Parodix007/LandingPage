@@ -114,13 +114,52 @@ export type Work = {
   startLabel: string;
 };
 
+// Klucze ikon wartości (/o-mnie/ ValuesGrid, spec 2026-11-06 §4.2).
+// Klucze semantyczne — NIE nazwy komponentów SVG; mapowanie na ikony doda późniejszy brief ui.
+export const ABOUT_VALUE_ICONS = ["calm", "quality", "craft", "partnership"] as const;
+export type AboutValueIcon = (typeof ABOUT_VALUE_ICONS)[number];
+
+// Kafelek paska faktów /o-mnie/ (wzorzec "facts" biteoft.pl). value = liczba/jednostka jako tekst,
+// label = podpis. Wartości placeholderowe podmienia właściciel przed publikacją.
+export type AboutStat = { value: string; label: string };
+
+// Kafelek wartości /o-mnie/ (wzorzec "Wartości, jakimi się kieruje" mateuszgrzesiak.com/o-mnie, bez zdjęć).
+export type AboutValue = { title: string; text: string; icon: AboutValueIcon };
+
+// Kafelek/rząd marek (brief #12, kafle/piguły marek, spec 2026-11-07): nazwa w naturalnej formie
+// ("Asseco") — kafelek renderuje uppercase CSS-em; border/wash/glow to zatwierdzone pełne wartości
+// CSS (tabela kolorów speca); titleColor — opcjonalny odcień nazwy (WTT/PWr/LPI); mark — tylko Microsoft.
+export type BrandTile = {
+  name: string;
+  border: string;
+  // Border chipa credential (wariant short About), wierność makiety about-chips-photo-v1
+  // (alfa .5–.7 marki); nie mylić z `border` (kafla, /o-mnie/ BrandTiles). Formuła CSS
+  // color-mix(glow α.28 …) nigdy nie da >.28 (premultiplied rgba) — border musi przyjść z danych.
+  chipBorder?: string;
+  wash: string;
+  glow: string;
+  titleColor?: string;
+  mark?: "microsoft";
+};
+
+// Grupa marek (brief #12): label = nadpisek rzędu/kafla, columns = kolumny kafla (brief #13;
+// piguły short fleksują), items = pozycje w zatwierdzonej kolejności.
+export type BrandTilesGroup = { label: string; columns: 2 | 3 | 4; items: BrandTile[] };
+
 export type AboutContent = {
   heading: string;
   short: string; // homepage section
   long: string[]; // /o-mnie/ page — tablica akapitów
-  cta: string;
   // alt zdjęcia w sekcji about (sections/About.tsx).
   photoAlt: string;
+  // Rzędy marek (brief #12, kafle/piguły marek, spec 2026-11-07): short = statyczne piguły pod
+  // opisem na stronie głównej, long = kafle (komponent BrandTiles podłączy brief #13).
+  // CTA kafla About (pole cta) usunięta zgodnie z zaakceptowaną makietą.
+  experience: BrandTilesGroup;
+  certifications: BrandTilesGroup;
+  // OPCJONALNE: nieobecne = blok się nie renderuje (filtrowanie braków wzorcem featuredCaseSlugs).
+  stats?: AboutStat[]; // pasek faktów wewnątrz kafla About (brief #12: FactStrip)
+  values?: AboutValue[]; // siatka wartości /o-mnie/ (brief 3: ValuesGrid)
 };
 
 export type SiteContent = {

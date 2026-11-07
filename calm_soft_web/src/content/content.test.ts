@@ -12,6 +12,7 @@ import { solutions, getSolutionLineBySlug } from "./solutions";
 // Inline replacement for the removed `allSolutionLines` export.
 const allSolutionLines = solutions.groups.flatMap((g) => g.lines);
 import { stripEmphasis } from "@/components/ui/RichText";
+import { ABOUT_VALUE_ICONS } from "./types";
 import type { AreaId, BudgetId } from "./types";
 
 const AREA_IDS: AreaId[] = ["core", "automation", "rescue", "web", "not-sure"];
@@ -511,5 +512,67 @@ describe("keyword emphasis marker parity (2026-07-27 keyword-emphasis-and-audien
     for (const badge of pricing.badges) {
       expect(countMarkers(badge) % 2).toBe(0);
     }
+  });
+});
+
+// Kontrakt danych bloków /o-mnie/ (stats/values/bio + brief #12: grupy marek experience/
+// certifications, spec 2026-11-07). Placeholdery TODO(właściciel) usunięte — copy zatwierdzone.
+describe("about scaffold /o-mnie/ (2026-11-06 spec §4.2 + brief #12, spec 2026-11-07)", () => {
+  it("site.about.stats ma dokładnie 2 fakty (brief #12) z niepustymi value i label, bez placeholderowego „X\"", () => {
+    const stats = site.about.stats;
+    expect(Array.isArray(stats)).toBe(true);
+    expect(stats!.length).toBe(2);
+    for (const stat of stats!) {
+      expect(stat.value.trim().length).toBeGreaterThan(0);
+      expect(stat.value).not.toContain("X");
+      expect(stat.label.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("site.about.values istnieje, jest niepuste i ma po jednym kafelku na każdy klucz ABOUT_VALUE_ICONS z niepustymi title i text", () => {
+    const values = site.about.values;
+    expect(Array.isArray(values)).toBe(true);
+    expect(values!.length).toBeGreaterThan(0);
+    for (const v of values!) {
+      expect(v.title.trim().length).toBeGreaterThan(0);
+      expect(v.text.trim().length).toBeGreaterThan(0);
+      expect(ABOUT_VALUE_ICONS).toContain(v.icon);
+    }
+    // Porównanie posortowane: kontrakt wymaga "po jednym na każdy klucz", nie kolejności — kolejność
+    // może się zmienić przy układzie siatki. Sort łapie duplikaty i braki.
+    expect(values!.map((v) => v.icon).sort()).toEqual([...ABOUT_VALUE_ICONS].sort());
+  });
+
+  // Grupy marek (brief #12, kafle/piguły marek, spec 2026-11-07): short = piguły pod opisem,
+  // long = kafle (BrandTiles, brief #13). Kolory to zatwierdzone pełne wartości CSS.
+  it("site.about.experience ma 3 pozycje z columns===3 oraz niepustymi name/border/wash/glow i niepustym label", () => {
+    const group = site.about.experience;
+    expect(group.label.trim().length).toBeGreaterThan(0);
+    expect(group.columns).toBe(3);
+    expect(group.items).toHaveLength(3);
+    for (const item of group.items) {
+      expect(item.name.trim().length).toBeGreaterThan(0);
+      expect(item.border.trim().length).toBeGreaterThan(0);
+      expect(item.wash.trim().length).toBeGreaterThan(0);
+      expect(item.glow.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("site.about.certifications ma 4 pozycje z columns===4, niepustymi polami i dokładnie jednym mark===\"microsoft\"", () => {
+    const group = site.about.certifications;
+    expect(group.label.trim().length).toBeGreaterThan(0);
+    expect(group.columns).toBe(4);
+    expect(group.items).toHaveLength(4);
+    for (const item of group.items) {
+      expect(item.name.trim().length).toBeGreaterThan(0);
+      expect(item.border.trim().length).toBeGreaterThan(0);
+      expect(item.wash.trim().length).toBeGreaterThan(0);
+      expect(item.glow.trim().length).toBeGreaterThan(0);
+    }
+    expect(group.items.filter((item) => item.mark === "microsoft")).toHaveLength(1);
+  });
+
+  it("site.about.long ma co najmniej 5 akapitów (4 istniejące + placeholderowe rozszerzenie bio)", () => {
+    expect(site.about.long.length).toBeGreaterThanOrEqual(5);
   });
 });

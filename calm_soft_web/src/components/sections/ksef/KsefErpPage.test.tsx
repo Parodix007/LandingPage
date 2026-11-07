@@ -63,4 +63,50 @@ describe("KsefErpPage", () => {
     expect(nexoRoot.querySelector("#nexo-switch-pricing button")?.textContent).toContain(nexo.switchOffer!.cta);
     expect(nexoRoot.querySelector("#nexo-switch-pricing button")?.getAttribute("data-prefill")).toBe(nexo.switchOffer!.prefill);
   });
+
+  // brief #11: wszystkie kafelki podstrony KSeF dostają poświatę za kursorem (`data-glow` +
+  // dziecko `.card-glow`) oraz watermark `calm_soft`; final-CTA ma poświatę bez watermarku,
+  // a FAQ/ServiceDisclosure pozostają bez obu dekoracji (decyzja właściciela 2026-11-07).
+  it("oznacza każdy kafelek list poświatą za kursorem i watermarkem calm_soft", () => {
+    const page = ksef.erps.find((item) => item.slug === "rachmistrz-nexo")!;
+    const html = renderToStaticMarkup(<KsefErpPage page={page} />);
+    const root = document.createElement("div");
+    root.innerHTML = html;
+
+    const groups: Array<[selector: string, expected: number]> = [
+      ['[aria-labelledby="ksef-legacy"] ol > li', page.legacy.steps.length],
+      ['[aria-labelledby="ksef-development"] ul > li', page.development.items.length],
+      ['[aria-labelledby="ksef-development"] p.service-card', 2],
+      ['[aria-labelledby="ksef-coverage"] ul > li', page.coverage.tiles.length],
+      ['[aria-labelledby="ksef-monitoring"] ul > li', page.monitoring.items.length],
+      ['[aria-labelledby="ksef-comparison"] article', 2],
+      ['[aria-labelledby="ksef-how"] ol > li', page.howItWorks.steps.length],
+      ['[aria-labelledby="ksef-audience"] ul > li', page.audience.items.length],
+    ];
+    const tiles = groups.flatMap(([selector, expected]) => {
+      const found = [...root.querySelectorAll(selector)];
+      expect(found).toHaveLength(expected);
+      return found;
+    });
+    for (const tile of tiles) {
+      expect(tile).toHaveAttribute("data-glow");
+      expect(tile.querySelector(":scope > .card-glow")).toBeTruthy();
+      expect(tile.querySelector(":scope > .service-card-watermark")).toBeTruthy();
+    }
+
+    // porównanie planów nie miało wcześniej poświaty — teraz goły `.card-glow` jako dziecko article
+    expect([...root.querySelectorAll('[aria-labelledby="ksef-comparison"] article > .card-glow')]).toHaveLength(2);
+
+    const finalCard = root.querySelector('section[aria-labelledby="ksef-final"]')!;
+    expect(finalCard).toHaveAttribute("data-glow");
+    expect(finalCard.querySelector(":scope > .card-glow")).toBeTruthy();
+    expect(finalCard.querySelector(".service-card-watermark")).toBeNull();
+
+    // hero + każdy z kafelków list, bez dekoracji w cenniku/FAQ/final-CTA
+    expect(root.querySelectorAll(".service-card-watermark")).toHaveLength(tiles.length + 1);
+
+    const faq = root.querySelector('section[aria-labelledby="ksef-faq"]')!;
+    expect(faq.querySelectorAll("[data-glow]")).toHaveLength(0);
+    expect(faq.querySelectorAll(".service-card-watermark")).toHaveLength(0);
+  });
 });

@@ -2,6 +2,7 @@ import type { KsefErpPage } from "@/content/types";
 import { Chip } from "@/components/ui/Chip";
 import { RichText } from "@/components/ui/RichText";
 import { CheckIcon, InfoIcon, MinusIcon } from "@/components/ui/icons";
+import { HOVER_LIFT } from "@/components/ui/cardHover";
 import { KsefPlanCta } from "@/components/interactive/KsefPlanCta";
 
 type Pricing = KsefErpPage["pricing"];
@@ -43,9 +44,9 @@ function PlanNote({ plan, placement }: { plan: Pricing["plans"][number]; placeme
 // `aria-hidden` needed, `display:none` already removes the inactive one from the accessibility
 // tree. Heading depth here is `<h3>`: the page's pricing section owns the `<h2>`. Table hover
 // (`.ksef-plan-table` + `data-plan`) is CSS-only in globals.css; mobile cards get a plain
-// transform hover (`.ksef-surface` already carries the gradient border, so `HOVER_LIFT` is not
-// used here). Desktop header cells (`<th data-plan>`) use a flex column with a reserved badge
-// slot in every column and the CTA pinned to the bottom via `mt-auto`, so name/price/audience/CTA
+// transform hover (brief #10A: karty planów mobilnych dzielą bazę `.service-card` z `HOVER_LIFT`,
+// tak jak pozostałe kafle podstron). Desktop header cells (`<th data-plan>`) use a flex column with
+// a reserved badge slot in every column and the CTA pinned to the bottom via `mt-auto`, so name/price/audience/CTA
 // stay aligned across columns regardless of badge presence or audience text length. The desktop
 // table is `table-fixed` with the label column pinned to `w-1/5` so the remaining 80% splits
 // evenly across plan columns (auto layout was starving the Firma column since its body cells are
@@ -58,7 +59,7 @@ export function KsefPricingTable({ pricing }: { pricing: Pricing }) {
 
   return (
     <>
-      <div className="ksef-surface p-7">
+      <div className="service-card p-7">
         <Chip tone="accent">{pricing.badge}</Chip>
         <h3 className="mt-4 text-[22px] font-bold leading-[1.15] tracking-[-0.02em]">{pricing.includesTitle}</h3>
         <ul className="mt-6 grid grid-cols-1 gap-x-6 gap-y-3 min-[700px]:grid-cols-2 min-[900px]:grid-cols-3">
@@ -104,7 +105,7 @@ export function KsefPricingTable({ pricing }: { pricing: Pricing }) {
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="focus-dim">
               {pricing.table.map((row) => (
                 <tr key={row.label}>
                   <th scope="row" className="border-t border-border-08 py-4 px-4 text-left text-[15px] text-ink-85">
@@ -145,7 +146,7 @@ export function KsefPricingTable({ pricing }: { pricing: Pricing }) {
         {pricing.plans.map((plan) => (
           <article
             key={plan.id}
-            className={`ksef-surface p-6 transition-transform duration-[350ms] hover:-translate-y-1 ${plan.featured ? "ksef-surface-featured" : ""}`}
+            className={`service-card p-6 ${HOVER_LIFT}${plan.featured ? " card-featured" : ""}`}
           >
             {plan.badge && <Chip tone="accent">{plan.badge}</Chip>}
             <div className={`flex min-h-11 items-center gap-1 ${plan.badge ? "mt-2" : ""}`}><h3 className="text-[22px] font-bold leading-[1.15]">{plan.name}</h3></div>

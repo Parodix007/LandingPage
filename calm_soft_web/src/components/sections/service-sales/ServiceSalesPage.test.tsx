@@ -95,17 +95,25 @@ describe("ServiceSalesPage compositions", () => {
     expect(chevron).toHaveClass("service-disclosure-chevron");
     expect(chevron).toHaveAttribute("stroke", "currentColor");
     expect(disclosure.querySelector("[data-disclosure-content]")).toHaveClass("service-disclosure-content");
-    expect([...disclosure.children].find((child) => child.classList.contains("card-glow"))).toHaveClass("service-card-glow-interactive");
+    // Brief #10A: marker `service-card-glow-interactive` usunięty (nie miał żadnej reguły CSS).
+    // Równoważny pinn: disclosure nosi dziecko `.card-glow` (geometrię/barwę daje globals.css).
+    expect(disclosure.querySelector(":scope > .card-glow")).toBeInTheDocument();
+    // brief #11: FAQ/ServiceDisclosure pozostaje bez poświaty za kursorem i bez watermarku
+    // (decyzja właściciela 2026-11-07) — tylko statyczna, ambientowa poświata kafla.
+    expect(disclosure).not.toHaveAttribute("data-glow");
+    expect(disclosure.querySelector(".service-card-watermark")).toBeNull();
   });
 
   it("adds ambient glow to informational cards and lift hooks only to proof cards", () => {
     const { container } = renderPage(serviceSales.core);
     const proofCard = container.querySelector('[aria-labelledby="sales-proof"] article')!;
     const infoCard = container.querySelector('[aria-labelledby^="sales-"] article')!;
-    expect(proofCard).toHaveClass("service-card-interactive");
+    // Brief #10A: `service-card-interactive` był martwy (brak reguły CSS); realną cechę
+    // klikalności wnosi HOVER_LIFT (`hover:-translate-y-1`), HOVER_BORDER go nie niesie.
+    expect(proofCard).toHaveClass("service-card", "hover:-translate-y-1");
     expect(proofCard.querySelector(".card-glow")).toBeInTheDocument();
     expect(infoCard).toHaveClass("service-card");
-    expect(infoCard).not.toHaveClass("service-card-interactive");
+    expect(infoCard).not.toHaveClass("hover:-translate-y-1");
     expect(infoCard.querySelector(".card-glow")).toBeInTheDocument();
   });
 
@@ -114,7 +122,10 @@ describe("ServiceSalesPage compositions", () => {
     const processCard = container.querySelector("ol li.service-card")!;
     const proofCard = container.querySelector('[aria-labelledby="sales-proof"] article')!;
     const stretched = proofCard.querySelector(".pill-stretched")!;
-    expect(processCard).toHaveClass("bg-surface");
+    // Brief #10A: wspólna twarda powierzchnia kafli to teraz klasa `.service-card`
+    // (bg-surface w globals.css, @layer components), nie utility TSX.
+    expect(processCard).toHaveClass("service-card");
+    expect(processCard).not.toHaveClass("bg-surface");
     let ancestor = stretched.parentElement;
     while (ancestor && ancestor !== proofCard) {
       expect(ancestor).not.toHaveClass("relative");
@@ -172,11 +183,37 @@ describe("ServiceSalesPage compositions", () => {
     const { container } = renderPage(serviceSales.core);
     const scope = [...container.querySelectorAll("section")].find((section) => section.textContent?.includes(serviceSales.core.scope.title))!;
     const list = scope.querySelector("ul")!;
-    expect(list).toHaveClass("grid", "grid-cols-1", "min-[900px]:grid-cols-2");
+    // brief #10B: w trybie 1-kolumnowym kontener to flex-kolumna (sticky stack), grid dopiero od 900px
+    expect(list).toHaveClass("flex", "flex-col", "min-[900px]:grid", "min-[900px]:grid-cols-2");
     expect(list.querySelectorAll(":scope > li")).toHaveLength(serviceSales.core.scope.bullets!.length);
     expect(list.querySelectorAll(":scope > li.service-card .card-glow")).toHaveLength(serviceSales.core.scope.bullets!.length);
     expect(list.querySelectorAll(":scope > li svg")).toHaveLength(serviceSales.core.scope.bullets!.length);
     expect(list.querySelectorAll(":scope > li .service-card-watermark")).toHaveLength(serviceSales.core.scope.bullets!.length);
+    // brief #11: kafelek bulleta jest powierzchnią poświaty za kursorem (data-glow), a watermark
+    // jest widoczny w każdym viewportcie — bez `hidden`/`min-[900px]:block`.
+    expect(list.querySelectorAll(":scope > li[data-glow]")).toHaveLength(serviceSales.core.scope.bullets!.length);
+    for (const watermark of list.querySelectorAll<HTMLElement>(":scope > li > .service-card-watermark")) {
+      expect(watermark).not.toHaveClass("hidden");
+      expect(watermark).not.toHaveClass("min-[900px]:block");
+    }
+  });
+
+  it("marks proof, process and pricing tiles with pointer glow and paints the hero watermark after the hero art", () => {
+    const { container } = renderPage(serviceSales.core);
+    const proofArticles = [...container.querySelectorAll('[aria-labelledby="sales-proof"] article')];
+    expect(proofArticles.length).toBeGreaterThan(0);
+    for (const article of proofArticles) expect(article).toHaveAttribute("data-glow");
+    const processItems = [...container.querySelectorAll("ol li.service-card")];
+    expect(processItems).toHaveLength(serviceSales.core.process.steps.length);
+    for (const item of processItems) expect(item).toHaveAttribute("data-glow");
+    const pricingCard = container.querySelector("section.service-card")!;
+    expect(pricingCard).toHaveAttribute("data-glow");
+    const hero = container.querySelector(".service-sales-hero")!;
+    const heroArt = hero.querySelector(".service-sales-hero-art")!;
+    const heroWatermark = hero.querySelector(".service-card-watermark")!;
+    // kolejność DOM decyduje o malowaniu: watermark musi leżeć PO warstwie art i PO poświacie
+    expect(heroWatermark.compareDocumentPosition(heroArt) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(heroWatermark.compareDocumentPosition(hero.querySelector(":scope > .card-glow")!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 
   it("renders canonical proof cases in the approved order with both metric pairs", () => {

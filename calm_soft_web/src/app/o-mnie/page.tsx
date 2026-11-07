@@ -27,11 +27,19 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
+      {/* Brief #16 (LCP): zdjęcie kafla About (wariant long) jest LCP above-the-fold, ale leży
+          głęboko w ciele strony — browser wykrywa je późno (Lighthouse discovery ~2 s). Plain
+          <link rel="preload"> w komponencie SERWEROWYM to wspierany mechanizm React 19/Next 16
+          (hoistowane do <head> przy prerenderze — tabela „Moders of using assets" w
+          node_modules/next/dist/docs/.../generate-metadata; ReactDOM.preload to ścieżka
+          clientowa, zbędna tutaj). Umieszczone w page.tsx = tylko /o-mnie/, bez zmian w
+          layout.tsx i na stronie głównej (tam zdjęcie pod foldem = lazy, brak preloadu). */}
+      <link rel="preload" as="image" href="/about-photo-wide.webp" fetchPriority="high" />
       <div
         data-background-family="utility"
         className="reveal-group mx-auto max-w-[1200px] px-6 pt-[72px] pb-[32px] min-[900px]:pt-[110px] min-[900px]:pb-[40px]"
       >
-        <About variant="long" hideCta />
+        <About variant="long" />
       </div>
 
       {/* Contact renders as a sibling AFTER the container above, not nested inside it — it needs

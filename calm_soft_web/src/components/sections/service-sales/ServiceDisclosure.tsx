@@ -80,9 +80,9 @@ export function ServiceDisclosure({ title, children }: { title: string; children
   return (
     <details
       open={state !== "closed"}
-      className={`service-disclosure service-card relative overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-6 ${HOVER_BORDER}${state === "closing" ? " service-disclosure-closing" : ""}`}
+      className={`service-disclosure service-card p-6 ${HOVER_BORDER}${state === "closing" ? " service-disclosure-closing" : ""}`}
     >
-      <span aria-hidden="true" className="card-glow pointer-events-none -right-[80px] -top-[80px] h-[220px] w-[220px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)] service-card-glow-interactive" />
+      <span aria-hidden="true" className="card-glow pointer-events-none" />
       <summary onClick={handleSummaryClick} className="relative z-[1] flex cursor-pointer items-center justify-between gap-4 text-[18px] font-semibold">
         <span>{title}</span>
         <svg className="service-disclosure-chevron shrink-0" aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

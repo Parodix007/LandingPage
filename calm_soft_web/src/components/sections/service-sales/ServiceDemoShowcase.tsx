@@ -63,7 +63,7 @@ export function ServiceDemoShowcase({ mode, title, intro, demos }: { mode: "grid
         <div ref={mode === "carousel" ? showcaseViewportRef : undefined} data-testid={mode === "carousel" ? "service-demo-viewport" : undefined} className={mode === "carousel" ? "overflow-hidden" : ""}>
           <div
             data-testid="service-demo-track"
-            className={mode === "carousel" ? "flex gap-4" : "grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-4"}
+            className={mode === "carousel" ? "flex gap-4" : "flex flex-col gap-4 min-[624px]:grid min-[624px]:grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))]"}
             style={mode === "carousel" ? { transform: `translateX(calc(${carousel.step} * (-100% - 1rem)))`, transition: "transform 300ms ease" } : undefined}
           >
             {resolved.map((item, index) => {
@@ -74,11 +74,12 @@ export function ServiceDemoShowcase({ mode, title, intro, demos }: { mode: "grid
                 <article
                   key={demo.slug}
                   role="group"
+                  data-glow
                   aria-hidden={!active}
                   inert={!active || undefined}
-                  className={`${mode === "carousel" ? "min-w-0 flex-[0_0_100%]" : ""} card-host service-card service-card-interactive relative flex flex-col overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-0 ${HOVER_LIFT}`}
+                  className={`${mode === "carousel" ? "min-w-0 flex-[0_0_100%]" : "stack-item"} card-host service-card flex flex-col p-0 ${HOVER_LIFT}`}
                 >
-                  <span aria-hidden="true" className="card-glow pointer-events-none -right-[80px] -top-[80px] h-[220px] w-[220px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)]" />
+                  <span aria-hidden="true" className="card-glow pointer-events-none" />
                   <div className="relative z-[1] aspect-[16/10] w-full overflow-hidden border-b border-border-08">
                     {/* eslint-disable-next-line @next/next/no-img-element -- static export keeps canonical demo shots unoptimized */}
                     <img src={mode === "grid" || carouselReady ? demo.shot : undefined} data-src={mode === "carousel" && !carouselReady ? demo.shot : undefined} alt={demo.shotAlt} width={1440} height={900} loading="lazy" decoding="async" className="h-full w-full object-cover object-top [&:not([src])]:hidden" />

@@ -90,6 +90,8 @@ export function HeroCaseSlider({ cases, label, readCaseLabel }: HeroCaseSliderPr
                 aria-roledescription="slide"
                 aria-label={`${i + 1} z ${cases.length}`}
                 aria-hidden={active ? undefined : true}
+                data-glow
+                data-tilt
                 className="card-host relative flex flex-[0_0_100%] flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] border border-border-10 bg-surface p-8"
               >
                 {/* Decorative glow + watermark — purely presentational, hidden from AT. */}

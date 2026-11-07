@@ -35,8 +35,14 @@
   --radius-picker: 14px;
   --radius-input: 12px;
   --radius-pill: 980px;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, sans-serif;
+  /* BRIEF #4 (spec 2026-11-06 §2b): Inter (body+nagłówki) + JetBrains Mono (akcenty:
+     eyebrow, watermark, liczby faktów, chipy) — self-hosted przez next/font/local,
+     pliki w src/fonts/ (subsety latin+latin-ext z unicode-range, patrz app/layout.tsx),
+     licencje OFL 1.1: src/fonts/OFL-Inter.txt i OFL-JetBrainsMono.txt. Zero CDN.
+     kolejność zmiennych: *-ext (wąski unicode-range) przed latin — fallback systemowy
+     wbudowany w zmienną latin nie może "przechwycić" polskich diakrytów przed webfontem. */
+  --font-mono: var(--font-jetbrains-mono-ext), var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-sans: var(--font-inter-ext), var(--font-inter), "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 html {
@@ -44,6 +50,10 @@ html {
   background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  /* Odcięcie poziomego przepełnienia po FX (parallax ±12px, tilt ±3° wychodzą za prawą
+     krawędź). `clip` a nie `hidden`: hidden utworzyłby scroll-container na html i złamał
+     position: sticky stosu #process oraz pływającego CTA. */
+  overflow-x: clip;
 }
 
 /* One decorative canvas shared by every route. The route marker selects one local, responsive
@@ -136,7 +146,7 @@ body:has([data-background-family="utility"]) .global-background::before {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid var(--color-border-08);
+  border: 1px solid var(--color-border-10);
   border-radius: var(--radius-card);
   background: color-mix(in srgb, var(--color-surface) 92%, transparent);
   padding: 32px 24px;
@@ -287,6 +297,14 @@ body:has([data-background-family="utility"]) .global-background::before {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* Tranzycja strony (brief #9): awaryjne schowanie kurtyny i canvasa, gdyby klucz `cs-tr`
+     przetrwał mimo reduced-motion (martwy klucz). Powtarza się też w killswitchu niżej —
+     regex-pin w fxStyles.test.ts czyta pierwszy blok reduce w pliku. */
+  html.tr-in body::before,
+  .tr-canvas {
+    display: none;
+  }
 }
 
 /* Reveal-on-scroll, wersja IntersectionObserver (RevealOnScroll.tsx) — poprzedni mechanizm
@@ -388,35 +406,9 @@ body:has([data-background-family="utility"]) .global-background::before {
   background: radial-gradient(circle, var(--glow-color, transparent), transparent 70%);
 }
 
-/* Matowe karty z głębią dla stron produktu KSeF — działają razem z .service-card / .card-host /
-   .reveal-group (border-box gradient żyje osobno od tła padding-box, więc nie koliduje z border
-   ani z tłem tamtych klas). */
-.ksef-surface {
-  position: relative;
-  isolation: isolate;
-  border: 1px solid transparent;
-  border-radius: var(--radius-card);
-  background:
-    linear-gradient(color-mix(in srgb, var(--color-surface) 94%, transparent), color-mix(in srgb, var(--color-surface) 94%, transparent)) padding-box,
-    linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03) 45%, color-mix(in oklch, var(--color-accent) 22%, transparent)) border-box;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 24px 48px -28px rgba(0, 0, 0, 0.7);
-}
-
-.ksef-surface-featured {
-  background:
-    linear-gradient(color-mix(in srgb, var(--color-surface) 94%, transparent), color-mix(in srgb, var(--color-surface) 94%, transparent)) padding-box,
-    linear-gradient(160deg, color-mix(in oklch, var(--color-accent) 70%, transparent), color-mix(in oklch, var(--color-accent) 18%, transparent)) border-box;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 24px 48px -28px rgba(0, 0, 0, 0.7),
-    0 0 0 1px color-mix(in oklch, var(--color-accent) 25%, transparent);
-}
-
-.ksef-surface-compact {
-  border-radius: var(--radius-grid-card);
-}
+/* BRIEF #10A: `.ksef-surface`, `.ksef-surface-featured`, `.ksef-surface-compact` usunięte —
+   kafle stron KSeF dzielą teraz bazę `.service-card` / `.card-featured` (blok @layer components
+   wyżej). */
 
 .service-sticky-cta-floating::after {
   position: absolute;
@@ -514,4 +506,623 @@ body:has([data-background-family="utility"]) .global-background::before {
     min-width: 44px;
     min-height: 44px;
   }
+
+  /* BRIEF #10A: wspólna baza kafli podstron (parametry kafla hero strony głównej:
+     border-border-10, radius-card, bg-surface, poświata 340px z offsetem -120px).
+     W @layer components — utility warstwy `utilities` biją `components`, więc
+     HOVER_BORDER/HOVER_LIFT (utility Tailwinda) dalej działają na hover, a utility
+     `!p-*` nadpiszą paddingi. Kafle w TSX noszą tylko tę klasę + padding/layout. */
+  .service-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-border-10);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    --glow-color: color-mix(in oklch, var(--color-accent) 16%, transparent);
+  }
+  .service-card > .card-glow {
+    right: -120px;
+    top: -120px;
+    width: 340px;
+    height: 340px;
+  }
+  .card-featured {
+    border-color: color-mix(in oklch, var(--color-accent) 45%, transparent);
+  }
+}
+
+/* ── FX wskaźnika, ziarno i sticky stack (spec 2026-11-06 §4.2–§4.4, brief #2) ────────
+   Zestaw: statyczne ziarno (body::after), poświata podążająca za kursorem na kartach z
+   atrybutem glow, przechył kart z atrybutem tilt, paralaksa warstwy tła hero na warstwie
+   z atrybutem parallax. Bramy `(prefers-reduced-motion: no-preference) and (pointer: fine)`
+   to TEN SAM string co w PointerFx.tsx i HeroParticleField.tsx — każda zmiana musi iść w
+   parze (PointerFx.test.tsx, fxStyles.test.ts). Zmienne pisze wyłącznie PointerFx (px dla
+   poświaty, bezjednostkowe -1..1 dla tiltu/paralaksa); malujemy tylko transformem — jedyny
+   zatwierdzony wyjątek to canvas cząstek w hero (aria-hidden, bez treści, bramowany JS-em). */
+:root {
+  --mx: 0px;
+  --my: 0px;
+  --px: 0;
+  --py: 0;
+}
+
+/* Statyczne ziarno: inline data-URI SVG (feTurbulence + desaturacja) — zero żądań
+   sieciowych, zero animacji, więc żyje POZA bramą ruchu (nie jest ruchem). z-index 1:
+   nad .global-background (z-0 layout.tsx), pod wrapperem treści (z-10). CSP img-src
+   dopuszcza data: (scripts/csp.mjs) — bez tego tło nie renderowałoby się w produkcji.
+   Pod reduced-motion wyłączane killswitchem na końcu pliku (kontrakt §4.4: dezaktywuje
+   wszystkie nowe efekty, nie tylko animowane). */
+body::after {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  content: "";
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 160px 160px;
+  opacity: 0.05;
+}
+
+/* Poświata za kursorem: .card-glow karty oznaczonej atrybutem glow wskazuje na kursor
+   (--mx/--my w px względem karty, pisane przez PointerFx) TYLKO podczas :hover. Reguła
+   nielayerowana bije utility warstw Tailwinda (-top-40/-right-40) — dlatego zakres na
+   :hover: w spoczynku karta wygląda dokładnie jak wcześniej, a nadpisanie nie może
+   wymieść niczego poza najechaniem. Ustawienie left+top+width przy ustawionym utility
+   right jest nadokreślone — przeglądarka ignoruje right, liczy się left (LTR). */
+@media (prefers-reduced-motion: no-preference) and (pointer: fine) {
+  [data-glow]:hover .card-glow {
+    left: var(--mx, 0px);
+    top: var(--my, 0px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Kafle marek (brief #13, makieta kafle-final): w przeciwieństwie do kart sekcji poświata
+   .card-glow jest NIEWIDOCZNA w spoczynku i wjaśnia się dopiero na hover (opacity .25s).
+   Nie zmieniamy reguły [data-glow]:hover wyżej — pozycjonowanie przy kursorze bez zmian.
+   Touch: poświata NIE podąża za palcem — PointerFx nie pisze --mx/--my (brama pointer:fine),
+   więc zostaje w spoczynkowej pozycji poza/przycięta kaflem. Reduced-motion + hover: poświata
+   nadal zapala się (to stan hover, nie animacja zapętlona — precedens jawnie zaakceptowany),
+   ale tranzycja 0.25s jest natychmiastowa: globalny killswitch (pierwszy blok reduce, ~293)
+   zeruje CZAS tranzycji, nie stan. Killswitch §4.4 na końcu pliku nie wymaga zmian. */
+.brand-tile .card-glow {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.brand-tile[data-glow]:hover .card-glow {
+  opacity: 1;
+}
+
+/* ── Przewijak marek TechStack (brief #14, spec 2026-11-07, makieta tech-marquee-real ii) ──
+   Pętla CSS-only:TechStack renderuje 12 pozycji DWUKROTNIE (drugi komplet li.tech-dup,
+   aria-hidden), tor w-max jest więc dwa razy szerszy od jednego kompletu i translateX(-50% → 0)
+   przesuwa go dokładnie o jeden komplet — przejście bezszwowe, 34 s/obieg, lewo→prawo. Maska
+   linear-gradient ścina pozycje przy krawędziach (8%/92%), hover zatrzymuje pętlę. Jedyny nośnik
+   animacji to transform. Blok reduce celowo PRZED killswitchem §4.4 na końcu pliku — regex-pin
+   w fxStyles.test.ts czyta ostatni blok reduce jako killswitch; pod reduce marquee staje się
+   statyczną listą zawijaną bez duplikatu. */
+.tech-marquee {
+  position: relative;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.tech-marquee-track {
+  animation: techMarquee 34s linear infinite;
+}
+
+.tech-marquee:hover .tech-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes techMarquee {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+  }
+
+  .tech-marquee-track .tech-dup {
+    display: none;
+  }
+}
+
+/* Przechył kart [data-tilt]: --px/--py znormalizowane do <-1,1> przez PointerFx, mnożone
+   przez 3° — limit briefu ≤4° z zapasem. `transform` nie koliduje z HOVER_LIFT: utility
+   translate-* Tailwinda v4 piszą osobną właściwość `translate`, więc efekty się
+   komponują, nie nadpisują. */
+/* Baza dla przechylanych kart: wejście podąża za kursorem z lekkim opóźnieniem, powrót po
+   wyprowadzeniu myszki trwa ~600ms sprężyście zamiast instant-snapu (PointerFx zeruje
+   --px/--py natychmiast; jedyny nośnik animacji to transform). Reguła nielayerowana bije
+   utility Tailwinda — świadome: [data-tilt] występuje na kartach suwaka hero oraz (brief
+   #10A) na hero podstron — żadne z tych elementów nie ma HOVER_LIFT. */
+@media (prefers-reduced-motion: no-preference) and (pointer: fine) {
+  [data-tilt] {
+    transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-tilt]:hover {
+    transform:
+      perspective(900px) rotateX(calc(var(--py, 0) * -3deg))
+      rotateY(calc(var(--px, 0) * 3deg));
+    transform-origin: center;
+  }
+}
+
+/* Paralaksa warstwy tła hero: warstwa przesuwa się o ±12px względem środka viewporta
+   (--px/--py pisane przez PointerFx na cached liście warstw). Tylko translate —
+   zgodnie z regułą transform/opacity. */
+@media (prefers-reduced-motion: no-preference) and (pointer: fine) {
+  [data-parallax] {
+    transform: translate(calc(var(--px, 0) * 12px), calc(var(--py, 0) * 12px));
+  }
+}
+
+/* Sticky stack #process (brief #2 §4.4) — zastąpił ProcessCarousel. Klejenie to nie
+   animacja (zero klatek, zero JS), więc poza bramą ruchu; offsety kaskadowane po 16px,
+   start 84px pod sticky navem (h-16 + obrys ≈65px, z zapasem). `gap` utrzymuje rytm kart,
+   gdy nic się jeszcze nie skleiło; kolejność DOM = kolejność czytania.
+   Brief #10B: selektor uogólniony — `.stack-item` noszą kafle pionowych list podstron;
+   offsety liczone od sticky navu; grid wielokolumnowy celowo nie składa (sticky w komórce
+   grid jest no-opiem), więc kontenery składają się tylko w trybie flex-kolumny. */
+.process-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stack-item {
+  position: sticky;
+}
+
+.stack-item:nth-child(1) { top: 84px; }
+.stack-item:nth-child(2) { top: 100px; }
+.stack-item:nth-child(3) { top: 116px; }
+.stack-item:nth-child(4) { top: 132px; }
+.stack-item:nth-child(5) { top: 148px; }
+/* brief #10B: listy podstron bywają dłuższe niż 5 — cap, dalsze kafle kleją się na tym samym offsetem. */
+.stack-item:nth-child(n+6) { top: 148px; }
+
+/* ── brief #15 — manifest wartości (spec 2026-11-07) ────────────────────────────────────────
+   Makieta kontraktowa wartosci-manifest-glify-v3 (Rzemiosło = wariant A). Fokus-blur: najechany
+   rząd pozostaje pełny i przesuwa się o 6px, pozostałe przygasają (opacity .32 + blur 1px).
+   Odchylenie świadomie zaakceptowane przez właściciela: `filter: blur` to STATYCZNY stan hover
+   (nośniki animacji zapętlonych pozostają transform/opacity; .35s to tylko dojście do stanu) —
+   odnotowane w discoveries.md. Glify (aria-hidden): kolor spoczynkowy accent@45 → accent@95 w
+   hoverze rzędu. Keyframes 1:1 z makiety (sup/seq1–3/dim1–3/deep/dot/pulse); kursor terminala i
+   `_` wordmarku używają ISTNIEJĄCEGO keyframes `blink` (powyżej) — bez dublowania. Font mono
+   glifów przez var(--font-mono) (JetBrains), nie ui-monospace z makiety — konwencja tokenów repo.
+   Blok reduce glifów celowo PRZED killswitchem §4.4 na końcu pliku: regex-piny w fxStyles.test.ts
+   czytają PIERWSZY blok reduce jako bramę tranzycji, a OSTATNI jako killswitch. */
+
+/* focus-dim (brief #19): hover na grupie → rodzeństwo ściemnione + blur(1px), fokus pełny.
+   Mobile hover:none = brak efektu; reduced-motion = bez blur i bez transition. */
+.focus-dim > * { transition: opacity .3s ease, filter .3s ease; }
+
+@media (hover: hover) {
+  .focus-dim:hover > * { opacity: .45; filter: blur(1px); }
+  .focus-dim:hover > *:hover { opacity: 1; filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-dim > * { transition: none; }
+  .focus-dim:hover > * { filter: none; }
+}
+
+/* brief #19: ogólny mechanizm fokus-bluru (ściemnienie/blur rodzeństwa, restore, transition
+   opacity/filter) mieszka w .focus-dim — `ul` manifestu nosi obie klasy. Zostały wyłącznie
+   nadpisania swoiste dla manifestu: mocniejsze przygaszenie (.32 zamiast bazowego .45 —
+   makieta wartosci-manifest-glify-v3 1:1) i pełne przejście .35s z transform (przesunięcie
+   6px najechanego rzędu). Reguły leżą ZA blokiem focus-dim i są swoistsze od jego selektorów
+   generycznych — transition wygrywa (0,1,1) z (0,1,0), a przygaszenie (0,2,1) z (0,2,0), więc w
+   obu przypadkach wyższą swoistością (kolejność źródłowa tylko to utwierdza); restore opacity/filter
+   i blur rodzeństwa daje już wzorzec. */
+.values-manifest > li {
+  transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease;
+}
+
+.values-manifest:hover > li {
+  opacity: 0.32;
+}
+
+.values-manifest > li:hover {
+  transform: translateX(6px);
+}
+
+.values-manifest > li:hover h3 {
+  color: var(--color-accent);
+}
+
+.values-manifest h3 {
+  transition: color 0.3s ease;
+}
+
+.values-manifest > li:hover p {
+  /* odcień z makiety — tokeny ink-* są neutralne (białe alfy), ten jest zielonkawy; bez tokena */
+  color: #c3cec7;
+}
+
+.value-glyph {
+  color: color-mix(in oklch, var(--color-accent) 45%, transparent);
+  transition: color 0.3s ease;
+}
+
+.values-manifest > li:hover .value-glyph {
+  color: color-mix(in oklch, var(--color-accent) 95%, transparent);
+}
+
+/* Glif „Spokój": strumień INFO-logów — 6 linii = 2× te same 3, pętla translateY(-48px)
+   (3 linie × 16px line-height) = przejście bezszwowe, 12 s. */
+.value-glyph--calm .log {
+  width: 220px;
+  height: 48px;
+  overflow: hidden;
+}
+
+.value-glyph--calm .log .stream {
+  animation: sup 12s linear infinite;
+}
+
+.value-glyph--calm .log .ln {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 16px;
+  color: #9fb3a6;
+  white-space: nowrap;
+}
+
+.value-glyph--calm .log .ln b {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+@keyframes sup {
+  from { transform: translateY(0); }
+  to { transform: translateY(-48px); }
+}
+
+/* Glif „Jakość": terminal — prompt (seq1) → „✓ all passed" (seq2, accent) → prompt z migającym
+   kursorem (seq3 + reuse `blink` step-end); cykl 7 s. */
+.value-glyph--quality .term {
+  display: grid;
+  width: max-content;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+}
+
+/* Brief #16 (a11y): jawny kolor tekstu promptu/wiersza — accent@45% z .value-glyph miał
+   kontrast <4.5:1 na ciemnym tle; #c3cec7 = ten sam odcień co p w hoverze rzędu (~10:1).
+   l2 (wynik) pozostaje accentem — jego reguła niżej wygrywa źródłem (ta sama swoistość). */
+.value-glyph--quality .term .l {
+  color: #c3cec7;
+  opacity: 0;
+}
+
+.value-glyph--quality .term .l1 {
+  animation: seq1 7s linear infinite;
+}
+
+.value-glyph--quality .term .l2 {
+  animation: seq2 7s linear infinite;
+  color: var(--color-accent);
+}
+
+.value-glyph--quality .term .l3 {
+  animation: seq3 7s linear infinite;
+}
+
+.value-glyph--quality .term i {
+  font-style: normal;
+  animation: blink 1.1s step-end infinite;
+}
+
+@keyframes seq1 {
+  0%, 4% { opacity: 0; transform: translateX(-4px); }
+  12% { opacity: 1; transform: none; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes seq2 {
+  0%, 30% { opacity: 0; transform: translateY(3px); }
+  42% { opacity: 1; transform: none; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes seq3 {
+  0%, 55% { opacity: 0; }
+  62%, 100% { opacity: 1; }
+}
+
+/* Glif „Rzemiosło" (wariant A): przekrój warstw — blask schodzi UI→API→domena→dane (dim1–dim3),
+   najgłębsza warstwa „dane" pulsuje accentem (deep); cykl 8 s. */
+.value-glyph--craft .layers {
+  display: grid;
+  width: 190px;
+  gap: 4px;
+}
+
+.value-glyph--craft .layers .lb {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #9fb3a6;
+  border: 1px solid var(--color-border-12);
+  border-radius: 4px;
+  padding: 3px 8px;
+  /* Brief #16 (a11y): spoczynkowa opacity 0.75 (reguła krawędziowa kontrastu — poniżej
+     0.75 mieszanka #9fb3a6×ciemne tło spada pod 4.5:1). Animacje dim1–3/deep pilnują
+     tego samego progu. */
+  opacity: 0.75;
+}
+
+.value-glyph--craft .layers .l-a {
+  animation: dim1 8s ease-in-out infinite;
+}
+
+.value-glyph--craft .layers .l-b {
+  animation: dim2 8s ease-in-out infinite;
+}
+
+.value-glyph--craft .layers .l-c {
+  animation: dim3 8s ease-in-out infinite;
+}
+
+.value-glyph--craft .layers .l-d {
+  border-color: color-mix(in oklch, var(--color-accent) 50%, transparent);
+  color: var(--color-accent);
+  animation: deep 8s ease-in-out infinite;
+}
+
+@keyframes dim1 {
+  0%, 100% { opacity: 0.75; }
+  12% { opacity: 0.95; }
+  35% { opacity: 0.75; }
+}
+
+@keyframes dim2 {
+  0%, 100% { opacity: 0.75; }
+  30% { opacity: 0.95; }
+  55% { opacity: 0.75; }
+}
+
+@keyframes dim3 {
+  0%, 100% { opacity: 0.75; }
+  48% { opacity: 0.95; }
+  70% { opacity: 0.75; }
+}
+
+@keyframes deep {
+  0%, 55% { opacity: 0.75; }
+  68% { opacity: 1; }
+  82% { opacity: 0.75; }
+  100% { opacity: 0.75; }
+}
+
+/* Glif „Partnerstwo": graf git — commity zapalają się sekwencyjnie (dot + opóźnienia d1–d5),
+   puls na mergu (transform-origin na commuterskim węźle), wordmark `calm_soft` z accentowym `_`
+   (fill z tokenu, blink reuse; near-white wordmarku jest atrybutem fill w JSX — 1:1 z makietą). */
+.value-glyph--partnership .gitg {
+  width: 260px;
+  height: 72px;
+}
+
+.value-glyph--partnership .gitg text {
+  font-family: var(--font-mono);
+}
+
+.value-glyph--partnership .gitg .d {
+  opacity: 0.3;
+  animation: dot 8s linear infinite;
+}
+
+.value-glyph--partnership .gitg .d1 { animation-delay: 0s; }
+.value-glyph--partnership .gitg .d2 { animation-delay: 0.6s; }
+.value-glyph--partnership .gitg .d3 { animation-delay: 1.2s; }
+.value-glyph--partnership .gitg .d4 { animation-delay: 1.8s; }
+.value-glyph--partnership .gitg .d5 { animation-delay: 2.4s; }
+
+@keyframes dot {
+  0% { opacity: 0.3; }
+  10% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+.value-glyph--partnership .gitg .pulse {
+  transform-origin: 82px 18px;
+  opacity: 0;
+  animation: pulse 4s ease-out infinite 2.4s;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; transform: scale(0.4); }
+  60% { opacity: 0; transform: scale(1.5); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+.value-glyph--partnership .gitg .us {
+  fill: var(--color-accent);
+  animation: blink 1.2s step-end infinite;
+}
+
+/* Reduse dla glifów = klatka statyczna jak w makieta: logi pokazują jeden kadr strumienia,
+   terminal pełny (3 linie + kursor), warstwy przygaszone 0.8, kropki/puls gita widoczne,
+   `_` wordmarku świeci. Stan fokus-blur: przygaszenie opacity zostaje (precedens #13 — stan
+   hover nie jest animacją zapętloną), a blur(1px) jest zdejmowany przez reduce w bloku
+   focus-dim wyżej (brief #19). */
+@media (prefers-reduced-motion: reduce) {
+  .value-glyph--calm .log .stream {
+    animation: none;
+  }
+
+  .value-glyph--quality .term .l {
+    animation: none;
+    opacity: 1;
+  }
+
+  .value-glyph--quality .term i {
+    animation: none;
+  }
+
+  .value-glyph--craft .layers .lb {
+    animation: none;
+    opacity: 0.8;
+  }
+
+  .value-glyph--partnership .gitg .d {
+    animation: none;
+    opacity: 1;
+  }
+
+  .value-glyph--partnership .gitg .pulse {
+    animation: none;
+    opacity: 1;
+  }
+
+  .value-glyph--partnership .gitg .us {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ── brief #20 — chipy credential w About + zgodność focus-dim × HOVER_LIFT (makiety
+   about-chips-photo-v1 / focus-dim-demo-v1) ─────────────────────────────────────────────────
+   Chipy credential (BrandPillRow, wariant short): zmienna --chip-glow z inline style (dane
+   site.ts: item.glow); reszta wierności makiecie `.after .chip` liczy CSS (brief #20d):
+   border z danych site.ts (item.chipBorder, wartości makiet .5–.7 — brief #20e, formuła
+   color-mix nie daje alfa >.28 premultiplikowanego glow); tło zostaje formułą 30% glow
+   (~8–11% marki po premultiplikacji rgba, pasmo makiet --bg .08–.16); font bez mono,
+   semibold, domyślny line-height.
+   Hover = poświata 0 0 24px + translateY(-1px) tylko pod bramą hover:hover, transition
+   box-shadow/transform .25s — jak w makiecie. Chip jest NIEinteraktywny (li > span, zero
+   tabindex) — poświata to statyczny stan hover (precedens #13/#19). */
+.credential-chip {
+  background: color-mix(in srgb, var(--chip-glow, transparent) 30%, var(--color-surface));
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+@media (hover: hover) {
+  .credential-chip:hover {
+    box-shadow: 0 0 24px var(--chip-glow, transparent);
+    transform: translateY(-1px);
+  }
+}
+
+/* Reguła zgodności kart case (focus-dim × HOVER_LIFT): baza .focus-dim > * (0,1,0, nielayerowana)
+   bije utility transition-[transform,border-color] z HOVER_LIFT (warstwa @layer utilities —
+   reguły nielayerowane wygrywają zawsze), przez co lift karty przestałby animować. Selektor
+   .focus-dim > .card-host (0,2,0) łączy oba zestawy przejść w jednej deklaracji — lista lustrzana
+   z HOVER_LIFT (transform, border-color .35s) plus focus-dim (opacity, filter .3s). Podwojenie
+   klas (`.focus-dim.focus-dim > .card-host.card-host`) daje tylko (0,4,0) i przegrywa z (0,4,1)
+   nielayerowanej fazy revealu `html[data-reveal="on"] …`; potrójna klasa rodzica daje (0,5,0)
+   i wygrywa wyłącznie swoistością, bez ruszania zamrożonego bloku revealu. */
+.focus-dim.focus-dim.focus-dim > .card-host.card-host {
+  transition: opacity 0.3s ease, filter 0.3s ease, transform 0.35s ease, border-color 0.35s ease;
+}
+
+/* Reduce dla reguł briefu #20: brak transition na chipie i na kartach case (tint, poświata i
+   przygaszenie pozostają jako statyczne stany hover; blur zdejmuję już blok focus-dim #19).
+   Rozmieszczenie celowo MIĘDZY blokami przypiętymi w fxStyles.test.ts: PIERWSZY blok reduce to
+   brama tranzycji (css.match), OSTATNI to killswitch §4.4 (css.lastIndexOf) — nowy blok nie może
+   zająć żadnej z tych dwóch pozycji. */
+@media (prefers-reduced-motion: reduce) {
+  .credential-chip {
+    transition: none;
+  }
+
+  .focus-dim.focus-dim.focus-dim > .card-host.card-host {
+    transition: none;
+  }
+}
+
+/* brief #21b: grupy sprzedażowe (Group w ServiceSalesPage) — reguła zgodności focus-dim ×
+   HOVER_BORDER, ten sam mechanizm co w bloku kart case #20. Baza .focus-dim > * (0,1,0,
+   nielayerowana) bije utility transition-[border-color] (.35s) z HOVER_BORDER (warstwa
+   @layer utilities — nielayerowane zawsze wygrywa), przez co obwódka kafli Group przestałaby
+   animować; lista poniżej łączy oba zestawy: opacity/filter .3s (focus-dim) + border-color
+   .35s (HOVER_BORDER). Swoistość: 3×.focus-dim + 2×.service-card = (0,5,0) — w kolumnie klas
+   5 > 4, więc bije nielayerowaną fazę revealu `html[data-reveal="on"] …` (0,4,1) bez ruszania
+   zamrożonego bloku revealu (kolumna typów nie wchodzi w rozstrzygnięcie). Blok leży MIĘDZY
+   pinami fxStyles.test.ts: PIERWSZY blok reduce (brama tranzycji, css.match) jest wyżej,
+   OSTATNI to killswitch §4.4 (css.lastIndexOf) niżej. */
+.focus-dim.focus-dim.focus-dim > .service-card.service-card {
+  transition: opacity 0.3s ease, filter 0.3s ease, border-color 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-dim.focus-dim.focus-dim > .service-card.service-card {
+    transition: none;
+  }
+}
+
+/* brief #22: fokus wierszowy tabeli KSeF — tło akcentu najechanego wiersza
+   (makieta focus-dim-demo-v1, sekcja 2). Przygaszenie/blur/restore i transition
+   dają reguły .focus-dim z briefu #19 (tr = dziecko tbody.focus-dim);
+   swoistość (0,3,1) nie koliduje z tłem komórek featured (utility na td,
+   nie na tr) ani z fokusami kolumn :has() (tło komórek, ortogonalne).
+   Bez bloku reduce: transition/blur redukuje już blok #19, background nie jest motion.
+   Tło pod bramą (hover:hover) — na dotyku brak stanu (nota makiet: „na dotyku efekt
+   nie występuje"). */
+@media (hover: hover) {
+  .focus-dim:hover > tr:hover {
+    background: rgba(124, 227, 139, .05);
+  }
+}
+
+/* Killswitch §4.4: pod reduced-motion nowe efekty wracają do spoczynku — również sticky
+   stack (karty w zwykłym przepływie) i statyczna warstwa ziarna.
+   `.stack-item` zostaje `position: relative` (nie `static`): relative utrzymuje kotwicę dla
+   absolutnych dekoracji kafli z briefu #11. Skoro pozycja jest relative, `top` ożywa, więc
+   nadpisanie musi wygrywać swoistością z offsetami stacku (0,2,0) z 629–635 — stąd
+   `.stack-item:nth-child(n)` (też (0,2,0), wygrywa źródłem). */
+@media (prefers-reduced-motion: reduce) {
+  .stack-item:nth-child(n) {
+    position: relative;
+    top: auto;
+  }
+
+  body::after {
+    display: none;
+  }
+
+  /* Tranzycja strony (brief #9): te same selektory awaryjne co w górnym killswitchu. */
+  html.tr-in body::before,
+  .tr-canvas {
+    display: none;
+  }
+}
+
+/* ===== Tranzycja strony (brief #9) =====
+   Kurtyna wejściowa: warstwa krycia nad całością (nav ma z-50=50, stąd 100/101).
+   Canvas tranzycji (.tr-canvas) jest tworzony imperatywnie przez PageTransition.
+   Animacje: transform/opacity w canvasie 2D — poza CSS, więc reguły CSS są statyczne
+   i żyją poza bramą ruchu; samo JS ma bramę prefers-reduced-motion. */
+html.tr-in body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-canvas);
+}
+
+.tr-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 101;
+  display: block;
 }
