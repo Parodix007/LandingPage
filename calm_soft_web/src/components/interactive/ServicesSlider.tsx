@@ -5,7 +5,7 @@ import type { Service, Tone } from "@/content/types";
 import { site } from "@/content/site";
 import { Chip } from "@/components/ui/Chip";
 import { TONE_CHIP } from "@/components/ui/chipTone";
-import { Watermark } from "@/components/ui/Watermark";
+import { WATERMARK_MOBILE_PAD, Watermark } from "@/components/ui/Watermark";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { CarouselArrowButton } from "@/components/ui/CarouselArrowButton";
@@ -157,7 +157,7 @@ export function ServicesSlider({
                 aria-roledescription="slide"
                 aria-label={`${i + 1} z ${services.length}`}
                 aria-hidden={active ? undefined : true}
-                className={`service-slide card-host relative flex flex-[0_0_100%] flex-col gap-[clamp(14px,2.4vh,22px)] overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[36px_30px] min-[900px]:p-10 transition-[border-color] duration-[350ms] ${TONE_HOVER_BORDER[s.tone]}`}
+                className={`service-slide card-host relative flex flex-[0_0_100%] flex-col gap-[clamp(14px,2.4vh,22px)] overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[36px_30px] min-[900px]:p-10 ${WATERMARK_MOBILE_PAD} transition-[border-color] duration-[350ms] ${TONE_HOVER_BORDER[s.tone]}`}
               >
                 {/* eslint-disable-next-line jsx-a11y/aria-unsupported-elements -- decorative picture is
                     explicitly removed from the accessibility tree; the image also carries aria-hidden. */}

@@ -47,7 +47,7 @@ export function Nav() {
           <span className="animate-[blink_1.2s_step-end_infinite] text-accent">_</span>
           soft
         </a>
-        <div className="hidden items-center gap-9 md:flex">
+        <div className="hidden items-center gap-9 min-[800px]:flex">
           <NavServicesMenu
             triggerLabel={ksef.nav.triggerLabel}
             overviewHref={ksef.nav.overviewHref}

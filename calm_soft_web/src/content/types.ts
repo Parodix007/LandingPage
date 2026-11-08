@@ -8,16 +8,16 @@ export type Tone = "a" | "b";
 export type AreaId = "core" | "automation" | "rescue" | "web" | "not-sure";
 export type BudgetId = "under-10k" | "10-30k" | "30-80k" | "80k-plus" | "no-idea";
 
-export type NamedItem = { n: string; d: string };
+type NamedItem = { n: string; d: string };
 
 // Grupa w obrębie ServiceSection. `group` jest opcjonalne: sekcja bez podziału to jedna
 // grupa bez etykiety, dzięki czemu widok ma jedną ścieżkę renderowania zamiast dwóch.
-export type ServiceSectionGroup = { group?: string; items: NamedItem[] };
+type ServiceSectionGroup = { group?: string; items: NamedItem[] };
 
 // Sekcja nazwanych bytów na stronie usługi: „Z jakimi systemami pracuję",
 // „Co najczęściej automatyzuję", „Na czym buduję". Jeden kształt obsługuje wszystkie trzy —
 // różni je wyłącznie heading i zawartość groups (2026-07-31 service-pages-restructure design).
-export type ServiceSection = { heading: string; intro?: string; groups: ServiceSectionGroup[] };
+type ServiceSection = { heading: string; intro?: string; groups: ServiceSectionGroup[] };
 
 export type ServiceArt = { mobile: string; desktop: string };
 
@@ -105,7 +105,7 @@ export type PricingPage = {
 // /work/ page content (2026-07-20 work-page-and-round2-polish design doc) — the full case
 // study index. Own metaTitle/metaDescription (rather than deriving from layout.tsx's title)
 // since the page needs a distinct <title>/description, mirroring PricingPage's shape.
-export type Work = {
+type Work = {
   metaTitle: string;
   metaDescription: string;
   heading: { line1: string; line2: string };
@@ -129,7 +129,7 @@ export type AboutValue = { title: string; text: string; icon: AboutValueIcon };
 // Kafelek/rząd marek (brief #12, kafle/piguły marek, spec 2026-11-07): nazwa w naturalnej formie
 // ("Asseco") — kafelek renderuje uppercase CSS-em; border/wash/glow to zatwierdzone pełne wartości
 // CSS (tabela kolorów speca); titleColor — opcjonalny odcień nazwy (WTT/PWr/LPI); mark — tylko Microsoft.
-export type BrandTile = {
+type BrandTile = {
   name: string;
   border: string;
   // Border chipa credential (wariant short About), wierność makiety about-chips-photo-v1
@@ -146,7 +146,7 @@ export type BrandTile = {
 // piguły short fleksują), items = pozycje w zatwierdzonej kolejności.
 export type BrandTilesGroup = { label: string; columns: 2 | 3 | 4; items: BrandTile[] };
 
-export type AboutContent = {
+type AboutContent = {
   heading: string;
   short: string; // homepage section
   long: string[]; // /o-mnie/ page — tablica akapitów
@@ -313,13 +313,13 @@ export type SolutionDemoItem = {
   openCta: string;
 };
 
-export type SolutionAside = { label: string; body: string };
+type SolutionAside = { label: string; body: string };
 
-export type SolutionProof = { label: string; body: string; caseSlug: string; cta: string };
+type SolutionProof = { label: string; body: string; caseSlug: string; cta: string };
 
 // Kwoty per linia dochodzą w osobnym etapie (właściciel jeszcze ich nie podał) — pole jest
 // opcjonalne, a widoki renderują blok ceny tylko wtedy, gdy istnieje.
-export type SolutionPrice = { asIs: string; custom: string };
+type SolutionPrice = { asIs: string; custom: string };
 
 export type SolutionLine = {
   slug: SolutionLineSlug;
@@ -333,7 +333,7 @@ export type SolutionLine = {
   price?: SolutionPrice;
 };
 
-export type SolutionGroup = {
+type SolutionGroup = {
   slug: "branzowe" | "operacyjne";
   eyebrow: string;
   sub: string;
@@ -365,7 +365,7 @@ export type SolutionsContent = {
 // Produkt KSeF (2026-09-09 ksef-product-pages design) — zajawka na stronie głównej + jedna
 // podstrona /ksef/rachmistrz-nexo/, bez huba /ksef/. `contact` importuje kształt
 // `SalesContactCopy` z serviceSales.ts, żeby nie duplikować kontraktu formularza kontaktowego.
-export type KsefPlanCell = boolean | string; // true = ✓, false = brak, string = wartość w komórce
+type KsefPlanCell = boolean | string; // true = ✓, false = brak, string = wartość w komórce
 export type KsefPlan = {
   id: "standard" | "pro";
   name: string;
@@ -380,7 +380,7 @@ export type KsefPlan = {
   badge?: string; // "Polecany" — przy planie PRO (featured)
 };
 export type KsefTableRow = { label: string; cells: Record<KsefPlan["id"], KsefPlanCell> };
-export type KsefFaqItem = { question: string; answer: string; id?: string };
+type KsefFaqItem = { question: string; answer: string; id?: string };
 export type KsefSwitchOfferContent = {
   eyebrow: string;
   title: string;

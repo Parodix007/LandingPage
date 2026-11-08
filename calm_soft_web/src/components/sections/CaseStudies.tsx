@@ -2,7 +2,7 @@ import { getCaseBySlug } from "@/content/cases";
 import { site } from "@/content/site";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Chip } from "@/components/ui/Chip";
-import { Watermark } from "@/components/ui/Watermark";
+import { WATERMARK_MOBILE_PAD, Watermark } from "@/components/ui/Watermark";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { CardActions } from "@/components/interactive/CardActions";
 import { CalendlyCta } from "@/components/interactive/CalendlyCta";
@@ -58,7 +58,7 @@ export function CaseStudies() {
           <div
             key={c.slug}
             data-glow
-            className={`card-host relative grid grid-cols-1 gap-12 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[44px_48px] min-[900px]:grid-cols-[1.25fr_0.75fr] min-[900px]:items-center ${HOVER_LIFT}`}
+            className={`card-host relative grid grid-cols-1 gap-12 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-[44px_48px] min-[900px]:grid-cols-[1.25fr_0.75fr] min-[900px]:items-center ${HOVER_LIFT} ${WATERMARK_MOBILE_PAD}`}
           >
             {/* Decorative glow + mono watermark — purely presentational, hidden from AT. */}
             <span

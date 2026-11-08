@@ -2,7 +2,7 @@ import { getDemoBySlug } from "@/content/demos";
 import { getServiceForLine } from "@/content/services";
 import { site } from "@/content/site";
 import { Chip } from "@/components/ui/Chip";
-import { Watermark } from "@/components/ui/Watermark";
+import { WATERMARK_MOBILE_PAD, Watermark } from "@/components/ui/Watermark";
 import { WarningNote } from "@/components/ui/WarningNote";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
@@ -125,7 +125,7 @@ export function SolutionLineBlock({
               decoding="async"
               className="aspect-[16/10] w-full border-b border-border-08 object-cover object-top"
             />
-            <div className="relative flex flex-1 flex-col gap-3 px-7 pt-7">
+            <div className={`relative flex flex-1 flex-col gap-3 px-7 pt-7 ${WATERMARK_MOBILE_PAD}`}>
               {/* Decorative glow + mono watermark — purely presentational, hidden from AT. */}
               <span
                 aria-hidden="true"

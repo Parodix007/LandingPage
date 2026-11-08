@@ -44,7 +44,7 @@ const FOCUS_WITHIN_RING =
   "focus-within:outline focus-within:outline-2 focus-within:outline-[color:var(--color-accent)] focus-within:outline-offset-2";
 
 const INPUT_CLASSES =
-  "w-full rounded-[var(--radius-input)] border bg-white/[0.05] p-[13px_15px] text-[15px] text-ink placeholder:text-ink-50 transition-[border-color] duration-300 focus:border-accent focus:outline-none";
+  "w-full rounded-[var(--radius-input)] border bg-white/[0.05] p-[13px_15px] text-[16px] min-[900px]:text-[15px] text-ink placeholder:text-ink-50 transition-[border-color] duration-300 focus:border-accent focus:outline-none";
 
 const RADIO_SELECTED_CLASSES =
   "border-[color-mix(in_oklch,var(--color-accent)_55%,transparent)] bg-[color-mix(in_oklch,var(--color-accent)_16%,transparent)]";

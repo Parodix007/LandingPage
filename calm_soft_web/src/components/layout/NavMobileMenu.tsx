@@ -11,7 +11,7 @@ export type NavLink = { href: string; label: string };
 // Optional nested-menu config (SPEC: nav services restructure). When provided, "Usługi" renders
 // as a <button> in the main list instead of a plain link; clicking it swaps the panel to a
 // submenu view (back button + overview link + service links) instead of expanding an accordion.
-export type NavServiceMenu = {
+type NavServiceMenu = {
   label: string;
   backLabel: string;
   overviewHref: string;
@@ -91,7 +91,7 @@ export function NavMobileMenu({
   const navItemClass = `${PILL_FOCUS} w-full rounded-[var(--radius-input)] py-[14px] text-left text-[17px] text-ink-85 hover:text-white`;
 
   return (
-    <div ref={rootRef} className="md:hidden">
+    <div ref={rootRef} className="min-[800px]:hidden">
       <button
         ref={toggleRef}
         type="button"

@@ -1,7 +1,7 @@
 import { steps } from "@/content/steps";
 import { site } from "@/content/site";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Watermark } from "@/components/ui/Watermark";
+import { WATERMARK_MOBILE_PAD, Watermark } from "@/components/ui/Watermark";
 
 // HANDOFF §5, SPEC §6.6 — anchor target for nav/footer "/#process" links. Sticky-stack
 // (spec 2026-11-06 §4.4) replaced the old ProcessCarousel: server component now, zero JS,
@@ -26,14 +26,14 @@ export function Process() {
           {steps.map((s) => (
             <li
               key={s.number}
-              className="stack-item card-host relative grid min-h-[320px] grid-cols-1 gap-8 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-8 min-[900px]:grid-cols-[0.9fr_1.1fr] min-[900px]:gap-14 min-[900px]:p-16"
+              className={`stack-item card-host relative grid min-h-[320px] grid-cols-1 gap-8 overflow-hidden rounded-[var(--radius-card)] border border-border-08 bg-surface p-8 min-[900px]:grid-cols-[0.9fr_1.1fr] min-[900px]:gap-14 min-[900px]:p-16 ${WATERMARK_MOBILE_PAD}`}
             >
               {/* Decorative glow + watermark — purely presentational, hidden from AT. */}
               <span
                 aria-hidden="true"
                 className="card-glow -right-[160px] -top-[160px] h-[460px] w-[460px] [--glow-color:color-mix(in_oklch,var(--color-accent)_16%,transparent)]"
               />
-              <span className="absolute right-[34px] top-[28px]">
+              <span className="absolute right-[34px] top-[28px] max-[899px]:right-[26px]">
                 <Watermark />
               </span>
 

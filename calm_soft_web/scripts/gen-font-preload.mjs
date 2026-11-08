@@ -46,7 +46,7 @@ function collectHtmlFiles(dir, root, isDemo = false) {
   return found;
 }
 
-export function fontPreloadTag(name) {
+function fontPreloadTag(name) {
   const href = `/${MEDIA_REL.split(sep).join("/")}/${name}`;
   return `<link rel="preload" href="${href}" as="font" type="font/woff2" crossorigin />`;
 }
@@ -54,7 +54,7 @@ export function fontPreloadTag(name) {
 // Wstrzykuje tags do jednego HTML-a. Punkt wpięcia: bezpośrednio po OSTATNIM istniejącym
 // <link rel="preload"> w <head> (pliki CSS Preload Nexta), a gdy go brak — zaraz po <head>.
 // Zwraca true gdy plik zmieniono.
-export function injectIntoHtml(htmlPath, tags) {
+function injectIntoHtml(htmlPath, tags) {
   let html = readFileSync(htmlPath, "utf8");
   const missing = tags.filter((tag) => !html.includes(tag));
   if (missing.length === 0) return false;

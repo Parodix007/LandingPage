@@ -19,10 +19,13 @@ const TR_KEY = "cs-tr";
 // Kontrakt timingów (brief #9) — wartości są częścią umowy z recenzją, nie dopasowywać „na ucho".
 const NAVIGATE_AFTER_MS = 470;
 const CELL = 30;
+// Wąskie viewporth (telefon) dostają mniejszą kratkę — 30-px okna na telefonie są za duże.
+const CELL_NARROW = 22;
+const NARROW_VIEWPORT_PX = 900;
 const EXIT_SPREAD_MS = 150;
 const EXIT_RAMP_MS = 300;
-const LOGO_EXIT_CELL = 18;
-const LOGO_ENTER_CELL = 14;
+// Rampa wejścia ostrego bitmapy loga (brief #11): logo startuje po bazowym opóźnieniu tła
+// plus rozrzucie LOGO_SPREAD_MS i wjeżdża alfą 0→1 przez LOGO_RAMP_MS.
 const LOGO_SPREAD_MS = 100;
 const LOGO_RAMP_MS = 120;
 const ENTER_BASE_DELAY_MS = 70;
@@ -39,9 +42,21 @@ const ACCENT_RGB: Rgb = { r: 0x7c, g: 0xe3, b: 0x8b }; // = --color-accent (#7ce
 const CANVAS_RGB: Rgb = { r: 0, g: 0, b: 0 }; // = --color-canvas (#000)
 
 type Point = { x: number; y: number };
-type Cell = { x: number; y: number; base: Rgb; delay: number };
+type Cell = { x: number; y: number; size: number; base: Rgb; delay: number };
 type Rgb = { r: number; g: number; b: number };
-type Tile = { x: number; y: number; color: string; delay: number };
+
+// Rozmiar kratki zależy od szerokości viewporta w starcie tranzycji.
+export function resolveCellSize(innerW: number): number {
+  return innerW >= NARROW_VIEWPORT_PX ? CELL : CELL_NARROW;
+}
+
+// Rasteryzacja canvasa 1:1 z pikselami fizycznymi ekranu (prawdziwe dpr, bez klamry): bitmapa
+// 2x na ekranie 3x skalowana przez kompozytor 1.5x = dwuliniowe rozmycie CAŁEJ mozaiki (objaw
+// właściciela, telefon DPR3). Bitmapa tranzycji nigdy nie przekracza bufora frames urządzenia,
+// który GPU i tak kompozytuje dla samej strony, a tranzycja jest chwilowa (470/830 ms).
+export function resolveRasterRatio(rawDpr: number | undefined): number {
+  return rawDpr || 1;
+}
 
 export function qualifyTransitionHref(
   href: string | null,
@@ -185,22 +200,116 @@ function normalizedDistance(x: number, y: number, point: Point, innerW: number, 
   return Math.min(1, Math.hypot(dx, dy));
 }
 
-function buildGrid(innerW: number, innerH: number, delayFor: (cell: { x: number; y: number }) => number): Cell[] {
-  const cells: Cell[] = [];
-  for (let y = 0; y < innerH; y += CELL) {
-    for (let x = 0; x < innerW; x += CELL) {
-      const cell = { x, y };
-      cells.push({ ...cell, base: sampleBase(x + CELL / 2, y + CELL / 2), delay: delayFor(cell) });
-    }
+// Pozycje kratki pokrywające viewport od (0,0) krokiem `size` — ostatnia kolumna/wiersz wychodzą
+// poza krawędź (canvas przycina), dzięki temu bitmapa jest zamalowana bez luzu na prawej/dolnej krawędzi.
+// `growthAreas` z pustą listą zwraca pełną siatkę, więc `buildGrid` buduje się na tym samym kodzie.
+function growthAreas(cells: Cell[], innerW: number, innerH: number, size: number): Point[] {
+  // Przy zmianie viewporta (pasek adresu przeglądarki mobilnej, obrót urządzenia) w trakcie
+  // animacji dokładamy kratki TYLKO na nowo odkrytym pasie L — istniejące zachowują fizykę,
+  // opóźnienia i kolory, więc pomalowane już klatki nie migają przy przebudowie.
+  let coverW = 0;
+  let coverH = 0;
+  for (const cell of cells) {
+    coverW = Math.max(coverW, cell.x + cell.size);
+    coverH = Math.max(coverH, cell.y + cell.size);
   }
-  return cells;
+  const grown: Point[] = [];
+  for (let y = coverH; y < innerH; y += size) {
+    for (let x = 0; x < innerW; x += size) grown.push({ x, y });
+  }
+  for (let y = 0; y < coverH; y += size) {
+    for (let x = coverW; x < innerW; x += size) grown.push({ x, y });
+  }
+  return grown;
 }
 
-type LogoTiles = { tiles: Tile[] };
+function buildGrid(innerW: number, innerH: number, size: number, delayFor: (cell: Point) => number): Cell[] {
+  return growthAreas([], innerW, innerH, size).map((cell) => ({
+    ...cell,
+    size,
+    base: sampleBase(cell.x + size / 2, cell.y + size / 2),
+    delay: delayFor(cell),
+  }));
+}
 
-// Mozaika loga z PNG: kratka bierze kolor piksela, przezroczyste piksele (alfa ≤ progu) są
-// pomijane, więc logotyp zachowuje kształt zamiast prostokątnej planszy.
-function buildLogoTiles(img: HTMLImageElement, cell: number, innerW: number, innerH: number): LogoTiles | null {
+// Stan fizyki kratki wejścia: prędkość „od punktu" wejścia (brief §Wejście); gdy kratka leży
+// dokładnie w punkcie — fallback na kierunek rozrzutu.
+function makeEnterState(cell: Cell, point: Point, innerW: number, innerH: number, scatter: number) {
+  const angle = Math.random() * Math.PI * 2;
+  const speed = 18 + Math.random() * 47;
+  let dirX = cell.x + cell.size / 2 - point.x * innerW;
+  let dirY = cell.y + cell.size / 2 - point.y * innerH;
+  const len = Math.hypot(dirX, dirY);
+  if (len > 0.001) {
+    dirX /= len;
+    dirY /= len;
+  } else {
+    dirX = Math.cos(angle);
+    dirY = Math.sin(angle);
+  }
+  return {
+    cell,
+    offX: Math.cos(angle) * (0.3 + 0.6 * Math.random()) * scatter,
+    offY: Math.sin(angle) * (0.3 + 0.6 * Math.random()) * scatter,
+    rot: (Math.random() - 0.5) * Math.PI,
+    scale: 0.6 + 0.7 * Math.random(),
+    vx: dirX * speed,
+    vy: dirY * speed,
+  };
+}
+
+// Ciasny prostokąt tuszu: piksele z alfą > ALPHA_CUTOFF. PNG loga ma ogromny przezroczysty
+// margines (canvas 1600×400, tusz ~948×162) — cała geometria bitmapy loga liczy się od tego bboxa.
+export function logoInkBox(
+  data: Uint8ClampedArray,
+  naturalW: number,
+  naturalH: number,
+): { x: number; y: number; w: number; h: number } | null {
+  let minX = naturalW;
+  let minY = naturalH;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < naturalH; y += 1) {
+    for (let x = 0; x < naturalW; x += 1) {
+      if (data[(y * naturalW + x) * 4 + 3] > ALPHA_CUTOFF) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < minX || maxY < minY) return null; // brak tuszu — mozaika jest opcjonalna
+  return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+}
+
+// Metryka ostrego bitmapu loga (brief #11): render szerokości min(0.7 viewportu, naturalny tusz)
+// bez skalowania w górę, wysokość zachowuje proporcje tuszu. To JEDYNA geometria napisu — logo
+// nie jest już kwantyzowane na płytki, więc nie ma cell/cols/rows.
+export function logoGeometry(
+  innerW: number,
+  inkW: number,
+  inkH: number,
+): { renderW: number; renderH: number } {
+  const renderW = Math.min(innerW * 0.7, inkW);
+  const renderH = renderW * (inkH / inkW);
+  return { renderW, renderH };
+}
+
+// Wyrównanie do siatki pikseli urządzenia: pozycja pada na wielokrotność 1/dpr, inaczej krawędzie
+// rysunku antyaliasują (ułamkowy piksel urządzenia przy krawędzi bitmapy loga = widoczna rampa AA).
+export function snapToPixelGrid(value: number, dpr: number): number {
+  return Math.round(value * dpr) / dpr;
+}
+
+type LogoBitmap = { source: HTMLCanvasElement; x: number; y: number; w: number; h: number };
+
+// Przygotowanie ostrej bitmapy loga (brief #11): z PNG wycinamy SAM prostokąt tuszu (bbox alf >
+// ALPHA_CUTOFF — przezroczysty margines pliku nigdy nie trafia na ekran), a potem rysujemy go
+// JEDNYM drawImage z wygładzaniem na metryczne wymiary (logoGeometry), wyśrodkowany w viewporcie.
+// Pozycja snapped do siatki pikseli urządzenia (canvas 1:1 z pikselami fizycznymi,
+// resolveRasterRatio). Brak tuszu lub zablokowany canvas (CORS) → logo opcjonalne, tło działa.
+function prepareLogo(img: HTMLImageElement, innerW: number, innerH: number): LogoBitmap | null {
   const naturalW = img.naturalWidth;
   const naturalH = img.naturalHeight;
   if (!naturalW || !naturalH) return null;
@@ -214,35 +323,38 @@ function buildLogoTiles(img: HTMLImageElement, cell: number, innerW: number, inn
   try {
     data = offCtx.getImageData(0, 0, naturalW, naturalH).data;
   } catch {
-    return null; // canvas zablokowany (np. CORS) — mozaika jest opcjonalna
+    return null; // canvas zablokowany (np. CORS) — logo jest opcjonalne
   }
 
-  const width = Math.min(innerW * 0.7, naturalW);
-  const height = width * (naturalH / naturalW);
-  const x0 = (innerW - width) / 2;
-  const y0 = (innerH - height) / 2;
-  const scale = width / naturalW;
-  const cols = Math.max(1, Math.ceil(width / cell));
-  const rows = Math.max(1, Math.ceil(height / cell));
-  const tiles: Tile[] = [];
-  for (let row = 0; row < rows; row += 1) {
-    for (let col = 0; col < cols; col += 1) {
-      const px = (col + 0.5) * cell; // lokalnie względem lewej krawędzi mozaiki
-      const py = (row + 0.5) * cell;
-      const sx = Math.floor(px / scale); // mapa z powrotem na naturalne piksele PNG
-      const sy = Math.floor(py / scale);
-      if (sx < 0 || sy < 0 || sx >= naturalW || sy >= naturalH) continue;
-      const i = (sy * naturalW + sx) * 4;
-      if (data[i + 3] <= ALPHA_CUTOFF) continue;
-      tiles.push({
-        x: x0 + px,
-        y: y0 + py,
-        color: `rgb(${data[i]}, ${data[i + 1]}, ${data[i + 2]})`,
-        delay: (col / cols) * LOGO_SPREAD_MS,
-      });
-    }
-  }
-  return { tiles };
+  const ink = logoInkBox(data, naturalW, naturalH);
+  if (!ink) return null; // plik bez tuszu (np. uszkodzony) — logo jest opcjonalne
+  const cropped = document.createElement("canvas");
+  cropped.width = ink.w;
+  cropped.height = ink.h;
+  const cropCtx = cropped.getContext("2d");
+  if (!cropCtx) return null;
+  cropCtx.drawImage(off, ink.x, ink.y, ink.w, ink.h, 0, 0, ink.w, ink.h);
+
+  const geo = logoGeometry(innerW, ink.w, ink.h);
+  // Rastrowanie canvasa dzieje się przy prawdziwym dpr (jak makeCanvas) — siatka snappingu to
+  // siatka rasteryzacji, więc pozycja bitmapy wyrównana jest do pikseli urządzenia.
+  const rdpr = resolveRasterRatio(window.devicePixelRatio);
+  return {
+    source: cropped,
+    x: snapToPixelGrid((innerW - geo.renderW) / 2, rdpr),
+    y: snapToPixelGrid((innerH - geo.renderH) / 2, rdpr),
+    w: geo.renderW,
+    h: geo.renderH,
+  };
+}
+
+// Rysowanie ostrego loga: pełna rozdzielczość wyciętego tuszu skalowana wygładzaniem (high) —
+// zero piklowania i zero szwów siatki. Zawsze wywoływane PO kafelkach tła (zawsze czytelne).
+function drawLogo(ctx: CanvasRenderingContext2D, logo: LogoBitmap, alpha: number): void {
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(logo.source, logo.x, logo.y, logo.w, logo.h);
 }
 
 export function PageTransition() {
@@ -252,12 +364,40 @@ export function PageTransition() {
     let frame: number | null = null;
     let canvas: HTMLCanvasElement | null = null;
 
+    // Rebuild viewporta (fix: pasek adresu mobilnej przeglądarki / obrót urządzenia w trakcie
+    // animacji zostawiał niepomalowany pas ekranu): bitmapa canvasa i siatka liczone są w starcie,
+    // więc podczas aktywnej animacji muszą nadążać za oknem. Nasłuch istnieje TYLKO w trakcie
+    // trwania tranzycji — poza nią nic nie nasłuchuje.
+    let viewportListener: (() => void) | null = null;
+    function armRebuild(rebuild: () => void) {
+      disarmRebuild();
+      viewportListener = rebuild;
+      window.addEventListener("resize", viewportListener);
+      window.addEventListener("orientationchange", viewportListener);
+    }
+    function disarmRebuild() {
+      if (!viewportListener) return;
+      window.removeEventListener("resize", viewportListener);
+      window.removeEventListener("orientationchange", viewportListener);
+      viewportListener = null;
+    }
+
+    const fitCanvas = (ctx: CanvasRenderingContext2D) => {
+      // Ten sam schemat skalowania co w makeCanvas: bitmapa w pikselach urządzenia, transform
+      // mapuje na piksele CSS. Ustawienie width/height czyści bitmapę — następna klatka maluje ją w całości.
+      if (!canvas) return;
+      const dpr = resolveRasterRatio(window.devicePixelRatio);
+      canvas.width = Math.round(window.innerWidth * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
     const makeCanvas = (): CanvasRenderingContext2D | null => {
       const next = document.createElement("canvas");
       next.className = "tr-canvas";
       const innerW = window.innerWidth;
       const innerH = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = resolveRasterRatio(window.devicePixelRatio);
       next.width = Math.round(innerW * dpr);
       next.height = Math.round(innerH * dpr);
       document.body.appendChild(next);
@@ -269,6 +409,7 @@ export function PageTransition() {
     };
 
     const drop = () => {
+      disarmRebuild();
       if (frame !== null) {
         window.cancelAnimationFrame(frame);
         frame = null;
@@ -295,46 +436,49 @@ export function PageTransition() {
         // Awaryjnie: zero canvasa, kurtyna CSS zdjęta.
         root.classList.remove("tr-in");
       } else {
-        const innerW = window.innerWidth;
-        const innerH = window.innerHeight;
+        let innerW = window.innerWidth;
+        let innerH = window.innerHeight;
+        let cellSize = resolveCellSize(innerW);
         // Próbka tła PRZED wpięciem canvasa — elementy z `canvas.tr-canvas` są co prawda
         // pomijane w stosie, ale próbka przed wpięciem jest jednoznaczna.
-        const cells = buildGrid(innerW, innerH, (cell) =>
-          ENTER_BASE_DELAY_MS + normalizedDistance(cell.x + CELL / 2, cell.y + CELL / 2, point, innerW, innerH) * ENTER_EDGE_SPREAD_MS,
+        const cells = buildGrid(innerW, innerH, cellSize, (cell) =>
+          ENTER_BASE_DELAY_MS + normalizedDistance(cell.x + cellSize / 2, cell.y + cellSize / 2, point, innerW, innerH) * ENTER_EDGE_SPREAD_MS,
         );
         const ctx = makeCanvas();
         if (ctx) {
-          let logo: LogoTiles | null = null;
+          let logo: LogoBitmap | null = null;
           loadLogo((img) => {
-            logo = buildLogoTiles(img, LOGO_ENTER_CELL, innerW, innerH);
+            logo = prepareLogo(img, innerW, innerH);
           });
 
-          const scatter = Math.max(innerW, innerH);
-          const state = cells.map((cell) => {
-            const angle = Math.random() * Math.PI * 2;
-            const speed = 18 + Math.random() * 47;
-            // Kierunek prędkości „od punktu" wejścia (brief §Wejście); gdy kratka leży dokładnie
-            // w punkcie — fallback na kierunek rozrzutu.
-            let dirX = cell.x + CELL / 2 - point.x * innerW;
-            let dirY = cell.y + CELL / 2 - point.y * innerH;
-            const len = Math.hypot(dirX, dirY);
-            if (len > 0.001) {
-              dirX /= len;
-              dirY /= len;
-            } else {
-              dirX = Math.cos(angle);
-              dirY = Math.sin(angle);
+          let scatter = Math.max(innerW, innerH);
+          const state = cells.map((cell) => makeEnterState(cell, point, innerW, innerH, scatter));
+
+          const rebuild = () => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            if (w === innerW && h === innerH) return;
+            innerW = w;
+            innerH = h;
+            cellSize = resolveCellSize(w);
+            scatter = Math.max(innerW, innerH);
+            fitCanvas(ctx);
+            for (const pos of growthAreas(cells, innerW, innerH, cellSize)) {
+              const cell: Cell = {
+                x: pos.x,
+                y: pos.y,
+                size: cellSize,
+                base: sampleBase(pos.x + cellSize / 2, pos.y + cellSize / 2),
+                delay:
+                  ENTER_BASE_DELAY_MS +
+                  normalizedDistance(pos.x + cellSize / 2, pos.y + cellSize / 2, point, innerW, innerH) *
+                    ENTER_EDGE_SPREAD_MS,
+              };
+              cells.push(cell);
+              state.push(makeEnterState(cell, point, innerW, innerH, scatter));
             }
-            return {
-              cell,
-              offX: Math.cos(angle) * (0.3 + 0.6 * Math.random()) * scatter,
-              offY: Math.sin(angle) * (0.3 + 0.6 * Math.random()) * scatter,
-              rot: (Math.random() - 0.5) * Math.PI,
-              scale: 0.6 + 0.7 * Math.random(),
-              vx: dirX * speed,
-              vy: dirY * speed,
-            };
-          });
+          };
+          armRebuild(rebuild);
 
           let start = 0;
           let last = 0;
@@ -363,17 +507,15 @@ export function PageTransition() {
               ctx.translate(s.cell.x + s.offX * k, s.cell.y + s.offY * k);
               ctx.rotate(s.rot * k);
               ctx.scale(s.scale, s.scale);
-              ctx.fillRect(-CELL / 2, -CELL / 2, CELL, CELL);
+              ctx.fillRect(-s.cell.size / 2, -s.cell.size / 2, s.cell.size, s.cell.size);
               ctx.restore();
             }
             if (logo) {
-              for (const tile of logo.tiles) {
-                const p = (elapsed - (ENTER_BASE_DELAY_MS + tile.delay)) / ENTER_DURATION_MS;
-                if (p <= 0 || p >= 1) continue;
-                ctx.globalAlpha = p;
-                ctx.fillStyle = tile.color;
-                ctx.fillRect(tile.x, tile.y, LOGO_ENTER_CELL, LOGO_ENTER_CELL);
-              }
+              // Ostrzejsza warstwa (brief #11): JEDEN ostry bitmap po kaflach tła, rampa alfy
+              // 0→1 przez LOGO_RAMP_MS po bazowym opóźnieniu wejścia plus rozrzucie loga.
+              const p = (elapsed - (ENTER_BASE_DELAY_MS + LOGO_SPREAD_MS)) / LOGO_RAMP_MS;
+              const a = p < 0 ? 0 : p > 1 ? 1 : p;
+              if (a > 0) drawLogo(ctx, logo, a);
             }
             ctx.globalAlpha = 1;
             frame = window.requestAnimationFrame(step);
@@ -393,6 +535,7 @@ export function PageTransition() {
       if (event.persisted !== true) return;
       // Strona przywrócona z bfcache: żadnej animacji, sprzątamy martwy klucz i warstwy.
       clearStoredPoint();
+      disarmRebuild();
       // Pętla wyjścia nie ma warunku końcowego (dokument miał odejść) — po restorze rAF
       // wznawia klatki w nieskończoność, więc ramkę trzeba anulować tak jak w drop().
       if (frame !== null) {
@@ -439,10 +582,11 @@ export function PageTransition() {
       event.preventDefault();
       navigating = true;
 
-      const innerW = window.innerWidth;
-      const innerH = window.innerHeight;
-      const cells = buildGrid(innerW, innerH, (cell) =>
-        normalizedDistance(cell.x + CELL / 2, cell.y + CELL / 2, point, innerW, innerH) * EXIT_SPREAD_MS,
+      let innerW = window.innerWidth;
+      let innerH = window.innerHeight;
+      let cellSize = resolveCellSize(innerW);
+      const cells = buildGrid(innerW, innerH, cellSize, (cell) =>
+        normalizedDistance(cell.x + cellSize / 2, cell.y + cellSize / 2, point, innerW, innerH) * EXIT_SPREAD_MS,
       );
       const ctx = makeCanvas();
       if (!ctx) {
@@ -452,10 +596,32 @@ export function PageTransition() {
         return;
       }
 
-      let logo: LogoTiles | null = null;
+      let logo: LogoBitmap | null = null;
       loadLogo((img) => {
-        logo = buildLogoTiles(img, LOGO_EXIT_CELL, innerW, innerH);
+        logo = prepareLogo(img, innerW, innerH);
       });
+
+      const rebuild = () => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        if (w === innerW && h === innerH) return;
+        innerW = w;
+        innerH = h;
+        cellSize = resolveCellSize(w);
+        fitCanvas(ctx);
+        for (const pos of growthAreas(cells, innerW, innerH, cellSize)) {
+          cells.push({
+            x: pos.x,
+            y: pos.y,
+            size: cellSize,
+            base: sampleBase(pos.x + cellSize / 2, pos.y + cellSize / 2),
+            delay:
+              normalizedDistance(pos.x + cellSize / 2, pos.y + cellSize / 2, point, innerW, innerH) *
+              EXIT_SPREAD_MS,
+          });
+        }
+      };
+      armRebuild(rebuild);
 
       let start = 0;
       const step = (now: number) => {
@@ -467,28 +633,28 @@ export function PageTransition() {
           const p = (elapsed - cell.delay) / EXIT_RAMP_MS;
           const t = p < 0 ? 0 : p > 1 ? 1 : p;
           ctx.fillStyle = colorOf(lerpToBase(cell.base, CANVAS_RGB, t));
-          ctx.fillRect(cell.x, cell.y, CELL, CELL);
+          ctx.fillRect(cell.x, cell.y, cell.size, cell.size);
         }
         if (logo) {
-          for (const tile of logo.tiles) {
-            const p = (elapsed - (LOGO_SPREAD_MS + tile.delay)) / LOGO_RAMP_MS;
-            const a = p < 0 ? 0 : p > 1 ? 1 : p;
-            if (a === 0) continue;
-            ctx.globalAlpha = a;
-            ctx.fillStyle = tile.color;
-            ctx.fillRect(tile.x, tile.y, LOGO_EXIT_CELL, LOGO_EXIT_CELL);
-          }
+          // Napis jest rysowany PO rozpadającym się tle z pełną alfą — w każdej klatce czytelny
+          // (brief #11: ostry bitmap zamiast siatki płytek).
+          drawLogo(ctx, logo, 1);
         }
         frame = window.requestAnimationFrame(step);
       };
       start = performance.now();
       frame = window.requestAnimationFrame(step);
-      window.setTimeout(() => window.location.assign(href), NAVIGATE_AFTER_MS);
+      window.setTimeout(() => {
+        // Nawigacja odsłania nowy dokument — nasłuch viewportu nie może przeżyć tranzycji.
+        disarmRebuild();
+        window.location.assign(href);
+      }, NAVIGATE_AFTER_MS);
       // Canvas wychodzącej strony zostaje w DOM — dokument i tak odchodzi.
     };
     document.addEventListener("click", onClick);
 
     return () => {
+      disarmRebuild();
       window.removeEventListener("pageshow", onPageShow);
       document.removeEventListener("click", onClick);
       if (frame !== null) {

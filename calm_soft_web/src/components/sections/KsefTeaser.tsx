@@ -2,7 +2,7 @@ import { ksef } from "@/content/ksef";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FilledPill } from "@/components/ui/FilledPill";
 import { GhostPill } from "@/components/ui/GhostPill";
-import { Watermark } from "@/components/ui/Watermark";
+import { WATERMARK_MOBILE_PAD, Watermark } from "@/components/ui/Watermark";
 import { RichText } from "@/components/ui/RichText";
 import { HOVER_LIFT } from "@/components/ui/cardHover";
 
@@ -42,7 +42,7 @@ export function KsefTeaser() {
           {erps.map((erp) => (
             <li
               key={erp.slug}
-              className={`card-host relative overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-6 ${HOVER_LIFT}`}
+              className={`card-host relative overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-6 ${HOVER_LIFT} ${WATERMARK_MOBILE_PAD}`}
             >
               <span
                 aria-hidden="true"

@@ -9,7 +9,7 @@ import { InquiryProvider } from "@/components/providers/InquiryProvider";
 import { ModalProvider } from "@/components/providers/ModalProvider";
 import { Chip } from "@/components/ui/Chip";
 import { RichText } from "@/components/ui/RichText";
-import { Watermark } from "@/components/ui/Watermark";
+import { WATERMARK_MOBILE_PAD, Watermark } from "@/components/ui/Watermark";
 import { CardActions } from "@/components/interactive/CardActions";
 import { HOVER_LIFT } from "@/components/ui/cardHover";
 import { TONE_CHIP } from "@/components/ui/chipTone";
@@ -85,7 +85,7 @@ function CaseCard({ c }: { c: CaseStudy }) {
   return (
     <div
       data-glow
-      className={`stack-item card-host service-card flex flex-col gap-3 p-7 ${HOVER_LIFT}`}
+      className={`stack-item card-host service-card flex flex-col gap-3 p-7 ${HOVER_LIFT} ${WATERMARK_MOBILE_PAD}`}
     >
       {/* Decorative glow + mono watermark — purely presentational, hidden from AT. */}
       <span
@@ -161,7 +161,7 @@ export default async function ServicePage({
           className="reveal-group mx-auto max-w-[1200px] px-6 py-[72px] min-[900px]:py-[110px]"
         >
           <header className="service-hero mb-4" data-glow data-tilt>
-            <div className="relative z-10 max-w-[700px]">
+            <div className={`relative z-10 max-w-[700px] ${WATERMARK_MOBILE_PAD}`}>
               <Chip tone={TONE_CHIP[service.tone]}>{service.tag}</Chip>
               <h1 className="mt-4 text-[clamp(36px,4.5vw,56px)] font-bold leading-[1.05] tracking-[-0.025em]">
                 {service.pageH1}

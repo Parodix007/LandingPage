@@ -3,7 +3,7 @@ import { serviceSales, type SalesGroup, type ServiceSalesPage as SalesPage } fro
 import type { ServiceArt } from "@/content/types";
 import { site } from "@/content/site";
 import { Chip } from "@/components/ui/Chip";
-import { Watermark } from "@/components/ui/Watermark";
+import { WATERMARK_MOBILE_PAD, Watermark } from "@/components/ui/Watermark";
 import { CheckIcon } from "@/components/ui/icons";
 import { FilledPill } from "@/components/ui/FilledPill";
 import { GhostPill } from "@/components/ui/GhostPill";
@@ -37,9 +37,9 @@ function Group({ group, contactHref }: { group: SalesGroup; contactHref: string 
             <li key={bullet} data-glow className={`stack-item service-card p-5 ${HOVER_BORDER}`}>
               <CardGlow />
               <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[26px] top-6"><Watermark /></span>
-              <div className="relative z-[1] flex items-start gap-3 min-[900px]:pr-[140px]">
+              <div className={`relative z-[1] flex items-start gap-3 min-[900px]:pr-[140px] ${WATERMARK_MOBILE_PAD}`}>
                 <CheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
-                <span className="min-w-0"><RichText>{bullet}</RichText></span>
+                <span className="min-w-0 max-[899px]:wrap-anywhere"><RichText>{bullet}</RichText></span>
               </div>
             </li>
           ))}
@@ -49,9 +49,9 @@ function Group({ group, contactHref }: { group: SalesGroup; contactHref: string 
           {(group.items ?? []).map((item) => (
             <article key={item.title} data-glow className={`stack-item service-card grid grid-cols-1 gap-6 p-6 min-[900px]:grid-cols-[0.8fr_1.2fr] min-[900px]:items-center min-[900px]:gap-12 min-[900px]:p-[44px_48px] ${HOVER_BORDER}`}>
               <CardGlow />
-              <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[34px] top-7"><Watermark /></span>
-              <h3 className="relative z-[1] text-[22px] font-bold leading-[1.15] tracking-[-0.02em]">{item.title}</h3>
-              <p className="relative z-[1] whitespace-pre-line text-[16px] leading-[1.6] text-ink-70 min-[900px]:pr-[140px]"><RichText>{item.body}</RichText></p>
+              <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[34px] top-7 max-[899px]:right-[26px]"><Watermark /></span>
+              <h3 className={`relative z-[1] text-[22px] font-bold leading-[1.15] tracking-[-0.02em] max-[899px]:wrap-anywhere ${WATERMARK_MOBILE_PAD}`}>{item.title}</h3>
+              <p className={`relative z-[1] whitespace-pre-line text-[16px] leading-[1.6] text-ink-70 min-[900px]:pr-[140px] ${WATERMARK_MOBILE_PAD}`}><RichText>{item.body}</RichText></p>
             </article>
           ))}
         </div>
@@ -78,7 +78,7 @@ function Proof({ page }: { page: SalesPage }) {
           <article key={item.slug} data-glow className={`stack-item card-host service-card flex flex-col gap-3 p-7 ${HOVER_LIFT}`}>
             <CardGlow />
             <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[26px] top-6"><Watermark /></span>
-            <div className="z-[1] flex flex-col gap-3">
+            <div className={`z-[1] flex flex-col gap-3 ${WATERMARK_MOBILE_PAD}`}>
               <Chip tone="accent">{item.tag}</Chip>
               <h3 className="text-[16px] font-semibold">{item.headline}</h3>
               <p className="text-[15px] leading-[1.5] text-ink-70">{item.teaser}</p>
@@ -104,9 +104,9 @@ function Process({ page }: { page: SalesPage }) {
       <h2 className="text-[26px] font-bold">{page.process.title}</h2>
       <ol className="mt-6 flex flex-col gap-4">
         {page.process.steps.map((step, i) => (
-          <li key={step.title} data-glow className={`stack-item service-card grid grid-cols-[auto_1fr] gap-x-5 p-6 min-[900px]:gap-x-10 min-[900px]:p-[44px_48px] ${HOVER_BORDER}`}>
+          <li key={step.title} data-glow className={`stack-item service-card grid grid-cols-1 gap-x-5 gap-y-4 p-6 min-[900px]:grid-cols-[auto_1fr] min-[900px]:gap-x-10 min-[900px]:p-[44px_48px] ${HOVER_BORDER}`}>
             <CardGlow />
-            <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[34px] top-7"><Watermark /></span>
+            <span aria-hidden="true" className="service-card-watermark pointer-events-none absolute right-[34px] top-7 max-[899px]:right-[26px]"><Watermark /></span>
             <span className="relative z-[1] text-[52px] font-bold leading-none tracking-[-0.03em] text-accent">0{i + 1}</span>
             <div className="relative z-[1]">
               <h3 className="text-[22px] font-bold leading-[1.15] tracking-[-0.02em] min-[900px]:pr-[140px]">{step.title}</h3>
@@ -168,7 +168,7 @@ export function ServiceSalesPage({ page, art }: { page: SalesPage; art: ServiceA
   return <>
     <main data-background-family="services" className="mx-auto max-w-[1200px] px-6 py-5 min-[900px]:py-[110px]">
       <header className="service-hero service-sales-hero !p-4 min-[900px]:!px-10 min-[900px]:!py-12" data-glow data-tilt>
-        <div className="relative z-10 flex max-w-[720px] flex-col">
+        <div className={`relative z-10 flex max-w-[720px] flex-col ${WATERMARK_MOBILE_PAD}`}>
           <Chip tone="accent">{page.hero.eyebrow}</Chip>
           <h1 className="mt-2 text-[30px] font-bold leading-[1.08] tracking-[-0.025em] min-[900px]:mt-4 min-[900px]:text-[clamp(36px,4.5vw,56px)] min-[900px]:leading-[1.05]">{page.hero.h1}</h1>
           <p className="mt-3 text-[16px] leading-[1.4] text-ink-70 min-[900px]:mt-4 min-[900px]:text-[18px] min-[900px]:leading-[1.55]">{page.hero.lead}</p>

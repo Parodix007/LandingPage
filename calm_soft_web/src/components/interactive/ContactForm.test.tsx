@@ -331,6 +331,20 @@ describe("ContactForm step 1 (SPEC §8, §14.2)", () => {
     expect(screen.queryByText(form.submitError)).not.toBeInTheDocument();
   });
 
+  // iOS Safari auto-zooms the viewport on focus of text inputs with font-size < 16px and does
+  // not zoom back out (the page "runs away" after tapping #contact). All text fields must be
+  // 16px below 900px; desktop (≥900px) keeps 15px.
+  it("uses 16px text on mobile viewports (15px only from 900px up) on its text fields", () => {
+    renderForm();
+
+    for (const label of [form.fields.name, form.fields.email, form.fields.message]) {
+      const input = screen.getByLabelText(label);
+      expect(input.className).toContain("text-[16px]");
+      expect(input.className).toContain("min-[900px]:text-[15px]");
+      expect(input.className).not.toMatch(/(^|\s)text-\[15px\](\s|$)/);
+    }
+  });
+
   it("guards against double submit — two rapid clicks while pending send exactly one request", async () => {
     let resolveFn: (() => void) | undefined;
     vi.mocked(submitWithRetry).mockImplementation(

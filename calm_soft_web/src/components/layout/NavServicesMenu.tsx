@@ -67,7 +67,7 @@ export function NavServicesMenu({
       // bottom of this 23px-tall button — mirrors NavMobileMenu's documented "panel resolves
       // against the sticky header" anchoring. Without it the panel's top lands mid-header
       // (the button is vertically centered inside the 65px bar) and overlaps it.
-      className="relative hidden h-16 items-center md:flex"
+      className="relative hidden h-16 items-center min-[800px]:flex"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       onBlur={onBlur}

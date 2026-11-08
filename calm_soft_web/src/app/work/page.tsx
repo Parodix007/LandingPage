@@ -5,7 +5,7 @@ import { site } from "@/content/site";
 import { InquiryProvider } from "@/components/providers/InquiryProvider";
 import { ModalProvider } from "@/components/providers/ModalProvider";
 import { Chip } from "@/components/ui/Chip";
-import { Watermark } from "@/components/ui/Watermark";
+import { WATERMARK_MOBILE_PAD, Watermark } from "@/components/ui/Watermark";
 import { GhostPill } from "@/components/ui/GhostPill";
 import { CardActions } from "@/components/interactive/CardActions";
 import { CalendlyCta } from "@/components/interactive/CalendlyCta";
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 function CaseCard({ c }: { c: CaseStudy }) {
   return (
     <div
-      className={`card-host relative flex flex-col gap-3 overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-7 ${HOVER_LIFT}`}
+      className={`card-host relative flex flex-col gap-3 overflow-hidden rounded-[var(--radius-grid-card)] border border-border-08 bg-surface p-7 ${HOVER_LIFT} ${WATERMARK_MOBILE_PAD}`}
     >
       {/* Decorative glow + mono watermark — purely presentational, hidden from AT. */}
       <span

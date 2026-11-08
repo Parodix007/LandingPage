@@ -2,7 +2,7 @@
 
 import type { CaseStudy } from "@/content/types";
 import { site } from "@/content/site";
-import { Watermark } from "@/components/ui/Watermark";
+import { WATERMARK_MOBILE_PAD, Watermark } from "@/components/ui/Watermark";
 import { Chip } from "@/components/ui/Chip";
 import { TONE_CHIP } from "@/components/ui/chipTone";
 import { PILL_FOCUS } from "@/components/ui/pillBase";
@@ -92,7 +92,7 @@ export function HeroCaseSlider({ cases, label, readCaseLabel }: HeroCaseSliderPr
                 aria-hidden={active ? undefined : true}
                 data-glow
                 data-tilt
-                className="card-host relative flex flex-[0_0_100%] flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] border border-border-10 bg-surface p-8"
+                className={`card-host relative flex flex-[0_0_100%] flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] border border-border-10 bg-surface p-8 ${WATERMARK_MOBILE_PAD}`}
               >
                 {/* Decorative glow + watermark — purely presentational, hidden from AT. */}
                 <span

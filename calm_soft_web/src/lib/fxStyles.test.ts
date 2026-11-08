@@ -135,6 +135,10 @@ describe("tranzycja strony (brief #9)", () => {
     expect(css).toMatch(/\.tr-canvas\s*{[^}]*position: fixed/);
     expect(css).toMatch(/\.tr-canvas\s*{[^}]*z-index: 101/);
   });
+  it("canvas tranzycji ma box rozciągnięty na viewport (fix DPR: canvas replaced nie jest rozciągany przez inset:0)", () => {
+    expect(css).toMatch(/\.tr-canvas\s*{[^}]*width: 100%/);
+    expect(css).toMatch(/\.tr-canvas\s*{[^}]*height: 100%/);
+  });
   it("killswitch reduce chowa kurtynę i canvas", () => {
     const block = css.match(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/);
     expect(block?.[1]).toContain("html.tr-in body::before");
